@@ -1,2 +1,2 @@
-# php-tailwind-dashboard-template
-A PHP Tailwind template dashboard that has authentication and DB connection
+# Future DevOps Portal
+Initial purpose - Content-Security-Policy report endpoint + management
