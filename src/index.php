@@ -1,46 +1,46 @@
 <?php
 require_once dirname($_SERVER['DOCUMENT_ROOT']) . '/autoload.php';
+require_once dirname($_SERVER['DOCUMENT_ROOT']) . '/vendor/autoload.php';
 
-use \Response\Router;
-use \App\Init;
+/*
+    Activate Firewall
+*/
 use \Security\Firewall;
 
 Firewall::activate();
 
-$router = new Router();
 
-$menuArray = [
-    'Users' => [
-        'icon' => [
-            'type' => 'svg',
-            'src' => '<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                <rect x="10" y="9" width="4" height="12" rx="1.105" />
-                <rect x="17" y="3" width="4" height="18" rx="1.105" />
-                <circle cx="5" cy="19" r="2" />',
-        ],
-        'link' => '/users/123',
-    ]
-];
+/*
+    Perform login check
+*/
 
-// Add routes
-$router->addRoute('GET', '/', function () use($menuArray) {
-    $page = new Init;
-    echo $page->build('Home', 'main.php', $menuArray, COLOR_SCHEME, 'Demo', true);
-});
+use App\RequireLogin;
 
-$router->addRoute('GET', '/users/{id}', function ($params) use ($menuArray) {
-    $userId = $params['id'];
-    $filePath = 'user.php';
-    $page = new Init();
-    echo $page->build('User ' . $userId,$filePath, $menuArray, COLOR_SCHEME, 'Demo', true);
-});
+$loginInfoArray = RequireLogin::check();
 
-$router->addRoute('POST', '/csp-report', function () {
-    include_once dirname($_SERVER['DOCUMENT_ROOT']) . '/templates/csp-report.php';
-});
 
-// Handle the request
+/*
+    Start Router
+*/
+
+use \Core\Router;
+
+$router = new Router($loginInfoArray);
+
+require_once dirname($_SERVER['DOCUMENT_ROOT']) . '/templates/routes.php';
+
+$uri = parse_url($_SERVER['REQUEST_URI'])['path'];
+
 $method = $_SERVER['REQUEST_METHOD'];
-$uri = $_SERVER['REQUEST_URI'];
 
-$router->handleRequest($method, $uri);
+$router->route($uri, $method, $loginInfoArray);
+
+
+/*
+use \Request\NativeHttp;
+
+$request = new NativeHttp;
+
+$request->get($url);
+
+*/

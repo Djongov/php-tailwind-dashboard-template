@@ -1010,12 +1010,11 @@ class Init
         $html .= '</head>' . PHP_EOL;
         return $html;
     }
-    private function body($title, $menuArray, $theme, $username, $isAdmin) {
+    private function body() {
         $html = <<< HTML
         <body class="antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-400">
             <div class="md:mx-auto bg-gray-200 dark:bg-gray-800">
         HTML;
-        $html .= Init::menuBuilder($menuArray, $theme, $username, $isAdmin);
         return $html;
     }
     private function menuBuilder($array, $theme, $username, $isAdmin) {
@@ -1024,7 +1023,9 @@ class Init
         $html .= '<div class="flex flex-wrap justify-center">';
         // Logo + href to homepage
         $html .= '<a href="/" class="flex items-center">
-                <svg class="m-2 h-16 w-16 text-' . $theme . '-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"></path>  <circle cx="12" cy="13" r="2"></circle>  <line x1="13.45" y1="11.55" x2="15.5" y2="9.5"></line>  <path d="M6.4 20a9 9 0 1 1 11.2 0Z"></path></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 mx-2 text-' . $theme . '-500">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
+                </svg>
             </a>';
         // Button for mobile menu sandwich
         $html .= '<button data-collapse-toggle="mobile-menu" type="button" class="inline-flex justify-center items-center ml-6 text-gray-400 rounded-lg md:hidden hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-' . $theme . '-300 dark:text-gray-400 dark:hover:text-white dark:focus:ring-gray-500" aria-controls="mobile-menu-2" aria-expanded="false">
@@ -1035,6 +1036,9 @@ class Init
         $html .= '<div class="hidden w-full md:block md:w-auto" id="mobile-menu">';
         $html .= '<ul class="mx-auto flex md:flex-row flex-col flex-wrap justify-center items-center p-4 mt-4 bg-gray-200 rounded-lg border border-gray-100 md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">';
         $uniqueIdCounter = 0;
+        if ($username === null) {
+            return;
+        }
         foreach ($array as $name => $value) {
             // Mechanism to skip entries that should be under login only
             if (isset($value['require_login'])) {
@@ -1127,27 +1131,12 @@ class Init
                 <!-- Dropdown menu -->
                 <div id="userAvatarDropDownNavBar" class="z-10 w-44 font-normal bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 block hidden" data-popper-reference-hidden="" data-popper-escaped="" data-popper-placement="bottom" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate3d(381px, 66px, 0px);">
                     <ul class="py-1 text-sm text-gray-700 dark:text-gray-400" aria-labelledby="dropdownLargeButton">';
-            $html .= '<li>
-                            <a href="/dashboard/" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Dashboard</a>
-                        </li>';
-            $html .= '<li>
-                            <a href="/organization/" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Organization</a>
-                        </li>';
-            if ($isAdmin) {
-                $html .= '<li>
-                                <a href="/adminx/" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Admin Center</a>
-                            </li>';
-            }
-            $html .= '<li>
-                            <a href="/user-settings" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">User Settings</a>
-                        </li>';
-            $html .= '<li>
-                            <a href="/dashboard/deployment-center" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Deployment Center</a>
-                        </li>';
-            $html .= '<li>
-                            <a href="/logout" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Logout</a>
-                        </li>';
-            $html .= '</ul>
+                        foreach (USERNAME_DROPDOWN_MENU as $name => $link) {
+                            $html .= '<li>';
+                                $html .= '<a href="' . $link . '" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">' . $name . '</a>';
+                            $html .= '</li>';
+                            }
+                    $html .= '</ul>
                 </div>
             </div>';
         } else {
@@ -1158,16 +1147,40 @@ class Init
         $html .= '<hr class="border-gray-200 sm:mx-auto dark:border-gray-700">';
         return $html;
     }
+    private function insertController($filePath, $usernameArray, $username, $loggedIn, $isAdmin, $theme)
+    {
+        ob_start(); // Start output buffering
+
+        // Include the file
+        include_once dirname($_SERVER['DOCUMENT_ROOT']) . '/templates/' . $filePath;
+
+        $content = ob_get_clean(); // Capture the output and clear the buffer
+        return $content;
+    }
+
     private function footer() {
         $html = '';
         $html .= self::getFileContent('footer.php');
         return $html;
     }
-    public function build($title, $filePath, $menuArray, $theme, $username, $isAdmin) {
+    public function build($title, $filePath, $menuArray, $loginInfoArray) {
+
+        $usernameArray = $loginInfoArray['usernameArray'];
+
+        $username = $usernameArray['username'] ?? null;
+
+        $theme = $usernameArray['theme'] ?? COLOR_SCHEME;
+
+        $loggedIn = $loginInfoArray['loggedIn'];
+
+        $isAdmin = $loginInfoArray['isAdmin'];
+
         $html = '';
         $html .= Init::head($title);
-        $html .= Init::body($title, $menuArray, $theme, $username, $isAdmin);
-        $html .= self::getFileContent($filePath);
+        $html .= Init::body();
+        $html .= Init::menuBuilder($menuArray, $theme, $username, $isAdmin);
+        $html .= init::insertController($filePath, $usernameArray, $username, $loggedIn, $isAdmin, $theme);
+        //$html .= self::getFileContent($filePath);
         $html .= Init::footer();
         return $html;
     }

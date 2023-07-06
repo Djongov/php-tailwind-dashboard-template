@@ -1,10 +1,24 @@
 <?php
 
-echo '<p><a class="underline text-red-500" href="/users/123">Users</a></p>';
-
 use \Template\SimpleDataGrid;
 
 use \Database\DB;
+
+/*
+$url = 'http://ip-api.com/json/';
+
+use \Request\Http;
+
+$newRequest = new Http;
+
+var_dump($newRequest->get($url, false, true));
+*/
+
+var_dump($usernameArray);
+
+if (isset($_COOKIE['auth_cookie'])) {
+    echo $_COOKIE['auth_cookie'];
+}
 
 $cspReports = DB::query("SELECT * FROM `csp_reports`");
 

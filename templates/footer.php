@@ -3,8 +3,10 @@
     <div class="md:flex md:justify-between">
         <div class="mb-6 md:mb-0">
             <a href="/" class="flex items-center">
-                <img src="<?=LOGO?>" class="mr-3 h-8" alt="Logo" width="33" height="33" />
-                <span class="self-center text-lg font-semibold whitespace-nowrap dark:text-white"><?=SITE_TITLE?></span>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mx-2 <?='text-' . COLOR_SCHEME . '-500'?>">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
+                </svg>
+                <span class="self-center text-lg font-semibold whitespace-nowrap dark:text-white"><?= SITE_TITLE ?></span>
             </a>
         </div>
         <div class="grid grid-cols-3 gap-8 sm:gap-6 sm:grid-cols-4">
@@ -55,7 +57,7 @@
         </div>
     </div>
     <div class="sm:my-2 md:my-4 my-6 dark:text-gray-400 text-gray-500 text-sm ">
-        <span class="sm:text-center">© <?= date("Y") ?> <a href="https://www.sunwellsolutions.com" class="underline" target="_blank"><?=SITE_TITLE?></a>. All Rights Reserved.</span>
+        <span class="sm:text-center">© <?= date("Y") ?> <a href="https://www.sunwellsolutions.com" class="underline" target="_blank"><?= SITE_TITLE ?></a>. All Rights Reserved.</span>
         <?php
         if (!isset($client_ip)) {
             $client_ip = (isset($_SERVER['HTTP_CF_CONNECTING_IP'])) ? $_SERVER['HTTP_CF_CONNECTING_IP'] : $_SERVER['REMOTE_ADDR'];
@@ -101,4 +103,5 @@
     </svg>
 </button>
 </body>
+
 </html>
