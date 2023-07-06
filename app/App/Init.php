@@ -1158,10 +1158,14 @@ class Init
         return $content;
     }
 
-    private function footer() {
-        $html = '';
-        $html .= self::getFileContent('footer.php');
-        return $html;
+    private function footer($username, $theme) {
+        ob_start(); // Start output buffering
+
+        // Include the file
+        include_once dirname($_SERVER['DOCUMENT_ROOT']) . '/templates/' . 'footer.php';
+
+        $content = ob_get_clean(); // Capture the output and clear the buffer
+        return $content;
     }
     public function build($title, $filePath, $menuArray, $loginInfoArray) {
 
@@ -1181,7 +1185,7 @@ class Init
         $html .= Init::menuBuilder($menuArray, $theme, $username, $isAdmin);
         $html .= init::insertController($filePath, $usernameArray, $username, $loggedIn, $isAdmin, $theme);
         //$html .= self::getFileContent($filePath);
-        $html .= Init::footer();
+        $html .= Init::footer($username, $theme);
         return $html;
     }
     public static function getFileContent($filePath) {
