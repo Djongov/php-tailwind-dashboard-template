@@ -10,8 +10,12 @@ class SimpleDataGrid
         //var_dump($data);
         $html = '';
         $tableId = uniqid();
+        $columnArray = [];
         foreach ($data as $name => $value) {
             $columnArray = array_unique(array_keys($value));
+        }
+        if (empty($columnArray)) {
+            return '<p class="m-6 my-2">No records</p>';
         }
         $html .= '<div class="m-6 overflow-x-auto relative shadow-md sm:rounded-lg max-h-[44rem]">';
             $html .= '<table id="' . $tableId . '" class="bg-gray-100 dark:bg-gray-800 w-full p-8 text-gray-700 dark:text-gray-400 border-collapse border border-slate-400 text-center">';

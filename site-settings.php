@@ -88,7 +88,8 @@ if (getenv('WEBSITE_AUTH_CLIENT_ID')) {
     // This is how we form the redirect URL. Note that https:// is hardcoded, which is fine as app registrations do not allow for http:// unless it's http://localhost.
     define('Redirect_URI', $protocol . '://' . $_SERVER['HTTP_HOST'] . '/auth-verify');
     // Let's build the oauth URL which includes the tenant. This is where we will be sending the request to login
-    define('OAUTHURL', 'https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize?');
+    //define('OAUTHURL', 'https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize?');
+    define('OAUTHURL', 'https://login.microsoftonline.com/' . Tenant_ID . '/oauth2/v2.0/authorize?');
 
     $destination = (isset($_GET['destination'])) ? $_GET['destination'] : $_SERVER['REQUEST_URI'];
     $data = [

@@ -14,15 +14,9 @@ $newRequest = new Http;
 var_dump($newRequest->get($url, false, true));
 */
 
-var_dump($usernameArray);
-
-if (isset($_COOKIE['auth_cookie'])) {
-    echo $_COOKIE['auth_cookie'];
-}
-
 $cspReports = DB::query("SELECT * FROM `csp_reports`");
 
-$approvedDomains = DB::query("SELECT * FROM `gtt_credentials`");
+$approvedDomains = DB::query("SELECT * FROM `firewall`");
 
 $cspPolicies = DB::query("SELECT * FROM `users`");
 

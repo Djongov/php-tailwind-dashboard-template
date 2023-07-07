@@ -10,7 +10,7 @@ class Init
         // Import file with cookie settings, html start, scripts
         $html = '';
         $html .= '<!DOCTYPE html>' . PHP_EOL;
-        $html .= '<html lang="en">' . PHP_EOL;
+        $html .= '<html lang="en" class="h-full">' . PHP_EOL;
         $html .= '<head>' . PHP_EOL;
         $html .=  PHP_EOL . '<title>' . $title . ' - ' . SITE_TITLE . '</title>' . PHP_EOL;
         $html .= '<link rel="icon" type="image/x-icon" href="/assets/images/icon.png" >' . PHP_EOL;
@@ -1012,7 +1012,7 @@ class Init
     }
     private function body() {
         $html = <<< HTML
-        <body class="antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-400">
+        <body class="h-full antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-400">
             <div class="md:mx-auto bg-gray-200 dark:bg-gray-800">
         HTML;
         return $html;
@@ -1117,7 +1117,7 @@ class Init
             $html .= '<div class="flex md:order-2">
                 <div class="flex items-center justify-between ml-2">
                     <div class="flex items-center">
-                        <svg class="ml-1 w-14 h-14 stroke-' . $theme . '-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5">
+                        <svg class="ml-1 w-12 h-12 stroke-' . $theme . '-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                         <button id="dropdownNavbarLink2" data-dropdown-toggle="userAvatarDropDownNavBar" class="ml-1 flex justify-between items-center py-2 pr-4 pl-3 w-full font-medium hover:bg-' . $theme . '-500 rounded hover:text-gray-100 truncate max-w-sm cursor-pointer">
@@ -1152,7 +1152,7 @@ class Init
         ob_start(); // Start output buffering
 
         // Include the file
-        include_once dirname($_SERVER['DOCUMENT_ROOT']) . '/templates/' . $filePath;
+        include_once dirname($_SERVER['DOCUMENT_ROOT']) . '/Views/' . $filePath;
 
         $content = ob_get_clean(); // Capture the output and clear the buffer
         return $content;
@@ -1162,7 +1162,7 @@ class Init
         ob_start(); // Start output buffering
 
         // Include the file
-        include_once dirname($_SERVER['DOCUMENT_ROOT']) . '/templates/' . 'footer.php';
+        include_once dirname($_SERVER['DOCUMENT_ROOT']) . '/Views/' . 'footer.php';
 
         $content = ob_get_clean(); // Capture the output and clear the buffer
         return $content;
@@ -1190,7 +1190,7 @@ class Init
     }
     public static function getFileContent($filePath) {
         ob_start(); // Start output buffering
-        include_once dirname($_SERVER['DOCUMENT_ROOT']) . '/templates/' . $filePath;
+        include_once dirname($_SERVER['DOCUMENT_ROOT']) . '/Views/' . $filePath;
         $content = ob_get_clean(); // Capture the output buffer and clear it
         return $content;
     }

@@ -37,7 +37,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $script_sample = (isset($json_array['csp-report']['script-sample'])) ? $json_array['csp-report']['script-sample'] : null;
             // Start prepared statement
             DB::queryPrepared('INSERT INTO `csp_reports` (`data`, `domain`, `url`, `referrer`, `violated_directive`, `effective_directive`, `original_policy`, `disposition`, `blocked_uri`, `line_number`, `column_number`, `source_file`, `status_code`, `script_sample`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ?, ?)', [$json_data, $domain, $url, $referrer, $violated_directive, $effective_directive, $original_policy, $disposition, $blocked_uri, $line_number, $column_number, $source_file, $status_code, $script_sample]);
-            http_response_code(204); // Send HTTP 204 No Content response
+            DieCode::success('', 204);
+            //http_response_code(204); // Send HTTP 204 No Content response
         }
     } else {
         // If csp-report is not the top array key, throw 400 and say Incorrect data
