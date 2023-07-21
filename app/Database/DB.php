@@ -19,23 +19,28 @@ class DB
         $conn->real_connect('p:' . DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
         return $conn;
     }
-    // Just a plain query, returns a result
     public static function query($query)
     {
         $link = self::connect();
-        $stmt = $link->prepare($query);
+        try {
+            $stmt = $link->prepare($query);
+        } catch (\mysqli_sql_exception $e) {
+            $error = $e->getMessage();
+            DieCode::kill($error, 400);
+        }
+        $result = null;
         try {
             $stmt->execute();
             $result = $stmt->get_result();
-            $link->close();
-            return $result;
-        } catch (Exception $e) {
+        } catch (\mysqli_sql_exception $e) {
             $error = $e->getMessage();
-            $link->close();
             DieCode::kill($error, 400);
-            
         }
+
+        $link->close();
+        return $result;
     }
+
     // Prepared query, statement needs to be passed as array [] as in [$value1, $value2], returns a result
     public static function queryPrepared($query, $statement)
     {

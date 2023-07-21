@@ -143,7 +143,7 @@ class DataGrid
                 </div>
                 ';
             // Close the mass delete form
-            $html .= '<input type="hidden" name="deleteRecords" value="' . $tableId . '" />';
+            $html .= '<input type="hidden" name="deleteRecords" value="' . $dbTable . '" />';
             $html .= '</form>';
             $html .= '
                 <!-- Edit modal -->

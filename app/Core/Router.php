@@ -33,6 +33,11 @@ class Router
         $this->add('POST', $uri, $controller);
     }
 
+    public function delete($uri, $controller)
+    {
+        $this->add('DELETE', $uri, $controller);
+    }
+
     public function route($uri, $method, $loginInfoArray)
     {
         foreach ($this->routes as $route) {

@@ -59,16 +59,18 @@ class RequireLogin
                 'country' => 'ctry'
             ];
             foreach ($expectedClaims as $dbClaimName => $JWTClaimName) {
-                $idTokenInfoArray[$dbClaimName] = $authCookieArray[$JWTClaimName];
+                $idTokenInfoArray[$dbClaimName] = isset($authCookieArray[$JWTClaimName]) ? $authCookieArray[$JWTClaimName] : null;
             }
             // Now the special ones
             $idTokenInfoArray["token_expiry"] = isset($authCookieArray['exp']) ? date("Y-m-d H:i:s", substr($authCookieArray['exp'], 0, 10)) : null;
             // roles
             $idTokenInfoArray["role"] = (isset($authCookieArray['roles'])) ? $authCookieArray['roles'] : null;
             // Now we search for the administrator role as role is an array of roles
-            foreach ($idTokenInfoArray["role"] as $role) {
-                if ($role === 'administrator') {
-                    $idTokenInfoArray["role"] = 'administrator';
+            if (isset($idTokenInfoArray["role"])) {
+                foreach ($idTokenInfoArray["role"] as $role) {
+                    if ($role === 'administrator') {
+                        $idTokenInfoArray["role"] = 'administrator';
+                    }
                 }
             }
         }
@@ -83,7 +85,7 @@ class RequireLogin
                 // Let's check if the last_ip is different from what we have in the DB, and update it
                 if ($usernameArray['last_ips'] !== $idTokenInfoArray["last_ip"]) {
                     DB::queryPrepared("UPDATE `users` SET `last_ips`=? WHERE `username`=?",[$idTokenInfoArray["last_ip"], $username]);
-                } 
+                }
             } else {
                 $user_exists_check = DB::queryPrepared("SELECT `username` FROM `users` WHERE `username`=?", $username);
                 if ($user_exists_check->num_rows === 0 && $loggedIn) {

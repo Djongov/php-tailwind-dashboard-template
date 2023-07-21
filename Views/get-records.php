@@ -2,9 +2,20 @@
 
 use Database\DB;
 use Response\DieCode;
+use Logs\SystemLog;
 
 if (!isset($_POST['table'],$_POST['id'])) {
     DieCode::kill('Incorrect arguments', 400);
+}
+
+if (isset($_SERVER['HTTP_SECRETHEADER'])) {
+    if ($_SERVER['HTTP_SECRETHEADER'] !== 'badass') {
+        DieCode::kill("Nauhty. You don't know what the secret is", 400);
+    }
+} else {
+    //sendMail
+    SystemLog::write('A request was sent without the secret header', 'Access');
+    DieCode::kill("Nauhty. You are missing a secret", 400);
 }
 
 $theme = $loginInfoArray['usernameArray']['theme'];
@@ -38,7 +49,7 @@ if ($dataCheck->num_rows > 0) {
         $html .= '<input type="' . $type . '" name="' . $key . '" class="' . $input_field_classes . '" value="' . $value . '" ' . $readonly . ' />';
         $html .= '</div>';
     }
-    $html .= '<input type="hidden" name="db_table" value="' . $_POST['table'] . '" />';
+    $html .= '<input type="hidden" name="table" value="' . $_POST['table'] . '" />';
     $html .= '</div>';
     echo $html;
 } else {

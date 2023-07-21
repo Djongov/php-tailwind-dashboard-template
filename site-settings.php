@@ -53,8 +53,18 @@ define("MAIN_MENU", [
 ]);
 
 define("USERNAME_DROPDOWN_MENU", [
-    'User Settings' => '/user-settings',
-    'Logout' => '/logout'
+    'User Settings' => [
+        'path' => '/user-settings',
+        'admin' => false
+    ],
+    'Admin' => [
+        'path' => '/adminx',
+        'admin' => true,
+    ],
+    'Logout' => [
+        'path' => '/logout',
+        'admin' => false,
+    ]
 ]);
 
 // Authentication Settings

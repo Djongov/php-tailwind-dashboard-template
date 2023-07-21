@@ -230,7 +230,7 @@ if (tables.length > 0) {
             saveEditMotal.addEventListener('click', () => {
                 saveEditMotal.innerText = 'Please wait...';
                 const data = new URLSearchParams(new FormData(saveEditForm));
-                fetch('/system/update-records', {
+                fetch('/api/update-records', {
                     method: 'post',
                     // Let's send this secret header
                     headers: {
@@ -242,16 +242,25 @@ if (tables.length > 0) {
                     if (response.status === 0) {
                         location.reload();
                     }
+                    if (response.status >= 400) {
+                        saveEditMotal.innerText = 'Retry';
+                        response.json().then(errorData => {
+                            editModalTextResult.innerHTML = `<p class="ml-4 w-fit font-bold text-red-500">${errorData.error}</p>`;
+                        }).catch(error => {
+                            editModalTextResult.innerHTML = `<p class="ml-4 w-fit font-bold text-red-500">Error occurred, please try again later.</p>`;
+                        });
+                    }
                     return response.text();
                 }).then(text => {
                     saveEditMotal.innerText = 'Save';
-                    editModalTextResult.innerHTML = `<p class="w-fit font-bold text-green-500">${text}</p>`;
+                    editModalTextResult.innerHTML = `<p class="ml-4 w-fit font-bold text-green-500">${text}</p>`;
                     if (text === 'Success') {
                         window.location.reload();
                     } else {
                         alert(text);
                     }
                 });
+
             }, false);
         }
         // Disable it after Flowbite's JS
@@ -288,7 +297,7 @@ if (tables.length > 0) {
                     deleteLoadingScreen.classList.remove('hidden');
                     event.preventDefault();
                     const data = new URLSearchParams(new FormData(form));
-                    fetch('/system/delete-records', {
+                    fetch('/api/delete-records', {
                         method: 'post',
                         // Let's send this secret header
                         headers: {
@@ -350,7 +359,7 @@ if (tables.length > 0) {
                     if (choice) {
                         //console.log('Using loadscreen ' + deleteLoadingScreen.id + ' to delete');
                         deleteLoadingScreen.classList.remove('hidden');
-                        fetch('/system/delete-records', {
+                        fetch('/api/delete-records', {
                             method: 'post',
                             // Let's send this secret header
                             headers: {
@@ -365,10 +374,18 @@ if (tables.length > 0) {
                             if (response.status === 0) {
                                 location.reload();
                             }
+                            if (response.status >= 400) {
+                                response.json().then(errorData => {
+                                    alert(errorData.error);
+                                }).catch(error => {
+                                    alert('Error occurred, please try again later');
+                                });
+                            }
                             return response.text();
                         }).then(text => {
+                            console.log(text);
                             deleteLoadingScreen.classList.add('hidden');
-                            if (text === "1") {
+                            if (text === "Success") {
                                 // Remove the table row
                                 let td = event.target.parentNode;
                                 let tr = td.parentNode;
