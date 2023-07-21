@@ -11,7 +11,7 @@ class Http
     protected $url;
     protected $data;
 
-    public function get($url, $sslIgnore = false, $returnArray = true)
+    public static function get($url, $sslIgnore = false, $returnArray = true)
     {
         $client = new Client([
             'verify' => CURL_CERT,
@@ -20,7 +20,6 @@ class Http
 
         try {
             $response = $client->get($url);
-            
             if ($returnArray) {
                 return json_decode($response->getBody()->getContents(), true);
             } else {
@@ -35,17 +34,17 @@ class Http
                 if ($returnArray) {
                     return ['error' => $statusCode . '-' . $errorMessage];
                 } else {
-                    echo 'error: ' . $statusCode . '-' . $errorMessage;
+                    return 'error: ' . $statusCode . '-' . $errorMessage;
                 }
             }
         } catch (ConnectException $e) {
             // Handle the connection exception
             $errorMessage = $e->getMessage();
-            $protectedErrorMessage = $this->extractHostFromErrorMessage($errorMessage);
+            $protectedErrorMessage = Http::extractHostFromErrorMessage($errorMessage);
             if ($returnArray) {
                 return ['error' => $protectedErrorMessage];
             } else {
-                echo 'error: ' . $protectedErrorMessage;
+                return 'error: ' . $protectedErrorMessage;
             }
             // or return an error response
             // return response()->json(['error' => 'Connection error'], 500);

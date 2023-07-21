@@ -38,6 +38,10 @@ class Router
         foreach ($this->routes as $route) {
             if ($route['uri'] === $uri && $route['method'] === strtoupper($method)) {
 
+                if ($route['method'] !== 'GET') {
+                    return require_once dirname($_SERVER['DOCUMENT_ROOT']) . '/Views/' . $route['controller'];
+                }
+
                 if ($route['uri'] !== '/') {
                     $title = str_replace('.php', '', $route['uri']);
                     $title = str_replace('/', '', $title);

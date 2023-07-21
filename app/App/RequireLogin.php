@@ -10,7 +10,7 @@ class RequireLogin
 {
     public static function check()
     {
-        $loginExempt = ['/csp-report', '/auth-verify'];
+        $loginExempt = ['/csp-report'];
 
         $loggedIn = false;
 

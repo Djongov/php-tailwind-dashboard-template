@@ -19,6 +19,8 @@ use App\RequireLogin;
 
 $loginInfoArray = RequireLogin::check();
 
+use Template\Html;
+
 
 /*
     Start Router

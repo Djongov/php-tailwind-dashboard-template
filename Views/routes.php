@@ -15,3 +15,5 @@ $router->post('/csp-report', 'csp-report.php');
 $router->get('/logout', 'logout.php');
 
 $router->get('/login', 'login.php');
+
+$router->post('/api/get-records', 'get-records.php');
