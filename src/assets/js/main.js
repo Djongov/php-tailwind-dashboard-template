@@ -168,6 +168,42 @@ if (themeForm) {
         themeForm.submit();
     }, false);
 }
+
+/* Scroll to top button */
+
+// Actual snooth scroll to top function. /8 shows how smooth or quick it should do it
+const scrollToTop = () => {
+    const c = document.documentElement.scrollTop || document.body.scrollTop;
+    if (c > 0) {
+        window.requestAnimationFrame(scrollToTop);
+        window.scrollTo(0, c - c / 8);
+    }
+};
+
+// Scroll to top button and function
+const backToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+//Get the button
+let mybutton = document.getElementById("btn-back-to-top");
+
+// When the user scrolls down 20px from the top of the document, show the button
+window.onscroll = function () {
+    scrollFunction();
+};
+
+const scrollFunction = () => {
+    if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+        mybutton.style.display = "block";
+    } else {
+        mybutton.style.display = "none";
+    }
+}
+// When the user clicks on the button, scroll to the top of the document
+mybutton.addEventListener("click", backToTop);
+
+
 /* DataGrid DataTable
 
 Here are the functions that are for DataGrid display. Using DataTables
@@ -581,3 +617,74 @@ const buildDataGridFilters = (table, tableId, columnSkipArray, extraColumns) => 
 
     });
 };
+
+
+/* Generic forms submit functionality */
+const genericForms = document.querySelectorAll('form.generic-form');
+
+const themeValue = 'sky';
+
+
+if (genericForms.length > 0) {
+    genericForms.forEach(form => {
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            if (form.classList.contains('confirm')) {
+                choice = confirm('Are you sure?');
+                if (!choice) {
+                    return;
+                }
+            }
+            // Let's clear the result div
+            const resultDiv = form.nextSibling;
+            if (resultDiv && resultDiv.classList.contains('generic-form-submit-div')) {
+                resultDiv.remove();
+            }
+            const initialSubmitName = event.submitter.innerText;
+            const initialClasses = event.submitter.className;
+            let newResultDiv = document.createElement('div');
+            newResultDiv.classList.add('ml-4', 'my-4', 'text-gray-900', 'dark:text-gray-300', 'generic-form-submit-div', 'break-words');
+            form.parentNode.insertBefore(newResultDiv, form.nextSibling);
+            event.submitter.innerHTML = `
+            <div role="status">
+                <svg aria-hidden="false" class="inline w-6 h-6 text-gray-400 dark:text-white animate-spin fill-${themeValue}-600 dark:fill-${themeValue}-500" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+                    <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+                </svg>
+            </div>
+            `;
+            const data = new URLSearchParams(new FormData(form));
+            fetch(form.action, {
+                method: 'post',
+                headers: {
+                    'secretHeader': 'badass'
+                },
+                body: data,
+                redirect: 'manual'
+            }).then(response => {
+                if (response.status === 0) {
+                    console.log(response);
+                    //location.href = window.location;
+                    newResultDiv.innerHTML = '<p class="fond-semibold text-red-500">Fetch interrupted. Refreshing page</p>';
+                    location.reload();
+                }
+                if (response.status > 299) {
+                    event.submitter.innerText = 'Retry';
+                    event.submitter.className = initialClasses.replace(/bg-\w+-\w+/, 'bg-red-500');
+                }
+                return response.text();
+            })
+                .then(text => {
+                    newResultDiv.innerHTML = '';
+                    if (text === 'Success') {
+                        event.submitter.innerText = text;
+                        location.href = window.location;
+                    } else {
+                        event.submitter.innerText = initialSubmitName;
+                        event.submitter.className = initialClasses;
+                        newResultDiv.innerText = text;
+                    }
+                })
+        }, false);
+    })
+}

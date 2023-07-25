@@ -48,7 +48,7 @@ class Html
     public static function code($text, $codeTitle = '', $classes = [])
     {
         if (empty($classes)) {
-            return '<pre class="p-4 m-4 max-w-fit overflow-auto bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700 break-all"><span class="font-bold">' . $codeTitle . '</span><code class="c0py">' . $text . '</code></pre>';
+            return '<pre class="p-4 m-4 max-w-fit overflow-auto bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700 break-all"><p class="font-bold">' . $codeTitle . '</p><code class="c0py">' . $text . '</code></pre>';
         } else {
             return '<pre class="' . $classes . '"><code class="c0py">' . $text . '</code></pre>';
         }

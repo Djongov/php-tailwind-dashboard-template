@@ -76,20 +76,11 @@ if (empty($usernameArray['email'])) {
                     'label_name' => 'Email Address',
                     'input_type' => 'email',
                     'input_placeholder' => '',
-                    'input_name' => 'email',
+                    'name' => 'email',
                     'description' => 'provide a valid email',
                     'disabled' => false,
                     'required' => true,
-                ],
-                [
-                    'label_name' => 'Text',
-                    'input_type' => 'text',
-                    'input_placeholder' => '',
-                    'input_name' => 'text',
-                    'description' => 'text',
-                    'disabled' => false,
-                    'required' => false,
-                ],
+                ]
             ],
             'hidden_inputs' => [
                 [

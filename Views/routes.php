@@ -4,6 +4,12 @@
 
 $router->get('/adminx', '/admin/index.php');
 
+/* Test routes */
+
+$router->post('/api/example', '/test/example.php');
+
+/* Main routes */
+
 $router->get('/', 'main.php');
 
 $router->get('/users', 'user.php');
