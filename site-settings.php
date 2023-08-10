@@ -10,6 +10,8 @@ define("GENERIC_DESCRIPTION", "Portal of the UEFA DevOps Team");
 
 define("LOGO", '/assets/images/logo.jpg');
 
+define ("MYSQL_SSL", false);
+
 if ($_SERVER['HTTP_HOST'] === 'dashboard-template') {
     define("DB_MODE", 'mysql');
     define("DB_USER", 'root');

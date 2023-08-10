@@ -16,9 +16,17 @@ class DB
     {
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
         $conn = mysqli_init();
-        $conn->real_connect('p:' . DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+
+        if (defined("MYSQL_SSL") && MYSQL_SSL) {
+            mysqli_ssl_set($conn, NULL, NULL, $_SERVER['DOCUMENT_ROOT'] . "/assets/DigiCertGlobalRootCA.crt.pem", NULL, NULL);
+            $conn->real_connect('p:' . DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, 3306, MYSQLI_CLIENT_SSL);
+        } else {
+            $conn->real_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+        }
+
         return $conn;
     }
+
     public static function query($query)
     {
         $link = self::connect();
@@ -62,7 +70,7 @@ class DB
         try {
             $stmt->execute();
             
-            if ((strpos(strtolower("SELECT"), strtolower("SELECT")) !== false)) {
+            if (strpos(strtolower("SELECT"), strtolower("SELECT")) !== false) {
                 $result = $stmt->get_result();
                 $link->close();
                 return $result;

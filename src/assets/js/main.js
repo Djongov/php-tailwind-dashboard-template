@@ -591,18 +591,22 @@ const buildDataGridFilters = (table, tableId, columnSkipArray, extraColumns) => 
                     .draw();
             });
 
+        // Calculate the maximum width for the select options
+        const maxOptionWidth = Math.min(
+            $(column.header()).outerWidth() || select.width(),
+            150
+        ); // You can adjust the maximum width as needed
+
         // Iterate through the unique values in the column, create options for the select element
         column.data().unique().sort().each(function (d, j) {
             if (d !== null) {
                 // Truncate long select fields and add a title for hover
                 let optionText = d;
-                if (optionText.length > 90) {
-                    optionText = optionText.substring(0, 90) + '...';
-                    // For truncated options, have a title that has the full value so it can be visible
-                    select.append(`<option value="${d}" title="${d}">${optionText}</option>`);
-                } else {
-                    select.append(`<option value="${d}">${optionText}</option>`);
+                if (optionText.length > maxOptionWidth / 2) {
+                    optionText = optionText.substring(0, maxOptionWidth / 2) + '...';
                 }
+                // Append the option with the selected attribute if necessary
+                select.append(`<option value="${d}" title="${d}">${optionText}</option>`);
             }
         });
 
@@ -610,11 +614,22 @@ const buildDataGridFilters = (table, tableId, columnSkipArray, extraColumns) => 
         const currSearch = column.search();
         if (currSearch) {
             const searchValue = currSearch.substring(1, currSearch.length - 1);
-            select.val(searchValue);
+            select.val(searchValue); // Set the selected value
+
+            // Loop through the options and set the 'selected' attribute explicitly for the matched option
+            select.find('option').each(function () {
+                const optionValue = $(this).val();
+                // We need to replace the special characters from searchValue as searchValue comes with escaped special characters from column.search(). We want to apply the selected prop for the currently selected option so it's visible what has been filtered right now
+                if (optionValue === searchValue.replace(/\\/g, '')) {
+                    $(this).prop('selected', true);
+                } else {
+                    $(this).prop('selected', false);
+                }
+            });
+
             select.addClass('border-red-500');
             select.addClass('dark:border-red-500');
         }
-
     });
 };
 

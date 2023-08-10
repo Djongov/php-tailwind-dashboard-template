@@ -1,5 +1,6 @@
 <?php
 
+use App\GeneralMethods;
 use Template\DataGrid;
 use Template\DataGridQuery;
 use Template\Html;
@@ -27,6 +28,7 @@ echo Html::p('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eleme
 
 #echo Html::p(Html::code(Http::get('https://api.ipbase.com/v2/info', false, false)));
 
+echo Html::p(GeneralMethods::randomString());
 
 $form_options = [
     'inputs' => [
