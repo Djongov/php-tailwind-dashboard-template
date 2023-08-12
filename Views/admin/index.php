@@ -2,6 +2,8 @@
 
 use Logs\SystemLog;
 use Response\DieCode;
+use Database\DB;
+use Template\DataGrid;
 
 if (!$isAdmin) {
     SystemLog::write('Got unauthorized for admin page', 'Access');
@@ -11,3 +13,18 @@ if (!$isAdmin) {
 use Template\Html;
 
 echo Html::h1('Administration');
+
+$dbTables = [];
+
+$result = DB::query("SHOW TABLES");
+
+if ($result) {
+    while ($row = $result->fetch_row()) {
+        $dbTables[] = $row[0];
+    }
+    $result->free();
+}
+
+foreach ($dbTables as $table) {
+    echo DataGrid::render($table, ucfirst(str_replace("_", " ", $table)), $theme);
+}

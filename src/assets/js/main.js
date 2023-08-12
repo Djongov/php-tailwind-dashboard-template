@@ -530,6 +530,7 @@ const drawDataGrid = (id) => {
     const tableWrapper = $('<div style="max-height: 600px; overflow: auto;"></div>'); // Create a wrapper div for the table
     const table = $(`#${id}`).DataTable({
         ordering: false, // Need to make it work so it orders from the 1st row not the 2nd where the filters are
+        order: [[0, 'asc']],
         /*
         scrollY: 600,
         scrollX: 600,
