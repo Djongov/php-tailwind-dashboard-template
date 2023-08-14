@@ -3,6 +3,7 @@
 namespace Core;
 
 use \App\Init;
+use Response\DieCode;
 
 class Router
 {
@@ -43,8 +44,11 @@ class Router
         foreach ($this->routes as $route) {
             if ($route['uri'] === $uri && $route['method'] === strtoupper($method)) {
 
+                // If not GET, just execute controller
                 if ($route['method'] !== 'GET') {
-                    return require_once dirname($_SERVER['DOCUMENT_ROOT']) . '/Views/' . $route['controller'];
+                    // Special method to deliver arrays to POST requests
+                    Init::passArgs($route['controller'], $loginInfoArray);
+                    return;
                 }
 
                 if ($route['uri'] !== '/') {
@@ -64,13 +68,17 @@ class Router
             }
         }
 
-        $this->abort();
+        $this->abort($method);
     }
 
-    public function abort($code = 404)
+    public function abort($method, $code = 404, $httpErrorMessage = 'Not found')
     {
         http_response_code($code);
-        echo 'Not found';
-        //require_once dirname($_SERVER['DOCUMENT_ROOT']) . "templates/errors/$code.php";
+        if (strtoupper($method) === 'GET') {
+            $page = new Init;
+            echo $page->build($httpErrorMessage, "/errors/error.php", null, null);
+        } else {
+            DieCode::kill('Route not found', $code);
+        }
     }
 }

@@ -53,4 +53,7 @@ class Html
             return '<pre class="' . $classes . '"><code class="c0py">' . $text . '</code></pre>';
         }
     }
+    public static function selectInputClasses($theme) {
+        return 'ml-2 p-1 text-sm text-gray-900 border border-gray-300 rounded bg-gray-50 focus:ring-' . $theme . '-500 focus:border-' . $theme . '-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500';
+    }
 }

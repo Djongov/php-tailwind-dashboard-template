@@ -36,6 +36,8 @@ $router->get('/api/export-tsv', '/api/export-tsv.php');
 
 $router->get('/api/export-csv', '/api/export-csv.php');
 
+$router->post('/api/update-theme', '/api/update-theme.php');
+
 $router->post('/api/get-records', '/api/get-records.php');
 
 $router->post('/api/update-records', '/api/update-records.php');

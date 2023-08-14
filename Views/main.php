@@ -2,7 +2,6 @@
 
 use App\GeneralMethods;
 use Template\DataGrid;
-use Template\DataGridQuery;
 use Template\Html;
 use Request\Http;
 use Logs\SystemLog;
@@ -62,6 +61,18 @@ $form_options = [
                 'checked' => false,
             ]
         ],
+        'select' => [
+            [
+                'label_name' => 'Select',
+                'name' => 'select',
+                'options' => [
+                    // name ==> value
+                    'wqe' => 'wqe',
+                    'qwe' => 'qwe'
+                ],
+                'selected_option' => 'qwe'
+            ]
+        ],
         'hidden' => [
             [
                 'name' => 'username',
@@ -71,17 +82,10 @@ $form_options = [
     ],
     'theme' => $theme, // Optional, defaults to COLOR_SCHEME
     'action' => '/api/example',
-    'button' => 'Submit'
+    'button' => 'Submit',
+    'buttonSize' => 'big'
 ];
 
 echo Forms::render($form_options);
 
 echo Html::code(json_encode($form_options, JSON_PRETTY_PRINT), 'Form Structure');
-
-echo DataGridQuery::render('csp_reports', 'CSP Reports', 'SELECT `id`, `created_at`, `domain`, `url`, `referrer`, `violated_directive`, `effective_directive`, `disposition`, `blocked_uri`, `source_file`, `status_code`, `script_sample` FROM `csp_reports`', $theme);
-
-echo DataGrid::render('system_log', 'System Log', $theme);
-
-echo DataGrid::render('firewall', 'Firewall', $theme);
-
-echo DataGrid::render('users', 'Users', $theme);

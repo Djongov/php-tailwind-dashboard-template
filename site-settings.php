@@ -51,6 +51,9 @@ define("MAIN_MENU", [
                 <circle cx="5" cy="19" r="2" />',
         ],
         'link' => '/users',
+    ],
+    '404' => [
+        'link' => '/404'
     ]
 ]);
 

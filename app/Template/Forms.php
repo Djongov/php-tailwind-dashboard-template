@@ -48,32 +48,40 @@ class Forms
                             $html .= '</div>';
                             $html .= '</div>';
                         }
+                        if ($formType === 'select') {
+                            $html .= '<div class="mb-6">';
+                            $html .= '<div class="my-2">';
+                            $html .= '<label for="' . $metaArray['name'] . '" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">' . $metaArray['label_name'] . '</label>';
+                            $html .= '<select name="' . $metaArray['name'] . '" class="' . Html::selectInputClasses($theme) . '">';
+                            $html .= (isset($metaArray['description'])) ? '<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">' . $metaArray['description'] . '</p>' : null;
+                            $selectedOption = $metaArray['selected_option'] ?? null;
+                            foreach ($metaArray['options'] as $name => $value) {
+                                if ($selectedOption !== null && $selectedOption === $name) {
+                                    $html .= '<option value="' . $value . '" selected>' . $name . '</option>';
+                                } else {
+                                    $html .= '<option value="' . $value . '">' . $name . '</option>';
+                                }
+                            }
+                            $html .= '</select>';
+                            $html .= '</div>';
+                            $html .= '</div>';
+                        }
                         // Hidden inputs
                         if ($formType === 'hidden') {
                             $html .= '<input type="hidden" name="' . $metaArray['name'] . '" value="' . $metaArray['value'] . '" />';
                         }
                     }
                 }
-                // Finish the form with the button
-                $buttonWidth = 'w-64';
-                if (isset($options['button-width'])) {
-                    $buttonWidth = $options['button-width'];
-                }
-                $buttonHeight = 'h-18';
-                if (isset($options['button-height'])) {
-                    $buttonHeight = $options['button-height'];
-                }
-                $buttonPadding = 'ml-0';
-                if (isset($options['button-padding'])) {
-                    $buttonPadding = $options['button-padding'];
-                }
-                $buttonMargin = 'py-2 px-4';
-                if (isset($options['button-margin'])) {
-                    $buttonMargin = $options['button-margin'];
+                if ($options['buttonSize'] === 'big') {
+                    $customClasses = 'ml-0 py-4 px-8';
+                } elseif ($options['buttonSize'] === 'medium') {
+                    $customClasses = 'ml-0 py-3 px-6';
+                } elseif ($options['buttonSize'] === 'small') {
+                    $customClasses = 'ml-0 py-2 px-4';
                 }
                 $html .= '
                 <div class="mt-4">
-                    <button type="submit" class="' . $buttonPadding . ' ' . $buttonMargin . ' bg-' . $theme . '-600 hover:bg-' . $theme . '-700 focus:ring-' . $theme . '-500 focus:ring-offset-' . $theme . '-200 text-white ' . $buttonWidth . ' ' . $buttonHeight . ' transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-lg">
+                    <button type="submit" class="' . $customClasses . ' bg-' . $theme . '-600 hover:bg-' . $theme . '-700 focus:ring-' . $theme . '-500 focus:ring-offset-' . $theme . '-200 text-white transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-lg">
                         ' . $options['button'] . '
                     </button>
                 </div>';

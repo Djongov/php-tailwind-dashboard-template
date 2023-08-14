@@ -223,15 +223,15 @@ class Init
     }
     public function build($title, $filePath, $menuArray, $loginInfoArray) {
 
-        $usernameArray = $loginInfoArray['usernameArray'];
+        $usernameArray = $loginInfoArray['usernameArray'] ?? null;
 
         $username = $usernameArray['username'] ?? null;
 
         $theme = $usernameArray['theme'] ?? COLOR_SCHEME;
 
-        $loggedIn = $loginInfoArray['loggedIn'];
+        $loggedIn = $loginInfoArray['loggedIn'] ?? null;
 
-        $isAdmin = $loginInfoArray['isAdmin'];
+        $isAdmin = $loginInfoArray['isAdmin'] ?? null;
 
         $html = '';
         $html .= Init::head($title);
@@ -247,5 +247,8 @@ class Init
         include_once dirname($_SERVER['DOCUMENT_ROOT']) . '/Views/' . $filePath;
         $content = ob_get_clean(); // Capture the output buffer and clear it
         return $content;
+    }
+    public static function passArgs($route, $loginInfoArray) {
+        return require_once dirname($_SERVER['DOCUMENT_ROOT']) . '/Views/' . $route;
     }
 }

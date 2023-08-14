@@ -68,15 +68,19 @@ class DB
             $stmt->bind_param("s", $statement);
         }
         try {
-            $stmt->execute();
-            
-            if (strpos(strtolower("SELECT"), strtolower("SELECT")) !== false) {
-                $result = $stmt->get_result();
-                $link->close();
-                return $result;
+            if ($stmt->execute()) {
+                if (stripos($query, "SELECT") !== false) {
+                    $result = $stmt->get_result();
+                    $link->close();
+                    return $result;
+                } else {
+                    $link->close();
+                    return $stmt;
+                }
             } else {
+                $error = $stmt->error;
                 $link->close();
-                return $stmt;
+                DieCode::kill($error, 400);
             }
         } catch (Exception $e) {
             $error = $e->getMessage();

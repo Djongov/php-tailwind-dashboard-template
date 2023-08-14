@@ -16,6 +16,21 @@ if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localS
     }
 }
 
+/* Back Button */
+const backButtons = document.querySelectorAll('.back-button');
+
+if (backButtons.length > 0) {
+    backButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            if (history.length > 1) {
+                history.back();
+            } else {
+                location.href = '/'
+            }
+        }, false)
+    });
+}
+
 // Auto set class based on the local storage theme
 if (localStorage.getItem('color-theme')) {
     if (localStorage.getItem('color-theme') === 'dark') {

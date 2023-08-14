@@ -10,11 +10,6 @@ use Template\Html;
 
 $allowed_themes = ['amber', 'green', 'stone', 'rose', 'lime', 'teal', 'sky', 'purple', 'red', 'fuchsia', 'indigo'];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['theme']) && in_array($_POST['theme'], $allowed_themes)) {
-        DB::queryPrepared("UPDATE `users` SET `theme`=? WHERE `username`=?", [$_POST['theme'], $usernameArray['username']]);
-        $theme = $_POST['theme'];
-}
-
 $locale = (isset($usernameArray['origin_country'])) ? GeneralMethods::country_code_to_locale($usernameArray['origin_country']) : null;
 
 echo '<div class="p-4 m-4 max-w-fit bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700 text-black dark:text-slate-300">';
@@ -33,16 +28,38 @@ echo '<div class="p-4 m-4 max-w-fit bg-white rounded-lg border border-gray-200 s
         }
         if ($name === 'theme') {
             echo '<td class="w-full"><div class="flex my-2"><strong>' . $name . '</strong> : ';
-            echo '<form id="theme-change">
-                    <select name="theme" class="ml-2 p-1 text-sm text-gray-900 border border-gray-300 rounded bg-gray-50 focus:ring-' . $theme . '-500 focus:border-' . $theme . '-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500" autocomplete="off">';
-            foreach ($allowed_themes as $themes) {
-                if ($theme === $themes) {
-                    echo '<option value="' . $themes . '" selected="true">' . $themes . '</option>';
-                } else {
-                    echo '<option value="' . $themes . '">' . $themes . '</option>';
+            $themeOptions = [];
+            $currentTheme = '';
+            foreach ($allowed_themes as $color) {
+                $themeOptions[$color] = $color;
+                if ($theme === $color) {
+                    $currentTheme = $color;
                 }
             }
-            echo '</select></form></div>  </td>';
+            $updateThemeOptioms = [
+                'inputs' => [
+                    'select' => [
+                        'select' => [
+                            'label_name' => '',
+                            'name' => 'theme',
+                            'options' => $themeOptions,
+                            'selected_option' => $currentTheme
+                        ]
+                    ],
+                    'hidden' => [
+                        [
+                            'name' => 'username',
+                            'value' => $usernameArray['username']
+                        ]
+                    ],
+
+                ],
+                'theme' => $theme, // Optional, defaults to COLOR_SCHEME
+                'action' => '/api/update-theme',
+                'buttonSize' => 'small',
+                'button' => 'Update'
+            ];
+            echo Forms::render($updateThemeOptioms);
             continue;
         }
         // Only show copy to clipboard on non-null items
@@ -69,7 +86,7 @@ if (empty($usernameArray['email'])) {
     echo '</div>';
     echo '<p>We noticed that we haven\'t got your email address from your token claims. We will try to email you on your username which is <strong>' . $usernameArray['username'] . '</strong> but in case you think you can\'t be receiving emails on your username address, here you can give an aleternative. Don\'t worry, we will only be sending important notifications. Signups for newsletters and others are separate.</p>';
 
-    $form_options = [
+    $updateEmailFormOptions = [
         'inputs' => [
             'input' => [
                 [
@@ -94,7 +111,7 @@ if (empty($usernameArray['email'])) {
         'button' => 'Update'
     ];
 
-    echo Forms::render($form_options);
+    echo Forms::render($updateEmailFormOptions);
 
     echo '</div>';
 }
@@ -133,6 +150,5 @@ echo
 // Close the mass delete form
 echo '<input type="hidden" name="deleteUser" value="' . $usernameArray['username'] . '" />';
 echo '</form>';
-echo '<script src="/assets/js/org-actions/delete-user.js"></script>';
 
 echo '</div>';
