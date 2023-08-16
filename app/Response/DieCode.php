@@ -22,6 +22,6 @@ class DieCode
         die(json_encode([
             "timestamp (UTC)" => gmdate("Y-m-d H:i:s"),
             "success" => $message
-        ]));
+        ], JSON_PRETTY_PRINT));
     }
 }

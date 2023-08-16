@@ -10,6 +10,8 @@ define("GENERIC_DESCRIPTION", "Portal of the UEFA DevOps Team");
 
 define("LOGO", '/assets/images/logo.jpg');
 
+/* DB Settings */
+
 define ("MYSQL_SSL", false);
 
 if ($_SERVER['HTTP_HOST'] === 'dashboard-template') {
@@ -17,9 +19,8 @@ if ($_SERVER['HTTP_HOST'] === 'dashboard-template') {
     define("DB_USER", 'root');
     define("DB_HOST", 'localhost');
     define("DB_PASSWORD", '19MySQL86$');
-    define("DB_NAME", 'security-dashboard');
+    define("DB_NAME", 'uefa-devops-portal');
 } elseif ($_SERVER['HTTP_HOST'] === 'uefa-devops-portal.azurewebsites.net') {
-
     $value = getenv('MYSQLCONNSTR_localdb');
     $connectstr_dbhost = preg_replace("/^.*Data Source=(.+?);.*$/", "\\1", $value);
     $connectstr_dbname = preg_replace("/^.*Database=(.+?);.*$/", "\\1", $value);
@@ -33,13 +34,14 @@ if ($_SERVER['HTTP_HOST'] === 'dashboard-template') {
     define('DB_PASSWORD', $connectstr_dbpassword);
     /** MySQL hostname : this contains the port number in this format host:port . Port is not 3306 when using this feature*/
     define('DB_HOST', $connectstr_dbhost);
-    define("DB_NAME", 'uefa-devops-portal');
-    
+    define("DB_NAME", 'local_db');
 }
 
 define("CA_CERT", $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'DigiCertGlobalRootCA.crt.pem');
 
 define("CURL_CERT", $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'cacert.pem');
+
+/* Menu Settings */
 
 define("MAIN_MENU", [
     'Users' => [
@@ -56,6 +58,8 @@ define("MAIN_MENU", [
         'link' => '/404'
     ]
 ]);
+
+/* Username drop down menu */
 
 define("USERNAME_DROPDOWN_MENU", [
     'User Settings' => [

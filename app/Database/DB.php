@@ -19,9 +19,19 @@ class DB
 
         if (defined("MYSQL_SSL") && MYSQL_SSL) {
             mysqli_ssl_set($conn, NULL, NULL, $_SERVER['DOCUMENT_ROOT'] . "/assets/DigiCertGlobalRootCA.crt.pem", NULL, NULL);
-            $conn->real_connect('p:' . DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, 3306, MYSQLI_CLIENT_SSL);
+            try {
+                $conn->real_connect('p:' . DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, 3306, MYSQLI_CLIENT_SSL);
+            } catch (\mysqli_sql_exception $e) {
+                $error = $e->getMessage();
+                DieCode::kill($error, 400);
+            }
         } else {
-            $conn->real_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+            try {
+                $conn->real_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+            } catch (\mysqli_sql_exception $e) {
+                $error = $e->getMessage();
+                DieCode::kill($error, 400);
+            }
         }
 
         return $conn;

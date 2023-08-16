@@ -28,7 +28,7 @@ class DataGrid
             </div>
         </div>';
         if ($totalCount < 1) {
-            $html .= '<p class="ml-2 font-semibold">No results</p>';
+            $html .= '<p class="ml-2 font-semibold">No results for ' . $dbTable . '</p>';
             return;
         }
         // All encompassing div
@@ -235,7 +235,7 @@ class DataGrid
         // Save the result as array in $data to be used for export later
         $data = $countResult->fetch_all(MYSQLI_ASSOC);
         if (count($data) === 0) {
-            return '<p class="ml-4 text-black dark:text-gray-400">No results</p>';
+            return '<p class="ml-4 text-black dark:text-gray-400">No results for ' . $dbTable . '</p>';
         }
         // Now the COLUMNS query
 
