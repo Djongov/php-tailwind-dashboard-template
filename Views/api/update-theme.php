@@ -2,6 +2,15 @@
 
 use Database\DB;
 use Response\DieCode;
+use Authentication\AzureAD;
+
+if (!isset($_COOKIE['auth_cookie'])) {
+    DieCode::kill('No Authentication present', 401);
+}
+
+if (isset($_COOKIE['auth_cookie']) && !AzureAD::checkJWTTokenExpiry($_COOKIE['auth_cookie'])) {
+    DieCode::kill('Authentication token expired', 401);
+}
 
 $allowed_themes = ['amber', 'green', 'stone', 'rose', 'lime', 'teal', 'sky', 'purple', 'red', 'fuchsia', 'indigo'];
 
