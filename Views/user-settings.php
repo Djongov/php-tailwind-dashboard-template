@@ -57,6 +57,7 @@ echo '<div class="p-4 m-4 max-w-fit bg-white rounded-lg border border-gray-200 s
                 'theme' => $theme, // Optional, defaults to COLOR_SCHEME
                 'action' => '/api/update-theme',
                 'buttonSize' => 'small',
+                'reloadOnSubmit' => true,
                 'button' => 'Update'
             ];
             echo Forms::render($updateThemeOptioms);

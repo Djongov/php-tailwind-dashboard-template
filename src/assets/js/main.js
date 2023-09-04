@@ -31,6 +31,7 @@ if (backButtons.length > 0) {
     });
 }
 
+
 // Auto set class based on the local storage theme
 if (localStorage.getItem('color-theme')) {
     if (localStorage.getItem('color-theme') === 'dark') {
@@ -201,7 +202,7 @@ const backToTop = () => {
 }
 
 //Get the button
-let mybutton = document.getElementById("btn-back-to-top");
+let scrollToTopButton = document.getElementById("btn-back-to-top");
 
 // When the user scrolls down 20px from the top of the document, show the button
 window.onscroll = function () {
@@ -210,13 +211,13 @@ window.onscroll = function () {
 
 const scrollFunction = () => {
     if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-        mybutton.style.display = "block";
+        scrollToTopButton.style.display = "block";
     } else {
-        mybutton.style.display = "none";
+        scrollToTopButton.style.display = "none";
     }
 }
 // When the user clicks on the button, scroll to the top of the document
-mybutton.addEventListener("click", backToTop);
+scrollToTopButton.addEventListener("click", backToTop);
 
 
 /* DataGrid DataTable
@@ -245,11 +246,8 @@ if (tables.length > 0) {
     tables.forEach(table => {
         // Let's get some elements we will be using
         const tableId = table.id;
-        //console.log(`Found tableId: ${tableId}`);
         const editModalTextResult = document.getElementById(`${tableId}-edit-modal-text-result`);
-        //console.log(`Found editModalTextResult: ${editModalTextResult}`);
         const saveEditMotal = document.getElementById(`${tableId}-save-edit-modal-text`);
-        //console.log(`Found saveEditMotal: ${saveEditMotal}`);
         const massDeleteModalTriggerer = document.getElementById(tableId + '-mass-delete-modal-trigger');
         let totalResults = document.getElementById(tableId + '-total');
         let selectedResults = document.getElementById(tableId + '-selected');
@@ -365,32 +363,6 @@ if (tables.length > 0) {
                         deleteLoadingScreen.classList.add('hidden');
                         if (text === "Success") {
                             window.location.reload();
-                            /*
-                            // Delete the rows instead of reloading
-                            // `data` might look like this `system_log_length=10&row[]=9278&row[]=9277&deleteRecords=system_log` so i get all the row[]s. Thanks to ChatGPT for this suggestion, didn't know getAll even existed
-                            const rowIds = data.getAll('row[]');
-                            console.log(`${rowIds.length} rows deleted`);
-                            // Loop through and select it, delete if selected properly
-                            rowIds.forEach(rowId => {
-                                const rowToDelete = document.querySelector(`tr[data-row-id="${rowId}"]`);
-                                if (rowToDelete) {
-                                    rowToDelete.remove();
-                                }
-                            });
-
-                            // Decrement the total and filtered results
-                            totalResults.innerText -= rowIds.length;
-                            filteredResults.innerText = countVisibleRows(tableId);
-                            selectedResults.innerText -= +rowIds.length;
-                            // Deselect select-all
-                            document.querySelector(`#${tableId} input.select-all`).checked = false;
-                            
-                            
-                            const visibleRowCount = table.querySelectorAll('tbody > tr:not(.hidden)').length;
-                            console.log(visibleRowCount);
-                            
-                            // We need to find out if the deleted rows are leaving the table empty or not. However, need to take care of pagination
-                            */
                         } else {
                             //console.log('deleteForms error: ' + text);
                             alert(text);
@@ -649,73 +621,168 @@ const buildDataGridFilters = (table, tableId, columnSkipArray, extraColumns) => 
     });
 };
 
+// This is the fucntion that will create the modal for the form submission if confirm class on the form exists
+const generateModal = (text, id) => {
+    // Create the html element div
+    const modalDiv = document.createElement('div');
+    // The modal HTML
+    const html = `<div id="${id}-mass-delete-modal" tabindex="-1" class="fixed inset-0 flex items-center justify-center z-50" aria-hidden="true">
+        <div class="relative p-4 w-full max-w-md h-full md:h-auto">
+            <div class="relative p-4 max-w-md w-full mx-auto bg-white border border-gray-400 dark:border-gray-300 rounded-lg shadow dark:bg-gray-700">
+                <button id="${id}-x-cancel" type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="${id}-modal">
+                    <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+                <div class="p-6 text-center">
+                    <svg aria-hidden="true" class="mx-auto mb-4 w-14 h-14 text-gray-400 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <h3 id="${id}-modal-text" class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">${text}</h3>
+                    <button id="${id}-submit" data-modal-toggle="${id}-modal" type="submit" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2">
+                        Yes, I\'m sure
+                    </button>
+                    <button id="${id}-cancel" data-modal-toggle="${id}-modal" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">No, cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>`;
+    // Append
+    modalDiv.innerHTML += html;
+    // Return
+    return modalDiv;
+}
+
+// This function handles the form submission, takes care of the result div where data return is displayed
+const handleFormFetch = (form, currentEvent, resultType) => {
+    const resultDiv = form.nextSibling;
+    if (resultDiv && resultDiv.classList.contains('generic-form-submit-div')) {
+        resultDiv.remove();
+    }
+    let newResultDiv = document.createElement('div');
+    newResultDiv.classList.add('ml-4', 'my-4', 'text-gray-900', 'dark:text-gray-300', 'generic-form-submit-div', 'break-words');
+    form.parentNode.insertBefore(newResultDiv, form.nextSibling);
+    const initialClasses = currentEvent.submitter.className;
+    const initialSubmitName = currentEvent.submitter.innerText;
+    currentEvent.submitter.innerHTML = `
+    <div role="status">
+        <svg aria-hidden="false" class="inline w-6 h-6 text-gray-400 dark:text-white animate-spin fill-${themeValue}-600 dark:fill-${themeValue}-500" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+            <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+        </svg>
+    </div>
+    `;
+    // Pick up the data from the form and urlencode is for POST
+    const data = new URLSearchParams(new FormData(form));
+    // Fetch function
+    fetch(form.action, {
+        method: 'post',
+        headers: {
+            'secretHeader': 'badass'
+        },
+        body: data,
+        redirect: 'manual'
+    })
+    // Handle response
+    .then(response => {
+        // If response is redirect (0) or 401 return by the server, usually token expired, reload the page
+        if (response.status === 0 || response.status === 401) {
+            // Handle fetch interruption
+            console.log(response);
+            newResultDiv.innerHTML = '<p class="font-semibold text-red-500">Fetch interrupted. Refreshing page</p>';
+            location.reload();
+        } else {
+            return response.text();
+        }
+    })
+    // Hanle after the response comes
+    .then(text => {
+        if (typeof text === 'undefined') {
+            return;
+        }
+        newResultDiv.innerHTML = '';
+        // If data-reload is on the form, instruct to reload the pagte
+        if (form.getAttribute("data-reload") === "true") {
+            location.reload();
+        // Otherwise display the returned text
+        } else {
+            if (resultType === 'html') {
+                newResultDiv.innerHTML = text;
+            } else {
+                newResultDiv.innerText = text;
+            }
+            // Set the button text to what it was, because it was loading until now
+            currentEvent.submitter.innerText = initialSubmitName;
+        }
+    })
+    // Catch errors
+    .catch(error => {
+        // Handle other errors, including network errors
+        console.error('Error:', error);
+
+        // Display the error message in newResultDiv
+        newResultDiv.innerHTML = '<p class="font-semibold text-red-500">An error occurred: ' + error.message + '</p>';
+    });
+}
+
+// This function handles form submission when confirm class exists
+const handleFormSubmitWithConfirm = (currentEvent, form, initialSubmitName, resultType) => {
+    // Create a random Id for the modal
+    const randomId = generateUniqueId(4);
+    // See if we are passing text for the modal via the form data-confirm
+    const confirmText = form.getAttribute('data-confirm');
+    // If we are set it, if not default to Are you sure?
+    const modalText = (confirmText) ? form.getAttribute("data-confirm") : 'Are you sure?';
+    // Generate the modal
+    const modal = generateModal(modalText, randomId);
+    // Insert the modal after the form
+    form.parentNode.insertBefore(modal, form.nextSibling);
+    // Let's get the buttons of the modal so we can attach event listeners
+    const confirmButton = document.getElementById(`${randomId}-submit`);
+    const cancelButton = document.getElementById(`${randomId}-cancel`);
+    const xCancelButton = document.getElementById(`${randomId}-x-cancel`);
+    // There are two close buttons so put them in an array
+    const cancelButtonsArray = [cancelButton, xCancelButton];
+    // Hide the modal
+    modal.classList.remove('hidden');
+    // So on Yes click on the modal, remove the modal and start the fetch function
+    confirmButton.addEventListener('click', () => {
+        modal.remove();
+        handleFormFetch(form, currentEvent, resultType)
+    });
+    // If user cancels the modal, again remove the modal and return to the initial button text
+    cancelButtonsArray.forEach(button => {
+        button.addEventListener('click', () => {
+            modal.remove();
+            currentEvent.submitter.innerText = initialSubmitName;
+        })
+    })
+}
 
 /* Generic forms submit functionality */
-const genericForms = document.querySelectorAll('form.generic-form');
 
+// Query all forms produced by the backend
+const genericForms = document.querySelectorAll('form.generic-form');
+// Set the them (used mainy in loading div)
 const themeValue = 'sky';
 
-
+// If there are any forms
 if (genericForms.length > 0) {
+    // Loop through each
     genericForms.forEach(form => {
+        // Attach submit event
         form.addEventListener('submit', (event) => {
+            // Prevent normal submitting
             event.preventDefault();
+            // Check the result type (text or html) if declared in the form
+            let resultType = form.getAttribute('data-result');
+            // Remember the initial button text
+            const initialButtonText = event.submitter.innerText;
+            // If there is a confirm required (via confirm class)
             if (form.classList.contains('confirm')) {
-                choice = confirm('Are you sure?');
-                if (!choice) {
-                    return;
-                }
+                // use the handle with confirm function
+                handleFormSubmitWithConfirm(event, form, initialButtonText, resultType)
+            } else {
+                // Otherwise just proceed with the fetch
+                handleFormFetch(form, event, resultType);
             }
-            // Let's clear the result div
-            const resultDiv = form.nextSibling;
-            if (resultDiv && resultDiv.classList.contains('generic-form-submit-div')) {
-                resultDiv.remove();
-            }
-            const initialSubmitName = event.submitter.innerText;
-            const initialClasses = event.submitter.className;
-            let newResultDiv = document.createElement('div');
-            newResultDiv.classList.add('ml-4', 'my-4', 'text-gray-900', 'dark:text-gray-300', 'generic-form-submit-div', 'break-words');
-            form.parentNode.insertBefore(newResultDiv, form.nextSibling);
-            event.submitter.innerHTML = `
-            <div role="status">
-                <svg aria-hidden="false" class="inline w-6 h-6 text-gray-400 dark:text-white animate-spin fill-${themeValue}-600 dark:fill-${themeValue}-500" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
-                    <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
-                </svg>
-            </div>
-            `;
-            const data = new URLSearchParams(new FormData(form));
-            fetch(form.action, {
-                method: 'post',
-                headers: {
-                    'secretHeader': 'badass'
-                },
-                body: data,
-                redirect: 'manual'
-            }).then(response => {
-                if (response.status === 0) {
-                    console.log(response);
-                    //location.href = window.location;
-                    newResultDiv.innerHTML = '<p class="fond-semibold text-red-500">Fetch interrupted. Refreshing page</p>';
-                    location.reload();
-                }
-                if (response.status > 299) {
-                    event.submitter.innerText = 'Retry';
-                    event.submitter.className = initialClasses.replace(/bg-\w+-\w+/, 'bg-red-500');
-                }
-                return response.text();
-            })
-                .then(text => {
-                    newResultDiv.innerHTML = '';
-                    if (text === 'Success') {
-                        event.submitter.innerText = text;
-                        location.href = window.location;
-                    } else {
-                        event.submitter.innerText = initialSubmitName;
-                        event.submitter.className = initialClasses;
-                        newResultDiv.innerText = text;
-                    }
-                })
-        }, false);
+        });
     })
 }

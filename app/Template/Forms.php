@@ -4,18 +4,24 @@ namespace Template;
 
 class Forms
 {
-    public static function render(array $options, $confirm = false, $theme = COLOR_SCHEME)
+    public static function render(array $options, $theme = COLOR_SCHEME)
     {
         $html = '';
         $formClass = 'generic-form';
         $theme = (isset($options['theme'])) ? $options['theme'] : $theme;
-        if ($confirm) {
+        if (isset($options['confirm']) && $options['confirm']) {
             $formClass .= ' confirm';
         }
+        $confirmData = (isset($options['confirmText'])) ? 'data-confirm="' . $options['confirmText'] . '"' : null;
+
+        $reloadOnSubmitData = 'data-reload="' . (isset($options['reloadOnSubmit']) && $options['reloadOnSubmit'] ? 'true' : 'false') . '"';
+
+        $resultType = (isset($options['resultType'])) ? 'data-result="' . $options['resultType'] . '"' : null;
+        
         $html .= '<div class="m-4">';
-            $html .= '<form class="' . $formClass . ' mb-4" action="' . $options['action'] . '">';
+            $html .= '<form class="' . $formClass . ' mb-4" action="' . $options['action'] . '"' . $reloadOnSubmitData . $confirmData . $resultType . '>';
                 foreach($options['inputs'] as $formType => $formArray) {
-                    foreach ($formArray as $index => $metaArray) {
+                    foreach ($formArray as $metaArray) {
                         // Setup the meta such as readonly, disabled, required
                         $disabled = (isset($metaArray['disabled']) && $metaArray['disabled']) ? 'disabled' : '';
                         $required = (isset($metaArray['required']) && $metaArray['required']) ? 'required' : '';

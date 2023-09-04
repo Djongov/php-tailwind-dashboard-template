@@ -83,7 +83,11 @@ $form_options = [
     'theme' => $theme, // Optional, defaults to COLOR_SCHEME
     'action' => '/api/example',
     'button' => 'Submit',
-    'buttonSize' => 'big'
+    'reloadOnSubmit' => false,
+    'confirm' => true,
+    'confirmText' => 'Are you sure you want to send it?',
+    'resultType' => 'html',
+    'buttonSize' => 'medium'
 ];
 
 echo Forms::render($form_options);
