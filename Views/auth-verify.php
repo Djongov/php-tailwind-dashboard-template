@@ -17,7 +17,7 @@ if (isset($_POST['id_token'])) {
     // Let's call the function to check the JWT token which is returned. We are checking stuff like expiration, issuer, app id. We are not validating the signature as per MS article - https://docs.microsoft.com/en-us/azure/active-directory/develop/id-tokens#validating-an-id-token and https://docs.microsoft.com/en-us/azure/active-directory/develop/access-tokens#validating-tokens
     if (AzureAD::checkJWTToken($_POST['id_token'])) {
         // Let's set the "auth_cookie" and put the id token as it's value, set the expiration date to when the token should expire and the rest of the cookie settings
-        setcookie('auth_cookie', $_POST['id_token'], [
+        setcookie(AUTH_COOKIE_NAME, $_POST['id_token'], [
             'expires' => AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['exp'] + 86400,
             'path' => '/',
             'domain' => str_replace(strstr($_SERVER['HTTP_HOST'], ':'), '', $_SERVER['HTTP_HOST']),

@@ -129,3 +129,9 @@ if (getenv('WEBSITE_AUTH_CLIENT_ID')) {
     // For this one, the logout will be our own script
     define('Logout_Button_URL', '/logout');
 }
+
+define('AUTH_COOKIE_NAME', 'auth_cookie');
+
+define('LOCAL_USER_LOGIN', true);
+
+define('MANUAL_REGISTRATION', true);

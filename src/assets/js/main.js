@@ -686,8 +686,11 @@ const handleFormFetch = (form, currentEvent, resultType) => {
         if (response.status === 0 || response.status === 401) {
             // Handle fetch interruption
             console.log(response);
+            if (response.redirected) {
+                location.reload();
+            }
             newResultDiv.innerHTML = '<p class="font-semibold text-red-500">Fetch interrupted. Refreshing page</p>';
-            location.reload();
+            //location.reload();
         } else {
             return response.text();
         }

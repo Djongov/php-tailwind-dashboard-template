@@ -4,11 +4,11 @@ use Database\DB;
 use Response\DieCode;
 use Authentication\AzureAD;
 
-if (!isset($_COOKIE['auth_cookie'])) {
+if (!isset($_COOKIE[AUTH_COOKIE_NAME])) {
     DieCode::kill('No Authentication present', 401);
 }
 
-if (isset($_COOKIE['auth_cookie']) && !AzureAD::checkJWTTokenExpiry($_COOKIE['auth_cookie'])) {
+if (isset($_COOKIE[AUTH_COOKIE_NAME]) && !AzureAD::checkJWTTokenExpiry($_COOKIE[AUTH_COOKIE_NAME])) {
     DieCode::kill('Authentication token expired', 401);
 }
 

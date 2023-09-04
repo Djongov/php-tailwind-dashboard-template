@@ -71,8 +71,8 @@ echo '<div class="p-4 m-4 max-w-fit bg-white rounded-lg border border-gray-200 s
     echo '</table>';
 
     echo '<p>Here is your session info:</p>';
-    echo '<p><strong>Token expiry: </strong>' . $fmt->format(strtotime(date("Y-m-d H:i:s", substr(AzureAD::parseJWTTokenPayLoad($_COOKIE['auth_cookie'])['exp'], 0, 10)))) . '</p>';
-    echo '<p><strong>Token: </strong></p><p class="break-all c0py">' . $_COOKIE['auth_cookie'] . '</p>';
+    echo '<p><strong>Token expiry: </strong>' . $fmt->format(strtotime(date("Y-m-d H:i:s", substr(AzureAD::parseJWTTokenPayLoad($_COOKIE[AUTH_COOKIE_NAME])['exp'], 0, 10)))) . '</p>';
+    echo '<p><strong>Token: </strong></p><p class="break-all c0py">' . $_COOKIE[AUTH_COOKIE_NAME] . '</p>';
     
 echo '</div>';
 
@@ -118,38 +118,28 @@ if (empty($usernameArray['email'])) {
 }
 echo '<div class="p-4 m-4 max-w-fit bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700">';
 echo Html::h2('Forget About me');
-echo '<p>This will delete your account in our database along with any data we have about your account.</p>';
-echo '<form id="delete-user-form">';
-echo '<button id="delete-user-trigger" class="my-6 py-2 px-4 bg-red-600 hover:bg-red-700 focus:ring-red-500 focus:ring-offset-red-200 text-white w-64 h-18 transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-lg" type="button" data-modal-toggle="delete-user">
-        Delete User
-    </button>';
-echo
-'<div id="delete-user" tabindex="-1" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 md:inset-0 h-modal md:h-full justify-center items-center" aria-hidden="true">
-        <div class="relative p-4 w-full max-w-md h-full md:h-auto">
-            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="delete-user">
-                    <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                    <span class="sr-only">Close modal</span>
-                </button>
-                <div class="p-6 text-center">
-                    <svg aria-hidden="true" class="mx-auto mb-4 w-14 h-14 text-gray-400 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <h3 id="delete-user-text" class="mb-5 text-xl font-normal text-gray-500 dark:text-gray-400">Are you sure you want to delete your user?</h3>
-                    <p class="mb-4">
+echo Html::p('This will delete your account in our database along with any data we have about your account.</p>');
+$deleteUserFormOptions = [
+    'inputs' => [
+        'hidden' => [
+            [
+                'name' => 'username',
+                'value' => $usernameArray['username']
+            ]
+        ],
+    ],
+    'theme' => 'red',
+    'action' => '/api/delete-user',
+    'reloadOnSubmit' => true,
+    'confirm' => true,
+    'confirmText' => 'Are you sure you want to delete your user?
+This will delete your username from our database. This will also remove you from organization where you are a member. This will NOT remove any logs that have your name in it. Your user will be re-created if you login again to the app.',
+    'resultType' => 'text',
+    'buttonSize' => 'medium',
+    'button' => 'Delete User',
+    
+];
 
-                    This will delete your username from our database. This will also remove you from organization where you are a member. This will NOT remove any logs that have your name in it. Your user will be re-created if you login again to the app.
-
-                    </p>
-                    <button data-modal-toggle="delete-user" type="submit" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2">
-                        Yes, I\'m sure
-                    </button>
-                    <button data-modal-toggle="delete-user" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">No, cancel</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    ';
-// Close the mass delete form
-echo '<input type="hidden" name="deleteUser" value="' . $usernameArray['username'] . '" />';
-echo '</form>';
+echo Forms::render($deleteUserFormOptions);
 
 echo '</div>';

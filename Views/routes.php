@@ -26,6 +26,8 @@ $router->get('/logout', 'logout.php');
 
 $router->get('/login', 'login.php');
 
+$router->get('/register', 'register.php');
+
 /* Api Routes */
 
 $router->post('/api/export-tsv', '/api/export-tsv.php');
@@ -43,3 +45,7 @@ $router->post('/api/get-records', '/api/get-records.php');
 $router->post('/api/update-records', '/api/update-records.php');
 
 $router->post('/api/delete-records', '/api/delete-records.php');
+
+$router->post('/api/delete-user', '/api/delete-user.php');
+
+$router->post('/api/local-login-process', '/api/local-login-process.php');

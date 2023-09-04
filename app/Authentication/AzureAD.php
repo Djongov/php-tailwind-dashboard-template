@@ -17,15 +17,15 @@ class AzureAD {
         $payload_array = json_decode($payload, true);
         // If payload is empty unset auth cookie and return false
         if ($payload_array === null) {
-            unset($_COOKIE['auth_cookie']);
-            setcookie('auth_cookie', false, -1, '/', $_SERVER["HTTP_HOST"]);
+            unset($_COOKIE[AUTH_COOKIE_NAME]);
+            setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
             //writeToSystemLog('Incorrect or malformed token', 'JWT');
             return false;
         }
         // If audience does not match app registrations' client id unset auth cookie and return false
         if ($payload_array['aud'] !== Client_ID) {
-            unset($_COOKIE['auth_cookie']);
-            setcookie('auth_cookie', false, -1, '/', $_SERVER["HTTP_HOST"]);
+            unset($_COOKIE[AUTH_COOKIE_NAME]);
+            setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
             //writeToSystemLog('Incorrect Client ID', 'JWT');
             return false;
         }
@@ -41,15 +41,15 @@ class AzureAD {
         */
         // Check if JWT token is valid
         if ($payload_array['nbf'] - time() > 0) {
-            unset($_COOKIE['auth_cookie']);
-            setcookie('auth_cookie', false, -1, '/', $_SERVER["HTTP_HOST"]);
+            unset($_COOKIE[AUTH_COOKIE_NAME]);
+            setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
             //writeToSystemLog('Token not yet valid', 'JWT');
             return false;
         }
         // Check the static nonce as well. This can be modified to a dynamic one with more functionality
         if ($payload_array['nonce'] !== 'c0ca2663770b3c9571ca843c7106851816e2d415e77369a1') {
-            unset($_COOKIE['auth_cookie']);
-            setcookie('auth_cookie', false, -1, '/', $_SERVER["HTTP_HOST"]);
+            unset($_COOKIE[AUTH_COOKIE_NAME]);
+            setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
             //writeToSystemLog('Incorrect nonce', 'JWT');
             return false;
         }
@@ -68,8 +68,8 @@ class AzureAD {
 
         // Check if the kid is in the header. Maybe this check is not so important
         if (!isset($header_array['kid'])) {
-            unset($_COOKIE['auth_cookie']);
-            setcookie('auth_cookie', false, -1, '/', $_SERVER["HTTP_HOST"]);
+            unset($_COOKIE[AUTH_COOKIE_NAME]);
+            setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
             //writeToSystemLog('kid missing from JWT header', 'JWT');
             return false;
         }
@@ -77,8 +77,8 @@ class AzureAD {
         $instance = new self();
         $get_signatures = $instance->getSignatures(Client_ID, Tenant_ID, $header_array["kid"]);
         if ($get_signatures === null || !isset($get_signatures['x5c'][0])) {
-            unset($_COOKIE['auth_cookie']);
-            setcookie('auth_cookie', false, -1, '/', $_SERVER["HTTP_HOST"]);
+            unset($_COOKIE[AUTH_COOKIE_NAME]);
+            setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
             //writeToSystemLog('x5c[0] not set', 'JWT');
             return false;
         }
@@ -92,8 +92,8 @@ class AzureAD {
         $token_valid = openssl_verify($headers_enc . '.' . $claims_enc, $sig, $pkey_txt, OPENSSL_ALGO_SHA256);
 
         if ($token_valid !== 1) {
-            unset($_COOKIE['auth_cookie']);
-            setcookie('auth_cookie', false, -1, '/', $_SERVER["HTTP_HOST"]);
+            unset($_COOKIE[AUTH_COOKIE_NAME]);
+            setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
             //writeToSystemLog('Incorrect Signature', 'JWT');
             return false;
         }

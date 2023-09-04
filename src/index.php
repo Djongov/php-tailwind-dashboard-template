@@ -19,7 +19,13 @@ use App\RequireLogin;
 
 $loginInfoArray = RequireLogin::check();
 
-use Template\Html;
+/*
+Session start
+*/
+
+use Core\Session;
+
+Session::start();
 
 
 /*

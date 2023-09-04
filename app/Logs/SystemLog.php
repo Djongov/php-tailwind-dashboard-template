@@ -9,8 +9,8 @@ class SystemLog
 {
     public static function write($message, $category)
     {
-        if (isset($_COOKIE['auth_cookie'])) {
-            $username = AzureAD::parseJWTTokenPayLoad($_COOKIE['auth_cookie'])['preferred_username'];
+        if (isset($_COOKIE[AUTH_COOKIE_NAME])) {
+            $username = AzureAD::parseJWTTokenPayLoad($_COOKIE[AUTH_COOKIE_NAME])['preferred_username'];
         } else {
             $username = 'unknown';
         }

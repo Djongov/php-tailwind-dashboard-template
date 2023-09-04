@@ -1,6 +1,8 @@
 <?php
+
 use Response\DieCode;
 use Authentication\AzureAD;
+use Database\DB;
 
 //return var_dump($loginInfoArray);
 
@@ -25,6 +27,18 @@ if (isset($_COOKIE[AUTH_COOKIE_NAME]) && !AzureAD::checkJWTTokenExpiry($_COOKIE[
     DieCode::kill('Authentication token expired', 401);
 }
 
-return var_dump($_COOKIE[AUTH_COOKIE_NAME]);
+$userCheck = DB::queryPrepared("SELECT * FROM `users` WHERE `username`=?", $_POST['username']);
 
-echo '<pre>' . json_encode($_POST, JSON_PRETTY_PRINT) . '</pre>';
+if ($userCheck->num_rows === 0) {
+    DieCode::kill('User not found', 404);
+}
+
+DB::queryPrepared("DELETE FROM `users` WHERE `username`=?", $_POST['username']);
+
+if (isset($_COOKIE[AUTH_COOKIE_NAME])) {
+    unset($_COOKIE[AUTH_COOKIE_NAME]);
+    setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
+}
+
+header("Refresh:0");
+exit;

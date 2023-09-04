@@ -63,7 +63,11 @@ class DB
     public static function queryPrepared($query, $statement)
     {
         $link = self::connect();
-        $stmt = $link->prepare($query);
+        try {
+            $stmt = $link->prepare($query);
+        } catch (Exception $e) {
+            DieCode::kill($e, 400);
+        }
         if (is_array($statement)) {
             $statementParams = '';
             foreach ($statement as $param) {

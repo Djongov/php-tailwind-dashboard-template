@@ -10,7 +10,7 @@ class RequireLogin
 {
     public static function check()
     {
-        $loginExempt = ['/csp-report'];
+        $loginExempt = ['/csp-report', '/api/local-login-process', '/register'];
 
         $loggedIn = false;
 
@@ -19,18 +19,18 @@ class RequireLogin
         $usernameArray = [];
 
         // If auth cookie exists
-        if (isset($_COOKIE['auth_cookie'])) {
+        if (isset($_COOKIE[AUTH_COOKIE_NAME])) {
             // First check if token is expired and redirect to login URL
-            if (!AzureAD::checkJWTTokenExpiry($_COOKIE['auth_cookie'])) {
+            if (!AzureAD::checkJWTTokenExpiry($_COOKIE[AUTH_COOKIE_NAME])) {
                 header('Location: ' . Login_Button_URL);
             }
             // Check if valid
-            if (AzureAD::checkJWTToken($_COOKIE['auth_cookie'])) {
+            if (AzureAD::checkJWTToken($_COOKIE[AUTH_COOKIE_NAME])) {
                 $loggedIn = true;
             } else {
                 // If checks for JWT token fail - unset cookie and redirect to /login
-                unset($_COOKIE['auth_cookie']);
-                setcookie('auth_cookie', false, -1, '/', $_SERVER["HTTP_HOST"]);
+                unset($_COOKIE[AUTH_COOKIE_NAME]);
+                setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
                 header('Location: /login');
             }
         } else {
@@ -47,9 +47,9 @@ class RequireLogin
 
         $idTokenInfoArray = [];
 
-        if ($loggedIn && isset($_COOKIE['auth_cookie'])) {
+        if ($loggedIn && isset($_COOKIE[AUTH_COOKIE_NAME])) {
             // Let's parse the JWT token from the auth cookie and look at the claims
-            $authCookieArray = AzureAD::parseJWTTokenPayLoad($_COOKIE['auth_cookie']);
+            $authCookieArray = AzureAD::parseJWTTokenPayLoad($_COOKIE[AUTH_COOKIE_NAME]);
             // We are mapping what the claims are called in the DB (keys) vs in the JWT token (values)
             $expectedClaims = [
                 'username' => 'preferred_username',
