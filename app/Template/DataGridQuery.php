@@ -2,7 +2,7 @@
 
 namespace Template;
 
-use Database\DB;
+use Database\MYSQL;
 use Template\DataGrid;
 
 class DataGridQuery
@@ -11,7 +11,7 @@ class DataGridQuery
     {
         // First the SELECT query
 
-        $result = DB::query($query);
+        $result = MYSQL::query($query);
 
         // Save the result as array in $data to be used for export later
         $data = $result->fetch_all(MYSQLI_ASSOC);

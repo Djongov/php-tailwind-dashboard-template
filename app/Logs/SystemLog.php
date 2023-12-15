@@ -3,7 +3,7 @@
 namespace Logs;
 
 use Authentication\AzureAD;
-use Database\DB;
+use Database\MYSQL;
 
 class SystemLog
 {
@@ -24,6 +24,6 @@ class SystemLog
             $clientIp = $_SERVER['REMOTE_ADDR'];
         }
         $fullUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-        DB::queryPrepared("INSERT INTO `system_log` (`text`, `client_ip`, `user-agent`, `created_by`, `category`, `uri`, `method`) VALUES (?, ?, ?, ?, ?, ?, ?)", [$message, $clientIp, $_SERVER['HTTP_USER_AGENT'], $username, $category, $fullUrl, $_SERVER['REQUEST_METHOD']]);
+        MYSQL::queryPrepared("INSERT INTO `system_log` (`text`, `client_ip`, `user-agent`, `created_by`, `category`, `uri`, `method`) VALUES (?, ?, ?, ?, ?, ?, ?)", [$message, $clientIp, $_SERVER['HTTP_USER_AGENT'], $username, $category, $fullUrl, $_SERVER['REQUEST_METHOD']]);
     }
 }

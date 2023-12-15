@@ -2,7 +2,7 @@
 
 namespace Template;
 
-use Database\DB;
+use Database\MYSQL;
 
 class DataGrid
 {
@@ -223,14 +223,14 @@ class DataGrid
     {
         // First the SELECT query
         if (empty($skip)) {
-            $countResult = DB::query("SELECT * FROM $dbTable ORDER by `id` DESC");
+            $countResult = MYSQL::query("SELECT * FROM $dbTable ORDER by `id` DESC");
         } else {
             $queryArray = [
                 "SET @sql = CONCAT('SELECT ', (SELECT GROUP_CONCAT(COLUMN_NAME) FROM information_schema.columns WHERE table_schema = 'managed-waf' AND table_name = '$dbTable' AND COLUMN_NAME NOT IN (" . implode(', ', array_map('add_quotes', $skip)) . ")), ' from `$dbTable` ORDER by `id` DESC');",
                 "PREPARE stmt1 FROM @sql;",
                 "EXECUTE stmt1;"
             ];
-            $countResult = DB::multiQuery($queryArray);
+            $countResult = MYSQL::multiQuery($queryArray);
         }
         // Save the result as array in $data to be used for export later
         $data = $countResult->fetch_all(MYSQLI_ASSOC);
@@ -257,7 +257,7 @@ class DataGrid
             }
         }
 
-        $columnResult = DB::query($columnSQL);
+        $columnResult = MYSQL::query($columnSQL);
 
         return DataGrid::dataGridTemplate($title, $dbTable, $countResult, $columnResult, $delete, $edit, $data, $theme);
     }

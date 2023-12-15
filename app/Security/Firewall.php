@@ -2,7 +2,7 @@
 
 namespace Security;
 
-use \Database\DB;
+use Database\MYSQL;
 use Response\DieCode;
 
 class Firewall
@@ -29,7 +29,7 @@ class Firewall
             // or just use the normal remote addr
             $client_ip = $_SERVER['REMOTE_ADDR'];
         }
-        $firewall_ips_check = DB::query('SELECT * FROM `firewall`');
+        $firewall_ips_check = MYSQL::query('SELECT * FROM `firewall`');
         $firewall_array = $firewall_ips_check->fetch_all(MYSQLI_ASSOC);
         $allow_list = [];
         foreach ($firewall_array as $index => $array) {

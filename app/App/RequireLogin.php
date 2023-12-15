@@ -2,7 +2,7 @@
 
 namespace App;
 
-use Database\DB;
+use Database\MYSQL;
 use Authentication\AzureAD;
 use Response\DieCode;
 
@@ -79,19 +79,19 @@ class RequireLogin
 
         // If we are logged in and we have an established username, we need to either fetch user data from the DB or create a new user in the DB
         if ($username !== null) {
-            $userResult = DB::query("SELECT * FROM `users` WHERE `username` = '$username'");
+            $userResult = MYSQL::query("SELECT * FROM `users` WHERE `username` = '$username'");
             if ($userResult->num_rows > 0) {
                 $usernameArray = $userResult->fetch_assoc();
                 // Let's check if the last_ip is different from what we have in the DB, and update it
                 if ($usernameArray['last_ips'] !== $idTokenInfoArray["last_ip"]) {
-                    DB::queryPrepared("UPDATE `users` SET `last_ips`=? WHERE `username`=?",[$idTokenInfoArray["last_ip"], $username]);
+                    MYSQL::queryPrepared("UPDATE `users` SET `last_ips`=? WHERE `username`=?",[$idTokenInfoArray["last_ip"], $username]);
                 }
             } else {
-                $user_exists_check = DB::queryPrepared("SELECT `username` FROM `users` WHERE `username`=?", $username);
+                $user_exists_check = MYSQL::queryPrepared("SELECT `username` FROM `users` WHERE `username`=?", $username);
                 if ($user_exists_check->num_rows === 0 && $loggedIn) {
                     $caputredEmail = (isset($idTokenInfoArray["email"])) ? $idTokenInfoArray["email"] : null;
-                    DB::queryPrepared("INSERT INTO `users`(`username`, `email`, `name`, `last_ips`, `origin_country`, `role`, `last_login`, `theme`, `enabled`) VALUES (?,?,?,?,?,?,NOW(),'amber', '1')", [$idTokenInfoArray["username"], $caputredEmail, $idTokenInfoArray["name"], $idTokenInfoArray["last_ip"], $idTokenInfoArray["country"], $idTokenInfoArray["role"]]);
-                    $newUserResult = DB::queryPrepared("SELECT * FROM `users` WHERE `username` = ?", [$idTokenInfoArray["username"]]);
+                    MYSQL::queryPrepared("INSERT INTO `users`(`username`, `email`, `name`, `last_ips`, `origin_country`, `role`, `last_login`, `theme`, `enabled`) VALUES (?,?,?,?,?,?,NOW(),'amber', '1')", [$idTokenInfoArray["username"], $caputredEmail, $idTokenInfoArray["name"], $idTokenInfoArray["last_ip"], $idTokenInfoArray["country"], $idTokenInfoArray["role"]]);
+                    $newUserResult = MYSQL::queryPrepared("SELECT * FROM `users` WHERE `username` = ?", [$idTokenInfoArray["username"]]);
                     $usernameArray = $newUserResult->fetch_assoc();
                     //writeToSystemLog("Created a new user with info - " . implode(" | ", $idTokenInfoArray), "Authentication");
                 }
@@ -102,11 +102,11 @@ class RequireLogin
                 $isAdmin = true;
             // If the JWT token has role admin but the DB says NO, it might have been a new assignment of admin role so we need to update DB
             } elseif ($idTokenInfoArray["role"] === 'administrator' && $usernameArray['role'] !== 'administrator') {
-                DB::queryPrepared("UPDATE `users` SET `role`='administrator' WHERE `username`=?", [$usernameArray['username']]);
+                MYSQL::queryPrepared("UPDATE `users` SET `role`='administrator' WHERE `username`=?", [$usernameArray['username']]);
                 // Good to alert as well
             // And if DB says admin but the JWT token no longer bears the admin role - remove it
             } elseif ($idTokenInfoArray["role"] !== 'administrator' && $usernameArray['role'] === 'administrator') {
-                DB::queryPrepared("UPDATE `users` SET `role`=NULL WHERE `username`=?", [$usernameArray['username']]);
+                MYSQL::queryPrepared("UPDATE `users` SET `role`=NULL WHERE `username`=?", [$usernameArray['username']]);
                 // Good to alert as well
             }
         }

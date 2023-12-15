@@ -3,101 +3,291 @@
 namespace Template;
 
 use Security\CRSF;
+use Template\Html;
 
 class Forms
 {
-    public static function render(array $options, $theme = COLOR_SCHEME)
+    public static function render(array $options, string $theme = COLOR_SCHEME) : string
     {
         $html = '';
-        $formClass = 'generic-form';
+
         $theme = (isset($options['theme'])) ? $options['theme'] : $theme;
-        if (isset($options['confirm']) && $options['confirm']) {
-            $formClass .= ' confirm';
+
+        $method = (isset($options['method'])) ? $options['method'] : 'POST';
+
+        // Optional target attribute
+        $target = (isset($options['target'])) ? 'target="' . $options['target']  . '"' : '';
+
+        // Let's make some checks on required form options
+        $formOptionsRequired = ['action', 'button'];
+
+        foreach ($formOptionsRequired as $formOptionRequired) {
+            if (!isset($options[$formOptionRequired])) {
+                throw new \Exception($formOptionRequired . ' is a required form option');
+            }
         }
-        $confirmData = (isset($options['confirmText'])) ? 'data-confirm="' . $options['confirmText'] . '"' : null;
 
-        $reloadOnSubmitData = 'data-reload="' . (isset($options['reloadOnSubmit']) && $options['reloadOnSubmit'] ? 'true' : 'false') . '"';
+        $formAttributes = self::formAttributes($options);
 
-        $resultType = (isset($options['resultType'])) ? 'data-result="' . $options['resultType'] . '"' : null;
-        
-        $html .= '<div class="m-4">';
-            $html .= '<form class="' . $formClass . ' mb-4" action="' . $options['action'] . '"' . $reloadOnSubmitData . $confirmData . $resultType . '>';
-                if (isset($options['inputs'])) {
-                    foreach($options['inputs'] as $formType => $formArray) {
-                        foreach ($formArray as $metaArray) {
-                            // Setup the meta such as readonly, disabled, required
-                            $disabled = (isset($metaArray['disabled']) && $metaArray['disabled']) ? 'disabled' : '';
-                            $required = (isset($metaArray['required']) && $metaArray['required']) ? 'required' : '';
-                            $readonly = (isset($metaArray['readonly']) && $metaArray['readonly']) ? 'readonly' : '';
-                            $checked = (isset($metaArray['checked']) && $metaArray['checked']) ? 'checked' : '';
-                            $placeholder = isset($metaArray['placeholder']) ? 'placeholder="' . $metaArray['placeholder'] . '"': '';
-                            // Inputs such as text, email
-                            if ($formType === 'input') {
-                                $html .= '<div class="mb-6">';
-                                    $html .= '<div class="my-2">';
-                                        $html .= '<label for="' . $metaArray['name'] . '" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">' . $metaArray['label_name'] . '</label>';
-                                        $html .= '<input type="' . $metaArray['input_type'] . '" name="' . $metaArray['name'] . '" class="text-sm bg-gray-100 appearance-none border-2 border-gray-100 rounded-lg py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-' . $theme . '-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500" ' . $placeholder . ' ' . $required . ' ' . $disabled . ' ' . $readonly . ' />';
-                                        $html .= (isset($metaArray['description'])) ? '<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">' . $metaArray['description'] . '</p>' : null;
-                                    $html .= '</div>';
-                                $html .= '</div>';
-                            }
-                            // Inputs such as checkbox
-                            if ($formType === 'checkbox') {
-                                $html .= '<div class="mt-2">';
-                                $html .= '<div class="flex items-center mb-4">';
-                                $html .= '<input name="' . $metaArray['name'] . '" type="checkbox" value="' . $metaArray['value'] . '" class="w-4 h-4 text-' . $theme . '-600 bg-gray-100 rounded border-gray-300 focus:ring-' . $theme . '-500 dark:focus:ring-' . $theme . '-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" ' . $checked . ' ' . $required . ' ' . $disabled . ' ' . $readonly . '/>';
-                                $html .= '<label for="' . $metaArray['name'] . '" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">' . $metaArray['label_name'] . '';
-                                $html .= '<i data-popover-target="' . $metaArray['name'] . '-info" class="cursor-pointer ml-1 rounded-full border border-gray-300">i<div data-popover id="' . $metaArray['name'] . '-info" role="tooltip" class="absolute z-10 invisible inline-block w-64 text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 dark:text-gray-400 dark:border-gray-600 dark:bg-gray-800">
-                                                <div class="px-3 py-2">
-                                                    <p>' . $metaArray['description'] . '</p>
-                                                </div>
-                                            </div>
-                                        </i>
-                                        </label>';
-                                $html .= '</div>';
-                                $html .= '</div>';
-                            }
-                            if ($formType === 'select') {
-                                $html .= '<div class="mb-6">';
-                                $html .= '<div class="my-2">';
-                                $html .= '<label for="' . $metaArray['name'] . '" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">' . $metaArray['label_name'] . '</label>';
-                                $html .= '<select name="' . $metaArray['name'] . '" class="' . Html::selectInputClasses($theme) . '">';
-                                $html .= (isset($metaArray['description'])) ? '<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">' . $metaArray['description'] . '</p>' : null;
-                                $selectedOption = $metaArray['selected_option'] ?? null;
-                                foreach ($metaArray['options'] as $name => $value) {
-                                    if ($selectedOption !== null && $selectedOption === $name) {
-                                        $html .= '<option value="' . $value . '" selected>' . $name . '</option>';
-                                    } else {
-                                        $html .= '<option value="' . $value . '">' . $name . '</option>';
-                                    }
-                                }
-                                $html .= '</select>';
-                                $html .= '</div>';
-                                $html .= '</div>';
-                            }
-                            // Hidden inputs
-                            if ($formType === 'hidden') {
-                                $html .= '<input type="hidden" name="' . $metaArray['name'] . '" value="' . $metaArray['value'] . '" />';
+        $html .= '<div class="my-4 w-max-full">';
+            $html .= '<form class="' . self::formClasses($options) . '" action="' . $options['action'] . '"' . $formAttributes . ' ' . $target . ' method="' . $method . '">';
+
+            if (!isset($options['inputs'])) {
+                throw new \Exception('inputs is a required form option');
+            }
+
+            foreach ($options['inputs'] as $inputType => $inputArray) {
+                foreach ($inputArray as $inputOptionsArray) {
+
+                    // Now let's conditionally set the optional input options
+                    $value = (isset($inputOptionsArray['value'])) ? $inputOptionsArray['value'] : '';
+                    $label = (isset($inputOptionsArray['label'])) ? $inputOptionsArray['label'] : '';
+                    $description = (isset($inputOptionsArray['description'])) ? $inputOptionsArray['description'] : '';
+                    $title = (isset($inputOptionsArray['title'])) ? $inputOptionsArray['title'] : '';
+                    $id = (isset($inputOptionsArray['id'])) ? $inputOptionsArray['id'] : null;
+
+                    // Setup the meta such as readonly, disabled, required
+                    $disabled = (isset($inputOptionsArray['disabled']) && $inputOptionsArray['disabled']) ? true : false;
+                    $required = (isset($inputOptionsArray['required']) && $inputOptionsArray['required']) ? true : false;
+                    $readonly = (isset($inputOptionsArray['readonly']) && $inputOptionsArray['readonly']) ? true : false;
+                    $checked = (isset($inputOptionsArray['checked']) && $inputOptionsArray['checked']) ? true : false;
+                    $placeholder = isset($inputOptionsArray['placeholder']) ? $inputOptionsArray['placeholder'] : '';
+                    $regex = (isset($inputOptionsArray['regex'])) ? $inputOptionsArray['regex'] : '';
+                    $extraClasses = (isset($inputOptionsArray['extraClasses'])) ? $inputOptionsArray['extraClasses'] : [];
+                    $dataAttributes = (isset($inputOptionsArray['dataAttributes'])) ? $inputOptionsArray['dataAttributes'] : [];
+                    // Set min max values if provided
+                    $min = (isset($inputOptionsArray['min'])) ? $inputOptionsArray['min'] : null;
+                    $max = (isset($inputOptionsArray['max'])) ? $inputOptionsArray['max'] : null;
+                    // Step
+                    $step = (isset($inputOptionsArray['step'])) ? $inputOptionsArray['step'] : null;
+
+                    // Inputs such as text, email .. etc
+                    if ($inputType === 'input') {
+                        // These are the required input options
+                        $requiredInputOptions = ['type', 'name'];
+                        
+                        foreach ($requiredInputOptions as $requiredInputOption) {
+                            if (!isset($inputOptionsArray[$requiredInputOption])) {
+                                throw new \Exception($requiredInputOption . ' is a required input option');
                             }
                         }
+                        
+
+                        // Size of the input
+                        $allowedSizes = ['default', 'small', 'large'];
+                        // Kill if not the correct size but size is optional
+                        if (isset($inputOptionsArray['size']) && !in_array($inputOptionsArray['size'], $allowedSizes)) {
+                            throw new \Exception('Size must be one of the following: ' . implode(', ', $allowedSizes));
+                        }
+                        $size = (isset($inputOptionsArray['size'])) ? $inputOptionsArray['size'] : 'default';
+                        // Pull the input from the HTML::input method
+                        $html .= HTML::input($size, $inputOptionsArray['type'], $id, $inputOptionsArray['name'], $title, $value, $placeholder, $description, $label, $theme, $disabled, $required, $readonly, true, $min, $max, $step, $regex, $extraClasses, $dataAttributes);
+                    }
+                    // If textarea
+                    if ($inputType === 'textarea') {
+                        $rows = (isset($inputOptionsArray['rows'])) ? $inputOptionsArray['rows'] : 10;
+                        $cols = (isset($inputOptionsArray['cols'])) ? $inputOptionsArray['cols'] : 100;
+                        $html .= HTML::textArea($inputOptionsArray['name'], $value, $placeholder, $title, $description, $label, $theme, $disabled, $required, $readonly, $rows, $cols,$extraClasses, $dataAttributes);
+                    }
+                    // Inputs such as checkbox
+                    if ($inputType === 'checkbox') {
+                        $html .= HTML::checkbox($id, $inputOptionsArray['name'], $value, $label, $description, $checked, $disabled, $readonly, $theme,$extraClasses, $dataAttributes);
+                    }
+                    // Inputs checbox group
+                    if ($inputType === 'checkboxGroup') {
+                        array_push($extraClasses, 'checkbox-group');
+                        $html .= HTML::checkbox($id, $inputOptionsArray['name'], $value, $label, $description, $checked, $disabled, $readonly, $theme,$extraClasses, $dataAttributes);
+                    }
+                    if ($inputType === 'toggle') {
+                        $html .= '<div class="my-2">';
+                            $html .= HTML::toggleCheckBox(uniqid(), $inputOptionsArray['name'], $value, $inputOptionsArray['description'], $checked, $theme, $disabled);
+                        $html .= '</div>';
+                    }
+                    if ($inputType === 'select') {
+                        $html .= '<div class="mb-6">';
+                        $html .= '<div class="my-2">';
+                        $title = (isset($inputOptionsArray['title'])) ? 'title="' . $inputOptionsArray['title'] . '"' : '';
+                        $disabled = (isset($inputOptionsArray['disabled']) && $inputOptionsArray['disabled']) ? 'disabled' : '';
+                        $html .= '<label for="' . $inputOptionsArray['name'] . '" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">' . $inputOptionsArray['label'] . '</label>';
+                        $selectDivFlex = (isset($inputOptionsArray['searchFlex'])) ? $inputOptionsArray['searchFlex'] : 'flex-row';
+                        $html .= '<div class="w-fit flex ' . $selectDivFlex . ' flex-wrap">';
+                        if (isset($inputOptionsArray['search']) && $inputOptionsArray['search']) {
+                            $html .= HTML::searchInput($theme);
+                        }
+                        $html .= '<select name="' . $inputOptionsArray['name'] . '" class="' . Html::selectInputClasses($theme) . '" ' . $disabled . $title . '>';
+                        $html .= (isset($inputOptionsArray['description'])) ? '<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">' . $inputOptionsArray['description'] . '</p>' : null;
+                        $selectedOption = $inputOptionsArray['selected_option'] ?? null;
+                        // let's first find out if $inputOptionsArray['options'] is an indexed array, if it is, we will attempt to flatten it
+                        if (array_keys($inputOptionsArray['options']) === range(0, count($inputOptionsArray['options']) - 1)) {
+                            $inputOptionsArray['options'] = array_combine($inputOptionsArray['options'], $inputOptionsArray['options']);
+                        }
+                        foreach ($inputOptionsArray['options'] as $name => $value) {
+                            if ($selectedOption !== null && $selectedOption === $name) {
+                                $html .= '<option value="' . $value . '" selected>' . $name . '</option>';
+                            } else {
+                                $html .= '<option value="' . $value . '">' . $name . '</option>';
+                            }
+                        }
+                        $html .= '</select>';
+                        $html .= '</div>';
+                        if (isset($inputOptionsArray['description'])) {
+                            $html .= HTML::p($inputOptionsArray['description'], 'mt-2 ml-2 text-sm text-gray-500 dark:text-gray-400');
+                        }
+                        $html .= '</div>';
+                        $html .= '</div>';
+                    }
+                    // Hidden inputs
+                    if ($inputType === 'hidden') {
+                        $html .= '<input type="hidden" name="' . $inputOptionsArray['name'] . '" value="' . $inputOptionsArray['value'] . '" />';
                     }
                 }
-                $html .= CRSF::createTag();
-                if ($options['buttonSize'] === 'big') {
-                    $customClasses = 'ml-0 py-4 px-8';
-                } elseif ($options['buttonSize'] === 'medium') {
-                    $customClasses = 'ml-0 py-3 px-6';
-                } elseif ($options['buttonSize'] === 'small') {
-                    $customClasses = 'ml-0 py-2 px-4';
-                }
+            }
+            
+            $html .= CRSF::createTag();
+            if ($options['buttonSize'] === 'big') {
+                $customClasses = 'ml-0 py-4 px-8';
+            } elseif ($options['buttonSize'] === 'medium') {
+                $customClasses = 'ml-0 py-3 px-6';
+            } elseif ($options['buttonSize'] === 'small') {
+                $customClasses = 'ml-0 py-2 px-4';
+            }
+            if (isset($options['buttonDisabled']) && $options['buttonDisabled'] === true) {
+                $customClasses .= ' opacity-50 cursor-not-allowed';
+                $buttonDisabled = 'disabled';
+            } else {
+                $buttonDisabled = '';
+            }
+            if (isset($options['buttonTitle'])) {
+                $buttonTitle = 'title="' . $options['buttonTitle'] . '"';
+            } else {
+                $buttonTitle = '';
+            }
+            if (isset($options['buttonStyle']) && $options['buttonStyle'] === 'X') {
+                $html .= '<div class="my-2"><button ' . $buttonTitle . ' class="cursor-pointer">&#10060;</button></div>';
+            } else {
                 $html .= '
-                <div class="mt-4">
-                    <button type="submit" class="' . $customClasses . ' bg-' . $theme . '-600 hover:bg-' . $theme . '-700 focus:ring-' . $theme . '-500 focus:ring-offset-' . $theme . '-200 text-white transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-lg">
-                        ' . $options['button'] . '
-                    </button>
-                </div>';
+                        <div class="mt-4">
+                            <button ' . $buttonTitle . ' type="submit" class="' . $customClasses . ' bg-' . $theme . '-600 hover:bg-' . $theme . '-700 focus:ring-' . $theme . '-500 focus:ring-offset-' . $theme . '-200 text-white transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-lg" ' . $buttonDisabled . '>
+                                ' . $options['button'] . '
+                            </button>
+                        </div>';
+            }
             $html .= '</form>';
         $html .= '</div>';
         return $html;
+    }
+    public static function formAttributes(array $options)
+    {
+        // Now let's create an array that will hold the form data-attributes
+        $formAttributesArray = [];
+
+        // confirmText is optional, if it's not passed, we will use the default text
+        if (isset($options['confirmText'])) {
+            $formAttributesArray['data-confirm'] = $options['confirmText'];
+        } else {
+            $formAttributesArray['data-confirm'] = 'Are you sure?';
+        }
+
+        // Double confirm feature, first let's see if it's passed
+        if (isset($options['doubleConfirm'])) {
+            // If it is passed, let's make sure it's a boolean, if not throw an exception
+            if (!is_bool($options['doubleConfirm'])) {
+                throw new \Exception('doubleConfirm option must be a boolean');
+            }
+            // We need confirmText to be passed as well for double confirm to work
+            if (!isset($options['doubleConfirmKeyWord'])) {
+                throw new \Exception('doubleConfirmKeyWord option must be passed if doubleConfirm is defined');
+            }
+            if ($options['doubleConfirmKeyWord']) {
+                $formAttributesArray['data-double-confirm-keyword'] = $options['doubleConfirmKeyWord'];
+            }
+        }
+
+        // Now reloadOnSubmit feature, first let's see if it's passed
+        if (isset($options['reloadOnSubmit'])) {
+            // If it is passed, let's make sure it's a boolean, if not throw an exception
+            if (!is_bool($options['reloadOnSubmit'])) {
+                throw new \Exception('reloadOnSubmit option must be a boolean');
+            }
+            if ($options['reloadOnSubmit']) {
+                $formAttributesArray['data-reload'] = 'true';
+            }
+        }
+
+        // Now redirectOnSubmit feature, first let's see if it's passed
+        if (isset($options['redirectOnSubmit'])) {
+            // If it is passed, let's make sure it's a boolean, if not throw an exception
+            if (!is_string($options['redirectOnSubmit'])) {
+                throw new \Exception('redirectOnSubmit option must be a string');
+            }
+            $formAttributesArray['data-redirect'] = $options['redirectOnSubmit'];
+        }
+
+        // Now resultType feature, first let's see if it's passed
+        if (isset($options['resultType'])) {
+            // If it is passed, let's make sure it's a string, if not throw an exception
+            if (!is_string($options['resultType']) && !is_null($options['resultType']) && !empty($options['resultType'])
+            ) {
+                throw new \Exception('resultType option must be a string');
+            }
+            // Let's make another check and only allow values of html and text
+            if ($options['resultType'] !== 'html' && $options['resultType'] !== 'text') {
+                throw new \Exception('resultType option must be either html or text');
+            }
+            $formAttributesArray['data-result'] = $options['resultType'];
+        }
+        // Now deleteCurrentRowOnSubmit feature, first let's see if it's passed
+        if (isset($options['deleteCurrentRowOnSubmit'])) {
+            // If it is passed, let's make sure it's a boolean, if not throw an exception
+            if (!is_bool($options['deleteCurrentRowOnSubmit'])) {
+                throw new \Exception('deleteCurrentRowOnSubmit option must be a boolean');
+            }
+            $formAttributesArray['data-delete-current-row'] = $options['deleteCurrentRowOnSubmit'];
+        }
+
+        // We are done collecting data-attributes, let's add them to the form by first assigning them to a variable
+        $formAttributes = '';
+
+        if (!empty($formAttributesArray)) {
+            foreach ($formAttributesArray as $key => $value) {
+                $formAttributes .= $key . '="' . $value . '" ';
+            }
+        }
+
+        return $formAttributes;
+    }
+    public static function formClasses(array $options) : string
+    {
+        $formClassesArray = [];
+
+        array_push($formClassesArray, 'generic-form');
+        array_push($formClassesArray, 'mb-4');
+
+        // Let's see if additionalClasses is passed, if it is, let's add it to the formClassesArray
+        if (isset($options['additionalClasses'])) {
+            // additionalClasses will be a string of classes separated by a space
+            $additionalClassesArray = explode(' ', $options['additionalClasses']);
+            // Let's loop through the array and add each class to the formClassesArray
+            foreach ($additionalClassesArray as $additionalClass) {
+                array_push($formClassesArray, $additionalClass);
+            }
+        }
+
+        if (isset($options['doubleConfirmKeyWord'])) {
+            array_push($formClassesArray, 'double-confirm');
+        }
+
+        // Confirm feature, first let's see if it's passed
+        if (isset($options['confirm'])) {
+            // If it is passed, let's make sure it's a boolean, if not throw an exception
+            if (!is_bool($options['confirm'])) {
+                throw new \Exception('confirm option must be a boolean');
+            }
+            if ($options['confirm']) {
+                array_push($formClassesArray, 'confirm');
+            }
+        }
+
+        return implode(' ', $formClassesArray);
     }
 }
