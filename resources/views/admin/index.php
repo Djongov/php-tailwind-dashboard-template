@@ -1,13 +1,13 @@
 <?php
 
 use Logs\SystemLog;
-use Response\DieCode;
+use Api\Output;
 use Database\MYSQL;
 use Template\DataGrid;
 
 if (!$isAdmin) {
     SystemLog::write('Got unauthorized for admin page', 'Access');
-    DieCode::kill('You are not authorized to view this page', 401);
+    Output::error('You are not authorized to view this page', 401);
 }
 
 use Template\Html;

@@ -2,10 +2,12 @@
 
 namespace Authentication;
 
-use \Request\Http;
+use Request\Http;
+use App\General;
 
-class AzureAD {
-    public static function checkJWTToken($token) : bool
+class AzureAD
+{
+    public static function checkJWTToken(string $token): bool
     {
         // Explode the JWT token into header, paylod and signature
         $tokenParts = explode('.', $token);
@@ -62,9 +64,9 @@ class AzureAD {
         $sig_enc = $token_arr[2];
 
         // 2 base 64 url decoding
-        $headers_arr = json_decode(self::base64url_decode($headers_enc), true);
-        $claims_arr = json_decode(self::base64url_decode($claims_enc), true);
-        $sig = self::base64url_decode($sig_enc);
+        $headers_arr = json_decode(General::base64url_decode($headers_enc), true);
+        $claims_arr = json_decode(General::base64url_decode($claims_enc), true);
+        $sig = General::base64url_decode($sig_enc);
 
         // Check if the kid is in the header. Maybe this check is not so important
         if (!isset($header_array['kid'])) {
@@ -104,39 +106,18 @@ class AzureAD {
 
         return true;
     }
-
-    public static function base64url_encode($input,$nopad=1,$wrap=0)
+    // This method will extract the username from the JWT token
+    public static function extractUserName(string $token): ?string
     {
-        $data  = base64_encode($input);
-
-        if($nopad) {
-            $data = str_replace("=","",$data);
-        }
-
-        $data = strtr($data, '+/=', '-_,');
-
-        if ($wrap) {
-            $datalb = "";
-            while (mb_strlen($data) > 64) {
-                $datalb .= substr($data, 0, 64) . "\n";
-                $data = substr($data,64);
-            }
-            $datalb .= $data;
-            return $datalb;
-        } else {
-            return $data;
-        }
+        $parsed_token = self::parseJWTTokenPayLoad($token);
+        return $parsed_token['preferred_username'] ?? null;
     }
 
-    public static function base64url_decode($input)
-    {
-        return base64_decode(strtr($input, '-_,', '+/='));
-    }
 
-    protected function getSignatures($appId, $tenant, $header_kid)
+    protected function getSignatures(string $appId, string $tenant, string $header_kid): ?array
     {
         $url = "https://login.microsoftonline.com/$tenant/discovery/keys?appid=$appId";
-        
+
 
         $request = new Http;
 
@@ -154,13 +135,18 @@ class AzureAD {
                     array_push($kid_array, $props['kid']);
                 }
             }
+        } else {
+            return null;
         }
 
         return $kid_array;
     }
-    public static function parseJWTTokenPayLoad($jwt) : array
+    public static function parseJWTTokenPayLoad(string $jwt): ?array
     {
         $tokenParts = explode('.', $jwt);
+        if (count($tokenParts) !== 3) {
+            return null;
+        }
         $header = base64_decode($tokenParts[0]);
         $payload = base64_decode($tokenParts[1]);
         $signature_provided = $tokenParts[2];
@@ -171,10 +157,6 @@ class AzureAD {
     public static function checkJWTTokenExpiry($jwt)
     {
         $payload_array = self::parseJWTTokenPayLoad($jwt);
-        if ($payload_array['exp'] - time() < 0) {
-            return false;
-        } else {
-            return true;
-        }
+        return ($payload_array['exp'] - time() < 0) ? false : true;
     }
 }

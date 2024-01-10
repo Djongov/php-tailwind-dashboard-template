@@ -4,13 +4,13 @@ namespace App;
 
 use Database\MYSQL;
 use Authentication\AzureAD;
-use Response\DieCode;
+use Api\Output;
 
 class RequireLogin
 {
     public static function check()
     {
-        $loginExempt = ['/csp-report', '/api/local-login-process', '/register'];
+        $loginExempt = ['/', '/docs', '/docs/example', '/csp-report', '/api/local-login-process', '/register', '/auth-verify'];
 
         $loggedIn = false;
 
@@ -113,7 +113,7 @@ class RequireLogin
 
         // Kill disabled users early
         if (isset($usernameArray["enabled"]) && $usernameArray["enabled"] === 0) {
-            DieCode::kill('Your user has been disabled', 401);
+            Output::error('Your user has been disabled', 401);
         }
 
         //$theme = (isset($usernameArray["theme"])) ? $usernameArray["theme"] : COLOR_SCHEME;

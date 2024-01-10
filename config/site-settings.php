@@ -34,6 +34,13 @@ define("LOGO", '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0
 </svg>
 ');
 
+define("DEFAULT_METADATA", [
+    'title' => SITE_TITLE,
+    'description' => GENERIC_DESCRIPTION,
+    'keywords' => GENERIC_KEYWORDS,
+    'thumbimage' => OG_LOGO,
+]);
+
 // Default theme for unathenticated users and first-time logins
 define("COLOR_SCHEME", "amber");
 
@@ -44,9 +51,13 @@ define("DB_USER", $_ENV['DB_USER']);
 define("DB_PASS", $_ENV['DB_PASS']);
 define("DB_NAME", $_ENV['DB_NAME']);
 
-define("CA_CERT", $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'DigiCertGlobalRootCA.crt.pem');
+define("CA_CERT", dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '.tools' . DIRECTORY_SEPARATOR . 'DigiCertGlobalRootCA.crt.pem');
 
-define("CURL_CERT", $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'cacert.pem');
+define("CURL_CERT", dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '.tools' . DIRECTORY_SEPARATOR . 'cacert.pem');
+
+define("JWT_PUBLIC_KEY", dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '.tools' . DIRECTORY_SEPARATOR . 'public-key.pem');
+
+define("JWT_PRIVATE_KEY", dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '.tools' . DIRECTORY_SEPARATOR . 'private-key.pem');
 
 define('AUTH_COOKIE_NAME', 'auth_cookie');
 

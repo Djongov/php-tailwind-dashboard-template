@@ -3,7 +3,7 @@
 namespace Security;
 
 use Database\MYSQL;
-use Response\DieCode;
+use Api\Output;
 
 class Firewall
 {
@@ -54,7 +54,7 @@ class Firewall
         if (!$valid_ip) {
             //include_once dirname($_SERVER['DOCUMENT_ROOT']) . '/functions/systemLog/systemLog.php';
             //writeToSystemLog('just tried to access the web app and got Unauthorized', 'Access');
-            DieCode::kill('Unauthorized access for IP Address ' . $client_ip . ' on uri ' . $_SERVER['REQUEST_URI'], 401);
+            Output::error('Unauthorized access for IP Address ' . $client_ip . ' on uri ' . $_SERVER['REQUEST_URI'], 401);
         }
     }
 }

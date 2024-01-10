@@ -1,33 +1,17 @@
 <?php
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['data'])) {
-        $data = $_POST['data'];
-    } else {
-        $data = '';
-    }
-    //var_dump($_POST['data']);
-    $data = unserialize($data);
-
-    if (isset($_POST['type'])) {
-        $type = htmlspecialchars($_POST['type']);
-    } else {
-        $type = '';
-    }
+if (isset($_POST['data'])) {
+    $data = $_POST['data'];
 } else {
-    if (isset($_GET['data'])) {
-        $data = $_GET['data'];
-    } else {
-        $data = '';
-    }
-    //var_dump($_POST['data']);
-    $data = unserialize($data);
+    $data = '';
+}
+//var_dump($_POST['data']);
+$data = unserialize($data);
 
-    if (isset($_GET['type'])) {
-        $type = htmlspecialchars($_GET['type']);
-    } else {
-        $type = '';
-    }
+if (isset($_POST['type'])) {
+    $type = htmlspecialchars($_POST['type']);
+} else {
+    $type = '';
 }
 
 // Now, Sentinel returns JSON in a weird format where [ { has space between the two and we need to clean them, otherwise CSV breaks if there is JSON - }]
@@ -42,7 +26,7 @@ unset($set, $subset); // avoid future variable interferences
 //$data[0]["details_matches_s"] = preg_replace('/\s+/', '',$data[0]["details_matches_s"]);
 
 // file name for download
-$fileName = $type . "-data-" . date('Y-m-d-H-i-s') . ".tsv";
+$fileName = $type . "-logs-data-" . date('Y-m-d-H-i-s') . ".tsv";
 
 $unique_heads = '';
 $excelData = '';

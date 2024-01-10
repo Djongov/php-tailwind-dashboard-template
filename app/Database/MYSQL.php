@@ -44,7 +44,7 @@ class MYSQL
                     exit();
                 } else {
                     $error = $e->getMessage();
-                    DieCode::kill($error, 400);
+                    Output::error($error, 400);
                 }
             }
         } else {
@@ -88,7 +88,7 @@ class MYSQL
                     exit();
                 } else {
                     $error = $e->getMessage();
-                    DieCode::kill($error, 400);
+                    Output::error($error, 400);
                 }
             }
         }
@@ -103,7 +103,7 @@ class MYSQL
             $stmt = $link->prepare($query);
         } catch (\mysqli_sql_exception $e) {
             $error = $e->getMessage();
-            DieCode::kill($error, 400);
+            Output::error($error, 400);
         }
         $result = null;
         try {
@@ -111,7 +111,7 @@ class MYSQL
             $result = $stmt->get_result();
         } catch (\mysqli_sql_exception $e) {
             $error = $e->getMessage();
-            DieCode::kill($error, 400);
+            Output::error($error, 400);
         }
 
         $link->close();
@@ -125,7 +125,7 @@ class MYSQL
         try {
             $stmt = $link->prepare($query);
         } catch (Exception $e) {
-            DieCode::kill($e, 400);
+            Output::error($e, 400);
         }
         if (is_array($statement)) {
             $statementParams = '';
@@ -153,12 +153,12 @@ class MYSQL
             } else {
                 $error = $stmt->error;
                 $link->close();
-                DieCode::kill($error, 400);
+                Output::error($error, 400);
             }
         } catch (Exception $e) {
             $error = $e->getMessage();
             $link->close();
-            DieCode::kill($error, 400);
+            Output::error($error, 400);
         }
     }
     // Sometimes you may need to make a bundle of queries one after the other, returns a result
@@ -170,7 +170,7 @@ class MYSQL
                 $result = mysqli_query($link, $sql);
             } catch (Exception $e) {
                 $error = $e->getMessage();
-                DieCode::kill($error, 400);
+                Output::error($error, 400);
             }
         }
         $link->close();

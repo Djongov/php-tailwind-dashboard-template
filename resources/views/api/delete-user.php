@@ -1,6 +1,6 @@
 <?php
 
-use Response\DieCode;
+use Api\Output;
 use Authentication\AzureAD;
 use Database\MYSQL;
 
@@ -12,25 +12,25 @@ $isInvalidCSRF = (!isset($_SESSION['csrf_token']) ||
 );
 
 if ($isInvalidCSRF) {
-    DieCode::kill('Incorrect CSRF token', 401);
+    Output::error('Incorrect CSRF token', 401);
 }
 
 if ($loginInfoArray['usernameArray']['username'] !== $_POST['username']) {
-    DieCode::kill('Username missmatch', 401);
+    Output::error('Username missmatch', 401);
 }
 
 if (!isset($_COOKIE[AUTH_COOKIE_NAME])) {
-    DieCode::kill('No Authentication present', 401);
+    Output::error('No Authentication present', 401);
 }
 
 if (isset($_COOKIE[AUTH_COOKIE_NAME]) && !AzureAD::checkJWTTokenExpiry($_COOKIE[AUTH_COOKIE_NAME])) {
-    DieCode::kill('Authentication token expired', 401);
+    Output::error('Authentication token expired', 401);
 }
 
 $userCheck = MYSQL::queryPrepared("SELECT * FROM `users` WHERE `username`=?", $_POST['username']);
 
 if ($userCheck->num_rows === 0) {
-    DieCode::kill('User not found', 404);
+    Output::error('User not found', 404);
 }
 
 MYSQL::queryPrepared("DELETE FROM `users` WHERE `username`=?", $_POST['username']);

@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             if ($result->num_rows === 0) {
                 //include_once $_SERVER['DOCUMENT_ROOT'] . '/functions/write-logfile.php';
                 //writeToLog('$domain = ' . $domain . ' (' . gettype($domain) . ') and attempted to send a CSP report');
-                DieCode::kill('Domain not allowed', 401);
+                Output::error('Domain not allowed', 401);
             }
             $url = (isset($json_array['csp-report']['document-uri'])) ? $json_array['csp-report']['document-uri'] : null;
             $referrer = (isset($json_array['csp-report']['referrer'])) ? $json_array['csp-report']['referrer'] : null;
@@ -42,8 +42,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     } else {
         // If csp-report is not the top array key, throw 400 and say Incorrect data
-        DieCode::kill('Incorrect data', 400);
+        Output::error('Incorrect data', 400);
     }
 } else {
-    DieCode::kill('Incorrect method', 405);
+    Output::error('Incorrect method', 405);
 }

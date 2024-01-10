@@ -37,7 +37,7 @@ $login_message = 'You are not logged in';
         ?>
             <p class="text-center">or login with a local account</p>
             <div class="mt-5">
-                <form id="local-login-form" action="/api/local-login-process" autoComplete="on" method="post">
+                <form id="local-login-form" autoComplete="on" method="post">
                     <div class="flex flex-col mb-2">
                         <div class="flex relative">
                             <span class="bg-gray-500 dark:bg-gray-800 rounded-l-md inline-flex items-center px-3 border-t bg-white border-l border-b border-gray-300 text-gray-500 shadow-sm text-sm">
@@ -84,7 +84,7 @@ $login_message = 'You are not logged in';
             ?>
     </div>
 <?php
-            echo '<script src="/assets/js/local-login.js"></script>';
+            echo '<script src="/assets/js/local-login.js?' . time() . '"></script>';
         endif;
 ?>
 </div>

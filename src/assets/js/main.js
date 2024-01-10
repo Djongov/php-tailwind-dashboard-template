@@ -889,15 +889,29 @@ const handleFormFetch = (form, currentEvent, resultType) => {
         });
     }
     const data = new URLSearchParams(formData);
-    // Fetch function
-    fetch(form.action, {
-        method: 'post',
+    // Method will be determined by data-method value
+    const formMethod = form.getAttribute('data-method');
+    // Pick up the csrf token from the hidden input field
+    const csrfToken = form.querySelector('input[name="csrf_token"]').value;
+    if (!csrfToken) {
+        console.log('csrfToken is missing');
+        return;
+    }
+    console.log(`csrfToken ${csrfToken}`);
+    const fetchOptions = {
+        method: formMethod,
         headers: {
-            'secretHeader': 'badass'
+            'secretHeader' : 'badass',
+            'X-CSRF-TOKEN': csrfToken
         },
-        body: data,
         redirect: 'manual'
-    })
+    }
+    if (formMethod !== 'GET' || formMethod !== 'DELETE') {
+        fetchOptions.body = JSON.stringify(data);
+    }
+    console.log(`fetchOptions ${JSON.stringify(fetchOptions)}`);
+    // Fetch function
+    fetch(form.action, fetchOptions)
         // Handle response
         .then(response => {
             const contentType = response.headers.get("content-type");
@@ -908,6 +922,10 @@ const handleFormFetch = (form, currentEvent, resultType) => {
                 newResultDiv.innerHTML = '<p class="font-semibold text-red-500">Fetch interrupted. Refreshing page</p>';
                 location.reload();
             } else {
+                // If data-redirect is on the form, instruct to redirect to the specified url
+                if (form.getAttribute("data-redirect")) {
+                    location.href = form.getAttribute("data-redirect");
+                }
                 // If returned content-type is not json, return the text
                 if (contentType && contentType.indexOf("application/json") === -1) {
                     return response.text();

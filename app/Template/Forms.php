@@ -13,8 +13,6 @@ class Forms
 
         $theme = (isset($options['theme'])) ? $options['theme'] : $theme;
 
-        $method = (isset($options['method'])) ? $options['method'] : 'POST';
-
         // Optional target attribute
         $target = (isset($options['target'])) ? 'target="' . $options['target']  . '"' : '';
 
@@ -30,7 +28,7 @@ class Forms
         $formAttributes = self::formAttributes($options);
 
         $html .= '<div class="my-4 w-max-full">';
-            $html .= '<form class="' . self::formClasses($options) . '" action="' . $options['action'] . '"' . $formAttributes . ' ' . $target . ' method="' . $method . '">';
+            $html .= '<form class="' . self::formClasses($options) . '" action="' . $options['action'] . '"' . $formAttributes . ' ' . $target . '>';
 
             if (!isset($options['inputs'])) {
                 throw new \Exception('inputs is a required form option');
@@ -243,6 +241,12 @@ class Forms
                 throw new \Exception('deleteCurrentRowOnSubmit option must be a boolean');
             }
             $formAttributesArray['data-delete-current-row'] = $options['deleteCurrentRowOnSubmit'];
+        }
+
+        if (isset($options['method'])) {
+            $formAttributesArray['data-method'] = $options['method'];
+        } else {
+            $formAttributesArray['data-method'] = 'POST';
         }
 
         // We are done collecting data-attributes, let's add them to the form by first assigning them to a variable

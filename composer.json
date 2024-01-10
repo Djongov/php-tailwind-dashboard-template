@@ -2,6 +2,7 @@
     "require": {
         "guzzlehttp/guzzle": "^7.7",
         "vlucas/phpdotenv": "^5.6",
-        "erusev/parsedown": "^1.7"
+        "erusev/parsedown": "^1.7",
+        "nikic/fast-route": "^1.3"
     }
 }

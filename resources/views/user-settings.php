@@ -40,7 +40,7 @@ echo '<div class="p-4 m-4 max-w-fit bg-white rounded-lg border border-gray-200 s
                 'inputs' => [
                     'select' => [
                         'select' => [
-                            'label_name' => '',
+                            'label' => '',
                             'name' => 'theme',
                             'options' => $themeOptions,
                             'selected_option' => $currentTheme
@@ -57,7 +57,7 @@ echo '<div class="p-4 m-4 max-w-fit bg-white rounded-lg border border-gray-200 s
                 'theme' => $theme, // Optional, defaults to COLOR_SCHEME
                 'action' => '/api/update-theme',
                 'buttonSize' => 'small',
-                'reloadOnSubmit' => true,
+                'redirectOnSubmit' => '/',
                 'button' => 'Update'
             ];
             echo Forms::render($updateThemeOptioms);
@@ -76,7 +76,7 @@ echo '<div class="p-4 m-4 max-w-fit bg-white rounded-lg border border-gray-200 s
     
 echo '</div>';
 
-if (empty($usernameArray['email'])) {
+if (empty($usernameArray['email']) || filter_var($usernameArray['email'], FILTER_VALIDATE_EMAIL) === false) {
     echo '<div class="p-4 m-4 max-w-lg bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700">';
     echo '<div class="flex flex-row flex-wrap items-center mb-4">';
     echo '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="inline-block w-6 h-6 fill-amber-500">
@@ -85,15 +85,15 @@ if (empty($usernameArray['email'])) {
                 </svg>';
     echo Html::h2('Missing Email');
     echo '</div>';
-    echo '<p>We noticed that we haven\'t got your email address from your token claims. We will try to email you on your username which is <strong>' . $usernameArray['username'] . '</strong> but in case you think you can\'t be receiving emails on your username address, here you can give an aleternative. Don\'t worry, we will only be sending important notifications. Signups for newsletters and others are separate.</p>';
+    echo HTML::p('We noticed that we haven\'t got your email address from your token claims. We will try to email you on your username which is <strong>' . $usernameArray['username'] . '</strong> but in case you think you can\'t be receiving emails on your username address, here you can give an aleternative. Don\'t worry, we will only be sending important notifications. Signups for newsletters and others are separate');
 
     $updateEmailFormOptions = [
         'inputs' => [
             'input' => [
                 [
-                    'label_name' => 'Email Address',
-                    'input_type' => 'email',
-                    'input_placeholder' => '',
+                    'label' => 'Email Address',
+                    'type' => 'email',
+                    'placeholder' => '',
                     'name' => 'email',
                     'description' => 'provide a valid email',
                     'disabled' => false,
@@ -109,6 +109,7 @@ if (empty($usernameArray['email'])) {
         ],
         'theme' => $theme,
         'action' => '/api/update-email-address',
+        'buttonSize' => 'medium',
         'button' => 'Update'
     ];
 
@@ -129,15 +130,17 @@ $deleteUserFormOptions = [
         ],
     ],
     'theme' => 'red',
-    'action' => '/api/delete-user',
-    'reloadOnSubmit' => true,
+    'method' => 'DELETE',
+    'action' => '/api/user/' . $usernameArray['id'],
+    'redirectOnSubmit' => '/logout',
     'confirm' => true,
     'confirmText' => 'Are you sure you want to delete your user?
 This will delete your username from our database. This will also remove you from organization where you are a member. This will NOT remove any logs that have your name in it. Your user will be re-created if you login again to the app.',
+    'doubleConfirm' => true,
+    'doubleConfirmKeyWord' => $usernameArray['username'],
     'resultType' => 'text',
     'buttonSize' => 'medium',
     'button' => 'Delete User',
-    
 ];
 
 echo Forms::render($deleteUserFormOptions);

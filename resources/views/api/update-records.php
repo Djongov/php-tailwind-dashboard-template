@@ -1,20 +1,20 @@
 <?php
 
 use Database\MYSQL;
-use Response\DieCode;
+use Api\Output;
 use Logs\SystemLog;
 
 if (!isset($_POST['table'],$_POST['id'])) {
-    DieCode::kill('Incorrect arguments', 400);
+    Output::error('Incorrect arguments', 400);
 }
 
 if (isset($_SERVER['HTTP_SECRETHEADER'])) {
     if ($_SERVER['HTTP_SECRETHEADER'] !== 'badass') {
-        DieCode::kill("Nauhty. You don't know what the secret is", 400);
+        Output::error("Nauhty. You don't know what the secret is", 400);
     }
 } else {
     SystemLog::write('A request was sent without the secret header', 'Access');
-    DieCode::kill("Nauhty. You are missing a secret", 400);
+    Output::error("Nauhty. You are missing a secret", 400);
 }
 
 $sql = "UPDATE `" . $_POST['table'] . "` SET ";

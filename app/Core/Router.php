@@ -3,7 +3,7 @@
 namespace Core;
 
 use \App\Init;
-use Response\DieCode;
+use Api\Output;
 
 class Router
 {
@@ -90,7 +90,7 @@ class Router
             $menuArray = self::calculateMenu();
             echo $page->build($httpErrorMessage, "/errors/error.php", $menuArray, $loginInfoArray);
         } else {
-            DieCode::kill('Route not found', $code);
+            Output::error('Route not found', $code);
         }
     }
 }

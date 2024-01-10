@@ -2,15 +2,19 @@
 
 use Authentication\AzureAD;
 use Database\MYSQL;
-use Response\DieCode;
+use Api\Output;
 
 // if error - throw it as an exception
 if (isset($_POST['error'], $_POST['error_description'])) {
-    DieCode::kill("Azure Error: " . $_POST['error'] . " with Description: " . $_POST['error_description'], 200);
+    Output::error("Azure Error: " . $_POST['error'] . " with Description: " . $_POST['error_description'], 200);
 }
 // state is required
 if (!isset($_POST['state'])) {
-    DieCode::kill('Missing state', 400);
+    Output::error('Missing state', 400);
+}
+// If someone comes directly from /login, we need to set the state to /
+if ($_POST['state'] === '/login') {
+    $_POST['state'] = '/';
 }
 // However, if all good, we should be returning with an argument called id_token
 if (isset($_POST['id_token'])) {
@@ -33,12 +37,12 @@ if (isset($_POST['id_token'])) {
         $destinationUrlScheme = parse_url($destinationUrl)['scheme'] ?? null;
 
         if ($destinationUrlScheme === 'http://' || $destinationUrlScheme === 'https://') {
-            DieCode::kill('Invalid state', 400);
+            Output::error('Invalid state', 400);
         }
         header("Location: " . $_POST['state']);
     } else {
-        DieCode::kill('Invalid token', 400);
+        Output::error('Invalid token', 400);
     }
 } else {
-    DieCode::kill('Missing token', 400);
+    Output::error('Missing token', 400);
 }
