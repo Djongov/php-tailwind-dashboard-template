@@ -23,9 +23,11 @@ class JWT
             }
         }
         // Expiration time
-        $expiration = 86000;
+        $expiration = 3600;
 
         $claims['exp'] = time() + $expiration;
+
+        $claims['nbf'] = time() - 1;
 
         // now iat
         $claims['iat'] = time();
@@ -144,5 +146,18 @@ class JWT
         }
 
         return true;
+    }
+    // This method will extract the username from the JWT token. The need and complexity of this method comes from the fact that we have different type of tokens, local and AzureAD
+    public static function extractUserName(string $token) : string
+    {
+        $payload = self::parseTokenPayLoad($token);
+
+        if (isset($payload['username'])) {
+            return $payload['username'];
+        } elseif (isset($payload['preferred_username'])) {
+            return $payload['preferred_username'];
+        } else {
+            return '';
+        }
     }
 }

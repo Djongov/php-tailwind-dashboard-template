@@ -4,13 +4,14 @@ namespace App;
 
 use Database\MYSQL;
 use Authentication\AzureAD;
+use Authentication\JWT;
 use Api\Output;
 
 class RequireLogin
 {
     public static function check()
     {
-        $loginExempt = ['/', '/docs', '/docs/example', '/csp-report', '/api/local-login-process', '/register', '/auth-verify'];
+        $loginExempt = ['/', '/docs', '/docs/example', '/csp-report', '/register', '/auth-verify', '/api/user'];
 
         $loggedIn = false;
 
@@ -18,20 +19,45 @@ class RequireLogin
 
         $usernameArray = [];
 
+        $username = null;
+
+        $provider = '';
+
         // If auth cookie exists
         if (isset($_COOKIE[AUTH_COOKIE_NAME])) {
-            // First check if token is expired and redirect to login URL
-            if (!AzureAD::checkJWTTokenExpiry($_COOKIE[AUTH_COOKIE_NAME])) {
-                header('Location: ' . Login_Button_URL);
+            // First parse the JWT token
+            $idToken = JWT::parseTokenPayLoad($_COOKIE[AUTH_COOKIE_NAME]);
+
+            // If the issuer is $_SERVER['HTTP_HOST'], we are dealing with a local login
+            if ($idToken['iss'] === $_SERVER['HTTP_HOST']) {
+                // Check if valid
+                if (JWT::checkToken($_COOKIE[AUTH_COOKIE_NAME])) {
+                    $provider = 'local';
+                    $loggedIn = true;
+                } else {
+                    // If checks for JWT token fail - unset cookie and redirect to /login
+                    unset($_COOKIE[AUTH_COOKIE_NAME]);
+                    setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
+                    header('Location: /login');
+                }
             }
-            // Check if valid
-            if (AzureAD::checkJWTToken($_COOKIE[AUTH_COOKIE_NAME])) {
-                $loggedIn = true;
-            } else {
-                // If checks for JWT token fail - unset cookie and redirect to /login
-                unset($_COOKIE[AUTH_COOKIE_NAME]);
-                setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
-                header('Location: /login');
+
+            // Now check if the issuer is the AzureAD endpoint
+            if ($idToken['iss'] === 'https://login.microsoftonline.com/' . Tenant_ID . '/v2.0') {
+                // First check if token is expired and redirect to login URL
+                if (!JWT::checkExpiration($_COOKIE[AUTH_COOKIE_NAME])) {
+                    header('Location: ' . Login_Button_URL);
+                }
+                // Check if valid
+                if (AzureAD::checkJWTToken($_COOKIE[AUTH_COOKIE_NAME])) {
+                    $provider = 'azure';
+                    $loggedIn = true;
+                } else {
+                    // If checks for JWT token fail - unset cookie and redirect to /login
+                    unset($_COOKIE[AUTH_COOKIE_NAME]);
+                    setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
+                    header('Location: /login');
+                }
             }
         } else {
             // Redirect to /login but preserve the destination if auth_cookie is missing
@@ -47,9 +73,9 @@ class RequireLogin
 
         $idTokenInfoArray = [];
 
-        if ($loggedIn && isset($_COOKIE[AUTH_COOKIE_NAME])) {
+        if ($loggedIn && isset($_COOKIE[AUTH_COOKIE_NAME]) && $provider === 'azure') {
             // Let's parse the JWT token from the auth cookie and look at the claims
-            $authCookieArray = AzureAD::parseJWTTokenPayLoad($_COOKIE[AUTH_COOKIE_NAME]);
+            $authCookieArray = $idToken;
             // We are mapping what the claims are called in the DB (keys) vs in the JWT token (values)
             $expectedClaims = [
                 'username' => 'preferred_username',
@@ -73,9 +99,16 @@ class RequireLogin
                     }
                 }
             }
+
+            $username = ($loggedIn) ? $idTokenInfoArray["username"] : null;
+        }
+
+        if ($provider === 'local') {
+            $username = $idToken['username'];
+            $usernameArray = $idToken;
+            $idTokenInfoArray = $idToken;
         }
         
-        $username = ($loggedIn) ? $idTokenInfoArray["username"] : null;
 
         // If we are logged in and we have an established username, we need to either fetch user data from the DB or create a new user in the DB
         if ($username !== null) {
@@ -87,14 +120,7 @@ class RequireLogin
                     MYSQL::queryPrepared("UPDATE `users` SET `last_ips`=? WHERE `username`=?",[$idTokenInfoArray["last_ip"], $username]);
                 }
             } else {
-                $user_exists_check = MYSQL::queryPrepared("SELECT `username` FROM `users` WHERE `username`=?", $username);
-                if ($user_exists_check->num_rows === 0 && $loggedIn) {
-                    $caputredEmail = (isset($idTokenInfoArray["email"])) ? $idTokenInfoArray["email"] : null;
-                    MYSQL::queryPrepared("INSERT INTO `users`(`username`, `email`, `name`, `last_ips`, `origin_country`, `role`, `last_login`, `theme`, `enabled`) VALUES (?,?,?,?,?,?,NOW(),'amber', '1')", [$idTokenInfoArray["username"], $caputredEmail, $idTokenInfoArray["name"], $idTokenInfoArray["last_ip"], $idTokenInfoArray["country"], $idTokenInfoArray["role"]]);
-                    $newUserResult = MYSQL::queryPrepared("SELECT * FROM `users` WHERE `username` = ?", [$idTokenInfoArray["username"]]);
-                    $usernameArray = $newUserResult->fetch_assoc();
-                    //writeToSystemLog("Created a new user with info - " . implode(" | ", $idTokenInfoArray), "Authentication");
-                }
+                header('Location: /logout');
             }
             // Now some admin checks
             // If there is a role = administrator in both token and DB, give admin straight away
@@ -118,6 +144,15 @@ class RequireLogin
 
         //$theme = (isset($usernameArray["theme"])) ? $usernameArray["theme"] : COLOR_SCHEME;
         //$theme = $usernameArray['theme'] ?? COLOR_SCHEME;
+
+        // If this gets executed on /login, we need to keep logged in users away from the login page
+        if (str_contains($_SERVER['REQUEST_URI'], 'login') && $loggedIn) {
+            if (isset($_GET['destination'])) {
+                header('Location: ' . $_GET['destination']);
+            } else {
+                header('Location: /');
+            }
+        }
 
         return [
             'usernameArray' => $usernameArray,

@@ -28,6 +28,8 @@ return function (RouteCollector $router) {
     $router->addRoute('GET', '/', [$contollers_folder . '/main.php', $genericMetaDataArray]);
     // Login page
     $router->addRoute('GET', '/login', [$contollers_folder . '/login.php', $genericMetaDataArray]);
+    // Register page
+    $router->addRoute('GET', '/register', [$contollers_folder . '/register.php', $genericMetaDataArray]);
     // Auth verify page
     $router->addRoute('POST', '/auth-verify', [$contollers_folder . '/auth-verify.php']);
     // Logout page
@@ -43,9 +45,8 @@ return function (RouteCollector $router) {
     $router->addRoute('POST', '/api/clear-error-file', [$contollers_folder . '/api/clear-error-file.php']);
 
     /* API Routes */
-    $router->addRoute(['GET', 'POST', 'PUT', 'DELETE'], '/api/user/{id:\d+}', [$contollers_folder . '/api/user/index.php']);
-
-    $router->addRoute(['POST'], '/api/user/login', [$contollers_folder . '/api/user/login.php']);
+    $router->addRoute(['GET', 'PUT', 'DELETE'], '/api/user/{id:\d+}', [$contollers_folder . '/api/user/index.php']);
+    $router->addRoute('POST', '/api/user', [$contollers_folder . '/api/user/create.php']);
 
     // Docs pages
     $router->addRoute('GET', '/docs', [$contollers_folder . '/docs/index.php', $genericMetaDataArray]);

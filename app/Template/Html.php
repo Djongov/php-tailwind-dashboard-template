@@ -61,7 +61,7 @@ class Html
     public static function p($text, $classes = [])
     {
         if (empty($classes)) {
-            return '<p class="my-2 ml-4 break-all">' . $text . '</p>';
+            return '<p class="my-2 break-all text-center">' . $text . '</p>';
         } else {
             return '<p class="' . $classes . '">' . $text . '</p>';
         }
@@ -69,7 +69,7 @@ class Html
     public static function small($text, $classes = [])
     {
         if (empty($classes)) {
-            return '<small class="my-2 ml-4">' . $text . '</small>';
+            return '<small class="my-2 break-all text-center">' . $text . '</small>';
         } else {
             return '<small class="' . $classes . '">' . $text . '</small>';
         }

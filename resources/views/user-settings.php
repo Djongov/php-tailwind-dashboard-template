@@ -1,12 +1,10 @@
 <?php
 
-use Database\MYSQL;
-
 use App\General;
-
 use Authentication\AzureAD;
 use Template\Forms;
 use Template\Html;
+use Authentication\JWT;
 
 $allowed_themes = ['amber', 'green', 'stone', 'rose', 'lime', 'teal', 'sky', 'purple', 'red', 'fuchsia', 'indigo'];
 
@@ -17,7 +15,7 @@ echo '<div class="p-4 m-4 max-w-fit bg-white rounded-lg border border-gray-200 s
     echo '<table class="w-auto">';
     foreach ($usernameArray as $name => $setting) {
         echo '<tr>';
-        if ($name === 'id') {
+        if ($name === 'id' || $name === 'password') {
             continue;
         }
         // Check if date
@@ -27,7 +25,7 @@ echo '<div class="p-4 m-4 max-w-fit bg-white rounded-lg border border-gray-200 s
             continue;
         }
         if ($name === 'theme') {
-            echo '<td class="w-full"><div class="flex my-2"><strong>' . $name . '</strong> : ';
+            echo '<td class="w-full"><div class="flex my-2 flex-row"><strong>' . $name . '</strong> : ';
             $themeOptions = [];
             $currentTheme = '';
             foreach ($allowed_themes as $color) {
@@ -55,12 +53,14 @@ echo '<div class="p-4 m-4 max-w-fit bg-white rounded-lg border border-gray-200 s
 
                 ],
                 'theme' => $theme, // Optional, defaults to COLOR_SCHEME
-                'action' => '/api/update-theme',
+                'method' => 'PUT',
+                'action' => '/api/user/' . $usernameArray['id'],
                 'buttonSize' => 'small',
-                'redirectOnSubmit' => '/',
+                'reloadOnSubmit' => true,
                 'button' => 'Update'
             ];
             echo Forms::render($updateThemeOptioms);
+            echo '</div></td>';
             continue;
         }
         // Only show copy to clipboard on non-null items
@@ -73,6 +73,22 @@ echo '<div class="p-4 m-4 max-w-fit bg-white rounded-lg border border-gray-200 s
     echo '<p>Here is your session info:</p>';
     echo '<p><strong>Token expiry: </strong>' . $fmt->format(strtotime(date("Y-m-d H:i:s", substr(AzureAD::parseJWTTokenPayLoad($_COOKIE[AUTH_COOKIE_NAME])['exp'], 0, 10)))) . '</p>';
     echo '<p><strong>Token: </strong></p><p class="break-all c0py">' . $_COOKIE[AUTH_COOKIE_NAME] . '</p>';
+    $token = JWT::parseTokenPayLoad($_COOKIE[AUTH_COOKIE_NAME]);
+    echo '<ul>';
+        foreach ($token as $key => $value) {
+            if (!is_array($value)) {
+                echo '<li><strong>' . $key . '</strong> : ' . $value . '</li>';
+            } else {
+                echo '<li><strong>' . $key . '</strong> : ';
+                echo '<ul>';
+                foreach ($value as $subkey => $subvalue) {
+                    echo '<li><strong>' . $subkey . '</strong> : ' . $subvalue . '</li>';
+                }
+                echo '</ul>';
+                echo '</li>';
+            }
+        }
+    echo '</ul>';
     
 echo '</div>';
 
@@ -108,7 +124,8 @@ if (empty($usernameArray['email']) || filter_var($usernameArray['email'], FILTER
             ],
         ],
         'theme' => $theme,
-        'action' => '/api/update-email-address',
+        'method' => 'PUT',
+        'action' => '/api/user/' . $usernameArray['id'],
         'buttonSize' => 'medium',
         'button' => 'Update'
     ];

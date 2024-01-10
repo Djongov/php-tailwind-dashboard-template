@@ -889,27 +889,35 @@ const handleFormFetch = (form, currentEvent, resultType) => {
         });
     }
     const data = new URLSearchParams(formData);
-    // Method will be determined by data-method value
+
     const formMethod = form.getAttribute('data-method');
-    // Pick up the csrf token from the hidden input field
     const csrfToken = form.querySelector('input[name="csrf_token"]').value;
-    if (!csrfToken) {
-        console.log('csrfToken is missing');
-        return;
-    }
-    console.log(`csrfToken ${csrfToken}`);
+
     const fetchOptions = {
         method: formMethod,
         headers: {
-            'secretHeader' : 'badass',
+            'secretHeader': 'badass',
             'X-CSRF-TOKEN': csrfToken
         },
         redirect: 'manual'
+    };
+
+    if (formMethod === 'POST') {
+        fetchOptions.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+        fetchOptions.body = data;
+    } else if (formMethod === 'PUT') {
+        fetchOptions.headers['Content-Type'] = 'application/json';
+
+        // Convert form data to a JavaScript object
+        const formDataObject = {};
+        formData.forEach((value, key) => {
+            formDataObject[key] = value;
+        });
+
+        fetchOptions.body = JSON.stringify(formDataObject);
+    } else if (formMethod !== 'GET' && formMethod !== 'DELETE') {
+        fetchOptions.body = data;
     }
-    if (formMethod !== 'GET' || formMethod !== 'DELETE') {
-        fetchOptions.body = JSON.stringify(data);
-    }
-    console.log(`fetchOptions ${JSON.stringify(fetchOptions)}`);
     // Fetch function
     fetch(form.action, fetchOptions)
         // Handle response
@@ -918,24 +926,27 @@ const handleFormFetch = (form, currentEvent, resultType) => {
             const responseStatus = response.status;
             // If response is redirect (0) or 403 return by the server, usually token expired, reload the page
             if (response.status === 0 || response.status === 403) {
-                // Handle fetch interruption
-                newResultDiv.innerHTML = '<p class="font-semibold text-red-500">Fetch interrupted. Refreshing page</p>';
-                location.reload();
+                if (response.type === 'opaqueredirect') {
+                    // redirect to the desired page response.url
+                    location.reload(response.url);
+                } else {
+                    // Handle fetch interruption
+                    newResultDiv.innerHTML = '<p class="font-semibold text-red-500">Fetch interrupted. Refreshing page</p>';
+                    location.reload();
+                }
             } else {
                 // If data-redirect is on the form, instruct to redirect to the specified url
-                if (form.getAttribute("data-redirect")) {
-                    location.href = form.getAttribute("data-redirect");
-                }
+                // if (form.getAttribute("data-redirect")) {
+                //     location.href = form.getAttribute("data-redirect");
+                // }
+                // if ((form.getAttribute("data-reload") === "true")) {
+                //     location.reload();
+                // }
                 // If returned content-type is not json, return the text
                 if (contentType && contentType.indexOf("application/json") === -1) {
                     return response.text();
                 }
                 return response.json();
-            }
-            if (!response.ok) {
-                console.log(response);
-                newResultDiv.innerHTML = `<p class="font-semibold text-red-500">An unknown error occured</p>`;
-                throw new Error('response is not ok');
             }
             // Hanle after the response comes
         }).then(response => {
