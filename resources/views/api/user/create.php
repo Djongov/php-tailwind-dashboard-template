@@ -2,6 +2,7 @@
 use Api\Output;
 use App\General;
 use Database\MYSQL;
+use Authentication\Checks;
 
 // Basic check if username, password, confirm_password are set
 if (!isset($_POST['username'], $_POST['password'], $_POST['confirm_password'], $_POST['name'], $_POST['csrf_token'])) {
@@ -16,15 +17,22 @@ if ($_POST['password'] !== $_POST['confirm_password']) {
     Output::error('Passwords do not match', 400);
 }
 
-// Now check if the CSRF token is valid
-if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-    Output::error('Invalid CSRF token', 403);
-}
 
+$checks = new Checks();
+$checks->genericChecks($vars);
+$checks->checkSecretHeader();
+$checks->checkCSRF($_POST['csrf_token']);
 // Now check if the username is a valid email
 // if (!filter_var($_POST['username'], FILTER_VALIDATE_EMAIL)) {
 //     Output::error('Invalid username, must be an email', 400);
 // }
+
+// if email is passed, check if it's valid
+if (isset($_POST['email'])) {
+    if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
+        Output::error('Invalid email', 400);
+    }
+}
 
 $username = $_POST['username'];
 $password = $_POST['password'];
@@ -48,7 +56,7 @@ $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 $createUser = MYSQL::queryPrepared('INSERT INTO `users`(`username`, `password`, `email`, `name`, `last_ips`, `origin_country`, `role`, `last_login`, `theme`, `enabled`) VALUES (?,?,?,?,?,?,?,NOW(),?,?)', [$username, $passwordHash, $username, $name, $lastIp, $country, 'user', $theme, '1']);
 
 if ($createUser) {
-    echo 'User created';
+    echo Output::success('User created');
 } else {
-    Output::error('User creation failed', 400);
+    echo Output::error('User creation failed', 400);
 }

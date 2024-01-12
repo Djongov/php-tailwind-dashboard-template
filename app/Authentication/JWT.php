@@ -13,10 +13,13 @@ class JWT
         
         // Required claims
         $requiredClaims = [
+            'iss',
             'username',
             'name',
-            'role'
+            'role',
+            'last_ip'
         ];
+        
         foreach ($requiredClaims as $claim) {
             if (!isset($claims[$claim])) {
                 throw new \Exception('Missing required claim: ' . $claim . ' out of ' . implode(', ', $requiredClaims));
@@ -46,7 +49,7 @@ class JWT
 
         // Sign the JWT with the private key
         $signature = '';
-        openssl_sign($jwtUnsigned, $signature, file_get_contents(JWT_PRIVATE_KEY), OPENSSL_ALGO_SHA256);
+        openssl_sign($jwtUnsigned, $signature, base64_decode(JWT_PRIVATE_KEY), OPENSSL_ALGO_SHA256);
 
         // Base64url encode the signature
         $base64UrlSignature = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));

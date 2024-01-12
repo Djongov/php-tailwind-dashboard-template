@@ -7,16 +7,10 @@ use Logs\SystemLog;
 use Template\Forms;
 use App\General;
 
-use Authentication\JWT;
-var_dump($vars);
+use Authentication\Checks;
 
-// var_dump(JWT::generateToken([
-//     'username' => 'djongov',
-//     'name' => 'Djo',
-//     'role' => 'admin'
-// ]));
 
-var_dump(JWT::validateToken('eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImRqb25nb3YiLCJuYW1lIjoiRGpvIiwicm9sZSI6ImFkbWluIiwiZXhwIjoxNzAzMDg2MzE3LCJpYXQiOjE3MDMwMDAzMTd9.CNJG6ZZw3jZyh63jsc8LcbT5gICTfmzmYoBQuMgTehIGb7pIhY3ungywwLR_cUDX-8yzig-6HgJ_loSCUdSepVSKCUcUw249VNsb2UlFR-gfSl6gLPLMb_FxqXWOTJzTUzM5E2MKYR4p_gcWLq2ajIb-h7S9APRG0tqh0aTeWGPqkOl5O34QGNxRaZ3lpSi4Or_OqNnPvdw9Y3CyfY4MVi7nvQeFmawJD2xBDBpy7YIVRXelUHy310nJZ4xuCV7z2msfYZQT-YzpYIZSReb3b07DXFFBNone4Y8p62djHXzgANeFHl8YfhWto8ZEhB8DLpuvuHlptOaklkdscI2M3A'));
+//var_dump($_SESSION);
 
 //$request = NativeHttp::get('https://www.ipqualityscore.com/api/json/leaked/email/IgJi2FQr2iU11QkbkBtoWun5f1YmSk8y/djongov@gamerz-bg.com', [], true);
 

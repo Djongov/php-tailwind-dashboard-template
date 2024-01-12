@@ -40,7 +40,7 @@ if (isset($_POST['id_token'], $_POST['state']) || isset($_POST['error'], $_POST[
             // Pick the theme from the config
             $theme = COLOR_SCHEME;
             // Create the user in the DB
-            $createUser = MYSQL::queryPrepared('INSERT INTO `users`(`username`, `password`, `email`, `name`, `last_ips`, `origin_country`, `role`, `last_login`, `theme`, `enabled`) VALUES (?,?,?,?,?,?,?,NOW(),?,?)', [AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['preferred_username'], '', AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['preferred_username'], AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['name'], General::currentIP(), $country, 'user', $theme, '1']);
+            $createUser = MYSQL::queryPrepared('INSERT INTO `users`(`username`, `password`, `email`, `name`, `last_ips`, `origin_country`, `role`, `last_login`, `theme`, `enabled`) VALUES (?,?,?,?,?,?,?,NOW(),?,?)', [AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['preferred_username'], '', AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['preferred_username'], AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['name'], General::currentIP(), $country, AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['roles'][0], $theme, '1']);
             if ($createUser) {
                 // Record last login
                 MYSQL::recordLastLogin(AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['preferred_username']);
@@ -81,6 +81,7 @@ if (isset($_POST['username'], $_POST['password'], $_POST['csrf_token'])) {
     }
 
     // By now we assume the user is valid, so let's generate a JWT token
+    
     $idToken = JWT::generateToken([
         'iss' => $_SERVER['HTTP_HOST'],
         'username' => $user['username'],

@@ -17,7 +17,6 @@ use \Security\Firewall;
 
 //Firewall::activate();
 
-
 /*
     Perform login check
 */

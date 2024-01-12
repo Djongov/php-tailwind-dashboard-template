@@ -57,13 +57,17 @@ define("CURL_CERT", dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '
 
 define("JWT_PUBLIC_KEY", dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '.tools' . DIRECTORY_SEPARATOR . 'public-key.pem');
 
-define("JWT_PRIVATE_KEY", dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '.tools' . DIRECTORY_SEPARATOR . 'private-key.pem');
+define("JWT_PRIVATE_KEY", $_ENV['JWT_PRIVATE_KEY']);
 
 define('AUTH_COOKIE_NAME', 'auth_cookie');
 
 define('LOCAL_USER_LOGIN', true);
 
 define('MANUAL_REGISTRATION', true);
+
+define('SECRET_HEADER', $_ENV['SECRET_HEADER']);
+
+define('SECRET_HEADER_VALUE', $_ENV['SECRET_HEADER_VALUE']);
 
 // Authentication Settings
 
