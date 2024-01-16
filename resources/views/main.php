@@ -200,14 +200,22 @@ $form_options = [
     'method' => 'POST', // Optional, defaults to POST
     'action' => '/api/example', // Required
     'additionalClasses' => 'qwerty power', // Optional
-    'button' => 'Submit',
     'reloadOnSubmit' => false,
     'confirm' => true,
     'confirmText' => 'Are you sure you want to send this quack?', // Optional, defaults to "Are you sure?" if ommited
+    'resultType' => 'text',
     //'doubleConfirm' => true,
     //'doubleConfirmKeyWord' => 'delete',
-    'resultType' => 'text',
-    'buttonSize' => 'big'
+    'submitButton' => [
+        'text' => 'Submit',
+        'id' => uniqid(),
+        'name' => 'submit',
+        'type' => 'submit',
+        'size' => 'medium',
+        'disabled' => true,
+        'title' => 'Disabled'
+        //'style' => '&#10060;'
+    ],
 ];
 echo '<div class="w-[44rem] dark:bg-gray-800 p-2 rounded-md shadow-md shadow-gray-400 my-6">';
     echo Forms::render($form_options);

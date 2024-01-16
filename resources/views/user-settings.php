@@ -55,17 +55,19 @@ echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
                     'theme' => $theme, // Optional, defaults to COLOR_SCHEME
                     'method' => 'PUT',
                     'action' => '/api/user/' . $usernameArray['id'],
-                    'buttonSize' => 'small',
                     'reloadOnSubmit' => true,
-                    'button' => 'Update'
+                    'submitButton' => [
+                        'text' => 'Update',
+                        'size' => 'medium',
+                        //'style' => '&#10060;'
+                    ],
                 ];
                 echo Forms::render($updateThemeOptioms);
                 echo '</div></td>';
                 continue;
             }
             // Only show copy to clipboard on non-null items
-            $copyToClipboard = ($setting === null) ? '' : 'c0py';
-            echo ' <td class="w-full"><strong>' . $name . '</strong> : <span class="' . $copyToClipboard . '">' . $setting . '</span>  </td>';
+            echo ' <td class="w-full"><strong>' . $name . '</strong> : <span>' . $setting . '</span>  </td>';
             echo '</tr>';
         }
         echo '</table>';
@@ -126,9 +128,12 @@ echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
             'theme' => $theme,
             'method' => 'PUT',
             'action' => '/api/user/' . $usernameArray['id'],
-            'buttonSize' => 'small',
             'reloadOnSubmit' => true,
-            'button' => 'Update'
+            'submitButton' => [
+                'text' => 'Update',
+                'size' => 'medium',
+                //'style' => '&#10060;'
+            ],
         ];
 
         echo Forms::render($updateEmailFormOptions);
@@ -136,32 +141,35 @@ echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
         echo '</div>';
     }
     echo '<div class="p-4 m-4 max-w-fit bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700">';
-    echo Html::h2('Forget About me');
-    echo Html::p('This will delete your account in our database along with any data we have about your account.</p>');
-    $deleteUserFormOptions = [
-        'inputs' => [
-            'hidden' => [
-                [
-                    'name' => 'username',
-                    'value' => $usernameArray['username']
-                ]
+        echo Html::h2('Forget About me');
+        echo Html::p('This will delete your account in our database along with any data we have about your account.');
+        $deleteUserFormOptions = [
+            'inputs' => [
+                'hidden' => [
+                    [
+                        'name' => 'username',
+                        'value' => $usernameArray['username']
+                    ]
+                ],
             ],
-        ],
-        'theme' => 'red',
-        'method' => 'DELETE',
-        'action' => '/api/user/' . $usernameArray['id'],
-        'redirectOnSubmit' => '/logout',
-        'confirm' => true,
-        'confirmText' => 'Are you sure you want to delete your user?
-    This will delete your username from our database. This will also remove you from organization where you are a member. This will NOT remove any logs that have your name in it. Your user will be re-created if you login again to the app.',
-        'doubleConfirm' => true,
-        'doubleConfirmKeyWord' => $usernameArray['username'],
-        'resultType' => 'text',
-        'buttonSize' => 'medium',
-        'button' => 'Delete User',
-    ];
+            'theme' => 'red',
+            'method' => 'DELETE',
+            'action' => '/api/user/' . $usernameArray['id'],
+            'redirectOnSubmit' => '/logout',
+            'confirm' => true,
+            'confirmText' => 'Are you sure you want to delete your user?
+        This will delete your username from our database. This will also remove you from organization where you are a member. This will NOT remove any logs that have your name in it. Your user will be re-created if you login again to the app.',
+            'doubleConfirm' => true,
+            'doubleConfirmKeyWord' => $usernameArray['username'],
+            'resultType' => 'text',
+            'submitButton' => [
+                'text' => 'Delete User',
+                'size' => 'medium',
+                //'style' => '&#10060;'
+            ],
+        ];
 
-    echo Forms::render($deleteUserFormOptions);
+        echo Forms::render($deleteUserFormOptions);
 
     echo '</div>';
 

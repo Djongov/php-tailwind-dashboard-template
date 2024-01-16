@@ -79,12 +79,15 @@ $login_message = 'You are not logged in';
                 'theme' => $theme, // Optional, defaults to COLOR_SCHEME
                 'method' => 'POST', // Optional, defaults to POST
                 'action' => '/auth-verify', // Required
-                'button' => 'Login',
                 //'redirectOnSubmit' => $_SERVER['QUERY_STRING'] ? '/login?' . $_SERVER['QUERY_STRING'] : '/login',
                 //'doubleConfirm' => true,
                 //'doubleConfirmKeyWord' => 'delete',
                 'resultType' => 'text',
-                'buttonSize' => 'small'
+                'submitButton' => [
+                    'text' => 'Login',
+                    'size' => 'medium',
+                    //'style' => '&#10060;'
+                ],
             ];
 
             echo Forms::render($localLoginForm);

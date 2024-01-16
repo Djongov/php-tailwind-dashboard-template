@@ -7,7 +7,7 @@ if (!defined('DB_HOST')) {
     include_once dirname($_SERVER['DOCUMENT_ROOT']) . '/site-settings.php';
 }
 
-use \Response\DieCode;
+use Api\Output;
 use Exception;
 
 class MYSQL
@@ -43,8 +43,7 @@ class MYSQL
                     header("Refresh:0");
                     exit();
                 } else {
-                    $error = $e->getMessage();
-                    Output::error($error, 400);
+                    Output::error($e->getMessage(), 400);
                 }
             }
         } else {
@@ -87,8 +86,7 @@ class MYSQL
                     header("Refresh:0");
                     exit();
                 } else {
-                    $error = $e->getMessage();
-                    Output::error($error, 400);
+                    Output::error($e->getMessage(), 400);
                 }
             }
         }
@@ -102,16 +100,14 @@ class MYSQL
         try {
             $stmt = $link->prepare($query);
         } catch (\mysqli_sql_exception $e) {
-            $error = $e->getMessage();
-            Output::error($error, 400);
+            Output::error($e->getMessage(), 400);
         }
         $result = null;
         try {
             $stmt->execute();
             $result = $stmt->get_result();
         } catch (\mysqli_sql_exception $e) {
-            $error = $e->getMessage();
-            Output::error($error, 400);
+            Output::error($e->getMessage(), 400);
         }
 
         $link->close();
@@ -125,7 +121,7 @@ class MYSQL
         try {
             $stmt = $link->prepare($query);
         } catch (Exception $e) {
-            Output::error($e, 400);
+            Output::error($e->getMessage(), 400);
         }
         if (is_array($statement)) {
             $statementParams = '';
@@ -156,9 +152,8 @@ class MYSQL
                 Output::error($error, 400);
             }
         } catch (Exception $e) {
-            $error = $e->getMessage();
             $link->close();
-            Output::error($error, 400);
+            Output::error($e->getMessage(), 400);
         }
     }
     // Sometimes you may need to make a bundle of queries one after the other, returns a result
@@ -169,8 +164,7 @@ class MYSQL
             try {
                 $result = mysqli_query($link, $sql);
             } catch (Exception $e) {
-                $error = $e->getMessage();
-                Output::error($error, 400);
+                Output::error($e->getMessage(), 400);
             }
         }
         $link->close();

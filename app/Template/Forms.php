@@ -17,7 +17,7 @@ class Forms
         $target = (isset($options['target'])) ? 'target="' . $options['target']  . '"' : '';
 
         // Let's make some checks on required form options
-        $formOptionsRequired = ['action', 'button'];
+        $formOptionsRequired = ['action'];
 
         foreach ($formOptionsRequired as $formOptionRequired) {
             if (!isset($options[$formOptionRequired])) {
@@ -142,31 +142,58 @@ class Forms
             }
             
             $html .= CRSF::createTag();
-            if ($options['buttonSize'] === 'big') {
-                $customClasses = 'ml-0 py-4 px-8';
-            } elseif ($options['buttonSize'] === 'medium') {
-                $customClasses = 'ml-0 py-3 px-6';
-            } elseif ($options['buttonSize'] === 'small') {
-                $customClasses = 'ml-0 py-2 px-4';
+            // Submit button now
+            if (!isset($options['submitButton'])) {
+                throw new \Exception('submitButton is a required form option');
             }
-            if (isset($options['buttonDisabled']) && $options['buttonDisabled'] === true) {
-                $customClasses .= ' opacity-50 cursor-not-allowed';
+
+            $additionalButtonClasses = '';
+            if ($options['submitButton']['size'] === 'big') {
+                $additionalButtonClasses .= 'py-4 px-3';
+            } elseif ($options['submitButton']['size'] === 'medium') {
+                $additionalButtonClasses .= 'py-2 px-2';
+            } elseif ($options['submitButton']['size'] === 'small') {
+                $additionalButtonClasses .= 'py-1 px-1';
+            } else {
+                // default to medium
+                $additionalButtonClasses .= 'py-2 px-2';
+            }
+            if (isset($options['submitButton']['disabled']) && $options['submitButton']['disabled'] === true) {
+                $additionalButtonClasses .= ' opacity-50 cursor-not-allowed';
                 $buttonDisabled = 'disabled';
             } else {
                 $buttonDisabled = '';
             }
-            if (isset($options['buttonTitle'])) {
-                $buttonTitle = 'title="' . $options['buttonTitle'] . '"';
+            if (isset($options['submitButton']['title'])) {
+                $buttonTitle = 'title="' . $options['submitButton']['title'] . '"';
             } else {
                 $buttonTitle = '';
             }
-            if (isset($options['buttonStyle']) && $options['buttonStyle'] === 'X') {
-                $html .= '<div class="my-2"><button ' . $buttonTitle . ' class="cursor-pointer">&#10060;</button></div>';
+            // Name
+            if (isset($options['submitButton']['name'])) {
+                $buttonName = 'name="' . $options['submitButton']['name'] . '"';
+            } else {
+                $buttonName = '';
+            }
+            // Type
+            if (isset($options['submitButton']['type'])) {
+                $buttonType = 'type="' . $options['submitButton']['type'] . '"';
+            } else {
+                $buttonType = 'type="submit"';
+            }
+            // Id
+            if (isset($options['submitButton']['id'])) {
+                $buttonId = 'id="' . $options['submitButton']['id'] . '"';
+            } else {
+                $buttonId = '';
+            }
+            if (isset($options['submitButton']['style'])) {
+                $html .= '<div class="my-2"><button ' . $buttonTitle . ' class="' . $additionalButtonClasses . ' cursor-pointer" ' . $buttonDisabled . '>' . $options['submitButton']['style'] . '</button></div>';
             } else {
                 $html .= '
                         <div class="mt-4">
-                            <button ' . $buttonTitle . ' type="submit" class="' . $customClasses . ' bg-' . $theme . '-600 hover:bg-' . $theme . '-700 focus:ring-' . $theme . '-500 focus:ring-offset-' . $theme . '-200 text-white transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-lg" ' . $buttonDisabled . '>
-                                ' . $options['button'] . '
+                            <button ' . $buttonId . ' ' . $buttonTitle . ' ' . $buttonType . ' ' . $buttonName . ' class="' . $additionalButtonClasses . ' ml-2 my-2 mb-2 inline-flex items-center justify-center text-md leading-7 text-' . $theme . '-50 bg-' . $theme . '-500 hover:bg-' . $theme . '-600 font-medium focus:ring-2 focus:ring-' . $theme . '-500 focus:ring-opacity-50 border border-transparent rounded-md shadow-sm" ' . $buttonDisabled . '>
+                                ' . $options['submitButton']['text'] . '
                             </button>
                         </div>';
             }

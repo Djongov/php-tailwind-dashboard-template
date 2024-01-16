@@ -9,21 +9,30 @@ class Checks
 {
     public function loginCheck(array $vars) : string|bool
     {
+        $loggedIn = true;
         // Check $vars['loggedIn']
         if (!$vars['loggedIn']) {
-            Output::error('You are not logged in (loggedIn false');
+            //Output::error('You are not logged in (loggedIn false');
+            $loggedIn = false;
         }
         // Now check if the usernameArray is set
         if (!isset($vars['usernameArray'])) {
-            Output::error('You are not logged in (usernameArray not set');
+            //Output::error('You are not logged in (usernameArray not set');
+            $loggedIn = false;
         }
         // Now check if the usernameArray is an array
         if (!is_array($vars['usernameArray'])) {
-            Output::error('You are not logged in (usernameArray not an array');
+            //Output::error('You are not logged in (usernameArray not an array');
+            $loggedIn = false;
         }
         // Now check if the usernameArray is not empty
         if (empty($vars['usernameArray'])) {
-            Output::error('You are not logged in (usernameArray empty');
+            //Output::error('You are not logged in (usernameArray empty');
+            $loggedIn = false;
+        }
+        if (!$loggedIn) {
+            header('Location: /login');
+            exit();
         }
         return true;
     }

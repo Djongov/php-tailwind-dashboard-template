@@ -1051,7 +1051,7 @@ const handleFormSubmitWithConfirm = (currentEvent, form, initialSubmitName, resu
         // create a new input field and add it to the modal
         const newInput = document.createElement("input");
         newInput.type = "text";
-        newInput.classList.add('my-4', 'mx-auto', 'bg-gray-50', 'border', 'border-gray-300', 'text-gray-900', 'text-sm', 'rounded-lg', 'focus:ring-red-500', 'focus:border-red-500', 'block', 'w-full', 'p-2.5', 'dark:bg-gray-700', 'dark:border-gray-600', 'dark:placeholder-gray-400', 'dark:text-white', 'dark:focus:ring-red-500', 'dark:focus:border-red-500');
+        newInput.classList.add('my-4', 'mx-auto', 'bg-gray-50', 'border', 'border-gray-300', 'outline-none', 'text-gray-900', 'text-sm', 'rounded-lg', 'focus:ring-red-500', 'focus:border-red-500', 'block', 'w-full', 'p-2.5', 'dark:bg-gray-700', 'dark:border-gray-600', 'dark:placeholder-gray-400', 'dark:text-white', 'dark:focus:ring-red-500', 'dark:focus:border-red-500');
         confirmButton.parentNode.insertBefore(newInput, confirmButton);
 
         // Find out the keyword to type

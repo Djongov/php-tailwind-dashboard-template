@@ -56,8 +56,11 @@ if (LOCAL_USER_LOGIN) {
                 'theme' => $theme, // Optional, defaults to COLOR_SCHEME
                 'method' => 'POST', // Optional, defaults to POST
                 'redirectOnSubmit' => '/login',
-                'button' => 'Register',
-                'buttonSize' => 'small',
+                'submitButton' => [
+                    'text' => 'Register',
+                    'size' => 'medium',
+                    //'style' => '&#10060;'
+                ],
             ];
             echo HTML::h2('Register', true);
             echo HTML::small('Register a new local user account.');

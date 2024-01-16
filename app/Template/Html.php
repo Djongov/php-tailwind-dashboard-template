@@ -266,7 +266,7 @@ class Html
     }
     public static function selectInputClasses($theme)
     {
-        return 'ml-2 p-1 text-sm text-gray-900 border border-gray-300 rounded bg-gray-50 focus:ring-' . $theme . '-500 focus:border-' . $theme . '-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500';
+        return 'ml-2 p-1 text-sm text-gray-900 border outline-none border-gray-300 rounded bg-gray-50 focus:ring-' . $theme . '-500 focus:border-' . $theme . '-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500';
     }
     public static function badge($text, $theme)
     {
@@ -381,7 +381,7 @@ class Html
     }
     public static function searchInput($theme)
     {
-        return '<input type="search" class="filterSearch my-2 py-2 px-4 w-48 h-8 text-sm bg-gray-50 appearance-none border border-gray-300 rounded-lg text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-' . $theme . '-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500" placeholder="search..." />';
+        return '<input type="search" class="filterSearch my-2 py-2 px-4 w-48 h-8 text-sm bg-gray-50 outline-none appearance-none border border-gray-300 rounded-lg text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-' . $theme . '-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500" placeholder="search..." />';
     }
     public static function popOver($text, $id, $theme = 'gray')
     {

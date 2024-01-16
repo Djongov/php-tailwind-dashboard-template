@@ -19,7 +19,6 @@ if ($_POST['password'] !== $_POST['confirm_password']) {
 
 
 $checks = new Checks();
-$checks->genericChecks($vars);
 $checks->checkSecretHeader();
 $checks->checkCSRF($_POST['csrf_token']);
 // Now check if the username is a valid email
@@ -34,6 +33,7 @@ if (isset($_POST['email'])) {
     }
 }
 
+// Fields coming from the form
 $username = $_POST['username'];
 $password = $_POST['password'];
 $name = $_POST['name'];
@@ -53,7 +53,7 @@ if ($user->num_rows > 0) {
 $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
 // Now let's insert the user into the DB
-$createUser = MYSQL::queryPrepared('INSERT INTO `users`(`username`, `password`, `email`, `name`, `last_ips`, `origin_country`, `role`, `last_login`, `theme`, `enabled`) VALUES (?,?,?,?,?,?,?,NOW(),?,?)', [$username, $passwordHash, $username, $name, $lastIp, $country, 'user', $theme, '1']);
+$createUser = MYSQL::queryPrepared('INSERT INTO `users`(`username`, `password`, `email`, `name`, `last_ips`, `origin_country`, `role`, `last_login`, `theme`, `provider`, `enabled`) VALUES (?,?,?,?,?,?,"user",NOW(),?,"local",1)', [$username, $passwordHash, $username, $name, $lastIp, $country, $theme]);
 
 if ($createUser) {
     echo Output::success('User created');

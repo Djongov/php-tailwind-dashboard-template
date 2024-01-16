@@ -1,6 +1,7 @@
 CREATE TABLE `users` (
   `id` int NOT NULL AUTO_INCREMENT,
   `username` varchar(255) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
   `email` varchar(512) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `last_ips` text,
@@ -9,6 +10,7 @@ CREATE TABLE `users` (
   `date_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_login` datetime,
   `theme` varchar(20) DEFAULT NULL,
+  `provider` varchar(255) DEFAULT NULL,
   `enabled` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
@@ -67,19 +69,5 @@ CREATE TABLE `system_log` (
   `category` varchar(255) NOT NULL,
   `uri` text NOT NULL,
   `method` varchar(20) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE `local_users` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `username` varchar(255) DEFAULT NULL,
-  `password` varchar(255) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `last_ips` text,
-  `role` varchar(255) DEFAULT NULL,
-  `date_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `last_login` datetime,
-  `theme` varchar(20) DEFAULT NULL,
-  `enabled` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;

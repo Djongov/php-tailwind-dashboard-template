@@ -33,7 +33,6 @@ use Core\Session;
 
 Session::start();
 
-
 /*
     Start Router
 
@@ -76,6 +75,8 @@ switch ($routeInfo[0]) {
     case FastRoute\Dispatcher::NOT_FOUND:
         // Handle 404 Not Found
         if ($httpMethod === 'GET') {
+            $loginInfoArray = RequireLogin::check();
+            var_dump($loginInfoArray);
             echo '404 Not Found';
         } else {
             // For non-GET requests, provide an API response
@@ -108,7 +109,7 @@ switch ($routeInfo[0]) {
             $theme = (isset($usernameArray['theme'])) ? $usernameArray['theme'] : COLOR_SCHEME;
             $vars['theme'] = $theme;
             
-            if ($httpMethod == 'GET') {
+            if ($httpMethod === 'GET') {
                 if (!empty($params)) {
                     $menuArray = $params['menu'];
                     echo Page::head($params['title'], $params['description'], $params['keywords'], $params['thumbimage'], $theme);

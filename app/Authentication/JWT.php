@@ -3,6 +3,7 @@
 namespace Authentication;
 
 use App\General;
+use Api\Output;
 
 class JWT
 {
@@ -89,14 +90,19 @@ class JWT
         // Verify the signature using the public key, base64url decode the signature first
         $signatureToVerify = General::base64url_decode($signature);
 
-        $verified = openssl_verify($jwtUnsigned, $signatureToVerify, file_get_contents(JWT_PUBLIC_KEY), OPENSSL_ALGO_SHA256);
+        try {
+            $verified = openssl_verify($jwtUnsigned, $signatureToVerify, base64_decode(JWT_PUBLIC_KEY), OPENSSL_ALGO_SHA256);
 
-        if ($verified === 1) {
-            return true;
-        } elseif ($verified === 0) {
-            return false;
-        } else {
-            return false;
+            if ($verified === 1) {
+                // Signature is valid
+                return true;
+            } else {
+                // An error occurred during verification
+                Output::error('Error verifying signature');
+            }
+        } catch (\Exception $e) {
+            // Handle the exception
+            Output::error($e->getMessage());
         }
     }
     // A method to parse the payload of a token

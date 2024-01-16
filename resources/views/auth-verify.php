@@ -40,8 +40,17 @@ if (isset($_POST['id_token'], $_POST['state']) || isset($_POST['error'], $_POST[
             // Pick the theme from the config
             $theme = COLOR_SCHEME;
             // Create the user in the DB
-            $createUser = MYSQL::queryPrepared('INSERT INTO `users`(`username`, `password`, `email`, `name`, `last_ips`, `origin_country`, `role`, `last_login`, `theme`, `enabled`) VALUES (?,?,?,?,?,?,?,NOW(),?,?)', [AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['preferred_username'], '', AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['preferred_username'], AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['name'], General::currentIP(), $country, AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['roles'][0], $theme, '1']);
-            if ($createUser) {
+            $createUser = MYSQL::queryPrepared('INSERT INTO `users`(`username`, `password`, `email`, `name`, `last_ips`, `origin_country`, `role`, `last_login`, `theme`, `provider`, `enabled`) VALUES (?,NULL,?,?,?,?,?,NOW(),?,"azure",1)',
+            [
+                AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['preferred_username'], // username
+                AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['preferred_username'], // email
+                AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['name'], // name
+                General::currentIP(), // last_ips
+                $country, // origin_country
+                AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['roles'][0], // role
+                $theme // theme
+            ]);
+            if ($createUser->affected_rows === 1) {
                 // Record last login
                 MYSQL::recordLastLogin(AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['preferred_username']);
             } else {

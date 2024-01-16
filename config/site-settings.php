@@ -55,7 +55,7 @@ define("CA_CERT", dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '.t
 
 define("CURL_CERT", dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '.tools' . DIRECTORY_SEPARATOR . 'cacert.pem');
 
-define("JWT_PUBLIC_KEY", dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '.tools' . DIRECTORY_SEPARATOR . 'public-key.pem');
+define("JWT_PUBLIC_KEY", $_ENV['JWT_PUBLIC_KEY']);
 
 define("JWT_PRIVATE_KEY", $_ENV['JWT_PRIVATE_KEY']);
 
