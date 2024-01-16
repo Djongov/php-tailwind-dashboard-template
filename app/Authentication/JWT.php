@@ -60,6 +60,34 @@ class JWT
 
         return $jwt;
     }
+    // Method to parse a JWT token and return an array with the header and payload
+    public static function parse(string $token) : array
+    {
+        $jwtParts = explode('.', $token);
+
+        if (count($jwtParts) !== 3) {
+            // Invalid JWT format
+            return [];
+        }
+
+        // Extract the header and payload from the JWT
+        $base64UrlHeader = $jwtParts[0];
+        $base64UrlPayload = $jwtParts[1];
+
+        // Decode the base64url-encoded header and payload
+        $header = General::base64url_decode($base64UrlHeader);
+        $payload = General::base64url_decode($base64UrlPayload);
+
+        if (!$header || !$payload) {
+            // Invalid header or payload
+            return [];
+        }
+
+        return [
+            json_decode($header, true),
+            json_decode($payload, true)
+        ];
+    }
     // A method to validate a token that's been signed with our private key
     public static function validateToken(string $token) : bool
     {
@@ -93,13 +121,8 @@ class JWT
         try {
             $verified = openssl_verify($jwtUnsigned, $signatureToVerify, base64_decode(JWT_PUBLIC_KEY), OPENSSL_ALGO_SHA256);
 
-            if ($verified === 1) {
-                // Signature is valid
-                return true;
-            } else {
-                // An error occurred during verification
-                Output::error('Error verifying signature');
-            }
+            return ($verified === 1) ? true : false;
+
         } catch (\Exception $e) {
             // Handle the exception
             Output::error($e->getMessage());
@@ -131,14 +154,13 @@ class JWT
     // A method to check expiration of a token
     public static function checkExpiration(string $token) : bool
     {
+        // Parse the payload
         $payload = self::parseTokenPayLoad($token);
 
-        if (isset($payload['exp'])) {
-            if ($payload['exp'] < time()) {
-                return false;
-            } else {
-                return true;
-            }
+        // We need both exp and nbf present in the payload
+        if (isset($payload['exp'], $payload['nbf'])) {
+            // If the token is expired or not yet valid, return false
+            return ($payload['exp'] < time() || $payload['nbf'] > time()) ? false : true;
         } else {
             return false;
         }
@@ -147,11 +169,11 @@ class JWT
     public static function checkToken(string $token) : bool
     {
         if (!self::validateToken($token)) {
-            return false;
+            return self::handleValidationFailure();
         }
 
         if (!self::checkExpiration($token)) {
-            return false;
+            return self::handleValidationFailure();
         }
 
         return true;
@@ -168,5 +190,12 @@ class JWT
         } else {
             return '';
         }
+    }
+    // Common method to handle validation failure to reduce code duplication
+    public static function handleValidationFailure(): bool
+    {
+        unset($_COOKIE[AUTH_COOKIE_NAME]);
+        setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
+        return false;
     }
 }

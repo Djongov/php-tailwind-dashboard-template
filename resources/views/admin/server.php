@@ -3,8 +3,9 @@
 use Template\Forms;
 use Template\Html;
 use Api\Output;
+use DataGrid\SimpleVerticalDataGrid;
 use Logs\SystemLog;
-use Template\SimpleDataGrid;
+use Template\DataGrid;
 
 if (!$isAdmin) {
     SystemLog::write('Got unauthorized for admin page', 'Access');
@@ -24,9 +25,11 @@ $loadErrorFileArray = [
     'theme' => $theme,
     'action' => '/api/get-error-file',
     'resultType' => 'html',
-    'buttonSize' => 'small',
     'reloadOnSubmit' => false,
-    'button' => 'Load Error File',
+    'submitButton' => [
+        'text' => 'Load Error File',
+        'size' => 'medium',
+    ],
 ];
 
 $clearErrorFileformArray = [
@@ -41,15 +44,17 @@ $clearErrorFileformArray = [
     'theme' => $theme,
     'action' => '/api/clear-error-file',
     'resultType' => 'html',
-    'buttonSize' => 'small',
     'reloadOnSubmit' => false,
-    'button' => 'Clear Error File',
+    'submitButton' => [
+        'text' => 'Clear Error File',
+        'size' => 'medium',
+    ],
 ];
 echo '<div class="flex">';
     echo Forms::render($loadErrorFileArray);
     echo Forms::render($clearErrorFileformArray);
 echo '</div>';
 
-echo HTML::h1('Server details');
+echo HTML::h2('Server details');
 
-//echo SimpleDataGrid::render($_SERVER);
+echo SimpleVerticalDataGrid::render($_SERVER);

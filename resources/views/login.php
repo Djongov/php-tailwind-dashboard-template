@@ -11,13 +11,13 @@ if (isset($_COOKIE[AUTH_COOKIE_NAME])) {
     if ($idToken['iss'] === $_SERVER['HTTP_HOST']) {
         // Check if valid
         if (JWT::checkToken($_COOKIE[AUTH_COOKIE_NAME])) {
-            header("Location: /dashboard");
+            header("Location: /");
         }
     }
     if ($idToken['iss'] === 'https://login.microsoftonline.com/' . Tenant_ID . '/v2.0') {
         // Check if valid
-        if (AzureAD::checkJWTToken($_COOKIE[AUTH_COOKIE_NAME])) {
-            header("Location: /dashboard");
+        if (AzureAD::check($_COOKIE[AUTH_COOKIE_NAME])) {
+            header("Location: /");
         }
     }
 }

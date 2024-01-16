@@ -1,7 +1,7 @@
 <?php
 
 use Api\Output;
-use Authentication\AzureAD;
+use Authentication\JWT;
 use Database\MYSQL;
 
 //return var_dump($loginInfoArray);
@@ -23,7 +23,7 @@ if (!isset($_COOKIE[AUTH_COOKIE_NAME])) {
     Output::error('No Authentication present', 401);
 }
 
-if (isset($_COOKIE[AUTH_COOKIE_NAME]) && !AzureAD::checkJWTTokenExpiry($_COOKIE[AUTH_COOKIE_NAME])) {
+if (isset($_COOKIE[AUTH_COOKIE_NAME]) && !JWT::checkExpiration($_COOKIE[AUTH_COOKIE_NAME])) {
     Output::error('Authentication token expired', 401);
 }
 

@@ -1,10 +1,10 @@
 <?php
 
-use Authentication\AzureAD;
+use Authentication\JWT;
 use Api\Output;
 
 // Make sure that the user who is logged in is the same as the user who is trying to whitelist
-if (AzureAD::extractUserName($_COOKIE[AUTH_COOKIE_NAME]) !== $usernameArray['username']) {
+if (JWT::extractUserName($_COOKIE[AUTH_COOKIE_NAME]) !== $usernameArray['username']) {
     Output::error('Username anomaly', 403);
 }
 

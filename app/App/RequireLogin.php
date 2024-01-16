@@ -26,36 +26,30 @@ class RequireLogin
         // If auth cookie exists
         if (isset($_COOKIE[AUTH_COOKIE_NAME])) {
             // First parse the JWT token
-            $idToken = JWT::parseTokenPayLoad($_COOKIE[AUTH_COOKIE_NAME]);
+            $tokenPayload = JWT::parseTokenPayLoad($_COOKIE[AUTH_COOKIE_NAME]);
 
             // If the issuer is $_SERVER['HTTP_HOST'], we are dealing with a local login
-            if ($idToken['iss'] === $_SERVER['HTTP_HOST']) {
+            if ($tokenPayload['iss'] === $_SERVER['HTTP_HOST']) {
                 // Check if valid
                 if (JWT::checkToken($_COOKIE[AUTH_COOKIE_NAME])) {
                     $provider = 'local';
                     $loggedIn = true;
                 } else {
                     // If checks for JWT token fail - unset cookie and redirect to /login
-                    unset($_COOKIE[AUTH_COOKIE_NAME]);
-                    setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
+                    JWT::handleValidationFailure();
                     header('Location: /login');
                 }
             }
 
             // Now check if the issuer is the AzureAD endpoint
-            if ($idToken['iss'] === 'https://login.microsoftonline.com/' . Tenant_ID . '/v2.0') {
-                // First check if token is expired and redirect to login URL
-                if (!JWT::checkExpiration($_COOKIE[AUTH_COOKIE_NAME])) {
-                    header('Location: ' . Login_Button_URL);
-                }
+            if (str_starts_with($tokenPayload['iss'], 'https://login.microsoftonline.com/')) {
                 // Check if valid
-                if (AzureAD::checkJWTToken($_COOKIE[AUTH_COOKIE_NAME])) {
+                if (AzureAD::check($_COOKIE[AUTH_COOKIE_NAME])) {
                     $provider = 'azure';
                     $loggedIn = true;
                 } else {
                     // If checks for JWT token fail - unset cookie and redirect to /login
-                    unset($_COOKIE[AUTH_COOKIE_NAME]);
-                    setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
+                    JWT::handleValidationFailure();
                     header('Location: /login');
                 }
             }
@@ -75,7 +69,7 @@ class RequireLogin
 
         if ($loggedIn && isset($_COOKIE[AUTH_COOKIE_NAME]) && $provider === 'azure') {
             // Let's parse the JWT token from the auth cookie and look at the claims
-            $authCookieArray = $idToken;
+            $authCookieArray = $tokenPayload;
             // We are mapping what the claims are called in the DB (keys) vs in the JWT token (values)
             $expectedClaims = [
                 'username' => 'preferred_username',
@@ -104,9 +98,9 @@ class RequireLogin
         }
 
         if ($provider === 'local') {
-            $username = $idToken['username'];
-            $usernameArray = $idToken;
-            $idTokenInfoArray = $idToken;
+            $username = $tokenPayload['username'];
+            $usernameArray = $tokenPayload;
+            $idTokenInfoArray = $tokenPayload;
         }
         
 

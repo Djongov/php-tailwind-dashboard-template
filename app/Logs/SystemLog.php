@@ -2,7 +2,7 @@
 
 namespace Logs;
 
-use Authentication\AzureAD;
+use Authentication\JWT;
 use Database\MYSQL;
 
 class SystemLog
@@ -10,7 +10,7 @@ class SystemLog
     public static function write($message, $category)
     {
         if (isset($_COOKIE[AUTH_COOKIE_NAME])) {
-            $username = AzureAD::parseJWTTokenPayLoad($_COOKIE[AUTH_COOKIE_NAME])['preferred_username'];
+            $username = JWT::extractUserName($_COOKIE[AUTH_COOKIE_NAME]);
         } else {
             $username = 'unknown';
         }

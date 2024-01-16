@@ -56,7 +56,7 @@ class Checks
                 Output::error('Invalid token');
             }
         } else {
-            if (!AzureAD::checkJWTToken($idToken)) {
+            if (!AzureAD::check($idToken)) {
                 Output::error('Invalid token');
             }
         }

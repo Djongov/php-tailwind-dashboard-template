@@ -2,7 +2,7 @@
 
 use Api\Output;
 use Template\Html;
-use Authentication\AzureAD;
+use Authentication\JWT;
 
 if (isset($_POST['api-action']) && $_POST['api-action'] === 'clear-error-file' && isset($_POST['csrf_token']) && ($_POST['csrf_token'] !== $_SESSION['csrf_token'])) {
     Output::error('Incorrect CSRF token', 401);
@@ -11,7 +11,7 @@ if (isset($_POST['api-action']) && $_POST['api-action'] === 'clear-error-file' &
 $usernameArray = $loginInfoArray['usernameArray'];
 
 // Make sure that the user who is logged in is the same as the user who is trying to whitelist
-if (AzureAD::extractUserName($_COOKIE[AUTH_COOKIE_NAME]) !== $usernameArray['username']) {
+if (JWT::extractUserName($_COOKIE[AUTH_COOKIE_NAME]) !== $usernameArray['username']) {
     Output::error('Username anomaly', 403);
 }
 

@@ -22,10 +22,10 @@ if (isset($_POST['id_token'], $_POST['state']) || isset($_POST['error'], $_POST[
     // Let's decide whether the connection is over HTTP or HTTPS (later for setting up the cookie)
     $secure = (str_contains($_SERVER['HTTP_HOST'], 'localhost') || str_contains($_SERVER['HTTP_HOST'], '[::1]')) ? false : true;
     // Let's call the function to check the JWT token which is returned. We are checking stuff like expiration, issuer, app id. We are not validating the signature as per MS article - https://docs.microsoft.com/en-us/azure/active-directory/develop/id-tokens#validating-an-id-token and https://docs.microsoft.com/en-us/azure/active-directory/develop/access-tokens#validating-tokens
-    if (AzureAD::checkJWTToken($_POST['id_token'])) {
+    if (AzureAD::check($_POST['id_token'])) {
         // Let's set the "auth_cookie" and put the id token as it's value, set the expiration date to when the token should expire and the rest of the cookie settings
         setcookie(AUTH_COOKIE_NAME, $_POST['id_token'], [
-            'expires' => AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['exp'] + 86400,
+            'expires' => JWT::parseTokenPayLoad($_POST['id_token'])['exp'] + 86400,
             'path' => '/',
             'domain' => str_replace(strstr($_SERVER['HTTP_HOST'], ':'), '', $_SERVER['HTTP_HOST']), // strip : from HOST in cases where localhost:8080 is used
             'secure' => $secure, // This needs to be true for most scenarios, we leave the option to be false for local environments
@@ -33,7 +33,7 @@ if (isset($_POST['id_token'], $_POST['state']) || isset($_POST['error'], $_POST[
             'samesite' => 'Lax' // This needs to be None otherwise, the trip to ms login endpoint and back will not hold the cookie
         ]);
         // Check if the user is in the DB, if not, create it
-        $userCheck = MYSQL::queryPrepared('SELECT * FROM `users` WHERE `username`=?', [AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['preferred_username']]);
+        $userCheck = MYSQL::queryPrepared('SELECT * FROM `users` WHERE `username`=?', [JWT::parseTokenPayLoad($_POST['id_token'])['preferred_username']]);
         if ($userCheck->num_rows === 0) {
             // Pick the country from the browser language
             $country = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
@@ -42,17 +42,17 @@ if (isset($_POST['id_token'], $_POST['state']) || isset($_POST['error'], $_POST[
             // Create the user in the DB
             $createUser = MYSQL::queryPrepared('INSERT INTO `users`(`username`, `password`, `email`, `name`, `last_ips`, `origin_country`, `role`, `last_login`, `theme`, `provider`, `enabled`) VALUES (?,NULL,?,?,?,?,?,NOW(),?,"azure",1)',
             [
-                AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['preferred_username'], // username
-                AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['preferred_username'], // email
-                AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['name'], // name
+                JWT::parseTokenPayLoad($_POST['id_token'])['preferred_username'], // username
+                JWT::parseTokenPayLoad($_POST['id_token'])['preferred_username'], // email
+                JWT::parseTokenPayLoad($_POST['id_token'])['name'], // name
                 General::currentIP(), // last_ips
                 $country, // origin_country
-                AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['roles'][0], // role
+                JWT::parseTokenPayLoad($_POST['id_token'])['roles'][0], // role
                 $theme // theme
             ]);
             if ($createUser->affected_rows === 1) {
                 // Record last login
-                MYSQL::recordLastLogin(AzureAD::parseJWTTokenPayLoad($_POST['id_token'])['preferred_username']);
+                MYSQL::recordLastLogin(JWT::parseTokenPayLoad($_POST['id_token'])['preferred_username']);
             } else {
                 Output::error('User creation failed', 400);
             }

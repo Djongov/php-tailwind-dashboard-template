@@ -2,114 +2,101 @@
 
 namespace Authentication;
 
+use Authentication\X5CHandler;
 use Request\Http;
 use App\General;
 
 class AzureAD
 {
-    public static function checkJWTToken(string $token): bool
+    public static function validateJWTSignature(string $token): bool
     {
-        // Explode the JWT token into header, paylod and signature
-        $tokenParts = explode('.', $token);
-        $header = base64_decode($tokenParts[0]);
-        $payload = base64_decode($tokenParts[1]);
-        $signature_provided = $tokenParts[2];
-        // Turn the JWT parts into arrays
-        $header_array = json_decode($header, true);
-        $payload_array = json_decode($payload, true);
-        // If payload is empty unset auth cookie and return false
-        if ($payload_array === null) {
-            unset($_COOKIE[AUTH_COOKIE_NAME]);
-            setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
-            //writeToSystemLog('Incorrect or malformed token', 'JWT');
-            return false;
-        }
-        // If audience does not match app registrations' client id unset auth cookie and return false
-        if ($payload_array['aud'] !== Client_ID) {
-            unset($_COOKIE[AUTH_COOKIE_NAME]);
-            setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
-            //writeToSystemLog('Incorrect Client ID', 'JWT');
-            return false;
-        }
-        /* Disabling this as app is multi-tenant and the issuer is different based on the incoming tenant
-        if ($payload_array['iss'] !== 'https://login.microsoftonline.com/' . $tenant . '/v2.0') {
-            throw new Exception("Incorrect token issuer");
-            return false;
-        }
-        if ($payload_array['tid'] !== $tenant) {
-            throw new Exception("Incorrect tenant");
-            return false;
-        }
-        */
-        // Check if JWT token is valid
-        if ($payload_array['nbf'] - time() > 0) {
-            unset($_COOKIE[AUTH_COOKIE_NAME]);
-            setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
-            //writeToSystemLog('Token not yet valid', 'JWT');
-            return false;
-        }
-        // Check the static nonce as well. This can be modified to a dynamic one with more functionality
-        if ($payload_array['nonce'] !== $_SESSION['nonce']) {
-            unset($_COOKIE[AUTH_COOKIE_NAME]);
-            setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
-            //writeToSystemLog('Incorrect nonce', 'JWT');
+        $jwtParts = explode('.', $token);
+
+        if (count($jwtParts) !== 3) {
+            // Invalid JWT format
             return false;
         }
 
-        // Signature check
-        // 1 create array from token separated by dot (.)
-        $token_arr = explode('.', $token);
-        $headers_enc = $token_arr[0];
-        $claims_enc = $token_arr[1];
-        $sig_enc = $token_arr[2];
+        // Extract the header and payload from the JWT
+        $base64UrlHeader = $jwtParts[0];
+        $base64UrlPayload = $jwtParts[1];
+        $base64UrlSignature = $jwtParts[2];
 
-        // 2 base 64 url decoding
-        $headers_arr = json_decode(General::base64url_decode($headers_enc), true);
-        $claims_arr = json_decode(General::base64url_decode($claims_enc), true);
-        $sig = General::base64url_decode($sig_enc);
+        // Decode the base64url-encoded header and payload
+        $header = General::base64url_decode($base64UrlHeader);
+        $payload = General::base64url_decode($base64UrlPayload);
+        $signature = General::base64url_decode($base64UrlSignature);
 
-        // Check if the kid is in the header. Maybe this check is not so important
-        if (!isset($header_array['kid'])) {
-            unset($_COOKIE[AUTH_COOKIE_NAME]);
-            setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
-            //writeToSystemLog('kid missing from JWT header', 'JWT');
+        if (!$header || !$payload) {
+            // Invalid header or payload
             return false;
         }
-        // get public key from key info
-        $instance = new self();
-        $get_signatures = $instance->getSignatures(Client_ID, Tenant_ID, $header_array["kid"]);
-        if ($get_signatures === null || !isset($get_signatures['x5c'][0])) {
-            unset($_COOKIE[AUTH_COOKIE_NAME]);
-            setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
-            //writeToSystemLog('x5c[0] not set', 'JWT');
+
+        if (!isset(json_decode($header, true)['kid'])) {
+            // Invalid header or payload
             return false;
         }
-        $cert_txt = '-----BEGIN CERTIFICATE-----' . "\n" . chunk_split($get_signatures['x5c'][0], 64) . '-----END CERTIFICATE-----';
-        $cert_obj = openssl_x509_read($cert_txt);
-        $pkey_obj = openssl_pkey_get_public($cert_obj);
-        $pkey_arr = openssl_pkey_get_details($pkey_obj);
-        $pkey_txt = $pkey_arr['key'];
 
-        // 6 validate signature
-        $token_valid = openssl_verify($headers_enc . '.' . $claims_enc, $sig, $pkey_txt, OPENSSL_ALGO_SHA256);
+        $x5c = X5CHandler::load(Client_ID, Tenant_ID, json_decode($header, true)['kid']);
+
+        if ($x5c === false) {
+            // Invalid signature
+            return false;
+        }
+
+        // Let's palce the x5c property in a certificate object
+        $certText = '-----BEGIN CERTIFICATE-----' . "\n" . chunk_split($x5c, 64) . '-----END CERTIFICATE-----';
+        // Let's place the certificate object in a public key object(OpenSSLCertificate)
+        $certObject = openssl_x509_read($certText);
+        // Extract the public key from the certificate object into a public key object(OpenSSLAsymmetricKey)
+        $pkeyObject = openssl_pkey_get_public($certObject);
+        // Extract the public key from the public key object into a public key array, ['bits'], ['key'], ['rsa']['n'], ['rsa']['e'] keys. We are interested in the ['key'] key
+        $pkeyArray = openssl_pkey_get_details($pkeyObject);
+        // Let's place the public key in a public key string
+        $pkeyString = $pkeyArray['key'];
+
+        $token_valid = openssl_verify($base64UrlHeader . '.' . $base64UrlPayload, $signature, $pkeyString, OPENSSL_ALGO_SHA256);
 
         if ($token_valid !== 1) {
-            unset($_COOKIE[AUTH_COOKIE_NAME]);
-            setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
-            //writeToSystemLog('Incorrect Signature', 'JWT');
+            // Invalid signature
             return false;
-        }
-
-        if ($payload_array['exp'] - time() < 0) {
-            header('Location:' . Login_Button_URL);
         }
 
         return true;
     }
-    protected function getSignatures(string $appId, string $tenant, string $header_kid): ?array
+    public static function check(string $token) : bool
+    {
+        // First validate signature of the token
+        if (!self::validateJWTSignature($token)) {
+            return JWT::handleValidationFailure();
+        }
+        // Check validity of the token
+        if (!JWT::checkExpiration($token)) {
+            // unse the cookie but do not return false, we want to redirect to MS login to get a new token
+            JWT::handleValidationFailure();
+            header('Location:' . Login_Button_URL);
+            exit();
+        }
+        // Parse the token
+        $payloadArray = JWT::parseTokenPayLoad($token);
+        // Let's do some other possible checks that are specific to Azure AD
+        if ($payloadArray['aud'] !== Client_ID) {
+            return JWT::handleValidationFailure();
+        }
+        // Disable these 2 methods if app is multi-tenant and the issuer is different based on the incoming tenant
+        if ($payloadArray['iss'] !== 'https://login.microsoftonline.com/' . Tenant_ID . '/v2.0') {
+            return JWT::handleValidationFailure();
+        }
+        if ($payloadArray['tid'] !== Tenant_ID) {
+            return JWT::handleValidationFailure();
+        }
+
+        return true;
+        
+    }
+    public static function getSignatures(string $appId, string $tenant, string $header_kid): ?array
     {
         $url = "https://login.microsoftonline.com/$tenant/discovery/keys?appid=$appId";
-
 
         $request = new Http;
 
@@ -132,23 +119,5 @@ class AzureAD
         }
 
         return $kid_array;
-    }
-    public static function parseJWTTokenPayLoad(string $jwt): ?array
-    {
-        $tokenParts = explode('.', $jwt);
-        if (count($tokenParts) !== 3) {
-            return null;
-        }
-        $header = base64_decode($tokenParts[0]);
-        $payload = base64_decode($tokenParts[1]);
-        $signature_provided = $tokenParts[2];
-
-        $payload_array = json_decode($payload, true);
-        return $payload_array;
-    }
-    public static function checkJWTTokenExpiry($jwt)
-    {
-        $payload_array = self::parseJWTTokenPayLoad($jwt);
-        return ($payload_array['exp'] - time() < 0) ? false : true;
     }
 }

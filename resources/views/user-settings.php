@@ -1,7 +1,6 @@
 <?php
 
 use App\General;
-use Authentication\AzureAD;
 use Template\Forms;
 use Template\Html;
 use Authentication\JWT;
@@ -74,7 +73,7 @@ echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
         echo '</div>';
         echo '<div class="p-4 m-4 max-w-lg bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700">';
             echo Html::h2('Session Info');
-            echo '<p><strong>Token expiry: </strong>' . $fmt->format(strtotime(date("Y-m-d H:i:s", substr(AzureAD::parseJWTTokenPayLoad($_COOKIE[AUTH_COOKIE_NAME])['exp'], 0, 10)))) . '</p>';
+            echo '<p><strong>Token expiry: </strong>' . $fmt->format(strtotime(date("Y-m-d H:i:s", substr(JWT::parseTokenPayLoad($_COOKIE[AUTH_COOKIE_NAME])['exp'], 0, 10)))) . '</p>';
             echo '<p><strong>Token: </strong></p><p class="break-all c0py">' . $_COOKIE[AUTH_COOKIE_NAME] . '</p>';
             $token = JWT::parseTokenPayLoad($_COOKIE[AUTH_COOKIE_NAME]);
             // echo '<ul>';
