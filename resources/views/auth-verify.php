@@ -16,7 +16,7 @@ if (isset($_POST['id_token'], $_POST['state']) || isset($_POST['error'], $_POST[
     }
 
     // If someone comes directly from /login, we need to set the state to /
-    if ($_POST['state'] === '/login') {
+    if ($_POST['state'] === '/login' || $_POST['state'] === '/logout') {
         $_POST['state'] = '/';
     }
     // Let's decide whether the connection is over HTTP or HTTPS (later for setting up the cookie)

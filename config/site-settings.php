@@ -104,19 +104,19 @@ if (getenv('WEBSITE_AUTH_CLIENT_ID')) {
     define('OAUTHURL', 'https://login.microsoftonline.com/' . Tenant_ID . '/oauth2/v2.0/authorize?');
 
     $destination = (isset($_GET['destination'])) ? $_GET['destination'] : $_SERVER['REQUEST_URI'];
-    $data = [
+    $authenticationData = [
         'client_id' => Client_ID,
         'response_type' => 'id_token',
         'redirect_uri' => Redirect_URI,
         'response_mode' => 'form_post',
         'scope' => 'openid profile email',
         // Note that the nonce is supposed to be checked on return but you need special settings to keep it somewhere, like in a database. This is why we currently use a static nonce but i leave here a line with random nonce
-        // 'nonce' => bin2hex(random_bytes(24))
-        'nonce' => 'c0ca2663770b3c9571ca843c7106851816e2d415e77369a1',
+        'nonce' => $_SESSION['nonce'] ?? null,
+        //'nonce' => 'c0ca2663770b3c9571ca843c7106851816e2d415e77369a1',
         'state' => $destination
     ];
     // This basically merges OAUTH URL and $data
-    $request_id_token_url = OAUTHURL . http_build_query($data);
+    $request_id_token_url = OAUTHURL . http_build_query($authenticationData);
     // Let's form what the login url will be
     define('Login_Button_URL', $request_id_token_url);
     // For this one, the logout will be our own script

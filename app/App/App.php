@@ -16,11 +16,16 @@ class App
         // Load the environment variables from the .env file which resides in the root of the project
         $dotenv = \Dotenv\Dotenv::createImmutable(dirname($_SERVER['DOCUMENT_ROOT']));
         $dotenv->load();
-        // Now that we've loaded the env, let's get the site settings
-        require_once dirname($_SERVER['DOCUMENT_ROOT']) . '/config/site-settings.php';
         // Start session
         Session::start();
 
+        // Create a nonce for the session, that can be used for Azure AD authentication. It's important this stays above calling the site-settings.php file, as it's used there
+        if (!isset($_SESSION['nonce'])) {
+            $_SESSION['nonce'] = General::randomString(24);
+        }
+
+        // Now that we've loaded the env, let's get the site settings
+        require_once dirname($_SERVER['DOCUMENT_ROOT']) . '/config/site-settings.php';
         /*
             Now Routing
         */

@@ -49,7 +49,7 @@ class AzureAD
             return false;
         }
         // Check the static nonce as well. This can be modified to a dynamic one with more functionality
-        if ($payload_array['nonce'] !== 'c0ca2663770b3c9571ca843c7106851816e2d415e77369a1') {
+        if ($payload_array['nonce'] !== $_SESSION['nonce']) {
             unset($_COOKIE[AUTH_COOKIE_NAME]);
             setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
             //writeToSystemLog('Incorrect nonce', 'JWT');
@@ -106,14 +106,6 @@ class AzureAD
 
         return true;
     }
-    // This method will extract the username from the JWT token
-    public static function extractUserName(string $token): ?string
-    {
-        $parsed_token = self::parseJWTTokenPayLoad($token);
-        return $parsed_token['preferred_username'] ?? null;
-    }
-
-
     protected function getSignatures(string $appId, string $tenant, string $header_kid): ?array
     {
         $url = "https://login.microsoftonline.com/$tenant/discovery/keys?appid=$appId";
