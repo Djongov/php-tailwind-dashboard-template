@@ -10,7 +10,7 @@ use App\General;
 use Authentication\Checks;
 
 
-//var_dump($_SESSION);
+var_dump($usernameArray);
 
 //$request = NativeHttp::get('https://www.ipqualityscore.com/api/json/leaked/email/IgJi2FQr2iU11QkbkBtoWun5f1YmSk8y/djongov@gamerz-bg.com', [], true);
 

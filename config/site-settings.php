@@ -120,5 +120,5 @@ if (getenv('WEBSITE_AUTH_CLIENT_ID')) {
     // Let's form what the login url will be
     define('Login_Button_URL', $request_id_token_url);
     // For this one, the logout will be our own script
-    define('Logout_Button_URL', '/logout');
+    define('Logout_Button_URL', 'https://login.microsoftonline.com/' . Tenant_ID . '/oauth2/v2.0/logout?post_logout_redirect_uri=https://' . $_SERVER['HTTP_HOST']);
 }

@@ -2,32 +2,34 @@
 
 namespace App;
 
-use Security\Firewall;
 use App\RequireLogin;
-use Components\Page;
+//use Components\Page;
+use App\Page;
 use Api\Output;
 use Core\Session;
 
 
 class App
 {
-    public static function init()
+    public function init()
     {
-        // Load the environment variables
-        $dotenv = \Dotenv\Dotenv::createImmutable(dirname(__DIR__));
+        // Load the environment variables from the .env file which resides in the root of the project
+        $dotenv = \Dotenv\Dotenv::createImmutable(dirname($_SERVER['DOCUMENT_ROOT']));
         $dotenv->load();
-
+        // Now that we've loaded the env, let's get the site settings
         require_once dirname($_SERVER['DOCUMENT_ROOT']) . '/config/site-settings.php';
-
+        // Start session
         Session::start();
 
+        /*
+            Now Routing
+        */
+        // Location of the routes definition
         $routesDefinition = require dirname($_SERVER['DOCUMENT_ROOT']) . '/resources/routes.php';
-
         // Ensure that $routesDefinition is a callable
         if (!is_callable($routesDefinition)) {
             throw new \RuntimeException('Invalid routes definition');
         }
-
         $dispatcher = \FastRoute\simpleDispatcher($routesDefinition);
 
         // Fetch method and URI from somewhere
@@ -47,8 +49,20 @@ class App
                 // Handle 404 Not Found
                 if ($httpMethod === 'GET') {
                     $loginInfoArray = RequireLogin::check();
-                    var_dump($loginInfoArray);
-                    echo '404 Not Found';
+                    // Theme
+                    $theme = (isset($loginInfoArray['usernameArray']['theme'])) ? $loginInfoArray['usernameArray']['theme'] : COLOR_SCHEME;
+                    $errorPage = new Page();
+                    echo $errorPage->build(
+                        '404 Not Found', // Title
+                        'The page you are looking for was not found', // Description
+                        ['404, Not Found'], // Keywords
+                        OG_LOGO, // Thumbimage
+                        $theme, // Theme
+                        MAIN_MENU, // Menu
+                        $loginInfoArray['usernameArray'], // Username array
+                        dirname($_SERVER['DOCUMENT_ROOT']) . '/resources/views/errors/error.php', // Controller
+                        $loginInfoArray['isAdmin'] // isAdmin
+                    );
                 } else {
                     // For non-GET requests, provide an API response
                     Output::error('api endpoint (' . $uri . ') not found', 404);
@@ -83,14 +97,16 @@ class App
                     if ($httpMethod === 'GET') {
                         if (!empty($params)) {
                             $menuArray = $params['menu'];
-                            echo Page::head($params['title'], $params['description'], $params['keywords'], $params['thumbimage'], $theme);
-                            echo '<body class="h-full antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-400">';
-                            echo '<div class="md:mx-auto bg-gray-200 dark:bg-gray-800">';
-                            echo Page::header($usernameArray, $menuArray, $isAdmin, $theme);
-                            include $controllerName;
-                            echo Page::footer($theme);
-                            echo '</div>';
-                            echo '</body>';
+                            // echo Page::head($params['title'], $params['description'], $params['keywords'], $params['thumbimage'], $theme);
+                            // echo '<body class="h-full antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-400">';
+                            // echo '<div class="md:mx-auto bg-gray-200 dark:bg-gray-800">';
+                            // echo Page::header($usernameArray, $menuArray, $isAdmin, $theme);
+                            // include $controllerName;
+                            // echo Page::footer($theme);
+                            // echo '</div>';
+                            // echo '</body>';
+                            $page = new Page();
+                            echo $page->build($params['title'], $params['description'], $params['keywords'], $params['thumbimage'], $theme, $menuArray, $usernameArray, $controllerName, $isAdmin);
                         } else {
                             include $controllerName;
                         }

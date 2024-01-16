@@ -130,11 +130,13 @@ class RequireLogin
             } elseif ($idTokenInfoArray["role"] === 'administrator' && $usernameArray['role'] !== 'administrator') {
                 MYSQL::queryPrepared("UPDATE `users` SET `role`='administrator' WHERE `username`=?", [$usernameArray['username']]);
                 // Good to alert as well
-            // And if DB says admin but the JWT token no longer bears the admin role - remove it
-            } elseif ($idTokenInfoArray["role"] !== 'administrator' && $usernameArray['role'] === 'administrator') {
-                MYSQL::queryPrepared("UPDATE `users` SET `role`=NULL WHERE `username`=?", [$usernameArray['username']]);
-                // Good to alert as well
+            
             }
+            // And if DB says admin but the JWT token no longer bears the admin role - remove it
+            // elseif ($idTokenInfoArray["role"] !== 'administrator' && $usernameArray['role'] === 'administrator') {
+            //     MYSQL::queryPrepared("UPDATE `users` SET `role`=NULL WHERE `username`=?", [$usernameArray['username']]);
+            //     // Good to alert as well
+            // }
         }
 
         // Kill disabled users early
