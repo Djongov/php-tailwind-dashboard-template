@@ -47,6 +47,7 @@ return function (RouteCollector $router) {
     /* API Routes */
     $router->addRoute(['GET', 'PUT', 'DELETE'], '/api/user/{id:\d+}', [$contollers_folder . '/api/user/index.php']);
     $router->addRoute('POST', '/api/user', [$contollers_folder . '/api/user/create.php']);
+    $router->addRoute('PUT', '/api/user/password-change/{id:\d+}', [$contollers_folder . '/api/user/password-change.php']);
 
     // Docs pages
     $router->addRoute('GET', '/docs', [$contollers_folder . '/docs/index.php', $genericMetaDataArray]);

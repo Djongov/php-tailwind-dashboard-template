@@ -44,7 +44,7 @@ class Page
         $html .= '<meta name="twitter:image" content="' . $thumbimage . '" >' . PHP_EOL;
         $html .= '<meta name="twitter:image:alt" content="' . SITE_TITLE . ' logo" >' . PHP_EOL;
         // CSS files
-        $html .= '<link rel="stylesheet" href="/assets/css/main.css">';
+        //$html .= '<link rel="stylesheet" href="/assets/css/main.css">';
         // Scripts
         $html .= '<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>' . PHP_EOL;
         $html .= '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>' . PHP_EOL;

@@ -8,6 +8,7 @@ use Authentication\JWT;
 $allowed_themes = ['amber', 'green', 'stone', 'rose', 'lime', 'teal', 'sky', 'purple', 'red', 'fuchsia', 'indigo'];
 
 $locale = (isset($usernameArray['origin_country'])) ? General::country_code_to_locale($usernameArray['origin_country']) : null;
+$fmt = new IntlDateFormatter($locale, IntlDateFormatter::LONG, IntlDateFormatter::GREGORIAN);
 echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
     echo '<div class="p-4 m-4 max-w-lg bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700">';
         echo Html::h2('User settings');
@@ -19,7 +20,6 @@ echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
             }
             // Check if date
             if ($setting !== null && strtotime($setting)) {
-                $fmt = new IntlDateFormatter($locale, IntlDateFormatter::LONG, IntlDateFormatter::GREGORIAN);
                 echo ' <td class="w-full"><strong>' . $name . '</strong> : ' . $fmt->format(strtotime($setting)) . '  </td>';
                 continue;
             }
@@ -137,6 +137,52 @@ echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
 
         echo Forms::render($updateEmailFormOptions);
 
+        echo '</div>';
+    }
+    // Change password for local users
+    if ($usernameArray['provider'] === 'local') {
+        echo '<div class="p-4 m-4 max-w-fit bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700">';
+            echo Html::h2('Change Password');
+            $changePasswordForm = [
+                'inputs' => [
+                    'input' => [
+                        [
+                            'label' => 'New Password',
+                            'type' => 'password',
+                            'placeholder' => '',
+                            'name' => 'password',
+                            'description' => 'You new password',
+                            'disabled' => false,
+                            'required' => true,
+                        ],
+                        [
+                            'label' => 'Confirm Password',
+                            'type' => 'password',
+                            'placeholder' => '',
+                            'name' => 'confirm_password',
+                            'description' => 'Confirm your new password',
+                            'disabled' => false,
+                            'required' => true,
+                        ]
+                    ],
+                    'hidden' => [
+                        [
+                            'name' => 'username',
+                            'value' => $usernameArray['username']
+                        ]
+                    ],
+                ],
+                'theme' => $theme,
+                'method' => 'PUT',
+                'action' => '/api/user/password-change/' . $usernameArray['id'],
+                'redirectOnSubmit' => '/logout',
+                'submitButton' => [
+                    'text' => 'Change Password',
+                    'size' => 'medium',
+                    //'style' => '&#10060;'
+                ],
+            ];
+            echo Forms::render($changePasswordForm);
         echo '</div>';
     }
     echo '<div class="p-4 m-4 max-w-fit bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700">';
