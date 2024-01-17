@@ -182,8 +182,8 @@ class DataGrid
             // Export functionality
             $html .= '<div class="flex">';
                 $exportButtonsArray = [
-                    'Export in CSV' => '/api/export-csv',
-                    'Export in TSV' => '/api/exporttsv'
+                    'Export in CSV' => '/api/tools/export-csv',
+                    'Export in TSV' => '/api/tools/export-tsv'
                 ];
                 foreach ($exportButtonsArray as $name => $link) {
                     $html .= '<form action="' . $link . '" method="post" target="_blank">';

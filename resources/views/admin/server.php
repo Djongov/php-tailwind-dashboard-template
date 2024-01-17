@@ -23,7 +23,7 @@ $loadErrorFileArray = [
         ]
     ],
     'theme' => $theme,
-    'action' => '/api/get-error-file',
+    'action' => '/api/tools/get-error-file',
     'resultType' => 'html',
     'reloadOnSubmit' => false,
     'submitButton' => [
@@ -42,7 +42,7 @@ $clearErrorFileformArray = [
         ]
     ],
     'theme' => $theme,
-    'action' => '/api/clear-error-file',
+    'action' => '/api/tools/clear-error-file',
     'resultType' => 'html',
     'reloadOnSubmit' => false,
     'submitButton' => [

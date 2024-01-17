@@ -1,6 +1,9 @@
 <?php
 
 define("ADMIN_MENU", [
+    'Admin Home' => [
+        'link' => '/adminx',
+    ],
     'Server' => [
         'icon' => [
             'type' => 'svg',

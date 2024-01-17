@@ -340,7 +340,7 @@ if (tables.length > 0) {
             saveEditMotal.addEventListener('click', () => {
                 saveEditMotal.innerText = 'Please wait...';
                 const data = new URLSearchParams(new FormData(saveEditForm));
-                fetch('/api/update-records', {
+                fetch('/api/datagrid/update-records', {
                     method: 'post',
                     // Let's send this secret header
                     headers: {
@@ -407,7 +407,7 @@ if (tables.length > 0) {
                     deleteLoadingScreen.classList.remove('hidden');
                     event.preventDefault();
                     const data = new URLSearchParams(new FormData(form));
-                    fetch('/api/delete-records', {
+                    fetch('/api/datagrid/delete-records', {
                         method: 'post',
                         // Let's send this secret header
                         headers: {
@@ -499,7 +499,7 @@ if (tables.length > 0) {
                 button.addEventListener('click', (event) => {
                     let editModalText = document.getElementById(tableId + '-edit-modal-text');
                     editModalText.innerHTML = '<p class="text-gray-900 dark:text-gray-300">Loading data please wait...</p>';
-                    fetch('/api/get-records', {
+                    fetch('/api/datagrid/get-records', {
                         method: 'post',
                         // Let's send this secret header
                         headers: {

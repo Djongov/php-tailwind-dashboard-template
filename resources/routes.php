@@ -40,15 +40,21 @@ return function (RouteCollector $router) {
     $router->addRoute('GET', '/adminx', [$contollers_folder . '/admin/index.php', $genericMetaAdminDataArray]);
     // Admin Server page
     $router->addRoute('GET', '/adminx/server', [$contollers_folder . '/admin/server.php', $genericMetaAdminDataArray]);
-    // Admin Server Api
-    $router->addRoute('POST', '/api/get-error-file', [$contollers_folder . '/api/get-error-file.php']);
-    $router->addRoute('POST', '/api/clear-error-file', [$contollers_folder . '/api/clear-error-file.php']);
+    // Tools API
+    $router->addRoute('POST', '/api/tools/get-error-file', [$contollers_folder . '/api/tools/get-error-file.php']);
+    $router->addRoute('POST', '/api/tools/clear-error-file', [$contollers_folder . '/api/tools/clear-error-file.php']);
+    $router->addRoute('POST', '/api/tools/export-csv', [$contollers_folder . '/api/tools/export-csv.php']);
+    $router->addRoute('POST', '/api/tools/export-tsv', [$contollers_folder . '/api/tools/export-tsv.php']);
 
     /* API Routes */
     $router->addRoute(['GET', 'PUT', 'DELETE'], '/api/user/{id:\d+}', [$contollers_folder . '/api/user/index.php']);
     $router->addRoute('POST', '/api/user', [$contollers_folder . '/api/user/create.php']);
     $router->addRoute('PUT', '/api/user/password-change/{id:\d+}', [$contollers_folder . '/api/user/password-change.php']);
 
+    /* DataGrid Api */
+    $router->addRoute('POST', '/api/datagrid/get-records', [$contollers_folder . '/api/datagrid/get-records.php']);
+    $router->addRoute('POST', '/api/datagrid/update-records', [$contollers_folder . '/api/datagrid/update-records.php']);
+    $router->addRoute('POST', '/api/datagrid/delete-records', [$contollers_folder . '/api/datagrid/delete-records.php']);
     // Docs pages
     $router->addRoute('GET', '/docs', [$contollers_folder . '/docs/index.php', $genericMetaDataArray]);
     // Search the /docs for files and build a route for each file
