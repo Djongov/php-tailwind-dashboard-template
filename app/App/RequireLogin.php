@@ -37,7 +37,8 @@ class RequireLogin
                 } else {
                     // If checks for JWT token fail - unset cookie and redirect to /login
                     JWT::handleValidationFailure();
-                    header('Location: /login');
+                    header('Location: /login?destination=' . $_SERVER['REQUEST_URI']);
+                    exit();
                 }
             }
 
@@ -50,7 +51,8 @@ class RequireLogin
                 } else {
                     // If checks for JWT token fail - unset cookie and redirect to /login
                     JWT::handleValidationFailure();
-                    header('Location: /login');
+                    header('Location: /login?destination=' . $_SERVER['REQUEST_URI']);
+                    exit();
                 }
             }
         } else {
@@ -62,6 +64,7 @@ class RequireLogin
             */
             if (!in_array($_SERVER['REQUEST_URI'], $loginExempt) && !str_contains($_SERVER['REQUEST_URI'], '/login')) {
                 header('Location: /login?destination=' . $_SERVER['REQUEST_URI']);
+                exit();
             }
         }
 
@@ -115,6 +118,7 @@ class RequireLogin
                 }
             } else {
                 header('Location: /logout');
+                exit();
             }
             // Now some admin checks
             // If there is a role = administrator in both token and DB, give admin straight away
@@ -145,8 +149,10 @@ class RequireLogin
         if (str_contains($_SERVER['REQUEST_URI'], 'login') && $loggedIn) {
             if (isset($_GET['destination'])) {
                 header('Location: ' . $_GET['destination']);
+                exit();
             } else {
                 header('Location: /');
+                exit();
             }
         }
 

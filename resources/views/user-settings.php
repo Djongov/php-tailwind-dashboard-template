@@ -141,7 +141,7 @@ echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
     }
     // Change password for local users
     if ($usernameArray['provider'] === 'local') {
-        echo '<div class="p-4 m-4 max-w-fit bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700">';
+        echo '<div class="p-4 m-4 max-w-md bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700">';
             echo Html::h2('Change Password');
             $changePasswordForm = [
                 'inputs' => [
@@ -183,6 +183,7 @@ echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
                 ],
             ];
             echo Forms::render($changePasswordForm);
+            echo HTML::small('Successfully changing the password will log you out of the app. You will need to login again with your new password.');
         echo '</div>';
     }
     echo '<div class="p-4 m-4 max-w-fit bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700">';
