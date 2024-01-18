@@ -36,10 +36,18 @@ return function (RouteCollector $router) {
     $router->addRoute('GET', '/logout', [$contollers_folder . '/logout.php']);
     // User settings page
     $router->addRoute('GET', '/user-settings', [$contollers_folder . '/user-settings.php', $genericMetaDataArray]);
-    // Admin page
+    // Admin
     $router->addRoute('GET', '/adminx', [$contollers_folder . '/admin/index.php', $genericMetaAdminDataArray]);
-    // Admin Server page
     $router->addRoute('GET', '/adminx/server', [$contollers_folder . '/admin/server.php', $genericMetaAdminDataArray]);
+    $router->addRoute('GET', '/adminx/users', [$contollers_folder . '/admin/users.php', $genericMetaAdminDataArray]);
+    $router->addRoute('GET', '/adminx/cache', [$contollers_folder . '/admin/cache.php', $genericMetaAdminDataArray]);
+    $router->addRoute('GET', '/adminx/system-logs', [$contollers_folder . '/admin/system-logs.php', $genericMetaAdminDataArray]);
+    $router->addRoute('GET', '/adminx/csp', [$contollers_folder . '/admin/csp.php', $genericMetaAdminDataArray]);
+    $router->addRoute('GET', '/adminx/firewall', [$contollers_folder . '/admin/firewall.php', $genericMetaAdminDataArray]);
+
+    // Admin API
+    $router->addRoute('POST', '/api/admin/csp/add', [$contollers_folder . '/api/admin/csp/add.php']);
+
     // Tools API
     $router->addRoute('POST', '/api/tools/get-error-file', [$contollers_folder . '/api/tools/get-error-file.php']);
     $router->addRoute('POST', '/api/tools/clear-error-file', [$contollers_folder . '/api/tools/clear-error-file.php']);

@@ -3,7 +3,7 @@
 use Logs\SystemLog;
 use Api\Output;
 use Database\MYSQL;
-use Template\DataGrid;
+use DataGrid\SimpleVerticalDataGrid;
 
 if (!$isAdmin) {
     SystemLog::write('Got unauthorized for admin page', 'Access');
@@ -11,8 +11,6 @@ if (!$isAdmin) {
 }
 
 use Template\Html;
-
-echo Html::h1('Administration');
 
 $dbTables = [];
 
@@ -24,7 +22,9 @@ if ($result) {
     }
     $result->free();
 }
+echo '<div class="p-4 m-4 max-w-md bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700">';
+    echo HTML::h2('Database Tables', true);
+    echo SimpleVerticalDataGrid::render($dbTables);
+echo '</div>';
 
-foreach ($dbTables as $table) {
-    echo DataGrid::render($table, ucfirst(str_replace("_", " ", $table)), $theme);
-}
+
