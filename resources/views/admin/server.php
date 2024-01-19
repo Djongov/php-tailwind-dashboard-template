@@ -2,10 +2,18 @@
 
 use Template\Forms;
 use Template\Html;
-use Api\Output;
 use DataGrid\SimpleVerticalDataGrid;
 use Logs\SystemLog;
-use Template\DataGrid;
+use Security\Firewall;
+use Api\Output;
+
+// First firewall check
+Firewall::activate();
+
+// Admin check
+if (!$isAdmin) {
+    Output::error('You are not an admin', 403);
+}
 
 if (!$isAdmin) {
     SystemLog::write('Got unauthorized for admin page', 'Access');

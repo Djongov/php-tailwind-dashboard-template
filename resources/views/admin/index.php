@@ -1,16 +1,20 @@
 <?php
 
-use Logs\SystemLog;
-use Api\Output;
+use Template\Html;
 use Database\MYSQL;
 use DataGrid\SimpleVerticalDataGrid;
+use Security\Firewall;
+use Api\Output;
 
+// First firewall check
+Firewall::activate();
+
+// Admin check
 if (!$isAdmin) {
-    SystemLog::write('Got unauthorized for admin page', 'Access');
-    Output::error('You are not authorized to view this page', 401);
+    Output::error('You are not an admin', 403);
 }
 
-use Template\Html;
+//var_dump($usernameArray);
 
 $dbTables = [];
 

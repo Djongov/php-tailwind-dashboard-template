@@ -9,6 +9,19 @@ class DataGrid
     public array $data;
     public string $dbTable;
     public string $title;
+
+    public static function getColumns($data) : array
+    {
+        // Let's calculate the columns
+        $totalColumns = [];
+        foreach ($data as $arrays) {
+            foreach ($arrays as $column => $data) {
+                array_push($totalColumns, $column);
+            }
+        }
+        // Now lets make the totalColumns unique
+        return array_unique($totalColumns);
+    }
     
     public static function dataGridTemplate($title, $dbTable, $countResult, $columnResult, $delete, $edit, $data, $theme) {
         $totalCount = $countResult->num_rows;

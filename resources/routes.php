@@ -47,6 +47,7 @@ return function (RouteCollector $router) {
 
     // Admin API
     $router->addRoute('POST', '/api/admin/csp/add', [$contollers_folder . '/api/admin/csp/add.php']);
+    $router->addRoute('POST', '/api/admin/firewall/add', [$contollers_folder . '/api/admin/firewall/add.php']);
 
     // Tools API
     $router->addRoute('POST', '/api/tools/get-error-file', [$contollers_folder . '/api/tools/get-error-file.php']);

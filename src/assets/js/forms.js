@@ -1,5 +1,3 @@
-
-
 // This is the fucntion that will create the modal for the form submission if confirm class on the form exists
 const generateModal = (text, id) => {
     // Create the html element div
@@ -48,6 +46,8 @@ const handleFormFetch = (form, currentEvent, resultType) => {
         </svg>
     </div>
     `;
+    // Disable the submit button to prevent multiple submissions
+    currentEvent.submitter.disabled = true;
     // Pick up the data from the form and urlencode is for POST
     const formData = new FormData(form);
     // If you still want to add specific values for checkboxes, you can do it like this
@@ -94,6 +94,7 @@ const handleFormFetch = (form, currentEvent, resultType) => {
     fetch(form.action, fetchOptions)
         // Handle response
         .then(response => {
+            currentEvent.submitter.disabled = false;
             const contentType = response.headers.get("content-type");
             // If response is redirect (0) or 403 return by the server, usually token expired, reload the page
             if (response.status === 0 || response.status === 403) {
@@ -106,14 +107,6 @@ const handleFormFetch = (form, currentEvent, resultType) => {
                     location.reload();
                 }
             } else {
-                // If data-redirect is on the form, instruct to redirect to the specified url
-                // if (form.getAttribute("data-redirect")) {
-                //     location.href = form.getAttribute("data-redirect");
-                // }
-                // if ((form.getAttribute("data-reload") === "true")) {
-                //     location.reload();
-                // }
-                // If returned content-type is not json, return the text
                 if (contentType && contentType.indexOf("application/json") === -1) {
                     return response.text();
                 }

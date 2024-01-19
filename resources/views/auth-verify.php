@@ -72,6 +72,9 @@ if (isset($_POST['id_token'], $_POST['state']) || isset($_POST['error'], $_POST[
 
 // If the request is coming from local login, we should have a $_POST['username'] and a $_POST['password'] variable
 if (isset($_POST['username'], $_POST['password'], $_POST['csrf_token'])) {
+
+    // Let's sleep to slow down brute force attacks
+    sleep(2);
     // Let's pull the user from the DB and do checks
     $user = MYSQL::queryPrepared('SELECT * FROM `users` WHERE `username`=?', [$_POST['username']]);
     
@@ -95,7 +98,9 @@ if (isset($_POST['username'], $_POST['password'], $_POST['csrf_token'])) {
         'iss' => $_SERVER['HTTP_HOST'],
         'username' => $user['username'],
         'name' => $user['name'],
-        'role' => $user['role'],
+        'roles' => [
+            $user['role'],
+        ],
         'last_ip' => General::currentIP()
     ]);
 

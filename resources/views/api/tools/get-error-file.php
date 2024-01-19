@@ -1,20 +1,27 @@
 <?php
 
-use Api\Output;
 use Template\Html;
-use Authentication\JWT;
+use DataGrid\SimpleVerticalDataGrid;
+use Api\Output;
+use Api\Checks;
+use Security\Firewall;
 
-if (isset($_POST['api-action']) && $_POST['api-action'] === 'clear-error-file' && isset($_POST['csrf_token']) && ($_POST['csrf_token'] !== $_SESSION['csrf_token'])) {
-    Output::error('Incorrect CSRF token', 401);
+Firewall::activate();
+var_dump($vars);
+$checks = new Checks($vars);
+
+// Perform the API checks
+$checks->apiChecks();
+
+// Awaiting parameters
+$allowedParams = ['api-action', 'csrf_token'];
+
+// Check if the required parameters are present
+$checks->checkParams($allowedParams, $_POST);
+
+if ($_POST['api-action'] !== 'get-error-file') {
+    Output::error('Invalid action');
 }
-
-$usernameArray = $loginInfoArray['usernameArray'];
-
-// Make sure that the user who is logged in is the same as the user who is trying to whitelist
-if (JWT::extractUserName($_COOKIE[AUTH_COOKIE_NAME]) !== $usernameArray['username']) {
-    Output::error('Username anomaly', 403);
-}
-
 
 echo '<div class="ml-4 dark:text-gray-400">';
 
@@ -27,6 +34,7 @@ if (is_file($file)) {
             return;
         }
         echo HTML::h3(realpath($file));
+        $errorFileArray = [];
         $f = file($file);
         $f = implode(PHP_EOL, $f);
         $f = explode(PHP_EOL . '[', $f);
@@ -34,12 +42,14 @@ if (is_file($file)) {
             if ($line === "") {
                 continue;
             }
-            echo '<p>[' . $line . '</p><div class="relative flex py-5 items-center">
-                <div class="flex-grow border-t border-gray-400"></div>
-                <span class="flex-shrink mx-4 text-gray-400">Error</span>
-                <div class="flex-grow border-t border-gray-400"></div>
-            </div>';
+            // echo '<p>[' . $line . '</p><div class="relative flex py-5 items-center">
+            //     <div class="flex-grow border-t border-gray-400"></div>
+            //     <span class="flex-shrink mx-4 text-gray-400">Error</span>
+            //     <div class="flex-grow border-t border-gray-400"></div>
+            // </div>';
+            array_push($errorFileArray, $line);
         }
+        echo SimpleVerticalDataGrid::render($errorFileArray);
     } else {
         echo '<p class="red">File (' . $file . ') not readable</p>';
     }

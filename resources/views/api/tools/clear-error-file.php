@@ -1,22 +1,29 @@
 <?php
 
-use Authentication\JWT;
 use Api\Output;
+use Api\Checks;
+use Security\Firewall;
 
-// Make sure that the user who is logged in is the same as the user
-if (JWT::extractUserName($_COOKIE[AUTH_COOKIE_NAME]) !== $usernameArray['username']) {
-    Output::error('Username anomaly', 403);
+Firewall::activate();
+
+$checks = new Checks($vars);
+
+// Perform the API checks
+$checks->apiChecks();
+
+// Awaiting parameters
+$allowedParams = ['api-action', 'csrf_token'];
+
+// Check if the required parameters are present
+$checks->checkParams($allowedParams, $_POST);
+
+if ($_POST['api-action'] !== 'clear-error-file') {
+    Output::error('Invalid action');
 }
 
-if (isset($_POST['api-action']) && $_POST['api-action'] === 'clear-error-file' && isset($_POST['csrf_token'])) {
-    if ($_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        echo '<p class="text-red-500 text-bold">Incorrect CSRF token</p>';
-        return;
-    }
-    $file = ini_get('error_log');
-    if (is_writable($file)) {
-        file_put_contents($file, '');
-    } else {
-        echo '<p class="text-red-500 text-bold">File (' . $file . ') not editable</p>';
-    }
+$file = ini_get('error_log');
+if (is_writable($file)) {
+    file_put_contents($file, '');
+} else {
+    echo '<p class="text-red-500 text-bold">File (' . $file . ') not editable</p>';
 }

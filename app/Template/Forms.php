@@ -105,6 +105,10 @@ class Forms
                         $html .= '<div class="mb-6">';
                         $html .= '<div class="my-2">';
                         $title = (isset($inputOptionsArray['title'])) ? 'title="' . $inputOptionsArray['title'] . '"' : '';
+                        // Add a search input if searchable is set to true
+                        if (isset($inputOptionsArray['searchable']) && $inputOptionsArray['searchable']) {
+                            $html .= HTML::searchInput($theme);
+                        }
                         $disabled = (isset($inputOptionsArray['disabled']) && $inputOptionsArray['disabled']) ? 'disabled' : '';
                         $html .= '<label for="' . $inputOptionsArray['name'] . '" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">' . $inputOptionsArray['label'] . '</label>';
                         $selectDivFlex = (isset($inputOptionsArray['searchFlex'])) ? $inputOptionsArray['searchFlex'] : 'flex-row';
@@ -216,7 +220,7 @@ class Forms
         // Double confirm feature, first let's see if it's passed
         if (isset($options['doubleConfirm'])) {
             // If it is passed, let's make sure it's a boolean, if not throw an exception
-            if (!is_bool($options['doubleConfirm'])) {
+            if (!isset($options['doubleConfirm']) || !is_bool($options['doubleConfirm'])) {
                 throw new \Exception('doubleConfirm option must be a boolean');
             }
             // We need confirmText to be passed as well for double confirm to work

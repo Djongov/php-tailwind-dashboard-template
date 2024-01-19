@@ -6,7 +6,6 @@ use Authentication\Checks;
 
 $checks = new Checks();
 $checks->genericChecks($vars);
-
 // Let's pick up the username from the user id from the DB
 $userInfo = MYSQL::queryPrepared('SELECT `username` FROM `users` WHERE `id`=?', [$routeInfo[2]['id']]);
 if ($userInfo->num_rows === 0) {

@@ -40,7 +40,8 @@ echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
                                 'label' => '',
                                 'name' => 'theme',
                                 'options' => $themeOptions,
-                                'selected_option' => $currentTheme
+                                'selected_option' => $currentTheme,
+                                'searchable' => true
                             ]
                         ],
                         'hidden' => [

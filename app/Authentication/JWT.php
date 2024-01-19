@@ -4,6 +4,7 @@ namespace Authentication;
 
 use App\General;
 use Api\Output;
+use Logs\SystemLog;
 
 class JWT
 {
@@ -17,7 +18,7 @@ class JWT
             'iss',
             'username',
             'name',
-            'role',
+            'roles',
             'last_ip'
         ];
         
@@ -26,6 +27,12 @@ class JWT
                 throw new \Exception('Missing required claim: ' . $claim . ' out of ' . implode(', ', $requiredClaims));
             }
         }
+
+        // roles needs to be an array
+        if (!is_array($claims['roles'])) {
+            throw new \Exception('Roles claim needs to be an array');
+        }
+
         // Expiration time
         $expiration = 3600;
 
@@ -56,9 +63,12 @@ class JWT
         $base64UrlSignature = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
 
         // Concatenate the JWT parts with periods
-        $jwt = $jwtUnsigned . '.' . $base64UrlSignature;
-
-        return $jwt;
+        return $jwtUnsigned . '.' . $base64UrlSignature;
+    }
+    // Check if token is set
+    public static function isTokenSet() : bool
+    {
+        return isset($_COOKIE[AUTH_COOKIE_NAME]);
     }
     // Method to parse a JWT token and return an array with the header and payload
     public static function parse(string $token) : array
@@ -194,8 +204,14 @@ class JWT
     // Common method to handle validation failure to reduce code duplication
     public static function handleValidationFailure(): bool
     {
-        unset($_COOKIE[AUTH_COOKIE_NAME]);
-        setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
-        return false;
+        if (self::isTokenSet()) {
+            // Log the validation failure
+            SystemLog::write('JWT validation failure for token ' . $_COOKIE[AUTH_COOKIE_NAME], 'JWT Failure');
+            unset($_COOKIE[AUTH_COOKIE_NAME]);
+            setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
+            return false;
+        } else {
+            return false;
+        }
     }
 }

@@ -1,4 +1,6 @@
 <?php
+// set the display errors to 1
+ini_set('display_errors', 1);
 /* Branding Settings */
 
 // Site title

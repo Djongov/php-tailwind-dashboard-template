@@ -6,6 +6,7 @@ use Database\MYSQL;
 use Authentication\AzureAD;
 use Authentication\JWT;
 use Api\Output;
+use Logs\SystemLog;
 
 class RequireLogin
 {
@@ -86,16 +87,9 @@ class RequireLogin
             }
             // Now the special ones
             $idTokenInfoArray["token_expiry"] = isset($authCookieArray['exp']) ? date("Y-m-d H:i:s", substr($authCookieArray['exp'], 0, 10)) : null;
-            // roles
-            $idTokenInfoArray["role"] = (isset($authCookieArray['roles'])) ? $authCookieArray['roles'] : null;
+            // If roles is not set, we set it to user, otherwise we set it to the roles array
+            $idTokenInfoArray["roles"] = (isset($authCookieArray['roles'])) ? $authCookieArray['roles'] : ['user'];
             // Now we search for the administrator role as role is an array of roles
-            if (isset($idTokenInfoArray["role"])) {
-                foreach ($idTokenInfoArray["role"] as $role) {
-                    if ($role === 'administrator') {
-                        $idTokenInfoArray["role"] = 'administrator';
-                    }
-                }
-            }
 
             $username = ($loggedIn) ? $idTokenInfoArray["username"] : null;
         }
@@ -122,13 +116,10 @@ class RequireLogin
             }
             // Now some admin checks
             // If there is a role = administrator in both token and DB, give admin straight away
-            if ($idTokenInfoArray["role"] === 'administrator' && $usernameArray['role'] === 'administrator') {
-                $isAdmin = true;
-            // If the JWT token has role admin but the DB says NO, it might have been a new assignment of admin role so we need to update DB
-            } elseif ($idTokenInfoArray["role"] === 'administrator' && $usernameArray['role'] !== 'administrator') {
-                MYSQL::queryPrepared("UPDATE `users` SET `role`='administrator' WHERE `username`=?", [$usernameArray['username']]);
-                // Good to alert as well
-            
+            foreach ($idTokenInfoArray["roles"] as $role) {
+                if ($role === 'administrator' && $usernameArray['role'] === 'administrator') {
+                    $isAdmin = true;
+                }
             }
             // And if DB says admin but the JWT token no longer bears the admin role - remove it
             // elseif ($idTokenInfoArray["role"] !== 'administrator' && $usernameArray['role'] === 'administrator') {
