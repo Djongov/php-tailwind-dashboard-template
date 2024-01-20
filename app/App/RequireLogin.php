@@ -111,10 +111,12 @@ class RequireLogin
                     MYSQL::queryPrepared("UPDATE `users` SET `last_ips`=? WHERE `username`=?",[$idTokenInfoArray["last_ip"], $username]);
                 }
             } else {
-                if (empty($usernameArray())) {
+                if (empty($usernameArray)) {
+                    JWT::handleValidationFailure();
                     header('Location: /');
                     exit();
                 } else {
+                    JWT::handleValidationFailure();
                     header('Location: /logout');
                     exit();
                 }

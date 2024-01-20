@@ -38,6 +38,8 @@ return function (RouteCollector $router) {
     $router->addRoute('GET', '/logout', [$contollers_folder . '/logout.php']);
     // User settings page
     $router->addRoute('GET', '/user-settings', [$contollers_folder . '/user-settings.php', $genericMetaDataArray]);
+    // CSP report endpoiont
+    $router->addRoute('POST', '/csp-report', [$contollers_folder . '/csp-report.php']);
     // Admin
     $router->addRoute('GET', '/adminx', [$contollers_folder . '/admin/index.php', $genericMetaAdminDataArray]);
     $router->addRoute('GET', '/adminx/server', [$contollers_folder . '/admin/server.php', $genericMetaAdminDataArray]);

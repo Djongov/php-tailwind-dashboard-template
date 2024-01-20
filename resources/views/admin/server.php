@@ -63,6 +63,10 @@ echo '<div class="flex">';
     echo Forms::render($clearErrorFileformArray);
 echo '</div>';
 
-echo HTML::h2('Server details');
+echo HTML::h2('Server details', true);
 
 echo SimpleVerticalDataGrid::render($_SERVER);
+
+echo HTML::h2('PHP Info', true);
+
+echo phpinfo();

@@ -1,6 +1,7 @@
 <?php
 use Database\MYSQL;
-use \Response\DieCode;
+use Api\Output;
+use Logs\SystemLog;
 
 // Only trigger script if reqeuest method is POST
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -20,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $result = MYSQL::queryPrepared("SELECT `domain` FROM `csp_approved_domains` WHERE `domain` = ?", $domain);
             if ($result->num_rows === 0) {
                 //include_once $_SERVER['DOCUMENT_ROOT'] . '/functions/write-logfile.php';
-                //writeToLog('$domain = ' . $domain . ' (' . gettype($domain) . ') and attempted to send a CSP report');
+                SystemLog::write('$domain = ' . $domain . ' (' . gettype($domain) . ') and attempted to send a CSP report', 'CSP Domain Not Allowed');
                 Output::error('Domain not allowed', 401);
             }
             $url = (isset($json_array['csp-report']['document-uri'])) ? $json_array['csp-report']['document-uri'] : null;
@@ -37,8 +38,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $script_sample = (isset($json_array['csp-report']['script-sample'])) ? $json_array['csp-report']['script-sample'] : null;
             // Start prepared statement
             MYSQL::queryPrepared('INSERT INTO `csp_reports` (`data`, `domain`, `url`, `referrer`, `violated_directive`, `effective_directive`, `original_policy`, `disposition`, `blocked_uri`, `line_number`, `column_number`, `source_file`, `status_code`, `script_sample`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ?, ?)', [$json_data, $domain, $url, $referrer, $violated_directive, $effective_directive, $original_policy, $disposition, $blocked_uri, $line_number, $column_number, $source_file, $status_code, $script_sample]);
-            DieCode::success('', 204);
-            //http_response_code(204); // Send HTTP 204 No Content response
+            
+            http_response_code(204); // Send HTTP 204 No Content response
         }
     } else {
         // If csp-report is not the top array key, throw 400 and say Incorrect data
