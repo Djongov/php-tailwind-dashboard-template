@@ -16,12 +16,13 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `cache` (
-  `id` int NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
   `value` varchar(5000) COLLATE utf8mb4_general_ci NOT NULL,
   `expiration` datetime NOT NULL,
   `type` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `unique_property` varchar(255) COLLATE utf8mb4_general_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `unique_property` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `firewall` (
   `id` int NOT NULL AUTO_INCREMENT,

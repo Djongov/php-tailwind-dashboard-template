@@ -9,7 +9,7 @@ Firewall::activate();
 $checks = new Checks($vars);
 
 // Perform the API checks
-$checks->apiChecks();
+$checks->apiAdminChecks();
 
 // Awaiting parameters
 $allowedParams = ['api-action', 'csrf_token'];

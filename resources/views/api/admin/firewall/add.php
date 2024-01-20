@@ -10,7 +10,7 @@ Firewall::activate();
 $checks = new Checks($vars);
 
 // Perform the API checks
-$checks->apiChecks();
+$checks->apiAdminChecks();
 
 // Awaiting parameters
 $allowedParams = ['cidr', 'csrf_token'];

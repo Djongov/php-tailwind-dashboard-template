@@ -12,7 +12,7 @@ class RequireLogin
 {
     public static function check()
     {
-        $loginExempt = ['/', '/docs', '/docs/example', '/csp-report', '/register', '/auth-verify', '/api/user'];
+        $loginExempt = ['/', '/docs', '/docs/example', '/csp-report', '/register', '/auth-verify', '/api/user', '/install'];
 
         $loggedIn = false;
 
@@ -111,8 +111,13 @@ class RequireLogin
                     MYSQL::queryPrepared("UPDATE `users` SET `last_ips`=? WHERE `username`=?",[$idTokenInfoArray["last_ip"], $username]);
                 }
             } else {
-                header('Location: /logout');
-                exit();
+                if (empty($usernameArray())) {
+                    header('Location: /');
+                    exit();
+                } else {
+                    header('Location: /logout');
+                    exit();
+                }
             }
             // Now some admin checks
             // If there is a role = administrator in both token and DB, give admin straight away

@@ -194,9 +194,20 @@ class Checks
     *
     * @return void
     */
-    public function apiChecks(bool $checkSecretHeader = true): void
+    public function apiAdminChecks(bool $checkSecretHeader = true): void
     {
         $this->adminCheck();
+        $this->checkJWT();
+        $this->checkUsernameIntegrity();
+        $this->checkCSRF();
+        $this->checkCSRFHeader();
+        $this->loginCheck();
+        if ($checkSecretHeader) {
+            $this->checkSecretHeader();
+        }
+    }
+    public function apiChecks(bool $checkSecretHeader = true): void
+    {
         $this->checkJWT();
         $this->checkUsernameIntegrity();
         $this->checkCSRF();

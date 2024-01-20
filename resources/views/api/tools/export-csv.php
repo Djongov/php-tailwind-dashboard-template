@@ -1,11 +1,10 @@
 <?php
-use Authentication\JWT;
-use Api\Output;
 
-// Make sure that the user who is logged in is the same as the user
-if (JWT::extractUserName($_COOKIE[AUTH_COOKIE_NAME]) !== $usernameArray['username']) {
-    Output::error('Username anomaly', 403);
-}
+use Api\Checks;
+
+$checks = new Checks($vars);
+
+$checks->apiChecks();
 
 if (isset($_POST['data'])) {
     $data = $_POST['data'];

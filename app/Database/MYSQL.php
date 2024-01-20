@@ -8,6 +8,7 @@ if (!defined('DB_HOST')) {
 }
 
 use Api\Output;
+use App\General;
 use Exception;
 
 class MYSQL
@@ -22,26 +23,8 @@ class MYSQL
             try {
                 $conn->real_connect('p:' . DB_HOST, DB_USER, DB_PASS, DB_NAME, 3306, MYSQLI_CLIENT_SSL);
             } catch (\mysqli_sql_exception $e) {
-                $error = $e->getMessage();
-                // Let's check if the Database exists
-                if (str_contains($error, "Unknown database") !== false) {
-                    // If it doesn't, let's create it
-                    $conn->real_connect('p:' . DB_HOST, DB_USER, DB_PASS, '', 3306, MYSQLI_CLIENT_SSL);
-                    $conn->query("CREATE DATABASE IF NOT EXISTS " . DB_NAME);
-                    $conn->real_connect('p:' . DB_HOST, DB_USER, DB_PASS, DB_NAME, 3306, MYSQLI_CLIENT_SSL);
-                    // selct the db
-                    $conn->select_db(DB_NAME);
-                    // create the tables from the migrate.sql file
-                    $migrateFile =  dirname($_SERVER['DOCUMENT_ROOT']) . '/migrate.sql';
-                    $migrate = file_get_contents($migrateFile);
-                    $conn->multi_query($migrate);
-                    // Now add the current domain to the csp_approved_domains table
-                    $conn->query("INSERT INTO `csp_approved_domains` (`domain`) VALUES ('" . $_SERVER['HTTP_HOST'] . "')");
-                    // close the connection
-                    $conn->close();
-                    echo "Database " . DB_NAME . " created successfully and tables created. Please refresh the page.";
-                    header("Refresh:0");
-                    exit();
+                if (str_contains($e->getMessage(), "Unknown database") !== false) {
+                    Output::error('Database "' . DB_NAME . '" does not exist, you need to go through the /install endpoint', 400);
                 } else {
                     Output::error($e->getMessage(), 400);
                 }
@@ -50,41 +33,8 @@ class MYSQL
             try {
                 $conn->real_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
             } catch (\mysqli_sql_exception $e) {
-                $error = $e->getMessage();
-                // Let's check if the Database exists
-                if (str_contains($error, "Unknown database") !== false) {
-                    // Connect to MySQL without specifying the database
-                    $conn->real_connect(DB_HOST, DB_USER, DB_PASS);
-
-                    // Create the database if it doesn't exist
-                    $conn->query("CREATE DATABASE IF NOT EXISTS " . DB_NAME . " CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
-
-                    // Connect to the newly created or existing database
-                    $conn->real_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-
-                    // Verify that the connection is successful
-                    if ($conn->connect_error) {
-                        throw new Exception("Failed to connect to the database: " . $conn->connect_error);
-                    }
-
-                    // Select the database
-                    $conn->select_db(DB_NAME);
-
-                    // Read and execute queries from the SQL file to create tables
-                    $migrateFile = dirname($_SERVER['DOCUMENT_ROOT']) . '/.tools/migrate.sql';
-                    $migrate = file_get_contents($migrateFile);
-
-                    if ($conn->multi_query($migrate)) {
-                        echo "Database " . DB_NAME . " created successfully and tables created. Please refresh the page.";
-                        header("Refresh:0");
-                    } else {
-                        throw new Exception("Error creating tables: " . $conn->error);
-                    }
-                    // close the connection
-                    $conn->close();
-                    echo "Database " . DB_NAME . " created successfully and tables created. Please refresh the page.";
-                    header("Refresh:0");
-                    exit();
+                if (str_contains($e->getMessage(), "Unknown database") !== false) {
+                    Output::error('Database "' . DB_NAME . '" does not exist, you need to go through the /install endpoint', 400);
                 } else {
                     Output::error($e->getMessage(), 400);
                 }

@@ -28,6 +28,8 @@ return function (RouteCollector $router) {
     $router->addRoute('GET', '/', [$contollers_folder . '/main.php', $genericMetaDataArray]);
     // Login page
     $router->addRoute('GET', '/login', [$contollers_folder . '/login.php', $genericMetaDataArray]);
+    // Install apge
+    $router->addRoute('GET', '/install', [$contollers_folder . '/install.php', $genericMetaDataArray]);
     // Register page
     $router->addRoute('GET', '/register', [$contollers_folder . '/register.php', $genericMetaDataArray]);
     // Auth verify page

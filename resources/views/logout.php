@@ -4,6 +4,10 @@ if (isset($_COOKIE[AUTH_COOKIE_NAME])) {
     unset($_COOKIE[AUTH_COOKIE_NAME]);
     setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
 }
+if (!isset($usernameArray['provider']) || empty($usernameArray['provider'])) {
+    header('Location: /');
+    exit;
+}
 // Redirect to root page if provider is local
 if ($usernameArray['provider'] === 'local') {
     header('Location: /');

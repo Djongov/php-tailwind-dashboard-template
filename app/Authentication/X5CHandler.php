@@ -19,7 +19,6 @@ class X5CHandler
             // We have a result, let's check if it's expired
             if (strtotime($x5cResultArray['expiration']) > time()) {
                 // We have a valid x5c, let's return it
-                SystemLog::write('X5C loaded from cache', 'X5C');
                 return $x5cResultArray['value'];
             } else {
                 // We have an expired x5c, let's delete it
