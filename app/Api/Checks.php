@@ -217,6 +217,16 @@ class Checks
             $this->checkSecretHeader();
         }
     }
+    public function apiChecksNoCSRFHeader(bool $checkSecretHeader = true): void
+    {
+        $this->checkJWT();
+        $this->checkUsernameIntegrity();
+        $this->checkCSRF();
+        $this->loginCheck();
+        if ($checkSecretHeader) {
+            $this->checkSecretHeader();
+        }
+    }
     /**
     * Checks if the required parameters are present
     *

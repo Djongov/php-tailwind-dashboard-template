@@ -50,7 +50,8 @@ class Page
         $html .= '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>' . PHP_EOL;
         $html .= '<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>' . PHP_EOL;
         $html .= '<script src="/assets/js/dataTables.js" defer></script>' . PHP_EOL;
-        $html .= '<script src="/assets/js/datagrid.js" defer></script>' . PHP_EOL;
+        $html .= '<script src="/assets/js/datagrid-new.js?' . time() . '" defer></script>';
+        $html .= '<script src="/assets/js/datagrid.js?' . time() . '" defer></script>' . PHP_EOL;
         $html .= '<script src="/assets/js/c0py.js" defer></script>' . PHP_EOL;
         $html .= '<script src="/assets/js/forms.js" defer></script>' . PHP_EOL;
         $html .= '<script src="/assets/js/main.js?'. time() . '" defer></script>' . PHP_EOL;

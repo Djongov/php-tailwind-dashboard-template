@@ -53,5 +53,5 @@ if ($dataCheck->num_rows > 0) {
     $html .= '</div>';
     echo $html;
 } else {
-    echo 'No data found';
+    Output::error('No data found', 400);
 }

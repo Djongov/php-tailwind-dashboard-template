@@ -254,6 +254,23 @@ const createLoader = (parentDiv, id, text) => {
     parentDiv.appendChild(loaderDiv);
 }
 
+const loaderString = () => {
+    return `
+    <div role="status" class="flex items-center justify-center">
+        <span class="sr-only">Loading...</span>
+        <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                    stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0
+                    014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
+        </svg>
+    </div>
+    `;
+}
+
 const editModal = (id) => {
     let html = `
         <!-- Main modal -->
@@ -322,7 +339,7 @@ const deleteModal = (id, data) => {
                 <!-- Modal body -->
                 <div id="${id}-body" class="p-4 md:p-5 space-y-4 break-words">
                     <p class="text-base leading-relaxed text-gray-700 dark:text-gray-400">
-                        Are you sure you want to delete entry: ${jsonData}?
+                        Are you sure you want to delete entry with id: ${jsonData}?
                     </p>
                 </div>
                 <!-- Modal Result -->
@@ -347,214 +364,6 @@ const deleteModal = (id, data) => {
     return modal;
 }
 
-const editSingleButton = document.querySelectorAll('button.edit-single-button');
-
-if (editSingleButton.length > 0) {
-    console.log(`found ${editSingleButton.length} edit single buttons`);
-    editSingleButton.forEach(button => {
-        button.addEventListener('click', () => {
-            const uniqueId = generateUniqueId(4);
-            // add data-modal-target="static-modal" data-modal-toggle="static-modal" to the button
-            button.setAttribute('data-modal-target', uniqueId);
-            button.setAttribute('data-modal-toggle', uniqueId);
-            // Generate the modal
-            let modal = editModal(uniqueId);
-            // Insert the modal at the bottom of the first div after the body
-            document.body.insertBefore(modal, document.body.firstChild);
-            // Now show the modal
-            modal.classList.remove('hidden');
-            // Now let's disable scrolling on the rest of the page by adding overflow-hidden to the body
-            document.body.classList.add('overflow-hidden');
-            // Blur the body excluding the modal
-            toggleBlur(modal);
-            // Let's make some bindings
-            const modalResult = document.getElementById(`${uniqueId}-result`);
-            // First, the close button
-            const closeXButton = document.getElementById(`${uniqueId}-x-button`);
-            // The cancel button
-            const cancelButton = document.getElementById(`${uniqueId}-close-button`);
-            const cancelButtonsArray = [closeXButton, cancelButton];
-            cancelButtonsArray.forEach(cancelButton => {
-                cancelButton.addEventListener('click', () => {
-                    // Completely remove the modal
-                    modal.remove();
-                    // Return the overflow of the body
-                    document.body.classList.remove('overflow-hidden');
-                    // Remove the blur by toggling the blur class
-                    toggleBlur(modal);
-                })
-            })
-            let modalBody = document.getElementById(`${uniqueId}-body`);
-            let responseStatus = 0;
-            // Now let's fetch data from the API and populate the modalBody. We will read the data-api-action from the button
-            const formData = new FormData();
-            const apiAction = button.getAttribute('data-api-action');
-            const csrfToken = button.getAttribute('data-csrf');
-            const apiData = JSON.parse(button.getAttribute('data-api-data'));
-            Object.entries(apiData).forEach(([key, value]) => {
-                formData.append(key, value);
-            });
-            // Now let's send a fetch request to /api/process with form-data api-action and the apiAction value
-            formData.append('api-action', 'get-' + apiAction);
-            formData.append('csrf_token', csrfToken);
-            fetch('/api/process', {
-                method: 'POST',
-                body: formData,
-                redirect: 'manual'
-            }).then(response => {
-                responseStatus = response.status;
-                if (responseStatus === 403 || responseStatus === 401 || responseStatus === 0) {
-                    modalBody.innerHTML = `<p class="text-red-500 font-semibold">Response not ok, refreshing</p>`;
-                    location.reload();
-                } else {
-                    return response.json()
-                }
-            }).then(json => {
-                if (responseStatus === 404 || responseStatus === 400) {
-                    editButton.innerText = 'Retry';
-                    let errorMessage = '';
-                    if (json.data) {
-                        errorMessage = json.data;
-                    } else if (json.error) {
-                        errorMessage = json.error;
-                    }
-                    modalBody.innerHTML = `<p class="text-red-500 font-semibold">${errorMessage}</p>`;
-                } else {
-                    // Assuming json.data exists, you can access its contents here
-                    const dataContents = json.data;
-                    // Now let's populate the modal body
-                    const newForm = buildEditForm(dataContents, `${uniqueId}-form`);
-                    newForm.action = `/api/process`;
-                    // Add api-action and csrf_token to the form
-                    const apiActionInput = document.createElement('input');
-                    apiActionInput.type = 'hidden';
-                    apiActionInput.name = 'api-action';
-                    apiActionInput.value = `update-${apiAction}`;
-                    newForm.appendChild(apiActionInput);
-                    const csrfTokenInput = document.createElement('input');
-                    csrfTokenInput.type = 'hidden';
-                    csrfTokenInput.name = 'csrf_token';
-                    csrfTokenInput.value = csrfToken;
-                    newForm.appendChild(csrfTokenInput);
-                    modalBody.innerHTML = '';
-                    modalBody.appendChild(newForm);
-                }
-                // Now you can work with the dataContents as needed
-            }).catch(error => {
-                console.error('Error during fetch:', error);
-            });
-            // Now the edit button
-            const editButton = document.getElementById(`${uniqueId}-edit`);
-            const initialButtonText = editButton.textContent;
-            editButton.addEventListener('click', () => {
-                // transform the button text to a loader
-                editButton.innerHTML = `<div role="status" class="flex items-center justify-center">
-                    <span class="sr-only">Loading...</span>
-                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-                            viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0
-                                014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                        </path>
-                    </svg>
-                </div>`;
-                const editForm = document.getElementById(`${uniqueId}-form`);
-                // We cannot directly submit() newForm, we will need to use another fetch with the form data
-                const formData = new FormData(editForm);
-                // Now let's send a fetch request to /api/process with form-data api-action and the apiAction value
-                fetch('/api/process', {
-                    method: 'POST',
-                    body: formData,
-                    redirect: 'manual'
-                }).then(response => {
-                    responseStatus = response.status;
-                    if (responseStatus === 403 || responseStatus === 401 || responseStatus === 0) {
-                        modalBody.innerHTML = `<p class="text-red-500 font-semibold">Response not ok, refreshing</p>`;
-                        location.reload();
-                    } else {
-                        return response.json()
-                    }
-                }).then(json => {
-                    // So if the response is status is 404 on the update, it mans nothing got updated, so we display it.
-                    if (responseStatus === 404 || responseStatus === 400) {
-                        editButton.innerText = 'Retry';
-                        let errorMessage = '';
-                        if (json.data) {
-                            errorMessage = json.data;
-                        } else if (json.error) {
-                            errorMessage = json.error;
-                        }
-                        modalResult.innerHTML = `<p class="text-red-500 font-semibold">${errorMessage}</p>`;
-                    } else {
-                        editButton.innerText = initialButtonText;
-                        modalResult.innerHTML = `<p class="text-green-500 font-semibold">${json.data}</p>`;
-                        location.reload();
-                    }
-                }).catch(error => {
-                    console.error('Error during fetch:', error);
-                });
-            })
-        })
-    })
-}
-
-const buildEditForm = (data, id) => {
-    const form = document.createElement('form');
-    form.id = id;
-    // Create a holder div for all the inputs and labels with flex flex-col flex-wrap
-    const holder = document.createElement('div');
-    holder.classList.add('flex', 'flex-col', 'flex-wrap');
-    form.appendChild(holder);
-    // So the data is in format key = > value, we need to build a form with input fields with names (keys) and values (values)
-    Object.entries(data).forEach(([key, value]) => {
-        const input = document.createElement('input');
-        const readOnlyFields = ['id', 'created_at', 'date_created', 'created_by', 'organization'];
-        if (readOnlyFields.includes(key)) {
-            input.readOnly = true;
-        }
-        const sensitiveFields = ['client_secret'];
-        // if value is int or float, make it number, otherwise text
-        if (typeof value === 'number') {
-            input.type = 'number';
-        } else {
-            input.type = 'text';
-        }
-        if (sensitiveFields.includes(key)) {
-            input.type = 'password';
-        }
-        if (input.type === 'text') {
-            if (input.readOnly) {
-                input.classList.add('text-sm', `bg-gray-200`, 'appearance-none', 'border', `border-red-500`, 'rounded-lg', 'py-2', 'px-4', 'text-gray-700', 'leading-tight', 'focus:outline-none', `focus:bg-gray-100`, `focus:border-red-700`, 'dark:bg-gray-700', 'dark:border-red-600', 'dark:placeholder-gray-400', 'dark:text-white', `dark:focus:ring-red-600`, `dark:focus:border-red-600`, `cursor-not-allowed`);
-            } else {
-                input.classList.add('text-sm', `bg-gray-100`, 'appearance-none', 'border-2', `border-${theme}-100`, 'rounded-lg', 'py-2', 'px-4', 'text-gray-700', 'leading-tight', 'focus:outline-none', `focus:bg-gray-100`, `focus:border-${theme}-500`, 'dark:bg-gray-700', 'dark:border-gray-600', 'dark:placeholder-gray-400', 'dark:text-white', `dark:focus:ring-${theme}-500`, `dark:focus:border-${theme}-500`);
-            }
-            // For now this is number
-        } else {
-            if (input.readOnly) {
-                input.classList.add('text-sm', `bg-gray-200`, 'appearance-none', 'border', `border-red-500`, 'rounded-lg', 'py-2', 'px-4', 'text-gray-700', 'leading-tight', 'focus:outline-none', `focus:bg-gray-100`, `focus:border-red-700`, 'dark:bg-gray-700', 'dark:border-red-600', 'dark:placeholder-gray-400', 'dark:text-white', `dark:focus:ring-red-600`, `dark:focus:border-red-600`, `cursor-not-allowed`);
-            } else {
-                input.classList.add('ml-2', 'p-1', 'text-sm', 'text-gray-900', 'border', `border-${theme}-300`, 'rounded', `bg-gray-200`, `focus:ring-${theme}-500`, `focus:border-${theme}-500`, 'dark:bg-gray-700', 'dark:border-gray-600', 'dark:placeholder-gray-400', 'dark:text-white', `dark:focus:ring-${theme}-500`, `dark:focus:border-${theme}-500`);
-            }
-        }
-        const label = document.createElement('label');
-        // let's put the key into a span with class font-semibold, mr-2
-        const span = document.createElement('span');
-        span.classList.add('font-semibold', 'mr-2');
-        span.textContent = key;
-        label.classList.add('my-2');
-        label.appendChild(span);
-        label.appendChild(input);
-        form.appendChild(label);
-        input.name = key;
-        input.value = value;
-        // append to the holder
-        holder.appendChild(label);
-    })
-    return form;
-}
-
 const toggleBlur = (excludeElement) => {
     const addBlurClass = (element) => {
         // Apply the hardcoded class 'blur-sm' to the element
@@ -576,102 +385,4 @@ const toggleBlur = (excludeElement) => {
             addBlurClass(currentElement);
         }
     }
-};
-
-const deleteSignleButton = document.querySelectorAll('button.delete-single-button');
-
-if (deleteSignleButton.length > 0) {
-    deleteSignleButton.forEach(button => {
-        button.addEventListener('click', () => {
-            // Get the data attributes from the delete button
-            const apiAction = button.getAttribute('data-api-action');
-            const csrfToken = button.getAttribute('data-csrf');
-            const apiData = JSON.parse(button.getAttribute('data-api-data'));
-            const formData = new FormData();
-            Object.entries(apiData).forEach(([key, value]) => {
-                formData.append(key, value);
-            });
-            // Now let's send a fetch request to /api/process with form-data api-action and the apiAction value
-            formData.append('api-action', apiAction);
-            formData.append('csrf_token', csrfToken);
-            const uniqueId = generateUniqueId(4);
-            // Create the modal
-            let modal = deleteModal(uniqueId, apiData);
-            // Insert the modal at the bottom of the first div after the body
-            document.body.insertBefore(modal, document.body.firstChild);
-            // Now show the modal
-            modal.classList.remove('hidden');
-            // Now let's disable scrolling on the rest of the page by adding overflow-hidden to the body
-            document.body.classList.add('overflow-hidden');
-            // Blur the body excluding the modal
-            toggleBlur(modal);
-            // First, the close button
-            const closeXButton = document.getElementById(`${uniqueId}-x-button`);
-            // The cancel button
-            const cancelButton = document.getElementById(`${uniqueId}-close-button`);
-            const cancelButtonsArray = [closeXButton, cancelButton];
-            cancelButtonsArray.forEach(cancelButton => {
-                cancelButton.addEventListener('click', () => {
-                    // Completely remove the modal
-                    modal.remove();
-                    // Return the overflow of the body
-                    document.body.classList.remove('overflow-hidden');
-                    // Remove the blur by toggling the blur class
-                    toggleBlur(modal);
-                })
-            })
-            const deleteModalButton = document.getElementById(`${uniqueId}-delete`);
-            let modalBody = document.getElementById(`${uniqueId}-body`);
-            let responseStatus = 0;
-            deleteModalButton.addEventListener('click', () => {
-                // transform the button text to a loader
-                deleteModalButton.innerHTML = `
-                <div role="status" class="flex items-center justify-center">
-                    <span class="sr-only">Loading...</span>
-                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-                            viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0
-                                014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                        </path>
-                    </svg>
-                </div>
-                `;
-                fetch('/api/process', {
-                    method: 'POST',
-                    body: formData,
-                    redirect: 'manual'
-                }).then(response => {
-                    responseStatus = response.status;
-                    if (responseStatus === 403 || responseStatus === 401 || responseStatus === 0) {
-                        modalBody.innerHTML = `<p class="text-red-500 font-semibold">Response not ok, refreshing</p>`;
-                        location.reload();
-                    } else {
-                        return response.json()
-                    }
-                }).then(json => {
-                    // Return the overflow of the body
-                    document.body.classList.remove('overflow-hidden');
-                    // Remove the blur by toggling the blur class
-                    toggleBlur(modal);
-                    if (responseStatus === 200) {
-                        // if we are deleting from a table, Delete the closest row
-                        const closestRow = button.closest('tr');
-                        if (closestRow) {
-                            closestRow.remove();
-                        }
-                        // Completely remove the modal
-                        modal.remove();
-                    } else {
-                        deleteModalButton.textContent = 'Retry';
-                        modalBody.innerHTML = `<p class="text-red-500 font-semibold">${json.error}</p>`;
-                    }
-                }).catch(error => {
-                    console.error('Error during fetch:', error);
-                })
-            })
-        })
-    })
 }

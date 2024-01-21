@@ -1,6 +1,5 @@
 <?php
 
-use Template\DataGrid;
 use Template\Forms;
 use Template\Html;
 use Security\Firewall;
@@ -14,7 +13,7 @@ if (!$isAdmin) {
     Output::error('You are not an admin', 403);
 }
 
-echo DataGrid::render('csp_approved_domains', 'CSP Approved Domains', $theme);
+//echo DataGrid::render('csp_approved_domains', 'CSP Approved Domains', $theme);
 
 // Provide a form that will allow the user to add a new domain to the CSP approved domains list
 echo '<div class="p-4 m-4 max-w-md bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700">';
@@ -43,4 +42,12 @@ echo Forms::render($CspApprovedDomainsForm, $theme);
 
 echo '</div>';
 
-echo DataGrid::render('csp_reports', 'CSP Reports', $theme);
+use Database\MYSQL;
+use DataGrid\DataGrid;
+
+$users = MYSQL::query('SELECT * FROM `csp_reports`');
+
+$usersData = $users->fetch_all(MYSQLI_ASSOC);
+
+// Create the table
+echo DataGrid::createTable('csp_reports', $usersData, $theme);

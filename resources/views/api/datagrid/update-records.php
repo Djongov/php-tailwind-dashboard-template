@@ -17,30 +17,33 @@ if (isset($_SERVER['HTTP_SECRETHEADER'])) {
     Output::error("Nauhty. You are missing a secret", 400);
 }
 
-$sql = "UPDATE `" . $_POST['table'] . "` SET ";
+$table = $_POST['table'];
 
-$index = 0;
-foreach ($_POST as $column => $value) {
-    $index++;
-    // Skip `table` from the query
-    if ($column === 'table') {
-        continue;
-    }
-    // Sometimes JS converts numbers to strings
-    if (is_numeric($value)) {
-        $value = (int) $value;
-    }
-    // On first iteration we don't need to start with a comma
-    if ($index === 1) {
-        $sql .= ($value === '') ? '`' . $column . '`= NULL' : '`' . $column . '`=\'' . addcslashes($value, "'") . '\'';
-        continue;
-    }
-    // And comma as a start on all other iterations
-    $sql .= ($value === '') ? ',`' . $column . '`= NULL' : ',`' . $column . '`=\'' . addcslashes($value, "'") . '\'';
+$sql = 'UPDATE `' . $_POST['table'] . '` SET ';
+
+unset($_POST['table']);
+
+$updates = [];
+// Check if all keys in $reports_array match the columns
+foreach ($_POST as $key => $value) {
+    // Add the column to be updated to the SET clause
+    $updates[] = "`$key` = ?";
 }
-// And finish off the rest of the query
-$sql .= ' WHERE `id`=\'' . $_POST['id'] . '\'';
+// Combine the SET clauses with commas
+$sql .= implode(', ', $updates);
 
-MYSQL::query($sql);
+// Add a WHERE clause to specify which organization to update
+$sql .= " WHERE `id` = ?";
 
-echo 'Success';
+// Prepare and execute the query using queryPrepared
+$values = array_values($_POST);
+$values[] = $_POST['id']; // Add the username for the WHERE clause
+
+$editRecord = MYSQL::queryPrepared($sql, $values);
+
+if ($editRecord->affected_rows === 0) {
+    Output::error('Nothing updated', 409);
+} else {
+    SystemLog::write('Record id ' . $_POST['id'] . ' edited in ' . $table, 'DataGrid Edit');
+    echo Output::success('successfully edited ' . $editRecord->affected_rows . ' records in ' . $table . '');
+}

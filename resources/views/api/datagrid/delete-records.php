@@ -4,6 +4,7 @@ use Database\MYSQL;
 use Api\Output;
 use Logs\SystemLog;
 
+
 if (!isset($_POST['table'], $_POST['id']) xor isset($_POST['deleteRecords'], $_POST['row'])) {
     Output::error('Incorrect arguments', 400);
 }
@@ -19,9 +20,14 @@ if (isset($_SERVER['HTTP_SECRETHEADER'])) {
 
 // If a single delete somes from the button
 if (isset($_POST['table'], $_POST['id'])) {
-    MYSQL::queryPrepared("DELETE FROM `" . $_POST['table'] . "` WHERE `id`=?", $_POST['id']);
-    SystemLog::write('Record id ' . $_POST['id'] . ' deleted from ' . $_POST['table'], 'Delete Record');
-    echo 'Success';
+    $deleteSingleRecord = MYSQL::queryPrepared("DELETE FROM `" . $_POST['table'] . "` WHERE `id`=?", $_POST['id']);
+    if ($deleteSingleRecord->affected_rows === 0) {
+        Output::error('No records were deleted', 400);
+    }
+    if ($deleteSingleRecord->affected_rows > 0) {
+        SystemLog::write('Record id ' . $_POST['id'] . ' deleted from ' . $_POST['table'], 'DataGrid Delete');
+        echo Output::success('successfully deleted ' . $deleteSingleRecord->affected_rows . ' records');
+    }
 // Or mass delete from the Delete selected button
 } elseif (isset($_POST['deleteRecords'], $_POST['row'])) {
     $ids = '';
@@ -32,12 +38,18 @@ if (isset($_POST['table'], $_POST['id'])) {
             $ids .= ',?';
         }
     }
-
     $sql = "DELETE FROM `" . $_POST['deleteRecords'] . "` WHERE `id` IN ($ids)";
     
-    MYSQL::queryPrepared($sql, [...$_POST['row']]);
-    SystemLog::write(count($_POST['row']) . ' records deleted from ' . $_POST['deleteRecords'], 'Delete Record');
-    echo 'Success';
+    $deleteAllRecords = MYSQL::queryPrepared($sql, [...$_POST['row']]);
+
+    
+    if ($deleteAllRecords->affected_rows === 0) {
+        Output::error('No records were deleted', 400);
+    }
+    if ($deleteAllRecords->affected_rows > 0) {
+        SystemLog::write($deleteAllRecords->affected_rows . ' records deleted from ' . $_POST['deleteRecords'], 'DataGrid Delete');
+        echo Output::success('successfully deleted ' . $deleteAllRecords->affected_rows . ' records');
+    }
 } else {
     Output::error('Incorrect arguments', 400);
 }

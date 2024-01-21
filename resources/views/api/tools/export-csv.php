@@ -4,7 +4,7 @@ use Api\Checks;
 
 $checks = new Checks($vars);
 
-$checks->apiChecks();
+$checks->apiChecksNoCSRFHeader(false);
 
 if (isset($_POST['data'])) {
     $data = $_POST['data'];
