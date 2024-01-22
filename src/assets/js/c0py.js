@@ -1,3 +1,4 @@
+/* Copy to Clipboard functionality. Just add the class "c0py" to the element you want to add a button to copy. */
 const copyToClipboard = () => {
     // Find all elements with class "c0py"
     const elements = document.getElementsByClassName("c0py");

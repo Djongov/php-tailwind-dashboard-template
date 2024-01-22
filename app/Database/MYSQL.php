@@ -161,23 +161,27 @@ class MYSQL
     {
         // Fetch table structure from the database
         $dbTable = self::query("DESCRIBE `$table`");
-        $dbTable = $dbTable->fetch_all(MYSQLI_ASSOC);
+        $dbTableArray = $dbTable->fetch_all(MYSQLI_ASSOC);
 
         // Extract column names and data types from the table structure
-        $dbColumns = array_column($dbTable, 'Type', 'Field');
+        $dbColumns = array_column($dbTableArray, 'Type', 'Field');
 
         // Check if all columns in $_POST exist in the database
         foreach ($array as $key => $value) {
+            if (is_int($key)) {
+                // This is a numeric array, so the column name is the value
+                $key = $value;
+            }
             if (!array_key_exists($key, $dbColumns)) {
                 // Column does not exist in the database
-                echo "Column '$key' does not exist in table '$table'.\n";
+                Output::error("Column '$key' does not exist in table '$table");
             } else {
                 // Column exists, check data type
                 $expectedType = self::normalizeDataType($dbColumns[$key]);
                 $actualType = self::normalizeDataType(gettype($value));
 
                 if (self::checkDataType($expectedType, $actualType)) {
-                    echo "Column '$key' in table '$table' has incorrect data type. Expected '$expectedType', got '$actualType'.\n";
+                    Output::error("Column '$key' in table '$table' has incorrect data type. Expected '$expectedType', got '$actualType'");
                 }
             }
         }

@@ -9,9 +9,9 @@ use App\General;
 
 use DataGrid\DataGridDBTable;
 
-$query = "SELECT `id`, `username` FROM `users`";
+$query = "SELECT `id`, `text` FROM `system_log`";
 
-echo DataGridDBTable::renderQuery('Custom query', $query, $theme, false, true, 'users');
+echo DataGridDBTable::renderQuery('Custom query', $query, $theme, true, true, 'system_log');
 
 //$request = NativeHttp::get('https://www.ipqualityscore.com/api/json/leaked/email/IgJi2FQr2iU11QkbkBtoWun5f1YmSk8y/djongov@gamerz-bg.com', [], true);
 

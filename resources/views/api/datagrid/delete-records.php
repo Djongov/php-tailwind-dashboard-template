@@ -2,21 +2,17 @@
 
 use Database\MYSQL;
 use Api\Output;
+use Api\Checks;
 use Logs\SystemLog;
 
+$checks = new Checks($vars);
 
+// Special XOR check for the delete records endpoint
 if (!isset($_POST['table'], $_POST['id']) xor isset($_POST['deleteRecords'], $_POST['row'])) {
     Output::error('Incorrect arguments', 400);
 }
 
-if (isset($_SERVER['HTTP_SECRETHEADER'])) {
-    if ($_SERVER['HTTP_SECRETHEADER'] !== 'badass') {
-        Output::error("Nauhty. You don't know what the secret is", 400);
-    }
-} else {
-    SystemLog::write('A request was sent without the secret header', 'Access');
-    Output::error("Nauhty. You are missing a secret", 400);
-}
+$checks->apiChecks();
 
 // If a single delete somes from the button
 if (isset($_POST['table'], $_POST['id'])) {

@@ -11,6 +11,7 @@ class DataGrid
     public static function createTable(string $dbTable, array $data, string $theme, string $title = '', bool $edit = true, bool $delete = true): string
     {
         $totalCount = count($data);
+        $csrfToken = CRSF::create();
         $html = '';
         if ($dbTable === '' || $dbTable === null) {
             $dbTable = 'table-' . uniqid();
@@ -108,10 +109,10 @@ class DataGrid
                         // Whether we have delet or edit, we will do another <td>
                         $html .= '<td class="' . $tdClass . '">';
                             if ($delete) {
-                                $html .= '<button data-table="' . $dbTable . '" data-id="' . $currentId . '" type="button" class="delete ml-2 my-2 block text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Delete</button>';
+                                $html .= '<button data-table="' . $dbTable . '" data-id="' . $currentId . '" type="button" data-csrf="' . $csrfToken . '" class="delete ml-2 my-2 block text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Delete</button>';
                             }
                             if ($edit) {
-                                $html .= '<button data-table="' . $dbTable . '" data-id="' . $currentId . '" data-columns="' . implode(',', $totalColumns) . '" type="button" class="edit ml-2 my-2 block text-white dark:text-gray-900 bg-gray-500 hover:bg-gray-600 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-200 dark:hover:bg-gray-300 dark:focus:ring-gray-400">Edit</button>';
+                                $html .= '<button data-table="' . $dbTable . '" data-id="' . $currentId . '" data-columns="' . implode(',', $totalColumns) . '" data-csrf="' . $csrfToken . '" type="button" class="edit ml-2 my-2 block text-white dark:text-gray-900 bg-gray-500 hover:bg-gray-600 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-200 dark:hover:bg-gray-300 dark:focus:ring-gray-400">Edit</button>';
                             }
                         $html .= '</td>';
                     }
@@ -148,6 +149,8 @@ class DataGrid
             ';
             // Show which table we are deleting from
             $html .= '<input type="hidden" name="deleteRecords" value="' . $dbTable . '" />';
+            // Include the CSRF token
+            $html .= '<input type="hidden" name="csrf_token" value="' . $csrfToken . '" />';
             // Close the mass delete form
             $html .= '</form>';
             // Export functionality
@@ -163,7 +166,7 @@ class DataGrid
                     $html .= '</button>';
                     $html .= '<input type="hidden" name="data" value="' . htmlentities(serialize($data)) . '" />';
                     $html .= '<input type="hidden" name="type" value="' . $id . '" />';
-                    $html .= CRSF::createTag();
+                    $html .= '<input type="hidden" name="csrf_token" value="' . $csrfToken . '" />';
                 $html .= '</form>';
             }
             $html .= '</div>';

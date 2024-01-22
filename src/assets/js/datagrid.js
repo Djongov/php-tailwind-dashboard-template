@@ -72,10 +72,12 @@ if (tables.length > 0) {
                     formData.append('columns', button.dataset.columns);
                     formData.append('table', button.dataset.table);
                     formData.append('id', button.dataset.id);
+                    formData.append('csrf_token', button.dataset.csrf);
                     fetch('/api/datagrid/get-records', {
                         method: 'POST',
                         headers: {
-                            'secretHeader': 'badass'
+                            'secretHeader': 'badass',
+                            'X-CSRF-TOKEN': button.dataset.csrf
                         },
                         body: formData,
                         redirect: 'manual'
@@ -108,16 +110,18 @@ if (tables.length > 0) {
                         saveButton.innerHTML = loaderString();
                         // Build the body of the update request. We need to go through all the inputs and get their values
                         const formData = new FormData();
-                        // Loop through all of the modalBody inputs and save them to the formData
-                        const modalBodyInputs = modalBody.querySelectorAll('input');
+                        // Loop through all of the modalBody inputs, textarea and select and save them to the formData
+                        const modalBodyInputs = modal.querySelectorAll(`input, textarea, select`);
                         modalBodyInputs.forEach(input => {
                             formData.append(input.name, input.value);
                         });
+
                         // Now let's send a fetch request to /api/process with form-data api-action and the apiAction value
                         fetch('/api/datagrid/update-records', {
                             method: 'POST',
                             headers: {
-                                'secretHeader': 'badass'
+                                'secretHeader': 'badass',
+                                'X-CSRF-TOKEN': formData.get('csrf_token')
                             },
                             body: formData,
                             redirect: 'manual'
@@ -178,32 +182,40 @@ if (tables.length > 0) {
             })
         }
         // Now the mass delete functionality
+
+        // Find the mass delete form, which is in the container and has a class of delete-selected-form
         const deleteForms = document.querySelectorAll(`#${tableId}-container > form.delete-selected-form`);
+
         if (deleteForms.length > 0) {
             deleteForms.forEach(form => {
                 form.addEventListener('submit', (event) => {
                     deleteLoadingScreen.classList.remove('hidden');
                     event.preventDefault();
                     const data = new URLSearchParams(new FormData(form));
+                    let responseStatus = 0;
                     fetch('/api/datagrid/delete-records', {
                         method: 'post',
                         // Let's send this secret header
                         headers: {
-                            'secretHeader': 'badass'
+                            'secretHeader': 'badass',
+                            'X-CSRF-TOKEN': data.get('csrf_token')
                         },
                         body: data,
                         redirect: 'manual'
                     }).then(response => {
-                        if (response.status === 0 || response.status === 401 || response.status === 403) {
+                        responseStatus = response.status;
+                        if (responseStatus === 0 || responseStatus === 401 || responseStatus === 403) {
                             location.reload();
                         }
                         return response.json();
                     }).then(json => {
-                        if (json.error || json.result.error) {
-                            deleteLoadingScreenText.innerHTML = `<p class="text-red-500 font-semibold">${json.error || json.result.error}</p>`;
-                        } else {
-                            location.reload();
+                        if (responseStatus > 400) {
+                            deleteLoadingScreenText.innerHTML = `<p class="text-red-500 font-semibold">${json.data}</p>`;
+                            return;
                         }
+                        // Assuming we get here is all good, quickly display the success message and reload the page
+                        deleteLoadingScreenText.innerHTML = `<p class="text-green-500 font-semibold">${json.data}</p>`;
+                        location.reload();
                     });
                 }, false);
             })
@@ -250,10 +262,12 @@ if (tables.length > 0) {
                     const formData = new URLSearchParams();
                     formData.append('id', event.target.dataset.id);
                     formData.append('table', event.target.dataset.table);
+                    formData.append('csrf_token', event.target.dataset.csrf);
                     fetch('/api/datagrid/delete-records', {
                         method: 'POST',
                         headers: {
-                            'secretHeader': 'badass'
+                            'secretHeader': 'badass',
+                            'X-CSRF-TOKEN': event.target.dataset.csrf
                         },
                         body: formData,
                         redirect: 'manual'
