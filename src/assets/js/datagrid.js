@@ -68,8 +68,12 @@ if (tables.length > 0) {
                     let responseStatus = 0;
                     // Now let's fetch data from the API and populate the modalBody. We need to send the id and the table name
                     const formData = new FormData();
-                    formData.append('id', button.dataset.id);
+                    // The Edit button has a data-columns attribute that contains the columns we need to fetch, so we want to send them to the API
+                    formData.append('columns', button.dataset.columns);
                     formData.append('table', button.dataset.table);
+                    formData.append('id', button.dataset.id);
+                    //formData.append('id', button.dataset.id);
+                    //formData.append('table', button.dataset.table);
                     fetch('/api/datagrid/get-records', {
                         method: 'POST',
                         headers: {

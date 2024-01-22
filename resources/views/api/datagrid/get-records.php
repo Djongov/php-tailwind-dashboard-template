@@ -4,7 +4,7 @@ use Database\MYSQL;
 use Api\Output;
 use Logs\SystemLog;
 
-if (!isset($_POST['table'],$_POST['id'])) {
+if (!isset($_POST['table'],$_POST['id'], $_POST['columns'])) {
     Output::error('Incorrect arguments', 400);
 }
 
@@ -20,7 +20,14 @@ if (isset($_SERVER['HTTP_SECRETHEADER'])) {
 
 $theme = $loginInfoArray['usernameArray']['theme'];
 
-$dataCheck = MYSQL::queryPrepared("SELECT * FROM `" . $_POST['table'] . "` WHERE `id`=?", [$_POST['id']]);
+// We will only fetch the columns that we are passed in the request
+
+$selectColumns = explode(',', $_POST['columns']);
+
+// Now let's implode them so that we can use them in the query ``, ``, ``
+$selectColumns = '`' . implode('`, `', $selectColumns) . '`';
+
+$dataCheck = MYSQL::queryPrepared("SELECT $selectColumns FROM `" . $_POST['table'] . "` WHERE `id`=?", [$_POST['id']]);
 
 if ($dataCheck->num_rows > 0) {
     $data_array = $dataCheck->fetch_assoc();
