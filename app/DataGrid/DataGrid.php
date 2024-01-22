@@ -7,12 +7,12 @@ use Security\CRSF;
 
 class DataGrid
 {
-    public static function createTable(string $title, array $data, string $theme, bool $edit = true, bool $delete = true): string
+    public static function createTable(string $dbTable, array $data, string $theme, bool $edit = true, bool $delete = true): string
     {
         $totalCount = count($data);
         $html = '';
-        $originalTitle = $title;
-        $title = $title . '-' . uniqid();
+        $originalTitle = ($dbTable !== '' && $dbTable !== null) ? $dbTable : uniqid();
+        $title = $dbTable . '-' . uniqid();
         $title = str_replace(' ', '', $title);
         $title = strtolower($title);
         // The loading screen shown when deleting items
@@ -75,13 +75,16 @@ class DataGrid
         $html .= '</tr>';
         $html .= '</thead>';
         $html .= '<tbody>';
+        $counter = 0;
         // Time to loop through the data array and build the tbody
         foreach ($data as $indexes => $arrays) {
-            $html .= '<tr tabindex="' . $indexes . '" data-row-id="' . $arrays['id'] . '" class="focus:bg-' . $theme . '-500 focus:text-slate-900 no-paginate">';
+            $counter++;
+            $id = $arrays['id'] ?? $counter;
+            $html .= '<tr tabindex="' . $indexes . '" data-row-id="' . $id . '" class="focus:bg-' . $theme . '-500 focus:text-slate-900 no-paginate">';
             foreach ($arrays as $column => $value) {
 
                 if ($column === 'id' && $delete) {
-                    $html .= '<td class="max-w-lg p-4 border border-slate-400 focus:text-white"><input type="checkbox" value="' . $arrays["id"] . '" name="row[]"></td>';
+                    $html .= '<td class="max-w-lg p-4 border border-slate-400 focus:text-white"><input type="checkbox" value="' . $id . '" name="row[]"></td>';
                 }
                 // Convert nulls or empty strings to (Empty) so it's easier to filter
                 if ($value === null || $value === '') {
@@ -96,10 +99,10 @@ class DataGrid
             if ($delete || $edit) {
                 $html .= '<td class="max-w-lg p-4 border border-slate-400">';
                 if ($delete) {
-                    $html .= '<button data-table="' . $originalTitle . '" data-id="' . $arrays["id"] . '" type="button" class="delete ml-2 my-2 block text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Delete</button>';
+                    $html .= '<button data-table="' . $originalTitle . '" data-id="' . $id . '" type="button" class="delete ml-2 my-2 block text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Delete</button>';
                 }
                 if ($edit) {
-                    $html .= '<button data-table="' . $originalTitle . '" data-id="' . $arrays["id"] . '" type="button" class="edit ml-2 my-2 block text-white dark:text-gray-900 bg-gray-500 hover:bg-gray-600 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-200 dark:hover:bg-gray-300 dark:focus:ring-gray-400" data-modal-toggle="' . $title . '-edit-modal">Edit</button>';
+                    $html .= '<button data-table="' . $originalTitle . '" data-id="' . $id . '" type="button" class="edit ml-2 my-2 block text-white dark:text-gray-900 bg-gray-500 hover:bg-gray-600 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-200 dark:hover:bg-gray-300 dark:focus:ring-gray-400">Edit</button>';
                 }
                 $html .= '</td>';
             }

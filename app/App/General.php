@@ -42,6 +42,13 @@ class General
 
         return false; // No match found
     }
+    // Convert assoc array to indexed array
+    public static function assocToIndexed(array $array): array
+    {
+        return array_map(function ($key, $value) {
+            return [$key, $value];
+        }, array_keys($array), $array);
+    }
     // Random RGBA
     public static function randomRGBA($opacity = 1)
     {

@@ -1,10 +1,10 @@
 <?php
 
-use Template\DataGrid;
 use Template\Forms;
 use Template\Html;
 use Security\Firewall;
 use Api\Output;
+use DataGrid\DataGridDBTable;
 
 // First firewall check
 Firewall::activate();
@@ -50,4 +50,4 @@ echo Forms::render($firewallAddForm, $theme);
 
 echo '</div>';
 
-echo DataGrid::render('firewall', 'Firewall', $theme);
+echo DataGridDBTable::renderTable('firewall', $theme);

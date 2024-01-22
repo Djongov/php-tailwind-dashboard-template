@@ -19,15 +19,41 @@ if (isset($_SERVER['HTTP_SECRETHEADER'])) {
 
 $table = $_POST['table'];
 
+// Because the POST data comes from a fetch request, it serializes the data and everything comes through as a string which could lead to DB query errors. Let's convert the data to the correct types
+foreach ($_POST as $key => &$value) {
+    if (is_numeric($value)) {
+        $value = intval($value);
+    // Also, if the value is an empty string, let's convert it to null
+    } elseif ($value === '') {
+        $value = null;
+    }
+}
+
 $sql = 'UPDATE `' . $_POST['table'] . '` SET ';
 
 unset($_POST['table']);
 
+MYSQL::checkDBColumnsAndTypes($_POST, $table);
+
+// // Run the DESCRIBE query and fetch the result
+// $result = MYSQL::query("DESCRIBE csp_reports;");
+
+// // Fetch the rows from the result
+// $rows = $result->fetch_all(MYSQLI_ASSOC);
+
+// // Print out the result
+// return var_dump($rows);
+
 $updates = [];
-// Check if all keys in $reports_array match the columns
+
+// Check if all keys in $_POST match the columns
 foreach ($_POST as $key => $value) {
-    // Add the column to be updated to the SET clause
-    $updates[] = "`$key` = ?";
+    if ($value === '') {
+        // Set to NULL or a default value as needed
+        $updates[] = "`$key` = NULL"; // or "`$key` = DEFAULT"
+    } else {
+        $updates[] = "`$key` = ?";
+    }
 }
 // Combine the SET clauses with commas
 $sql .= implode(', ', $updates);
@@ -37,9 +63,11 @@ $sql .= " WHERE `id` = ?";
 
 // Prepare and execute the query using queryPrepared
 $values = array_values($_POST);
-$values[] = $_POST['id']; // Add the username for the WHERE clause
+
+$values[] = $_POST['id']; // Add the 'id' for the WHERE clause
 
 $editRecord = MYSQL::queryPrepared($sql, $values);
+
 
 if ($editRecord->affected_rows === 0) {
     Output::error('Nothing updated', 409);

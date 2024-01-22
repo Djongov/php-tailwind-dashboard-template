@@ -75,8 +75,8 @@ class MYSQL
         }
         if (is_array($statement)) {
             $statementParams = '';
-            foreach ($statement as $param) {
-                if (is_numeric($param)) {
+            foreach ($statement as $key => $param) {
+                if ($key === 'id') {
                     $statementParams .= 'i';
                 } else {
                     $statementParams .= 's';
@@ -88,19 +88,21 @@ class MYSQL
         }
         try {
             if ($stmt->execute()) {
-                if (stripos($query, "SELECT") !== false) {
-                    $result = $stmt->get_result();
-                    $link->close();
-                    return $result;
-                } else {
-                    $link->close();
-                    return $stmt;
-                }
-            } else {
-                $error = $stmt->error;
-                $link->close();
-                Output::error($error, 400);
-            }
+        if (stripos($query, "SELECT") !== false) {
+            $result = $stmt->get_result();
+            $link->close();
+            return $result;
+        } else {
+            $link->close();
+            return $stmt;
+        }
+    } else {
+        $error = $stmt->error;
+        // Debugging statement 3: Print the error message
+        echo "Debug MySQL Error: $error\n";
+        $link->close();
+        Output::error($error, 400);
+    }
         } catch (Exception $e) {
             $link->close();
             Output::error($e->getMessage(), 400);
@@ -140,6 +142,73 @@ class MYSQL
         } else {
             return $string;
         }
+    }
+    // This method will check if the columns in the array match the columns in the database
+    public static function checkDBColumns(array $array, string $table)
+    {
+        $columns = self::query("SHOW COLUMNS FROM `$table`");
+        $columns = $columns->fetch_all(MYSQLI_ASSOC);
+        $columns = array_column($columns, 'Type', 'Field');
+        // Check if all keys in $reports_array match the columns
+        foreach ($array as $key => $value) {
+            if (!array_key_exists($key, $columns)) {
+                Output::error("Column '$key' does not exist in table '$table'", 400);
+            }
+        }
+    }
+    // This method will check columns but also data types
+    public static function checkDBColumnsAndTypes(array $array, string $table)
+    {
+        // Fetch table structure from the database
+        $dbTable = self::query("DESCRIBE `$table`");
+        $dbTable = $dbTable->fetch_all(MYSQLI_ASSOC);
+
+        // Extract column names and data types from the table structure
+        $dbColumns = array_column($dbTable, 'Type', 'Field');
+
+        // Check if all columns in $_POST exist in the database
+        foreach ($array as $key => $value) {
+            if (!array_key_exists($key, $dbColumns)) {
+                // Column does not exist in the database
+                echo "Column '$key' does not exist in table '$table'.\n";
+            } else {
+                // Column exists, check data type
+                $expectedType = self::normalizeDataType($dbColumns[$key]);
+                $actualType = self::normalizeDataType(gettype($value));
+
+                if (self::checkDataType($expectedType, $actualType)) {
+                    echo "Column '$key' in table '$table' has incorrect data type. Expected '$expectedType', got '$actualType'.\n";
+                }
+            }
+        }
+    }
+
+    // Helper method to check data types
+    private static function checkDataType($expectedType, $actualType)
+    {
+        // Implement your own logic for data type checking
+        // This is a simple example, you may need to extend it based on your requirements
+        return $expectedType === $actualType;
+    }
+
+    // Helper method to normalize data types
+    private static function normalizeDataType($type)
+    {
+        // Adjust this based on your specific requirements
+        // Convert common MySQL data types to PHP types
+        $typeMap = [
+            'tinyint' => 'int',
+            'smallint' => 'int',
+            'mediumint' => 'int',
+            'int' => 'int',
+            'bigint' => 'int',
+            'decimal' => 'float',
+            'float' => 'float',
+            'double' => 'float',
+            // ... add more mappings as needed
+        ];
+
+        return $typeMap[strtolower($type)] ?? $type;
     }
     // Helper function for quickly save the last login time for a user
     public static function recordLastLogin($username)

@@ -1,8 +1,8 @@
 <?php
 
-use Template\DataGrid;
 use Security\Firewall;
 use Api\Output;
+use DataGrid\DataGridDBTable;
 
 // First firewall check
 Firewall::activate();
@@ -12,6 +12,4 @@ if (!$isAdmin) {
     Output::error('You are not an admin', 403);
 }
 
-//var_dump($usernameArray);
-
-echo DataGrid::render('cache', 'Cache', $theme);
+echo DataGridDBTable::renderTable('cache', $theme);

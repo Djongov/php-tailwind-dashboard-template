@@ -7,7 +7,11 @@ use Logs\SystemLog;
 use Template\Forms;
 use App\General;
 
-use Authentication\Checks;
+use DataGrid\DataGridDBTable;
+
+$query = "SELECT `id`, `username` FROM `users`";
+
+echo DataGridDBTable::renderQuery('qwe', $query, $theme, true, true, 'users');
 
 
 

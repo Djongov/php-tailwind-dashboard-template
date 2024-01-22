@@ -2,10 +2,11 @@
 
 use Template\Forms;
 use Template\Html;
-use DataGrid\SimpleVerticalDataGrid;
 use Logs\SystemLog;
 use Security\Firewall;
 use Api\Output;
+use App\General;
+use DataGrid\DataGrid;
 
 // First firewall check
 Firewall::activate();
@@ -63,9 +64,7 @@ echo '<div class="flex">';
     echo Forms::render($clearErrorFileformArray);
 echo '</div>';
 
-echo HTML::h2('Server details', true);
-
-echo SimpleVerticalDataGrid::render($_SERVER);
+echo DataGrid::createTable('Server details', General::assocToIndexed($_SERVER), $theme, false, false);
 
 echo HTML::h2('PHP Info', true);
 
