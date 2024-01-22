@@ -11,7 +11,7 @@ use DataGrid\DataGridDBTable;
 
 $query = "SELECT `id`, `username` FROM `users`";
 
-echo DataGridDBTable::renderQuery('Custom query', $query, $theme, true, true, 'users');
+echo DataGridDBTable::renderQuery('Custom query', $query, $theme, false, true, 'users');
 
 //$request = NativeHttp::get('https://www.ipqualityscore.com/api/json/leaked/email/IgJi2FQr2iU11QkbkBtoWun5f1YmSk8y/djongov@gamerz-bg.com', [], true);
 

@@ -18,19 +18,21 @@ class DataGrid
         $id = $dbTable . '-' . uniqid();
         $id = str_replace(' ', '', $id);
         $id = strtolower($id);
+        if ($delete) {
         // The loading screen shown when deleting items
         $html .= '
-        <div id="' . $id . '-delete-loading-screen" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-28 bg-slate-50 dark:bg-slate-600 hidden border border-black dark:border-slate-200">
-            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-row">
-            <p id="' . $id . '-delete-loading-screen-text" class="text-' . $theme . '-500">Deleting...</p>
-                <div role="status">
-                    <svg aria-hidden="true" class="inline mx-2 w-8 h-8 text-gray-200 dark:text-white animate-spin fill-' . $theme . '-500 dark:fill-' . $theme . '-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
-                        <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
-                    </svg>
+            <div id="' . $id . '-delete-loading-screen" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-28 bg-slate-50 dark:bg-slate-600 hidden border border-black dark:border-slate-200">
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-row">
+                <p id="' . $id . '-delete-loading-screen-text" class="text-' . $theme . '-500">Deleting...</p>
+                    <div role="status">
+                        <svg aria-hidden="true" class="inline mx-2 w-8 h-8 text-gray-200 dark:text-white animate-spin fill-' . $theme . '-500 dark:fill-' . $theme . '-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+                            <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+                        </svg>
+                    </div>
                 </div>
-            </div>
-        </div>';
+            </div>';
+        }
         if ($totalCount < 1) {
             $html .= Alerts::danger('No results for "' . $title . '"');
             return $html;
@@ -45,7 +47,7 @@ class DataGrid
         $html .= '</div>';
         // Table
         $html .= '<div id="' . $id . '-container" class="m-4">';
-        $html .= '<form class="delete-selected-form" method="post" action="">';
+        $html .= ($delete) ? '<form class="delete-selected-form">' : null;
         // The table loading div
         $html .= '<div id="' . $id . '-loading-table" class="mt-12 bg-' . $theme . '-500 h-full w-full text-center text-white">Data Loading... Please wait<svg class="inline mx-4 w-8 h-8 text-gray-200 dark:text-white animate-spin fill-blue-600 dark:fill-' . $theme . '-500" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg></div>';
         // Table itself
@@ -63,16 +65,19 @@ class DataGrid
                     $html .= '<th scope="col" class="' . $thClass . '"><span>' . $cols . '</span> <span class="text-xs text-' . $theme . '-500">&#x25B2;&#x25BC;</span></th>';
                 }
                 // and one more th for the actions if enabled
-                if ($delete) {
+                if ($delete || $edit) {
                     $html .= '<th scope="col" class="' . $thClass . '">Actions</th>';
                 }
-                $html .= '</tr>';
-                $html .= '<tr>';
+            $html .= '</tr>';
+            // Now for the second thead row where the filters will stay
+            $html .= '<tr>';
                 foreach ($totalColumns as $col) {
                     $html .= '<th scope="col" class="' . $thClass . '"></th>';
                 }
                 if ($delete) {
                     $html .= '<th scope="col" class="' . $thClass . '"></th>';
+                    $html .= '<th scope="col" class="' . $thClass . '"></th>';
+                } elseif ($edit && !$delete) {
                     $html .= '<th scope="col" class="' . $thClass . '"></th>';
                 }
             $html .= '</tr>';
@@ -84,29 +89,30 @@ class DataGrid
                 $counter++;
                 $currentId = $arrays['id'] ?? $counter;
                 $html .= '<tr tabindex="' . $indexes . '" data-row-id="' . $currentId . '" class="focus:bg-' . $theme . '-500 focus:text-slate-900 no-paginate">';
+                    $tdClass = 'max-w-lg p-4 border border-slate-400';
                     foreach ($arrays as $column => $value) {
-
                         if ($column === 'id' && $delete) {
-                            $html .= '<td class="max-w-lg p-4 border border-slate-400 focus:text-white"><input type="checkbox" value="' . $currentId . '" name="row[]"></td>';
+                            $html .= '<td class="' . $tdClass . ' focus:text-white"><input type="checkbox" value="' . $currentId . '" name="row[]"></td>';
                         }
                         // Convert nulls or empty strings to (Empty) so it's easier to filter
                         if ($value === null || $value === '') {
                             $value = '(Empty)';
                         }
                         if ($column === 'id') {
-                            $html .= '<td class="max-w-lg p-4 border border-slate-400" data-row-id="' . $value . '">' . $value . '</td>';
+                            $html .= '<td class="' . $tdClass . '" data-row-id="' . $value . '">' . $value . '</td>';
                         } else {
-                            $html .= '<td class="max-w-lg p-4 border border-slate-400">' . htmlspecialchars($value) . '</td>';
+                            $html .= '<td class="' . $tdClass . '">' . htmlspecialchars($value) . '</td>';
                         }
                     }
                     if ($delete || $edit) {
-                        $html .= '<td class="max-w-lg p-4 border border-slate-400">';
-                        if ($delete) {
-                            $html .= '<button data-table="' . $dbTable . '" data-id="' . $currentId . '" type="button" class="delete ml-2 my-2 block text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Delete</button>';
-                        }
-                        if ($edit) {
-                            $html .= '<button data-table="' . $dbTable . '" data-id="' . $currentId . '" data-columns="' . implode(',', $totalColumns) . '" type="button" class="edit ml-2 my-2 block text-white dark:text-gray-900 bg-gray-500 hover:bg-gray-600 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-200 dark:hover:bg-gray-300 dark:focus:ring-gray-400">Edit</button>';
-                        }
+                        // Whether we have delet or edit, we will do another <td>
+                        $html .= '<td class="' . $tdClass . '">';
+                            if ($delete) {
+                                $html .= '<button data-table="' . $dbTable . '" data-id="' . $currentId . '" type="button" class="delete ml-2 my-2 block text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Delete</button>';
+                            }
+                            if ($edit) {
+                                $html .= '<button data-table="' . $dbTable . '" data-id="' . $currentId . '" data-columns="' . implode(',', $totalColumns) . '" type="button" class="edit ml-2 my-2 block text-white dark:text-gray-900 bg-gray-500 hover:bg-gray-600 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-200 dark:hover:bg-gray-300 dark:focus:ring-gray-400">Edit</button>';
+                            }
                         $html .= '</td>';
                     }
                 $html .= '</tr>';
@@ -152,7 +158,7 @@ class DataGrid
             ];
             foreach ($exportButtonsArray as $name => $link) {
                 $html .= '<form action="' . $link . '" method="post" target="_blank">';
-                    $html .= '<button type="submit" class="ml-2 mt-2 text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600" title="Export the result in tab-separated-values">';
+                    $html .= '<button type="submit" class="ml-2 mt-2 text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600" title="' . $name . '">';
                         $html .= $name;
                     $html .= '</button>';
                     $html .= '<input type="hidden" name="data" value="' . htmlentities(serialize($data)) . '" />';
@@ -162,16 +168,16 @@ class DataGrid
             }
             $html .= '</div>';
         }
-        if (!$delete) {
-            $delete = "0";
-        }
         $html .= PHP_EOL;
-        // If we have passed edit or delete, we need to create an array with 0 index and the last index of the columns array so the JS knows which columns to skip
-        if ($edit || $delete) {
-            $skipColumnArray = '[0, ' . count($totalColumns) + 1 . ']';
+        // Here we will build the skip columns array to instruct JS to skip making filters for certain columns. What we want is to skip the first column only when $delete is true, and always skip the last column + 1, the Actions column
+        if ($delete) {
+            $skipColumnArray = '[0, ' . (count($totalColumns) + 1) . ']';
+        } elseif ($edit) {
+            $skipColumnArray = '[' . (count($totalColumns) + 1) . ']';
         } else {
             $skipColumnArray = '[]';
         }
+
         $html .= <<<EOL
             <script nonce="1nL1n3JsRuN1192kwoko2k323WKE">
             $(document).ready(() => {

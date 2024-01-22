@@ -68,12 +68,10 @@ if (tables.length > 0) {
                     let responseStatus = 0;
                     // Now let's fetch data from the API and populate the modalBody. We need to send the id and the table name
                     const formData = new FormData();
-                    // The Edit button has a data-columns attribute that contains the columns we need to fetch, so we want to send them to the API
+                    // The Edit button has a data-columns attribute that contains the columns we need to fetch, so we want to send them to the API along with the id and table name
                     formData.append('columns', button.dataset.columns);
                     formData.append('table', button.dataset.table);
                     formData.append('id', button.dataset.id);
-                    //formData.append('id', button.dataset.id);
-                    //formData.append('table', button.dataset.table);
                     fetch('/api/datagrid/get-records', {
                         method: 'POST',
                         headers: {
@@ -98,7 +96,9 @@ if (tables.length > 0) {
                         return response.text();
                     }).then(text => {
                         modalBody.innerHTML = '';
-                        deleteLoadingScreen.classList.add('hidden');
+                        if (deleteLoadingScreen) {
+                            deleteLoadingScreen.classList.add('hidden');
+                        }
                         modalBody.innerHTML = text;
                     });
                     // Now the edit button
@@ -170,8 +170,10 @@ if (tables.length > 0) {
                     const allTableCheckedCheckboxes = countAllCheckedCheckboxes(tableId);
                     selectedResults.innerText = allTableCheckedCheckboxes;
                     filteredResults.innerText = countVisibleRows(tableId);
-                    massDeleteModalText.innerText = 'Are you sure you want to delete ' + allTableCheckedCheckboxes + ' entries?';
-                    massDeleteModalTriggerer.disabled = (allTableCheckedCheckboxes > 0) ? false : true;
+                    if (massDeleteModalTriggerer && massDeleteModalText) {
+                        massDeleteModalText.innerText = 'Are you sure you want to delete ' + allTableCheckedCheckboxes + ' entries?';
+                        massDeleteModalTriggerer.disabled = (allTableCheckedCheckboxes > 0) ? false : true;
+                    }
                 }, false);
             })
         }
@@ -314,35 +316,12 @@ if (tables.length > 0) {
             });
             // After this action, we need to update the "Selected" count, as well as tell the modal how many rows we have selected         
             const allTableCheckedCheckboxes = countAllCheckedCheckboxes(tableId);
-            console.log(allTableCheckedCheckboxes);
             selectedResults.innerText = allTableCheckedCheckboxes;
-            massDeleteModalText.innerText = 'Are you sure you want to delete ' + allTableCheckedCheckboxes + ' entries?';
-            massDeleteModalTriggerer.disabled = (allTableCheckedCheckboxes > 0) ? false : true;
+            if (massDeleteModalTriggerer && massDeleteModalText) {
+                massDeleteModalText.innerText = 'Are you sure you want to delete ' + allTableCheckedCheckboxes + ' entries?';
+                massDeleteModalTriggerer.disabled = (allTableCheckedCheckboxes > 0) ? false : true;
+            }
         });
-        /* NO JQUERY ATTEMPT for check all boxes
-        const checkAllCheckbox = document.querySelectorAll(`#${tableId} > thead > tr > th > input[type=checkbox].select-all`);
-        // Bind a click event to that All Checkbox
-        checkAllCheckbox[0].addEventListener('click', (event) => {
-            // Go through all the other checkboxes
-            allTableCheckboxes.forEach(checkbox => {
-                // If All is checked, make all the other checkboxes checked
-                if (!event.target.checked && checkbox.style.display === 'none') {
-                    checkbox.checked = false;
-                    checkbox.parentNode.parentNode.style.background = '';
-                    checkbox.parentNode.parentNode.style.color = '';
-                } else {
-                    checkbox.checked = true;
-                    checkbox.parentNode.parentNode.style.background = 'gray';
-                    checkbox.parentNode.parentNode.style.color = 'white';
-                }
-            });
-            // Each time the All is clicked, calculate the checked boxes and also change the modal count
-            const allTableCheckedCheckboxes = countAllCheckedCheckboxes(tableId);
-            selectedResults.innerText = allTableCheckedCheckboxes;
-            massDeleteModalText.innerText = 'Are you sure you want to delete ' + allTableCheckedCheckboxes +  ' entries?';
-            massDeleteModalTriggerer.disabled = (allTableCheckedCheckboxes > 0) ?  false : true;
-        });
-        */
     });
 }
 
