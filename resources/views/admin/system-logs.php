@@ -12,4 +12,4 @@ if (!$isAdmin) {
     Output::error('You are not an admin', 403);
 }
 
-echo DataGridDBTable::renderTable('system_log', $theme);
+echo DataGridDBTable::renderTable('System Logs', 'system_log', $theme);

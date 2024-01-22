@@ -64,7 +64,7 @@ echo '<div class="flex">';
     echo Forms::render($clearErrorFileformArray);
 echo '</div>';
 
-echo DataGrid::createTable('Server details', General::assocToIndexed($_SERVER), $theme, false, false);
+echo DataGrid::createTable('', General::assocToIndexed($_SERVER), $theme, 'Server details', false, false);
 
 echo HTML::h2('PHP Info', true);
 

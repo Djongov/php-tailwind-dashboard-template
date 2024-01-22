@@ -50,4 +50,4 @@ echo Forms::render($firewallAddForm, $theme);
 
 echo '</div>';
 
-echo DataGridDBTable::renderTable('firewall', $theme);
+echo DataGridDBTable::renderTable('Firewall', 'firewall', $theme);

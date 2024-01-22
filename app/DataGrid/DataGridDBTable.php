@@ -8,7 +8,7 @@ use Components\Alerts;
 
 class DataGridDBTable extends DataGrid
 {
-    public static function renderTable(string $table, string $theme, bool $edit = true, bool $delete = true, array $skipColumns = [])
+    public static function renderTable(string $title, string $table, string $theme, bool $edit = true, bool $delete = true, array $skipColumns = [])
     {
         // First the SELECT query
         if (empty($skipColumns)) {
@@ -26,9 +26,8 @@ class DataGridDBTable extends DataGrid
         if (count($data) === 0) {
             return Alerts::danger('No results for ' . $table);
         }
-
         // Create the table
-        return self::createTable($table, $data, $theme, $edit, $delete);
+        return self::createTable($table, $data, $theme, $title, $edit, $delete);
     }
     public static function renderQuery(string $title, string $query, string $theme, bool $edit = true, bool $delete = true, $dbName = '')
     {
@@ -54,7 +53,7 @@ class DataGridDBTable extends DataGrid
         }
 
         // Create the table
-        return self::createTable($title, $data, $theme, $edit, $delete);
+        return self::createTable($dbName, $data, $theme, $title, $edit, $delete);
     }
     private static function add_quotes($str)
     {

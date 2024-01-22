@@ -15,7 +15,7 @@ if (!$isAdmin) {
     Output::error('You are not an admin', 403);
 }
 
-echo DataGridDBTable::renderTable('csp_approved_domains', $theme);
+echo DataGridDBTable::renderTable('CSP Approved Domains', 'csp_approved_domains', $theme);
 
 // Provide a form that will allow the user to add a new domain to the CSP approved domains list
 echo '<div class="p-4 m-4 max-w-md bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700">';
@@ -43,4 +43,4 @@ echo '<div class="p-4 m-4 max-w-md bg-white rounded-lg border border-gray-200 sh
     echo Forms::render($CspApprovedDomainsForm, $theme);
 echo '</div>';
 
-echo DataGridDBTable::renderTable('csp_reports', $theme, true, true, ['data', 'original_policy']);
+echo DataGridDBTable::renderTable('CSP Reports', 'csp_reports', $theme, true, true, ['data', 'original_policy']);

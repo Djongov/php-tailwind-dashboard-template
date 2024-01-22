@@ -12,4 +12,4 @@ if (!$isAdmin) {
     Output::error('You are not an admin', 403);
 }
 
-echo DataGridDBTable::renderTable('cache', $theme);
+echo DataGridDBTable::renderTable('Cache', 'cache', $theme);
