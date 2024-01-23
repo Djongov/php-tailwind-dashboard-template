@@ -4,6 +4,7 @@ namespace App;
 
 use Components\Alerts;
 use Template\Html;
+use Api\Output;
 
 class Install
 {
@@ -12,18 +13,23 @@ class Install
         $html = '';
         $html .= HTML::h2('Database does not exist, attempting to create it', true);
         // Connect to MySQL without specifying the database
-        $conn->real_connect(DB_HOST, DB_USER, DB_PASS);
+        if (defined("MYSQL_SSL") && MYSQL_SSL) {
+            try {
+                mysqli_ssl_set($conn, NULL, NULL, CA_CERT, NULL, NULL);
+                $conn->real_connect('p:' . DB_HOST, DB_USER, DB_PASS, null, 3306, MYSQLI_CLIENT_SSL);
+            } catch (\mysqli_sql_exception $e) {
+                Output::error($e->getMessage(), 400);
+            }
+        } else {
+            try {
+                $conn->real_connect(DB_HOST, DB_USER, DB_PASS);
+            } catch (\mysqli_sql_exception $e) {
+                Output::error($e->getMessage(), 400);
+            }
+        }
 
         // Create the database if it doesn't exist
         $conn->query("CREATE DATABASE IF NOT EXISTS " . DB_NAME . " CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
-
-        // Connect to the newly created or existing database
-        $conn->real_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-
-        // Verify that the connection is successful
-        if ($conn->connect_error) {
-            throw new \Exception("Failed to connect to the database: " . $conn->connect_error);
-        }
 
         // Select the database
         $conn->select_db(DB_NAME);

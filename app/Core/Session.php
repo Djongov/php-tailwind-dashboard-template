@@ -6,14 +6,17 @@ class Session
 {
     public static function start()
     {
-        session_name("__Secure-SSID");
+        $secure = (str_contains($_SERVER['HTTP_HOST'], 'localhost') || str_contains($_SERVER['HTTP_HOST'], '[::1]')) ? false : true;
+        $sesstionName = $secure ? '__Secure-SSID' : 'SSID';
+        $domain = (str_contains($_SERVER['HTTP_HOST'], 'localhost') || str_contains($_SERVER['HTTP_HOST'], '[::1]')) ? 'localhost' : $_SERVER['HTTP_HOST'];
+        session_name($sesstionName);
         session_set_cookie_params([
             'lifetime' => 86400,
             'path' => '/',
-            'domain' => $_SERVER['HTTP_HOST'],
-            'secure' => true,
+            'domain' => $domain,
+            'secure' => $secure,
             'httponly' => true,
-            'samesite' => 'None' // Set to None because of trip to MS Azure AD authentication endpoint and back
+            'samesite' => ($secure) ? 'None' : 'Lax' // Set to None because of trip to MS Azure AD authentication endpoint and back but None cannot be used with secure false.
         ]);
         session_start();
     }

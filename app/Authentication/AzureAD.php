@@ -37,7 +37,7 @@ class AzureAD
             return false;
         }
 
-        $x5c = X5CHandler::load(Client_ID, Tenant_ID, json_decode($header, true)['kid']);
+        $x5c = X5CHandler::load(CLIENT_ID, TENANT_ID, json_decode($header, true)['kid']);
 
         if ($x5c === false) {
             // Invalid signature
@@ -74,20 +74,20 @@ class AzureAD
         if (!JWT::checkExpiration($token)) {
             // unse the cookie but do not return false, we want to redirect to MS login to get a new token
             JWT::handleValidationFailure();
-            header('Location:' . Login_Button_URL);
+            header('Location:' . LOGIN_BUTTON_URL);
             exit();
         }
         // Parse the token
         $payloadArray = JWT::parseTokenPayLoad($token);
         // Let's do some other possible checks that are specific to Azure AD
-        if ($payloadArray['aud'] !== Client_ID) {
+        if ($payloadArray['aud'] !== CLIENT_ID) {
             return JWT::handleValidationFailure();
         }
         // Disable these 2 methods if app is multi-tenant and the issuer is different based on the incoming tenant
-        if ($payloadArray['iss'] !== 'https://login.microsoftonline.com/' . Tenant_ID . '/v2.0') {
+        if ($payloadArray['iss'] !== 'https://login.microsoftonline.com/' . TENANT_ID . '/v2.0') {
             return JWT::handleValidationFailure();
         }
-        if ($payloadArray['tid'] !== Tenant_ID) {
+        if ($payloadArray['tid'] !== TENANT_ID) {
             return JWT::handleValidationFailure();
         }
 

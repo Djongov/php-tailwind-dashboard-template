@@ -19,7 +19,7 @@ if (defined("MYSQL_SSL") && MYSQL_SSL) {
             $install = new Install();
             echo $install->start($conn);
         } else {
-            Output::error($e->getMessage(), 400);
+            Output::error($error, 400);
         }
     }
 } else {
@@ -33,7 +33,7 @@ if (defined("MYSQL_SSL") && MYSQL_SSL) {
             $install = new Install();
             echo $install->start($conn);
         } else {
-            Output::error($e->getMessage(), 400);
+            Output::error($error, 400);
         }
     }
 }

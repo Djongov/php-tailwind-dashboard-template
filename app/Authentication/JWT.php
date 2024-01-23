@@ -9,10 +9,10 @@ use Logs\SystemLog;
 class JWT
 {
     // A method to generate a JWT token based off a private key and a set of claims
-    public static function generateToken(array $claims) : string
+    public static function generateToken(array $claims): string
     {
         // First let's make sure that the claims structure is correct
-        
+
         // Required claims
         $requiredClaims = [
             'iss',
@@ -21,7 +21,7 @@ class JWT
             'roles',
             'last_ip'
         ];
-        
+
         foreach ($requiredClaims as $claim) {
             if (!isset($claims[$claim])) {
                 throw new \Exception('Missing required claim: ' . $claim . ' out of ' . implode(', ', $requiredClaims));
@@ -66,12 +66,12 @@ class JWT
         return $jwtUnsigned . '.' . $base64UrlSignature;
     }
     // Check if token is set
-    public static function isTokenSet() : bool
+    public static function isTokenSet(): bool
     {
         return isset($_COOKIE[AUTH_COOKIE_NAME]);
     }
     // Method to parse a JWT token and return an array with the header and payload
-    public static function parse(string $token) : array
+    public static function parse(string $token): array
     {
         $jwtParts = explode('.', $token);
 
@@ -99,7 +99,7 @@ class JWT
         ];
     }
     // A method to validate a token that's been signed with our private key
-    public static function validateToken(string $token) : bool
+    public static function validateToken(string $token): bool
     {
         $jwtParts = explode('.', $token);
 
@@ -132,14 +132,13 @@ class JWT
             $verified = openssl_verify($jwtUnsigned, $signatureToVerify, base64_decode(JWT_PUBLIC_KEY), OPENSSL_ALGO_SHA256);
 
             return ($verified === 1) ? true : false;
-
         } catch (\Exception $e) {
             // Handle the exception
             Output::error($e->getMessage());
         }
     }
     // A method to parse the payload of a token
-    public static function parseTokenPayLoad(string $token) : array
+    public static function parseTokenPayLoad(string $token): array
     {
         $jwtParts = explode('.', $token);
 
@@ -162,7 +161,7 @@ class JWT
         return json_decode($payload, true);
     }
     // A method to check expiration of a token
-    public static function checkExpiration(string $token) : bool
+    public static function checkExpiration(string $token): bool
     {
         // Parse the payload
         $payload = self::parseTokenPayLoad($token);
@@ -176,7 +175,7 @@ class JWT
         }
     }
     // A method to check the combined validity of a token
-    public static function checkToken(string $token) : bool
+    public static function checkToken(string $token): bool
     {
         if (!self::validateToken($token)) {
             return self::handleValidationFailure();
@@ -189,7 +188,7 @@ class JWT
         return true;
     }
     // This method will extract the username from the JWT token. The need and complexity of this method comes from the fact that we have different type of tokens, local and AzureAD
-    public static function extractUserName(string $token) : string
+    public static function extractUserName(string $token): string
     {
         $payload = self::parseTokenPayLoad($token);
 
@@ -208,7 +207,7 @@ class JWT
             // Log the validation failure
             SystemLog::write('JWT validation failure for token ' . $_COOKIE[AUTH_COOKIE_NAME], 'JWT Failure');
             unset($_COOKIE[AUTH_COOKIE_NAME]);
-            setcookie(AUTH_COOKIE_NAME, false, -1, '/', $_SERVER["HTTP_HOST"]);
+            setcookie(AUTH_COOKIE_NAME, false, -1, '/', str_replace(strstr($_SERVER['HTTP_HOST'], ':'), '', $_SERVER['HTTP_HOST']));
             return false;
         } else {
             return false;

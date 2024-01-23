@@ -2,13 +2,7 @@
 
 namespace Database;
 
-if (!defined('DB_HOST')) {
-    define('SITE_SETTINGS_INCLUDED', true);
-    include_once dirname($_SERVER['DOCUMENT_ROOT']) . '/site-settings.php';
-}
-
 use Api\Output;
-use App\General;
 use Exception;
 
 class MYSQL
@@ -19,12 +13,12 @@ class MYSQL
         $conn = mysqli_init();
 
         if (defined("MYSQL_SSL") && MYSQL_SSL) {
-            mysqli_ssl_set($conn, NULL, NULL, CA_CERT, NULL, NULL);
+            mysqli_ssl_set($conn, null, null, CA_CERT, null, null);
             try {
                 $conn->real_connect('p:' . DB_HOST, DB_USER, DB_PASS, DB_NAME, 3306, MYSQLI_CLIENT_SSL);
             } catch (\mysqli_sql_exception $e) {
                 if (str_contains($e->getMessage(), "Unknown database") !== false) {
-                    Output::error('Database "' . DB_NAME . '" does not exist, you need to go through the /install endpoint', 400);
+                    Output::error('Database "' . DB_NAME . '" does not exist, you need to go through the /install endpoint' . $_SERVER['REQUEST_URI'], 400);
                 } else {
                     Output::error($e->getMessage(), 400);
                 }

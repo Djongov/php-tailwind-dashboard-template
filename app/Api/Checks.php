@@ -10,13 +10,13 @@ class Checks
 {
     /**
      * @var array
-    */
+     */
     private $vars;
     /**
-    * Checks constructor.
-    *
-    * @param array $vars
-    */
+     * Checks constructor.
+     *
+     * @param array $vars
+     */
     public function __construct($vars)
     {
         $this->vars = $vars;
@@ -56,10 +56,10 @@ class Checks
         return true;
     }
     /**
-    * Performs the actual check if the user is admin on both DB and JWT token and outputs an error if not
-    *
-    * @return void
-    */
+     * Performs the actual check if the user is admin on both DB and JWT token and outputs an error if not
+     *
+     * @return void
+     */
     public function adminCheck(): void
     {
         if (!isset($this->vars['isAdmin'])) {
@@ -73,10 +73,10 @@ class Checks
         }
     }
     /**
-    * Checks if the JWT token is present and valid
-    * - If the token is not present, it will output an error
-    * - If the token is present but not valid, will strip the cookie and output an error
-    */
+     * Checks if the JWT token is present and valid
+     * - If the token is not present, it will output an error
+     * - If the token is present but not valid, will strip the cookie and output an error
+     */
     public function checkJWT(): void
     {
         if (!isset($_COOKIE[AUTH_COOKIE_NAME])) {
@@ -93,11 +93,11 @@ class Checks
         }
     }
     /**
-    * Checks if the username is present and valid
-    * - If the JWT token is not present, it will output an error
-    * - If the username is not present, it will output an error
-    * - If the username is present but not valid, will strip the cookie and output an error
-    */
+     * Checks if the username is present and valid
+     * - If the JWT token is not present, it will output an error
+     * - If the username is not present, it will output an error
+     * - If the username is present but not valid, will strip the cookie and output an error
+     */
     public function checkUsernameIntegrity(): void
     {
         if (!isset($_COOKIE[AUTH_COOKIE_NAME])) {
@@ -112,17 +112,17 @@ class Checks
         }
     }
     /**
-    * CSRF POST param vs SESSION check for POST requests
-    *
-    * @return void
-    */
-    public function checkCSRF() : void
+     * CSRF POST param vs SESSION check for POST requests
+     *
+     * @return void
+     */
+    public function checkCSRF(): void
     {
         if (!isset($_SESSION['csrf_token'])) {
-            Output::error('Missing CSRF Token');
+            Output::error('Missing Session CSRF Token');
         }
         if (!isset($_POST['csrf_token'])) {
-            Output::error('Missing CSRF Token');
+            Output::error('Missing POST CSRF Token');
         }
         // Compare the postToken to the $_SESSION['csrf_token']
         if ($_POST['csrf_token'] !== $_SESSION['csrf_token']) {
@@ -130,29 +130,30 @@ class Checks
         }
     }
     /**
-    * CSRF header check for POST requests with header
-    *
-    * @return void
-    */
-    public function checkCSRFHeader() : void
+     * CSRF header check for POST requests with header
+     *
+     * @return void
+     */
+    public function checkCSRFHeader(): void
     {
         // Pick up the X-CSRF-TOKEN header
         $headers = getallheaders();
-        if (!isset($headers['X-Csrf-Token'])) {
-            Output::error('Missing CSRF Token');
+        $lowercaseHeaders = array_change_key_case($headers, CASE_LOWER);
+        if (!isset($lowercaseHeaders['x-csrf-token'])) {
+            Output::error('Missing CSRF Token header');
         }
         if (!isset($_POST['csrf_token'])) {
-            Output::error('Missing CSRF Token');
+            Output::error('Missing POST CSRF Token');
         }
-        if ($_POST['csrf_token'] !== $headers['X-Csrf-Token']) {
+        if ($_POST['csrf_token'] !== $lowercaseHeaders['x-csrf-token']) {
             Output::error('Invalid CSRF Token');
         }
     }
     /**
-    * Login Checks
-    *
-    * @return void
-    */
+     * Login Checks
+     *
+     * @return void
+     */
     public function loginCheck(): void
     {
         // Check if $vars['loggedIn'] is set
@@ -190,10 +191,10 @@ class Checks
         }
     }
     /**
-    * A complete set of checks, suitable for api calls
-    *
-    * @return void
-    */
+     * A complete set of checks, suitable for api calls
+     *
+     * @return void
+     */
     public function apiAdminChecks(bool $checkSecretHeader = true): void
     {
         $this->adminCheck();
@@ -228,13 +229,13 @@ class Checks
         }
     }
     /**
-    * Checks if the required parameters are present
-    *
-    * @param array $allowedParams
-    * @param array $providedParams
-    *
-    * @return void
-    */
+     * Checks if the required parameters are present
+     *
+     * @param array $allowedParams
+     * @param array $providedParams
+     *
+     * @return void
+     */
     public function checkParams(array $allowedParams, array $providedParams): void
     {
         foreach ($allowedParams as $name) {

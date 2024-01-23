@@ -26,7 +26,6 @@ if ($_POST['api-action'] !== 'get-error-file') {
 echo '<div class="ml-4 dark:text-gray-400">';
 
 $file = ini_get('error_log');
-echo HTML::h3($file);
 if (is_file($file)) {
     if (is_readable($file)) {
         if (empty(file($file))) {
