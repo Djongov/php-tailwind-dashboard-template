@@ -1,6 +1,5 @@
 <?php
 
-use Template\DataGrid;
 use Template\Html;
 use Request\NativeHttp;
 use Logs\SystemLog;
@@ -12,6 +11,16 @@ use DataGrid\DataGridDBTable;
 $query = "SELECT `id`, `text` FROM `system_log`";
 
 echo DataGridDBTable::renderQuery('Custom query', $query, $theme, true, true, 'system_log');
+
+
+use Charts\Charts;
+
+$data = [
+    'January' => 100,
+    'February' => 200
+];
+
+echo Charts::doughnutOrPieChart('pie', 'Donut Chart', array_keys($data), array_values($data));
 
 //$request = NativeHttp::get('https://www.ipqualityscore.com/api/json/leaked/email/IgJi2FQr2iU11QkbkBtoWun5f1YmSk8y/djongov@gamerz-bg.com', [], true);
 
@@ -43,39 +52,28 @@ echo General::currentBrowser();
 
 $form_options = [
     'inputs' => [
-        'input' => [
-            // Email
-            [
-                'label' => 'Email Address',
-                'type' => 'email',
-                'placeholder' => 'qwe',
-                'name' => 'email',
-                'description' => 'Provide a valid email',
-                'id' => uniqid(),
-            ],
-            // Text
-            [
-                'label' => 'Text',
-                'type' => 'text',
-                'name' => 'text',
-                'value' => 'qwekqwoekqwokeqwkeokw'
-            ],
-            // Number
-            [
-                'label' => 'number', // Optional
-                'type' => 'number', // Required, could be text, email, search, password, number
-                'name' => 'number', // Required
-                'value' => 99, // Optional
-                'size' => 'small', // Optional, defaults to medium, possible values are default, small, large
-                'min' => 0, // Optional
-                'max' => 100, // Optional
-                //'step' => 2, // Optional
-                'title' => 'This is a title', // Optional
-                'disabled' => false,
-                'required' => true,
-                'readonly' => false,
-            ]
-        ],
+        // 'checkboxGroup' => [
+        //     [
+        //         'label' => 'Checkbox 1 in group 1',
+        //         'type' => 'checkbox',
+        //         'name' => 'foo',
+        //         'value' => 'bar',
+        //         'description' => 'This is an example checkbox',
+        //         'disabled' => false,
+        //         'checked' => true,
+        //         'group' => 'group1',
+        //     ],
+        //     [
+        //         'label' => 'Checkbox 2 in group 1',
+        //         'type' => 'checkbox',
+        //         'name' => 'foo',
+        //         'value' => 'bar2',
+        //         'group' => 'group1',
+        //         'description' => 'This is an example checkbox 2',
+        //         'disabled' => false,
+        //         'checked' => false,
+        //     ]
+        // ]
         'checkbox' => [
             [
                 'label' => 'Checkbox',
@@ -90,110 +88,12 @@ $form_options = [
             [
                 'label' => 'Checkbox 2',
                 'type' => 'checkbox',
-                'name' => 'foo2',
-                'value' => 'bar2',
-                'description' => 'This is an example checkbox 2',
-                'disabled' => false,
-                'checked' => false,
-            ]
-        ],
-        'checkboxGroup' => [
-            [
-                'label' => 'Checkbox 1 in group 1',
-                'type' => 'checkbox',
                 'name' => 'foo',
-                'value' => 'bar',
-                'description' => 'This is an example checkbox',
-                'disabled' => false,
-                'checked' => true,
-                'group' => 'group1',
-                'extraClasses' => ['text-red-500']
-            ],
-            [
-                'label' => 'Checkbox 2 in group 1',
-                'type' => 'checkbox',
-                'name' => 'foo2',
                 'value' => 'bar2',
-                'group' => 'group1',
                 'description' => 'This is an example checkbox 2',
                 'disabled' => false,
                 'checked' => false,
-            ],
-            [
-                'label' => 'Checkbox 1 in group 2',
-                'type' => 'checkbox',
-                'name' => 'foo',
-                'value' => 'bar',
-                'description' => 'This is an example checkbox',
-                'disabled' => false,
-                'checked' => true,
-                'group' => 'group2',
                 'extraClasses' => ['text-red-500']
-            ],
-            [
-                'label' => 'Checkbox 2 in group 2',
-                'type' => 'checkbox',
-                'name' => 'foo2',
-                'value' => 'bar2',
-                'group' => 'group2',
-                'description' => 'This is an example checkbox 2',
-                'disabled' => false,
-                'checked' => false,
-            ]
-        ],
-        'toggle' => [
-            [
-                'label' => 'Toggle',
-                'name' => 'toggle',
-                'description' => 'This is an example toggle',
-                'checked' => true,
-                'extraClasses' => ['text-red-500']
-            ],
-            [
-                'label' => 'Toggle',
-                'name' => 'toggle2',
-                'description' => 'This is an example toggle 1',
-                'disabled' => false,
-                'checked' => false,
-            ]
-        ],
-        'select' => [
-            [
-                'label' => 'Select',
-                'name' => 'select',
-                'options' => [
-                    // name ==> value
-                    'wqe' => 'wqe',
-                    'qwe' => 'qwe'
-                ],
-                'selected_option' => 'qwe'
-            ]
-        ],
-        'textarea' => [
-            [
-                'label' => 'Textarea',
-                'name' => 'textarea',
-                'placeholder' => 'Placeholder',
-                'description' => 'This is an example textarea',
-                'cols' => 100,
-                'rows' => 10,
-                'disabled' => false,
-                'required' => false,
-                'readonly' => false,
-                'dataAttributes' => [
-                    'test' => 'test',
-                    'test2' => 'test2'
-                ],
-            ]
-        ],
-        'hidden' => [
-            [
-                'name' => 'username',
-                'value' => $usernameArray['username']
-            ],
-            [
-                'name' => 'name',
-                'value' => $usernameArray['name']
             ]
         ],
     ],
@@ -202,11 +102,7 @@ $form_options = [
     'action' => '/api/example', // Required
     'additionalClasses' => 'qwerty power', // Optional
     'reloadOnSubmit' => false,
-    'confirm' => true,
-    'confirmText' => 'Are you sure you want to send this quack?', // Optional, defaults to "Are you sure?" if ommited
     'resultType' => 'html',
-    'doubleConfirm' => true,
-    'doubleConfirmKeyWord' => 'delete',
     'submitButton' => [
         'text' => 'Submit',
         'id' => uniqid(),

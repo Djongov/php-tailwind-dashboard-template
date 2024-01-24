@@ -82,4 +82,7 @@ return function (RouteCollector $router) {
 
     // Api
     $router->addRoute('POST', '/api/example', [$contollers_folder . '/api/example.php']);
+
+    // Test
+    $router->addRoute('GET', '/test', [$contollers_folder . '/test.php', $genericMetaDataArray]);
 };

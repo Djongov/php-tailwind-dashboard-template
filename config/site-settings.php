@@ -72,9 +72,31 @@ define("CA_CERT", dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '.t
 define("CURL_CERT", dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '.tools' . DIRECTORY_SEPARATOR . 'cacert.pem');
 
 // This needs to be set to what is set across the fetch requests in the javascript files. Default is the below
-define('SECRET_HEADER', 'secretHeader');
+define('SECRET_HEADER', 'secretheader');
 // Same as above
 define('SECRET_HEADER_VALUE', 'badass');
+
+/*
+
+Mailer Settings (Sendgrid)
+
+*/
+
+define("SENDGRID", true);
+define("SENDGRID_API_KEY", $_ENV['SENDGRID_API_KEY']);
+define("FROM", 'admin@sunwellsolutions.com');
+define("FROM_NAME", 'No Reply');
+define("SENDGRID_TEMPLATE_ID", 'd-381e01fdce2b44c48791d7a12683a9c3');
+
+/*
+
+Charts
+
+For displaying non-JS charts we utilize Quickchart.io. It's a free service that allows you to generate charts from a simple URL. We use it to generate the charts in the form of images which are suited for emailing them safely or display charts from the backend. However, we introduce QUICKCHART_HOST so you can host your own instance of Quickchart.io and use it instead of the public one. This is useful if you want to keep your data private and not send it to a third party service. If you want to host your own instance, you need an app hosting the docker image of Quickchart.io. You can find it here: ianw/quickchart:latest
+
+*/
+
+define("QUICKCHART_HOST", "quickchart.io");
 
 /*
 
@@ -91,9 +113,9 @@ define('AUTH_COOKIE_NAME', 'auth_cookie');
 // Whether to allow users to login with local accounts
 define('LOCAL_USER_LOGIN', true);
 // Whether to allow users to login with Azure AD accounts
-define('AZURE_AD_LOGIN', false);
+define('AZURE_AD_LOGIN', true);
 // Whether to allow users to manually register
-define('MANUAL_REGISTRATION', false);
+define('MANUAL_REGISTRATION', true);
 
 // if this env var is available, then we must be deployed into an app service and therefore control the auth settings from the app's settings as various env variable set by the platform
 if (getenv('WEBSITE_AUTH_CLIENT_ID')) {

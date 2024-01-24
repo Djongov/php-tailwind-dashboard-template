@@ -52,7 +52,7 @@ class Page
         $html .= '<script src="/assets/js/dataTables.js" defer></script>' . PHP_EOL;
         $html .= '<script src="/assets/js/datagrid.js?' . time() . '" defer></script>';
         $html .= '<script src="/assets/js/c0py.js" defer></script>' . PHP_EOL;
-        $html .= '<script src="/assets/js/forms.js" defer></script>' . PHP_EOL;
+        $html .= '<script src="/assets/js/forms.js?' . time() . '" defer></script>' . PHP_EOL;
         $html .= '<script src="/assets/js/main.js?'. time() . '" defer></script>' . PHP_EOL;
         $html .= '<script src="/assets/js/flowbite.js"></script>' . PHP_EOL;
         $html .= '<script src="https://cdn.tailwindcss.com?plugins=typography"></script>' . PHP_EOL;

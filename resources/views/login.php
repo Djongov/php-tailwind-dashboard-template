@@ -84,6 +84,7 @@ $login_message = 'You are not logged in';
                 'theme' => $theme, // Optional, defaults to COLOR_SCHEME
                 'method' => 'POST', // Optional, defaults to POST
                 'action' => '/auth-verify', // Required
+                'id' => 'local-login-form',
                 //'redirectOnSubmit' => $_SERVER['QUERY_STRING'] ? '/login?' . $_SERVER['QUERY_STRING'] : '/login',
                 //'doubleConfirm' => true,
                 //'doubleConfirmKeyWord' => 'delete',
@@ -96,6 +97,8 @@ $login_message = 'You are not logged in';
             ];
 
             echo Forms::render($localLoginForm);
+
+            echo '<script src="/assets/js/local-login.js?' . time() . '"></script>';
         
             //echo '<script src="/assets/js/local-login.js?' . time() . '"></script>';
         endif;

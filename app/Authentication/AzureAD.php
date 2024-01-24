@@ -3,7 +3,7 @@
 namespace Authentication;
 
 use Authentication\X5CHandler;
-use Request\Http;
+use Request\HttpClient;
 use App\General;
 
 class AzureAD
@@ -98,9 +98,11 @@ class AzureAD
     {
         $url = "https://login.microsoftonline.com/$tenant/discovery/keys?appid=$appId";
 
-        $request = new Http;
+        $request = new HttpClient($url);
 
-        $result = $request->get($url);
+        $result = $request->call('GET', $url, null, null, false, [
+            'Accept' => 'application/json'
+        ]);
 
         $kid_array = [];
 

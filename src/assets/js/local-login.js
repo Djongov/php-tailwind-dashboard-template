@@ -1,18 +1,31 @@
 const loginForm = document.getElementById('local-login-form');
 let submitCount = 0;
-const maxAttempts = 10;
-
-loginForm.action = '/api/auth/local/login';
+const maxAttempts = 2;
 
 if (loginForm) {
     loginForm.addEventListener('submit', (event) => {
         event.preventDefault();
-        if (submitCount < maxAttempts) {
-            handleFormFetch(loginForm.action, event, 'text');
-            submitCount++;
-        } else {
-            // Display an error message or take some other action when the limit is reached.
-            console.log('Maximum submission attempts reached.');
+        submitCount++;
+        console.log(`Attempt ${submitCount} of ${maxAttempts}`);
+        // If maxAttempts is reached, disable the form
+        if (submitCount >= maxAttempts) {
+            console.log('Max attempts reached, disabling form');
+            // Disable all form elements
+            const formElements = loginForm.elements;
+            for (const formElement of formElements) {
+                console.log(formElement);
+                formElement.disabled = true;
+            }
+            // Empty the action attribute to prevent the form from being submitted
+            loginForm.action = '';
+            // return a message
+            if (document.getElementById('max-attempts-message')) {
+                document.getElementById('max-attempts-message').remove();
+            }
+            const message = document.createElement('p');
+            message.id = 'max-attempts-message';
+            message.innerText = 'Max attempts reached, please try again later';
+            loginForm.append(message);
         }
     });
 }

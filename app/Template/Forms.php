@@ -28,15 +28,22 @@ class Forms
         $formAttributes = self::formAttributes($options);
 
         $html .= '<div class="my-4 w-max-full">';
-            $html .= '<form class="' . self::formClasses($options) . '" action="' . $options['action'] . '"' . $formAttributes . ' ' . $target . '>';
+            // Prepare an id for the form, if passed
+            $id = (isset($options['id'])) ? 'id="' . $options['id'] . '"' : '';
+            
+            $html .= '<form ' . $id . ' class="' . self::formClasses($options) . '" action="' . $options['action'] . '"' . $formAttributes . ' ' . $target . '>';
 
             if (!isset($options['inputs'])) {
                 throw new \Exception('inputs is a required form option');
             }
 
             foreach ($options['inputs'] as $inputType => $inputArray) {
+                var_dump($inputType);
+                // If checkbox group is there, let's add a unique class to it
+                if ($inputType === 'checkboxGroup') {
+                    $checboxGroupClass = 'checkbox-group-' . uniqid();
+                }
                 foreach ($inputArray as $inputOptionsArray) {
-
                     // Now let's conditionally set the optional input options
                     $value = (isset($inputOptionsArray['value'])) ? $inputOptionsArray['value'] : '';
                     $label = (isset($inputOptionsArray['label'])) ? $inputOptionsArray['label'] : '';
@@ -93,7 +100,7 @@ class Forms
                     }
                     // Inputs checbox group
                     if ($inputType === 'checkboxGroup') {
-                        array_push($extraClasses, 'checkbox-group');
+                        array_push($extraClasses, $checboxGroupClass);
                         $html .= HTML::checkbox($id, $inputOptionsArray['name'], $value, $label, $description, $checked, $disabled, $readonly, $theme,$extraClasses, $dataAttributes);
                     }
                     if ($inputType === 'toggle') {
@@ -144,7 +151,6 @@ class Forms
                     }
                 }
             }
-            
             $html .= CRSF::createTag();
             // Submit button now
             if (!isset($options['submitButton'])) {

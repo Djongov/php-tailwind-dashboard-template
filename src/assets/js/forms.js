@@ -287,9 +287,31 @@ const initiateGenericForms = () => {
     // If there are any forms
     if (genericForms.length > 0) {
         console.log(`Initializing ${genericForms.length} generic forms`);
-
         // Loop through each
         genericForms.forEach(form => {
+            // Let's search for checkbox groups in the form. They all start with checkbox-group- followed by a random string. Let's try to catch each group
+            const checkboxesInGroups = form.querySelectorAll('[class*="checkbox-group-"]');
+            console.log(`Found ${checkboxesInGroups.length} checkboxes in groups in form`);
+
+            checkboxesInGroups.forEach(checkbox => {
+                const groupName = checkbox.classList[checkbox.classList.length - 1];
+                console.log(`Group name is ${groupName}`);
+
+                const checkboxesPerGroup = form.querySelectorAll(`.${groupName}`);
+                console.log(`Found ${checkboxesPerGroup.length} checkboxes in group ${groupName}`);
+
+                checkboxesPerGroup.forEach(groupCheckbox => {
+                    groupCheckbox.addEventListener('change', () => {
+                        // Uncheck other checkboxes in the same group
+                        checkboxesPerGroup.forEach(otherCheckbox => {
+                            if (otherCheckbox !== groupCheckbox && otherCheckbox.type === 'checkbox') {
+                                otherCheckbox.checked = false;
+                            }
+                        });
+                    });
+                });
+            });
+
             // Check if the event listener is already attached
             if (!form.hasAttribute('data-submit-listener')) {
                 // Attach submit event

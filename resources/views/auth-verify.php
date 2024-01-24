@@ -30,7 +30,7 @@ if (isset($_POST['id_token'], $_POST['state']) || isset($_POST['error'], $_POST[
             'domain' => str_replace(strstr($_SERVER['HTTP_HOST'], ':'), '', $_SERVER['HTTP_HOST']), // strip : from HOST in cases where localhost:8080 is used
             'secure' => $secure, // This needs to be true for most scenarios, we leave the option to be false for local environments
             'httponly' =>  true, // Prevent JavaScript from accessing the cookie
-            'samesite' => 'Lax' // This needs to be None otherwise, the trip to ms login endpoint and back will not hold the cookie
+            'samesite' => 'Lax' // This unlike the session cookie can be Lax
         ]);
         // Check if the user is in the DB, if not, create it
         $userCheck = MYSQL::queryPrepared('SELECT * FROM `users` WHERE `username`=?', [JWT::parseTokenPayLoad($_POST['id_token'])['preferred_username']]);
@@ -79,17 +79,17 @@ if (isset($_POST['username'], $_POST['password'], $_POST['csrf_token'])) {
     $user = MYSQL::queryPrepared('SELECT * FROM `users` WHERE `username`=?', [$_POST['username']]);
     
     if ($user->num_rows === 0) {
-        Output::error('Invalid username or password', 400);
+        Output::error('Invalid username or password', 404);
     }
 
     $user = $user->fetch_assoc();
 
     if ($user['enabled'] === '0') {
-        Output::error('User is disabled', 400);
+        Output::error('User is disabled', 401);
     }
 
     if (!password_verify($_POST['password'], $user['password'])) {
-        Output::error('Invalid username or password', 400);
+        Output::error('Invalid username or password', 404);
     }
 
     // By now we assume the user is valid, so let's generate a JWT token

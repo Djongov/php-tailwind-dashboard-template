@@ -28,6 +28,11 @@ if ($result) {
 }
 echo '<div class="p-4 m-4 max-w-md bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700">';
     echo HTML::h2('Database Tables', true);
+    echo HTML::p('Connected to DB: ' . DB_NAME);
+    echo HTML::p('DB Host: ' . DB_HOST);
+    echo HTML::p('DB User: ' . DB_USER);
+    echo HTML::p('Using SSL: ' . (MYSQL_SSL ? 'Yes' : 'No'));
+    echo HTML::p('Total tables: ' . count($dbTables));
     echo SimpleVerticalDataGrid::render($dbTables);
 echo '</div>';
 

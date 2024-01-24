@@ -181,12 +181,13 @@ class Checks
     {
         // get all headers
         $headers = getallheaders();
+        $lowercaseHeaders = array_change_key_case($headers, CASE_LOWER);
         // Check if the secret header is set
-        if (!isset($headers[SECRET_HEADER])) {
+        if (!isset($lowercaseHeaders[SECRET_HEADER])) {
             Output::error('Missing required header');
         }
         // Check if the secret header is correct
-        if ($headers[SECRET_HEADER] !== SECRET_HEADER_VALUE) {
+        if ($lowercaseHeaders[SECRET_HEADER] !== SECRET_HEADER_VALUE) {
             Output::error('Invalid required header value');
         }
     }
