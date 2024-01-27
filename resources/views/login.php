@@ -48,6 +48,7 @@ $login_message = 'You are not logged in';
             </a>
         </div>
         <?php
+        $destinationUrl = $_GET['destination'] ?? '/';
         endif;
         if (LOCAL_USER_LOGIN) :
             echo HTML::p('login with your local account', 'text-center text-gray-500 mb-4');
@@ -77,7 +78,7 @@ $login_message = 'You are not logged in';
                     'hidden' => [
                         [
                             'name' => 'state',
-                            'value' => $_GET['destination'] ?? '/'
+                            'value' => ($destinationUrl !== '/' && (substr($destinationUrl, 0, 1) !== '/' || !in_array($destinationUrl, ['/login', '/logout']))) ? '/' : $destinationUrl
                         ]
                     ]
                 ],

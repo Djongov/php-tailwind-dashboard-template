@@ -38,7 +38,7 @@ class Forms
             }
 
             foreach ($options['inputs'] as $inputType => $inputArray) {
-                var_dump($inputType);
+                
                 // If checkbox group is there, let's add a unique class to it
                 if ($inputType === 'checkboxGroup') {
                     $checboxGroupClass = 'checkbox-group-' . uniqid();

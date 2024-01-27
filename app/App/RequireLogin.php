@@ -59,9 +59,8 @@ class RequireLogin
         } else {
             // Redirect to /login but preserve the destination if auth_cookie is missing
             /*
-                Do not redirect to /login if uri is in the list or exempt urls or
-                if you expect query strings: add this to the below if
-                && !str_contains($_SERVER['REQUEST_URI'], 'view-report')
+                Do not redirect to /login if uri is in the list or exempt urls
+                !str_contains($_SERVER['REQUEST_URI'], '/login') is to prevent infinite redirects
             */
             if (!in_array($_SERVER['REQUEST_URI'], $loginExempt) && !str_contains($_SERVER['REQUEST_URI'], '/login')) {
                 header('Location: /login?destination=' . $_SERVER['REQUEST_URI']);

@@ -3,6 +3,7 @@
 use Authentication\AzureAD;
 use Database\MYSQL;
 use Api\Output;
+use Api\Checks;
 use App\General;
 use Authentication\JWT;
 
@@ -57,24 +58,32 @@ if (isset($_POST['id_token'], $_POST['state']) || isset($_POST['error'], $_POST[
                 Output::error('User creation failed', 400);
             }
         }
-        $destinationUrl = $_POST['state'];
-        $destinationUrlScheme = parse_url($destinationUrl)['scheme'] ?? null;
-
-        if ($destinationUrlScheme === 'http://' || $destinationUrlScheme === 'https://'
-        ) {
-            Output::error('Invalid state', 400);
+        $destinationUrl = $_POST['state'] ?? null;
+        if ($destinationUrl !== null && (substr($destinationUrl, 0, 1) !== '/' || !in_array($destinationUrl, ['/login', '/logout'
+        ]))) {
+            // Invalid destination or state, set a default state
+            $_POST['destination'] = '/';
+        } else {
+            // Valid destination, proceed with your script
+            header("Location: " . $destinationUrl);
+            exit();
         }
-        header("Location: " . $_POST['state']);
+        
     } else {
         Output::error('Invalid token', 400);
     }
 }
 
-// If the request is coming from local login, we should have a $_POST['username'] and a $_POST['password'] variable
+// If the request is coming from local login, we should have a $_POST['username'] and a $_POST['password'] parameter
 if (isset($_POST['username'], $_POST['password'], $_POST['csrf_token'])) {
+    // First check the CSRF token
+    $checks = new Checks($vars);
+
+    $checks->checkCSRF($_POST['csrf_token']);
 
     // Let's sleep to slow down brute force attacks
     sleep(2);
+
     // Let's pull the user from the DB and do checks
     $user = MYSQL::queryPrepared('SELECT * FROM `users` WHERE `username`=?', [$_POST['username']]);
     
@@ -115,8 +124,13 @@ if (isset($_POST['username'], $_POST['password'], $_POST['csrf_token'])) {
     ]);
     // Record last login
     MYSQL::recordLastLogin($user['username']);
-    // Redirect to the destination
-    $destinationUrl = $_POST['state'] ?? '/';
+
+    $destinationUrl = $_POST['state'] ?? null;
+    if ($destinationUrl !== null && (substr($destinationUrl, 0, 1) === '/')) {
+        // Invalid destination or state, set a default state
+        $destinationUrl = '/';
+    }
+    // Valid destination, proceed with your script
     header("Location: " . $destinationUrl);
     exit();
 }

@@ -22,15 +22,14 @@ RUN echo "DB_HOST=${DB_HOST}" >> .env
 RUN echo "DB_NAME=${DB_NAME}" >> .env
 RUN echo "DB_USER=${DB_USER}" >> .env
 RUN echo "DB_PASS=${DB_PASS}" >> .env
-RUN echo "SECRET_HEADER=${SECRET_HEADER}" >> .env
-RUN echo "SECRET_HEADER_VALUE=${SECRET_HEADER_VALUE}" >> .env
 RUN echo "JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY}" >> .env
 RUN echo "JWT_PRIVATE_KEY=${JWT_PRIVATE_KEY}" >> .env
 
 RUN apt-get -y update \
-&& apt-get install -y libicu-dev \ 
+    && apt-get install -y libicu-dev \
     && docker-php-ext-configure intl \
-    && docker-php-ext-install intl
+    && docker-php-ext-install intl \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 RUN echo "ServerSignature Off" >> /etc/apache2/apache2.conf

@@ -2,6 +2,10 @@
 
 A template for quickly deploying apps (best suited for dashboard apps) that will run the most modern PHP version, has MySQL DB and authentication methods such as local and Microsoft Entra ID (Azure AD) out of the box and a lot of nice components such as DataGrid and Forms. Suitable for monolith or microservices. Has content-security-policy reporting endpoint, Firewall to filter traffic and much more. Ready for deployment anywhere. Supports out of the box color dark/light as well as color themes as well as user and admin panels. All written in pure PHP.
 
+## To Do
+
+- Find a way to secure /login?destination=https://bad-domain.com. Logic to rewrite the "state" paramter is there but JS does something to prevent it from functioning well
+
 ## Authentication
 
 Supports local and Microsoft Entra ID (Azure AD) authentication both and utilizes a secure JWT implementation and verification with support classes.
@@ -68,6 +72,10 @@ Routing provides the following variables for each controller
 **loggedIn** (A boolean if the user is an admin)
 
 **theme** (a string holind the user theme)
+
+## DataGrid
+
+max_input_vars needs to be account for
 
 ## Forms
 
