@@ -4,7 +4,6 @@ use Template\Forms;
 use Template\Html;
 use Security\Firewall;
 use Api\Output;
-use DataGrid\DataGrid;
 use DataGrid\DataGridDBTable;
 
 // First firewall check
@@ -15,7 +14,7 @@ if (!$isAdmin) {
     Output::error('You are not an admin', 403);
 }
 
-echo DataGridDBTable::renderTable('CSP Approved Domains', 'csp_approved_domains', $theme);
+echo HTML::p('Here you can control the CSP approved domains list. You can add domains to the list. A domain in the list is available to send CSP reports to the CSP reporting endpoint on this app /csp-report - https://' . $_SERVER['HTTP_HOST'] . '/csp-report. If the domain is not in the list, the reporting endpoint will return 401 `Domain not allowed` error.');
 
 // Provide a form that will allow the user to add a new domain to the CSP approved domains list
 echo '<div class="p-4 m-4 max-w-md bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700">';
@@ -34,6 +33,7 @@ echo '<div class="p-4 m-4 max-w-md bg-white rounded-lg border border-gray-200 sh
             ]
         ],
         'action' => '/api/admin/csp/add',
+        'reloadOnSubmit' => true,
         'submitButton' => [
             'size' => 'small',
             'text' => 'Add Domain'
@@ -43,4 +43,4 @@ echo '<div class="p-4 m-4 max-w-md bg-white rounded-lg border border-gray-200 sh
     echo Forms::render($CspApprovedDomainsForm, $theme);
 echo '</div>';
 
-echo DataGridDBTable::renderTable('CSP Reports', 'csp_reports', $theme, true, true, ['data', 'original_policy']);
+echo DataGridDBTable::renderTable('CSP Approved Domains', 'csp_approved_domains', $theme);

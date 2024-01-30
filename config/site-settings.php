@@ -7,7 +7,8 @@ ini_set('display_errors', 1);
 Branding & SEO Settings
 
 */
-
+// Whether to show the loading screen on page load
+define("SHOW_LOADING_SCREEN", true);
 // Site title, Goes on footer and main menu header
 define("SITE_TITLE", "Dashboard Template");
 // Key words for SEO

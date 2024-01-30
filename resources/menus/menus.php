@@ -21,10 +21,20 @@ define("ADMIN_MENU", [
         'link' => '/adminx/cache',
     ],
     'CSP' => [
-        'link' => '/adminx/csp',
+        'link' => [
+            'CSP Reports' => [
+                'sub_link' => '/adminx/csp-reports'
+            ],
+            'CSP Approved Domains' => [
+                'sub_link' => '/adminx/csp-approved-domains'
+            ]
+        ]
     ],
     'Firewall' => [
         'link' => '/adminx/firewall',
+    ],
+    'Queries' => [
+        'link' => '/adminx/queries',
     ],
 ]);
 

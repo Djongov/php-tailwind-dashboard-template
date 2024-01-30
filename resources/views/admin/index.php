@@ -2,9 +2,10 @@
 
 use Template\Html;
 use Database\MYSQL;
-use DataGrid\SimpleVerticalDataGrid;
 use Security\Firewall;
 use Api\Output;
+use App\General;
+use DataGrid\DataGrid;
 
 // First firewall check
 Firewall::activate();
@@ -26,6 +27,7 @@ if ($result) {
     }
     $result->free();
 }
+
 echo '<div class="p-4 m-4 max-w-md bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700">';
     echo HTML::h2('Database Tables', true);
     echo HTML::p('Connected to DB: ' . DB_NAME);
@@ -33,7 +35,7 @@ echo '<div class="p-4 m-4 max-w-md bg-white rounded-lg border border-gray-200 sh
     echo HTML::p('DB User: ' . DB_USER);
     echo HTML::p('Using SSL: ' . (MYSQL_SSL ? 'Yes' : 'No'));
     echo HTML::p('Total tables: ' . count($dbTables));
-    echo SimpleVerticalDataGrid::render($dbTables);
+    echo DataGrid::createTable('Tables', General::assocToIndexed($dbTables), $theme, 'Tables', false, false);
 echo '</div>';
 
 

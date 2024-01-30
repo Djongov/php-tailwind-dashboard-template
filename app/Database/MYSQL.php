@@ -46,10 +46,14 @@ class MYSQL
         } catch (\mysqli_sql_exception $e) {
             Output::error($e->getMessage(), 400);
         }
-        $result = null;
+        $result = false;
         try {
             $stmt->execute();
-            $result = $stmt->get_result();
+            if (str_starts_with($query, 'SELECT') || str_starts_with($query, 'SHOW') || str_starts_with($query, 'DESCRIBE')) {
+                $result = $stmt->get_result();
+            } else {
+                $result = $stmt;
+            }
         } catch (\mysqli_sql_exception $e) {
             Output::error($e->getMessage(), 400);
         }

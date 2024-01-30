@@ -4,7 +4,6 @@ namespace Authentication;
 
 use App\General;
 use Api\Output;
-use Logs\SystemLog;
 
 class JWT
 {
@@ -204,8 +203,6 @@ class JWT
     public static function handleValidationFailure(): bool
     {
         if (self::isTokenSet()) {
-            // Log the validation failure
-            SystemLog::write('JWT validation failure for token ' . $_COOKIE[AUTH_COOKIE_NAME], 'JWT Failure');
             unset($_COOKIE[AUTH_COOKIE_NAME]);
             setcookie(AUTH_COOKIE_NAME, false, -1, '/', str_replace(strstr($_SERVER['HTTP_HOST'], ':'), '', $_SERVER['HTTP_HOST']));
             return false;

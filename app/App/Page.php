@@ -53,7 +53,11 @@ class Page
         $html .= '<script src="/assets/js/datagrid.js?' . time() . '" defer></script>';
         $html .= '<script src="/assets/js/c0py.js" defer></script>' . PHP_EOL;
         $html .= '<script src="/assets/js/forms.js?' . time() . '" defer></script>' . PHP_EOL;
+        $html .= '<script src="/assets/js/charts.js?' . time() . '" defer></script>' . PHP_EOL;
         $html .= '<script src="/assets/js/main.js?'. time() . '" defer></script>' . PHP_EOL;
+        if (SHOW_LOADING_SCREEN) {
+            $html .= '<script src="/assets/js/loading-screen.js?' . time() . '"></script>' . PHP_EOL;
+        }
         $html .= '<script src="/assets/js/flowbite.js"></script>' . PHP_EOL;
         $html .= '<script src="https://cdn.tailwindcss.com?plugins=typography"></script>' . PHP_EOL;
         $tailwindConfig = file_get_contents(dirname($_SERVER['DOCUMENT_ROOT']) . '/tailwind.config.js');
@@ -248,6 +252,12 @@ class Page
         $html .= '<body class="h-full antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-400">';
         $html .= '<div class="md:mx-auto bg-gray-200 dark:bg-gray-800">';
         $html .= $this->header($usernameArray, $menuArray, $isAdmin, $theme);
+        if (SHOW_LOADING_SCREEN) {
+            $html .= '<div id="loading-screen" class="w-fit mx-auto my-12 flex items-center border border-black dark:border-gray-400 bg-white dark:bg-gray-700 p-8 rounded z-99999"><div class="animate-spin border-t-4 border-' . $theme . '-500 border-solid rounded-full h-16 w-16"></div>
+            <p class="ml-2">Loading...</p></div>';
+        }
+        $mainContentClass = (SHOW_LOADING_SCREEN) ? 'class="hidden"' : '';
+        $html .= '<main id="main-content" ' . $mainContentClass . '">';
         // Check if the file exists before including it
         if (file_exists($controlerPath)) {
             ob_start(); // Start output buffering to capture content
@@ -258,6 +268,7 @@ class Page
             $html .= '<p>Error: Controller file not found.</p>';
         }
 
+        $html .= '</main>';
         $html .= $this->footer($theme);
         $html .= '</div>';
         $html .= '</body>';

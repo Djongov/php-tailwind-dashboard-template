@@ -62,12 +62,11 @@ if (isset($_POST['id_token'], $_POST['state']) || isset($_POST['error'], $_POST[
         if ($destinationUrl !== null && (substr($destinationUrl, 0, 1) !== '/' || !in_array($destinationUrl, ['/login', '/logout'
         ]))) {
             // Invalid destination or state, set a default state
-            $_POST['destination'] = '/';
-        } else {
-            // Valid destination, proceed with your script
-            header("Location: " . $destinationUrl);
-            exit();
+            $destinationUrl = '/';
         }
+        // Valid destination, proceed with your script
+        header("Location: " . $destinationUrl);
+        exit();
         
     } else {
         Output::error('Invalid token', 400);
