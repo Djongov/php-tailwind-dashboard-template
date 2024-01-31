@@ -65,7 +65,7 @@ class App
                         $theme, // Theme
                         MAIN_MENU, // Menu
                         $loginInfoArray['usernameArray'], // Username array
-                        dirname($_SERVER['DOCUMENT_ROOT']) . '/resources/views/errors/error.php', // Controller
+                        dirname($_SERVER['DOCUMENT_ROOT']) . '/resources/controllers/errors/error.php', // Controller
                         $loginInfoArray['isAdmin'] // isAdmin
                     );
                 } else {

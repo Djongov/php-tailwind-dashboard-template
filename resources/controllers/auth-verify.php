@@ -112,9 +112,11 @@ if (isset($_POST['username'], $_POST['password'], $_POST['csrf_token'])) {
         'last_ip' => General::currentIP()
     ]);
 
+    $expiry_addition = ($_POST['remember'] === "1") ? 86400 * 24 * 12 : 86400;
+
     // Let's set the auth cookie
     setcookie(AUTH_COOKIE_NAME, $idToken, [
-        'expires' => time() + 86400,
+        'expires' => time() + $expiry_addition,
         'path' => '/',
         'domain' => str_replace(strstr($_SERVER['HTTP_HOST'], ':'), '', $_SERVER['HTTP_HOST']), // strip : from HOST in cases where localhost:8080 is used
         'secure' => true, // This needs to be true for most scenarios, we leave the option to be false for local environments

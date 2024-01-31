@@ -4,6 +4,7 @@ use Template\Html;
 use DataGrid\SimpleVerticalDataGrid;
 use Api\Output;
 use Api\Checks;
+use App\General;
 use Security\Firewall;
 
 Firewall::activate();
@@ -48,7 +49,7 @@ if (is_file($file)) {
             // </div>';
             array_push($errorFileArray, $line);
         }
-        echo SimpleVerticalDataGrid::render($errorFileArray);
+        echo SimpleVerticalDataGrid::render(General::assocToIndexed($errorFileArray));
     } else {
         echo '<p class="red">File (' . $file . ') not readable</p>';
     }

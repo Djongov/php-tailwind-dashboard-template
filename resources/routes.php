@@ -3,7 +3,7 @@
 use FastRoute\RouteCollector;
 
 return function (RouteCollector $router) {
-    $contollers_folder = dirname($_SERVER['DOCUMENT_ROOT']) . '/resources/views';
+    $contollers_folder = dirname($_SERVER['DOCUMENT_ROOT']) . '/resources/controllers';
     // include the menu data
     require_once dirname($_SERVER['DOCUMENT_ROOT']) . '/resources/menus/menus.php';
     $genericMetaDataArray = [
@@ -74,7 +74,7 @@ return function (RouteCollector $router) {
     // Docs pages
     $router->addRoute('GET', '/docs', [$contollers_folder . '/docs/index.php', $genericMetaDataArray]);
     // Search the /docs for files and build a route for each file
-    $docFiles = scandir(__DIR__ . '/views/docs');
+    $docFiles = scandir(__DIR__ . '/controllers/docs');
     $docFiles = array_diff($docFiles, ['.', '..', 'index.php']);
     $docFiles = array_map(function ($file) {
         return str_replace('.md', '', $file);

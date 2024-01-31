@@ -1,6 +1,6 @@
 const loginForm = document.getElementById('local-login-form');
 let submitCount = 0;
-const maxAttempts = 2;
+const maxAttempts = 5;
 
 if (loginForm) {
     loginForm.addEventListener('submit', (event) => {

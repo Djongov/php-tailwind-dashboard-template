@@ -75,6 +75,12 @@ $login_message = 'You are not logged in';
                             'id' => uniqid(),
                         ]
                     ],
+                    'checkbox' => [
+                        [
+                            'label' => 'Remember me',
+                            'name' => 'remember',
+                        ]
+                    ],
                     'hidden' => [
                         [
                             'name' => 'state',
