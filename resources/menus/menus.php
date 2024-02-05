@@ -48,6 +48,15 @@ define("MAIN_MENU", [
         ],
         'link' => '/docs',
     ],
+    'Charts' => [
+        'link' => '/charts',
+    ],
+    'Forms' => [
+        'link' => '/forms',
+    ],
+    'DataGrid' => [
+        'link' => '/datagrid',
+    ],
     '404' => [
         'link' => '/404'
     ]

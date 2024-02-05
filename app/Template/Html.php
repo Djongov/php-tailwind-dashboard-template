@@ -58,12 +58,17 @@ class Html
             return '<h4 class="' . $classes . '">' . $text . '</h4>';
         }
     }
-    public static function p($text, $classes = [])
+    // Anchor
+    public static function a($text, $href, $theme, $target = '_self')
     {
-        if (empty($classes)) {
-            return '<p class="my-2 break-all text-center">' . $text . '</p>';
+        return '<a href="' . $href . '" target="' . $target . '" class="text-' . $theme . '-500 hover:underline dark:text-' . $theme . '-400">' . $text . '</a>';
+    }
+    public static function p(string $text, array $additionalClasses = []) : string
+    {
+        if (empty($additionalClasses)) {
+            return '<p class="mx-2 my-2 break-all">' . $text . '</p>';
         } else {
-            return '<p class="' . $classes . '">' . $text . '</p>';
+            return '<p class="mx-2 my-2 break-all ' . implode(' ', $additionalClasses) . '">' . $text . '</p>';
         }
     }
     public static function small($text, $classes = [])

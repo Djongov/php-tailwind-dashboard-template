@@ -44,6 +44,12 @@ return function (RouteCollector $router) {
         $router->addRoute('GET', '/register', [$views_folder . '/landing/register.php', $genericMetaDataArray]);
         // User settings page
         $router->addRoute('GET', '/user-settings', [$views_folder . '/landing/user-settings.php', $genericMetaDataArray]);
+
+    // Example
+    $router->addRoute('GET', '/charts', [$views_folder . '/example/charts.php', $genericMetaDataArray]);
+    $router->addRoute('GET', '/forms', [$views_folder . '/example/forms.php', $genericMetaDataArray]);
+    $router->addRoute('GET', '/datagrid', [$views_folder . '/example/datagrid.php', $genericMetaDataArray]);
+    
     // Auth verify page
     $router->addRoute('POST', '/auth-verify', [$contollers_folder . '/auth-verify.php']);
     // Logout page

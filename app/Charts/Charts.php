@@ -7,74 +7,92 @@ use Charts\QuickChart;
 
 class Charts
 {
+    // Format values are: svg, png, jpeg, webp
+
     // Radial Gauge good for measuring percentages or values out of max values
-    public static function radialGauge($width, $height, $format, $label, $data, $range = [0, 100], $shortUrl = false)
+    public static function radialGauge(string $label, int $data, array $range = [0, 100], string|int $width = 250, string|int $height = 250, string $format = 'svg', bool $shortUrl = false) : string
     {
         $chart = new QuickChart([
             'width' => $width,
             'height' => $height,
             'format' => $format,
         ]);
-        $background = 'getGradientFillHelper("horizontal", ["green", "lime"])';
-        if ($data === $range[1]) {
-            $background = '"red"';
+        // Let's calculate how much of the range we are at, percentage wise
+        $percentage = floor(($data / $range[1]) * 100);
+        // Let's set the background color based on the percentage
+        // If we are between 0 and 50, we are green, from 50 to 75 we are orange, from 75 to 80 we are crimson, from 80 to 100 we are red
+        if ($percentage >= 0 && $percentage <= 25) {
+            $background = 'getGradientFillHelper("horizontal", ["lime", "green"])';
+        } elseif ($percentage > 25 && $percentage < 50) {
+            $background = 'getGradientFillHelper("horizontal", ["yellow", "green"])';
+        } elseif ($percentage >= 50 && $percentage < 75) {
+            $background = 'getGradientFillHelper("horizontal", ["orange", "yellow"])';
+        } elseif ($percentage >= 75 && $percentage <= 85) {
+            $background = 'getGradientFillHelper("horizontal", ["yellow", "crimson"])';
+        } elseif ($percentage > 85 && $percentage <= 100) {
+            $background = 'getGradientFillHelper("horizontal", ["crimson", "red"])';
+        } else {
+            $background = 'getGradientFillHelper("horizontal", ["green", "lime"])';
         }
+
         $chart->setConfig('{
-        type: "radialGauge",
-        data: {
-            datasets: [{
-            data: [' . $data . '],
-            backgroundColor: ' . $background . ',
-            borderWidth: 0,
-            label: "' . $label . '",
-            }]
-        },
-        options: {
-            // See https://github.com/pandameister/chartjs-chart-radial-gauge#options
-            domain: [' . implode(',', $range) . '],
-            trackColor: "rgb(204, 221, 238)",
-            roundedCorners: false,
-            legend: {},
-            title: {
-                display: true,
-                text: "' . $label . '"
+            type: "radialGauge",
+            data: {
+                datasets: [{
+                    data: [' . $data . '],
+                    backgroundColor: ' . $background . ',
+                    borderWidth: 1,
+                    borderColor: "rgba(0,0,0, 0.95)",
+                    label: "' . $label . '",
+                }]
             },
-            centerPercentage: 80,
-            centerArea: {
-                fontSize: 18,
-                displayText: true,
-                text: (val) => val + "/" + ' . $range[1] . ',
-                subText: "",
-                padding: 4,
-                fontColor: \'#777\',
-            },
-            responsive: true,
-            title: {
-                display: true,
-                fontSize: 18,
-                text: \'' . $label . '\',
-                color: \'#777\',
-                align: \'center\',
-                position: \'top\',
-                fullSize: false
-            },
-            legend: {
-                display: false,
-                position: \'right\',
-                align: \'top\',
-                labels: {
+            options: {
+                // See https://github.com/pandameister/chartjs-chart-radial-gauge#options
+                domain: [' . implode(',', $range) . '],
+                trackColor: "rgba(119,119,119, 0.95)",
+                trackBorderWidth: 1,
+                roundedCorners: false,
+                legend: {},
+                title: {
+                    display: true,
+                    text: "' . $label . '"
+                },
+                centerPercentage: 80,
+                centerArea: {
+                    fontSize: 16,
+                    displayText: true,
+                    text: (val) => val + "/" + ' . $range[1] . ' + "\n(' . $percentage . '%)",
+                    subText: "",
+                    padding: 4,
                     fontColor: \'#777\',
-                    fontStyle: \'bold\',
-                    fontSize: 14,
-                    padding: 12
-                }
-            },
-        }
-    }');
-        return ($shortUrl) ?  '<figure class="m-1"><img src="' . $chart->getShortUrl() . '" title="' . $label . '" alt="' . $label . '" /></figure>' : '<figure class="m-1"><img src="' . $chart->getUrl() . '" title="' . $label . '" alt="' . $label . '" /></figure>';
+                },
+                responsive: true,
+                title: {
+                    display: true,
+                    fontSize: 18,
+                    text: \'' . $label . '\',
+                    color: \'#777\',
+                    align: \'center\',
+                    position: \'top\',
+                    fullSize: false
+                },
+                legend: {
+                    display: false,
+                    position: \'right\',
+                    align: \'top\',
+                    labels: {
+                        fontColor: \'#777\',
+                        fontStyle: \'bold\',
+                        fontSize: 14,
+                        padding: 12
+                    }
+                },
+            }
+        }');
+        return ($shortUrl) ?  '<figure class="m-1"><img src="' . $chart->getShortUrl() . '" title="' . $label . '" alt="' . $label . '" width="' . $width . '" height="' . $height . '"  /></figure>' : '<figure class="m-1"><img src="' . $chart->getUrl() . '" title="' . $label . '" alt="' . $label . '" width="' . $width . '" height="' . $height . '" /></figure>';
     }
     // Donut or Pie chart in one
-    public static function doughnutOrPieChart(string $type, string $title, array $labels, array $data, string|int $width = 300, string|int $height = 300, string $format = 'prng', bool $shortUrl = false)
+    public static function doughnutOrPieChart(string $type, string $title, array $labels, array $data, string|int $width = 300, string|int $height = 300, string $format = 'svg', bool $shortUrl = false) : string
     {
         $chart = new QuickChart([
             'width' => $width,
@@ -86,46 +104,20 @@ class Charts
         foreach ($labels as $entry) {
             $var .= "'$entry',";
         }
-        // Customize a little bit the colors based on stuff
-        if ($title === 'maliciousConfidences') {
-            $background_color_string = '[';
-            foreach ($labels as $entry) {
-                if ($title === 'maliciousConfidences') {
-                    if ($entry <= 0) {
-                        $background_color_string .= '\'lime\'' . PHP_EOL;
-                    } elseif ($entry > 0 && $entry < 50) {
-                        $background_color_string .= '\'green\'' . PHP_EOL;
-                    } elseif ($entry >= 50 && $entry < 75) {
-                        $background_color_string .= '\'orange\'' . PHP_EOL;
-                    } elseif ($entry >= 75 && $entry <= 80) {
-                        $background_color_string .= '\'crimson\'' . PHP_EOL;
-                    } elseif (
-                        $entry > 80 && $entry <= 100
-                    ) {
-                        $background_color_string .= '\'red\'' . PHP_EOL;
-                    } else {
-                        $background_color_string .= '\'blue\'' . PHP_EOL;
-                    }
-                    if (array_key_last($data)) {
-                        $background_color_string .= ',';
-                    }
-                }
-            }
-            $background_color_string .= ']';
-        } else {
-            $background_color_string = '[
-                \'rgba(54, 162, 235, 1)\', // blue
-                \'rgba(75, 192, 192, 1)\', // green
-                \'rgba(255, 99, 132, 1)\', // red
-                \'rgba(255, 159, 64, 1)\', // orange
-                \'rgba(153, 102, 255, 1)\', // purple
-                \'rgba(255, 206, 86, 1)\', // yellow
-                \'rgba(255, 0, 0, 1)\', // bright red
-                \'rgba(0, 255, 255, 1)\', // cyan
-                \'rgba(255, 0, 255, 1)\', // magenta
-                \'rgba(128, 128, 128, 1)\' // grey
-            ]';
-        }
+        // Put an If statement to change colors based on type or label
+        $background_color_string = '[
+            \'rgba(54, 162, 235, 1)\', // blue
+            \'rgba(75, 192, 192, 1)\', // green
+            \'rgba(255, 99, 132, 1)\', // red
+            \'rgba(255, 159, 64, 1)\', // orange
+            \'rgba(153, 102, 255, 1)\', // purple
+            \'rgba(255, 206, 86, 1)\', // yellow
+            \'rgba(255, 0, 0, 1)\', // bright red
+            \'rgba(0, 255, 255, 1)\', // cyan
+            \'rgba(255, 0, 255, 1)\', // magenta
+            \'rgba(128, 128, 128, 1)\' // grey
+        ]';
+
 
         $chart->setConfig('{
             type: "' . $type . '",
@@ -201,7 +193,7 @@ class Charts
 
         return ($shortUrl) ?  '<figure class="m-2"><img src="' . $chart->getShortUrl() . '" title="' . $title . '" alt="' . $title . '" width="' . $width . '" height="' . $height . '" /></figure>' : '<figure class="m-2"><img src="' . $chart->getUrl() . '" title="' . $title . '" alt="' . $title . '" width="' . $width . '" height="' . $height . '" /></figure>';
     }
-    public static function lineChart(string|int $width, string|int $height, string $format, string $title, array $labels, array $data, bool $shortUrl = false): string
+    public static function lineChart(string $title, array $data, string|int $width, string|int $height, string $format, bool $shortUrl = false): string
     {
         $chart = new QuickChart([
             'width' => $width,
@@ -230,67 +222,32 @@ class Charts
             'rgba(0, 255, 127, 1)',     // spring green
             'rgba(255, 20, 147, 1)',    // deep pink
         ];
-
-        // we need to figure out the target, it will be the first key of the $data[0] array
-        $target = array_key_first($data[0]);
-        // now we need to figure the count, it will be third key of the $data[0] array
-        $count = array_key_last($data[0]);
-        $datasets = '';
-        foreach ($data as $index => $dataset_array) {
-            foreach ($dataset_array as $key => $value) {
-                if ($key === $target) {
-                    $label_name = $value;
-                }
-                if ($key === $count) {
-                    $count_string = $value;
-                }
-            }
-            // we also want to make sure that the background color is the same for the same array entry
-            if ($index >= 0 && $index < count($backgroundColorArray)) {
-                $background_color = $backgroundColorArray[$index];
-            } else {
-                // Generate a random color
-                $random_color = 'rgba(' . rand(0, 255) . ', ' . rand(0, 255) . ', ' . rand(0, 255) . ', 1)';
-                $background_color = $random_color;
-            }
-            $datasets .= '
-                {
-                    label: \'' . $label_name . '\',
-                    backgroundColor: \'' . $background_color . '\',
-                    borderColor: \'' . $background_color . '\',
-                    data: ' . $count_string . ',
-                    fill: false,
-                    tension: 0.1
-                },
-            ';
-        }
         $chart->setConfig('{
             type: "line",
             data: {
-                labels: [' . implode(",", $labels) . '],
-                datasets: [
-                ' . $datasets . '
-            ]
+                labels: ' . json_encode($data['labels']) . ',
+                datasets: ' . json_encode($data['datasets']) . '
             },
             options: {
-                    responsive: true,
-                    title: {
-                        display: true,
-                        fontSize: 20,
-                        text: \'' . $title . '\',
-                        color: \'black\',
-                        align: \'center\',
-                        position: \'top\',
-                        fullSize: true
-                    },
-                    legend: {
-                        display: true,
-                        position: \'right\',
-                        align: \'start\',
-                        fontSize: 9
-                    },
+                responsive: true,
+                title: {
+                    display: true,
+                    fontSize: 20,
+                    text: \'' . $title . '\',
+                    color: \'black\',
+                    align: \'center\',
+                    position: \'top\',
+                    fullSize: true
+                },
+                legend: {
+                    display: true,
+                    position: \'right\',
+                    align: \'start\',
+                    fontSize: 9
                 }
+            }
         }');
+        //var_dump($chart->getConfigStr());
         return ($shortUrl) ?  '<figure class="m-1"><img src="' . $chart->getShortUrl() . '" title="' . $title . '" alt="' . $title . '" /></figure>' : '<figure class="m-1"><img src="' . $chart->getUrl() . '" title="' . $title . '" alt="' . $title . '" /></figure>';
     }
     public static function formatTimeLineArrayForLineChart(array $array, string $format = 'm-d h:m'): array

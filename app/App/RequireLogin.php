@@ -12,8 +12,16 @@ class RequireLogin
 {
     public static function check()
     {
-        $loginExempt = ['/', '/docs', '/docs/example', '/csp-report', '/register', '/auth-verify', '/api/user', '/install'];
-
+        $loginExempt = [
+        '/',
+        '/docs',
+        '/docs/*',
+        '/csp-report',
+        '/register',
+        '/auth-verify',
+        '/api/user',
+        '/install'];
+        
         $loggedIn = false;
 
         $isAdmin = false;
@@ -62,7 +70,7 @@ class RequireLogin
                 Do not redirect to /login if uri is in the list or exempt urls
                 !str_contains($_SERVER['REQUEST_URI'], '/login') is to prevent infinite redirects
             */
-            if (!in_array($_SERVER['REQUEST_URI'], $loginExempt) && !str_contains($_SERVER['REQUEST_URI'], '/login')) {
+            if (!General::matchRequestURI($loginExempt) && !str_contains($_SERVER['REQUEST_URI'], '/login')) {
                 header('Location: /login?destination=' . $_SERVER['REQUEST_URI']);
                 exit();
             }
