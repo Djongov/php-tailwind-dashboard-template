@@ -7,7 +7,7 @@ use Logs\SystemLog;
 use Template\Html;
 use Security\CRSF;
 
-$checks = new Checks($vars);
+$checks = new Checks($vars, $_POST);
 
 $checks->checkParams(['table', 'id', 'columns'], $_POST);
 

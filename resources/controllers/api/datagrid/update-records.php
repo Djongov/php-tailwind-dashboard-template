@@ -5,7 +5,7 @@ use Api\Output;
 use Logs\SystemLog;
 use Api\Checks;
 
-$checks = new Checks($vars);
+$checks = new Checks($vars, $_POST);
 
 $checks->checkParams(['table', 'id'], $_POST);
 

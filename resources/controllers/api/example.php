@@ -1,5 +1,4 @@
 <?php
 
-return var_dump($_POST);
-return var_dump($vars);
+return var_dump($_POST, $vars, $routeInfo, $_SERVER['REQUEST_METHOD']);
 

@@ -11,15 +11,17 @@ class Checks
     /**
      * @var array
      */
-    private $vars;
+    private array $userVars;
+    private array $data;
     /**
      * Checks constructor.
      *
      * @param array $vars
      */
-    public function __construct($vars)
+    public function __construct(array $userVars, array $data)
     {
-        $this->vars = $vars;
+        $this->userVars = $userVars;
+        $this->data = $data;
     }
     /**
      * Checks if the user is an admin
@@ -28,7 +30,7 @@ class Checks
      */
     public function isAdmin(): bool
     {
-        return $this->vars['isAdmin'] ?? false;
+        return $this->userVars['isAdmin'] ?? false;
     }
     /**
      * Checks if the user is an admin from the JWT token
@@ -62,7 +64,7 @@ class Checks
      */
     public function adminCheck(): void
     {
-        if (!isset($this->vars['isAdmin'])) {
+        if (!isset($this->userVars['isAdmin'])) {
             Output::error('Administator status not set');
         }
         if (!$this->isAdmin()) {
@@ -82,13 +84,13 @@ class Checks
         if (!isset($_COOKIE[AUTH_COOKIE_NAME])) {
             Output::error('Missing token', 401);
         }
-        if (!isset($this->vars['usernameArray']['provider'])) {
+        if (!isset($this->userVars['usernameArray']['provider'])) {
             Output::error('Missing provider in user');
         }
-        if ($this->vars['usernameArray']['provider'] === 'local' && !JWT::checkToken($_COOKIE[AUTH_COOKIE_NAME])) {
+        if ($this->userVars['usernameArray']['provider'] === 'local' && !JWT::checkToken($_COOKIE[AUTH_COOKIE_NAME])) {
             Output::error('Invalid local token', 401);
         }
-        if ($this->vars['usernameArray']['provider'] === 'azure' && !AzureAD::check($_COOKIE[AUTH_COOKIE_NAME])) {
+        if ($this->userVars['usernameArray']['provider'] === 'azure' && !AzureAD::check($_COOKIE[AUTH_COOKIE_NAME])) {
             Output::error('Invalid Azure token', 401);
         }
     }
@@ -103,10 +105,10 @@ class Checks
         if (!isset($_COOKIE[AUTH_COOKIE_NAME])) {
             Output::error('Missing auth cookie');
         }
-        if (!isset($this->vars['usernameArray']['username'])) {
+        if (!isset($this->userVars['usernameArray']['username'])) {
             Output::error('Missing username');
         }
-        if ($this->vars['usernameArray']['username'] !== JWT::extractUserName($_COOKIE[AUTH_COOKIE_NAME])) {
+        if ($this->userVars['usernameArray']['username'] !== JWT::extractUserName($_COOKIE[AUTH_COOKIE_NAME])) {
             JWT::handleValidationFailure();
             Output::error('Username anomaly');
         }
@@ -121,11 +123,11 @@ class Checks
         if (!isset($_SESSION['csrf_token'])) {
             Output::error('Missing Session CSRF Token');
         }
-        if (!isset($_POST['csrf_token'])) {
+        if (!isset($this->data['csrf_token'])) {
             Output::error('Missing POST CSRF Token');
         }
         // Compare the postToken to the $_SESSION['csrf_token']
-        if ($_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        if ($this->data['csrf_token'] !== $_SESSION['csrf_token']) {
             Output::error('Invalid CSRF Token');
         }
     }
@@ -142,10 +144,20 @@ class Checks
         if (!isset($lowercaseHeaders['x-csrf-token'])) {
             Output::error('Missing CSRF Token header');
         }
-        if (!isset($_POST['csrf_token'])) {
+        if (!isset($this->data['csrf_token'])) {
             Output::error('Missing POST CSRF Token');
         }
-        if ($_POST['csrf_token'] !== $lowercaseHeaders['x-csrf-token']) {
+        if ($this->data['csrf_token'] !== $lowercaseHeaders['x-csrf-token']) {
+            Output::error('Invalid CSRF Token');
+        }
+    }
+    public function checkCSRFDelete(string $csrf): void
+    {
+        // $csrf should come from the URL
+        if (!isset($_SESSION['csrf_token'])) {
+            Output::error('Missing Session CSRF Token');
+        }
+        if ($csrf !== $_SESSION['csrf_token']) {
             Output::error('Invalid CSRF Token');
         }
     }
@@ -157,24 +169,24 @@ class Checks
     public function loginCheck(): void
     {
         // Check if $vars['loggedIn'] is set
-        if (!isset($this->vars['loggedIn'])) {
+        if (!isset($this->userVars['loggedIn'])) {
             Output::error('You are not logged in (loggedIn not set)');
         }
         // Check if $vars['loggedIn'] is true
-        if (!$this->vars['loggedIn']) {
+        if (!$this->userVars['loggedIn']) {
             Output::error('You are not logged in (loggedIn false)');
         }
         // Now check if the usernameArray is set
-        if (!isset($this->vars['usernameArray'])) {
+        if (!isset($this->userVars['usernameArray'])) {
             Output::error('You are not logged in (usernameArray not set)');
         }
         // Now check if the usernameArray is an array
-        if (!is_array($this->vars['usernameArray'])) {
+        if (!is_array($this->userVars['usernameArray'])) {
             Output::error('You are not logged in (usernameArray not an array)');
         }
         // Now check if the usernameArray is not empty
-        if (empty($this->vars['usernameArray'])) {
-            Output::error('You are not logged in (usernameArray empty');
+        if (empty($this->userVars['usernameArray'])) {
+            Output::error('You are not logged in (usernameArray empty)');
         }
     }
     public function checkSecretHeader(): void
@@ -219,6 +231,14 @@ class Checks
             $this->checkSecretHeader();
         }
     }
+    public function apiChecksNoUser(bool $checkSecretHeader = true): void
+    {
+        $this->checkCSRF();
+        $this->checkCSRFHeader();
+        if ($checkSecretHeader) {
+            $this->checkSecretHeader();
+        }
+    }
     public function apiChecksNoCSRFHeader(bool $checkSecretHeader = true): void
     {
         $this->checkJWT();
@@ -228,6 +248,17 @@ class Checks
         if ($checkSecretHeader) {
             $this->checkSecretHeader();
         }
+    }
+    // Because DELETE requests don't have a body
+    public function apiChecksDelete(string $csrf, bool $checkSecretHeader = true): void
+    {
+        $this->checkJWT();
+        $this->checkUsernameIntegrity();
+        $this->loginCheck();
+        if ($checkSecretHeader) {
+            $this->checkSecretHeader();
+        }
+        $this->checkCSRFDelete($csrf);
     }
     /**
      * Checks if the required parameters are present
@@ -248,5 +279,16 @@ class Checks
                 Output::error('parameter ' . $name . ' cannot be empty', 400);
             }
         }
+    }
+    public static function jsonBody(): array
+    {
+        // Let's catch php input stream
+        $putData = file_get_contents('php://input');
+        // Now we need to get the put data and make into array
+        $putData = json_decode($putData, true);
+        if (!is_array($putData)) {
+            Output::error('Invalid json data');
+        }
+        return $putData;
     }
 }

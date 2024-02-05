@@ -1,67 +1,103 @@
 <?php
 
 use Api\Output;
+use Api\Checks;
+use Api\User;
 use Database\MYSQL;
-use Authentication\Checks;
+use App\General;
 
-$checks = new Checks();
-$checks->genericChecks($vars);
-// Let's pick up the username from the user id from the DB
-$userInfo = MYSQL::queryPrepared('SELECT `username` FROM `users` WHERE `id`=?', [$routeInfo[2]['id']]);
-if ($userInfo->num_rows === 0) {
-    echo Output::error('User not found');
+// This is the API endpoint controller for the user actions
+
+// POST /api/user/create
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $checks = new Checks($vars, $_POST);
+    $checks->apiChecksNoUser();
+
+    // Create the user
+    $user = new User();
+    
+    $data = $_POST;
+
+    unset($data['csrf_token']);
+
+    $data['last_ips'] = General::currentIP();
+
+    $data['origin_country'] = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+
+    $data['role'] = 'user';
+
+    $data['theme'] = COLOR_SCHEME;
+
+    $data['provider'] = 'local';
+
+    $data['enabled'] = 1;
+
+    echo $user->createLocalUser($data);
 }
 
-// Now check if the user submitting this is the same as the user being deleted
-if ($vars['usernameArray']['id'] !== intval($routeInfo[2]['id'])) {
-    echo Output::error('You are not allowed to edit this user');
-}
 
 if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
-    // Secret header checks
-    $checks->checkSecretHeader();
     // Let's catch php input stream
-    $putData = file_get_contents('php://input');
-    // Now we need to get the put data and make into array
-    $putData = json_decode($putData, true);
-    // CSRF check
-    $checks->checkCSRF($putData['csrf_token']);
-    // Remove from putData array csrf_token
-    unset($putData['csrf_token']);
-    $sql = 'UPDATE `users` SET ';
-    $updates = [];
-    // Check if all keys in $array match the columns
-    foreach ($putData as $key => $value) {
-        // Add the column to be updated to the SET clause
-        $updates[] = "`$key` = ?";
+    $data = Checks::jsonBody();
+
+    // Also the router info should bring us the id
+    if (!isset($routeInfo[2]['id'])) {
+        echo Output::error('Missing user id');
+        exit();
     }
-    // Combine the SET clauses with commas
-    $sql .= implode(', ', $updates);
 
-    // Add a WHERE clause to specify which organization to update
-    $sql .= " WHERE `username` =? AND `id` = ?";
+    $userId = $routeInfo[2]['id'];
 
-    // Prepare and execute the query using queryPrepared
-    $values = array_values($putData);
-    $values[] = $putData['username']; // Add the name for the WHERE clause
-    $values[] = $routeInfo[2]['id']; // Add the id for the WHERE clause
+    $checks = new Checks($vars, $data);
+    $checks->apiChecks();
 
-    $update_user = MYSQL::queryPrepared($sql, $values);
-
-    if ($update_user->affected_rows === 0) {
-        echo Output::error('Nothing updated');
-    } else {
-        echo Output::success('User updated');
+    if (isset($data['passwword'], $data['confirm_password'])) {
+        if ($data['password'] !== $data['confirm_password']) {
+            echo Output::error('Passwords do not match');
+            exit();
+        }
     }
+
+    if (isset($data['password'])) {
+        $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+    }
+
+    unset($data['confirm_password']);
+    unset($data['csrf_token']);
+
+    $user = new User();
+    $user->update($data, $userId);
+
 }
 if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-    // Secret header checks
-    $checks->checkSecretHeader();
-    // Now delete the user
-    $deleteUser = MYSQL::queryPrepared('DELETE FROM `users` WHERE `id`=?', [$routeInfo[2]['id']]);
+    
+    // Let's check if the csrf token is passed as a query string in the DELETE request
+    if (!isset($_GET['csrf_token'])) {
+        echo Output::error('Missing CSRF Token');
+        exit();
+    }
+
+    // Let's catch php input stream
+    $data = Checks::jsonBody();
+
+    // Also the router info should bring us the id
+    if (!isset($routeInfo[2]['id'])) {
+        echo Output::error('Missing user id');
+        exit();
+    }
+
+    $userId = $routeInfo[2]['id'];
+
+    $checks = new Checks($vars, []);
+    $checks->apiChecksDelete($_GET['csrf_token']);
+
+    $deleteUser = MYSQL::queryPrepared('DELETE FROM `users` WHERE `id`=?', [$userId]);
     if ($deleteUser->affected_rows === 0) {
         echo Output::error('User not found');
+        exit();
     } else {
         echo Output::success('User deleted');
+        exit();
     }
 }

@@ -68,7 +68,7 @@ const handleFormFetch = (form, currentEvent, resultType) => {
     const fetchOptions = {
         method: formMethod,
         headers: {
-            'secretHeader': 'badass',
+            'secretheader': 'badass',
             'X-CSRF-TOKEN': csrfToken
         },
         redirect: 'manual'

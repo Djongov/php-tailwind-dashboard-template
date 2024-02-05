@@ -35,4 +35,41 @@ class Page
         $html .= '</article>';
         return $html;
     }
+    public static function getMdFilesInDir($dir)
+    {
+        $files = scandir($dir);
+        $files = array_diff($files, ['.', '..', 'index.php']);
+        $files = array_map(function ($file) {
+            return str_replace('.md', '', $file);
+        }, $files);
+        return $files;
+    }
+    public static function getMetaDataFromMd($file, $folder) : array
+    {
+        $content = file_get_contents($folder . '/' . $file . '.md');
+        // Find the rows that start with [XXXX] : <> and use them as metadata
+        preg_match_all('/\[(\w+)]: # \(([^)]+)\)/', $content, $matches, PREG_SET_ORDER);
+
+        $results = array();
+        foreach ($matches as $match) {
+            $results[$match[1]] = $match[2];
+        }
+
+        $title = (isset($results['title'])) ? $results['title'] : ucwords(str_replace('-', ' ', $file));
+        $description = (isset($results['description'])) ? $results['description'] : GENERIC_DESCRIPTION;
+        $keywords = (isset($results['keywords'])) ? $results['keywords'] : GENERIC_KEYWORDS;
+        $thumbimage = (isset($results['thumbimage'])) ? $results['thumbimage'] : OG_LOGO;
+        $menu = (isset($results['menu'])) ? $results['menu'] : MAIN_MENU;
+        $genericMetaDataArray = [
+            'metadata' => [
+                // Title will be the uppercased file name
+                'title' => $title,
+                'description' => $description,
+                'keywords' => $keywords,
+                'thumbimage' => $thumbimage,
+                'menu' => $menu,
+            ]
+        ];
+        return $genericMetaDataArray;
+    }
 }

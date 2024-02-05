@@ -175,7 +175,7 @@ echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
                 ],
                 'theme' => $theme,
                 'method' => 'PUT',
-                'action' => '/api/user/password-change/' . $usernameArray['id'],
+                'action' => '/api/user/' . $usernameArray['id'],
                 'redirectOnSubmit' => '/logout',
                 'submitButton' => [
                     'text' => 'Change Password',
@@ -201,7 +201,7 @@ echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
             ],
             'theme' => 'red',
             'method' => 'DELETE',
-            'action' => '/api/user/' . $usernameArray['id'],
+            'action' => '/api/user/' . $usernameArray['id'] . '?csrf_token=' . $_SESSION['csrf_token'],
             'redirectOnSubmit' => '/logout',
             'confirm' => true,
             'confirmText' => 'Are you sure you want to delete your user?

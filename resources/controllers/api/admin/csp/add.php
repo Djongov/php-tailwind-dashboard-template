@@ -7,7 +7,7 @@ use Security\Firewall;
 
 Firewall::activate();
 
-$checks = new Checks($vars);
+$checks = new Checks($vars, $_POST);
 
 // Perform the API checks
 $checks->apiAdminChecks();

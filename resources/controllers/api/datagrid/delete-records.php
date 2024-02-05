@@ -5,7 +5,7 @@ use Api\Output;
 use Api\Checks;
 use Logs\SystemLog;
 
-$checks = new Checks($vars);
+$checks = new Checks($vars, $_POST);
 
 // Special XOR check for the delete records endpoint
 if (!isset($_POST['table'], $_POST['id']) xor isset($_POST['deleteRecords'], $_POST['row'])) {

@@ -104,8 +104,6 @@ $indexedArray = array_count_values($blockedUri);
 // Sort the array in descending order
 ksort($indexedArray, SORT_NUMERIC | SORT_DESC);
 
-echo HTML::h2('Blocked URIs', true);
-
 echo '<div class="flex flex-row flex-wrap p-6 justify-center">';
     echo '<div class="w-full md:w-1/2 lg:w-1/3">';
         //echo SimpleVerticalDataGrid::render(General::assocToIndexed($indexedArray));

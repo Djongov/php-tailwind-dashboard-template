@@ -1,7 +1,7 @@
 <?php
 use Api\Checks;
 
-$checks = new Checks($vars);
+$checks = new Checks($vars, $_POST);
 
 $checks->apiChecksNoCSRFHeader(false);
 
