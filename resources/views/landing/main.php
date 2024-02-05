@@ -12,50 +12,6 @@ $query = "SELECT `id`, `text` FROM `system_log`";
 
 echo DataGridDBTable::renderQuery('Custom query', $query, $theme, true, true, 'system_log');
 
-
-use Charts\Charts;
-
-$data = [
-    'January' => 100,
-    'February' => 200
-];
-
-echo Charts::doughnutOrPieChart('pie', 'Donut Chart', array_keys($data), array_values($data));
-
-echo '<div id="doughnut-limits-holder" class="flex flex-row flex-wrap p-6 justify-center">';
-// initiate an array that will pass the following data into hidden inputs so Javascript can have access to this data on page load and draw the charts
-$universalWidth = 180;
-$universalHeight = 180;
-$gaugeArray = [
-    [
-        'type' => 'doughnut',
-        'data' => [
-            'parentDiv' => 'doughnut-limits-holder',
-            'title' => 'WAF Policies',
-            'width' => $universalWidth,
-            'height' => $universalHeight,
-            'labels' => ['used', 'unused'],
-            'data' => [1, 5]
-        ]
-    ],
-    [
-        'type' => 'piechart',
-        'data' => [
-            'parentDiv' => 'doughnut-limits-holder',
-            'title' => 'Power',
-            'width' => $universalWidth,
-            'height' => $universalHeight,
-            'labels' => ['qwe', 'asd'],
-            'data' => [1, 5]
-        ]
-    ]
-];
-// Now go through them and create an input hidden for each
-foreach ($gaugeArray as $array) {
-    echo '<input type="hidden" name="autoload" value="' . htmlspecialchars(json_encode($array)) . '" />';
-}
-echo '</div>';
-
 //$request = NativeHttp::get('https://www.ipqualityscore.com/api/json/leaked/email/IgJi2FQr2iU11QkbkBtoWun5f1YmSk8y/djongov@gamerz-bg.com', [], true);
 
 // $array = [

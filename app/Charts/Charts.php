@@ -222,11 +222,24 @@ class Charts
             'rgba(0, 255, 127, 1)',     // spring green
             'rgba(255, 20, 147, 1)',    // deep pink
         ];
+
+        $datasets = $data['datasets'];
+
+        // Calculate background colors dynamically based on the number of datasets
+        $backgroundColors = array_slice($backgroundColorArray, 0, count($datasets));
+
+        foreach ($datasets as $index => &$dataset) {
+            $dataset['backgroundColor'] = $backgroundColors[$index];
+            $dataset['borderColor'] = $backgroundColors[$index];
+            $dataset['fill'] = false;
+            $dataset['tension'] = 0.1;
+        }
+
         $chart->setConfig('{
             type: "line",
             data: {
                 labels: ' . json_encode($data['labels']) . ',
-                datasets: ' . json_encode($data['datasets']) . '
+                datasets: ' . json_encode($datasets) . '
             },
             options: {
                 responsive: true,
@@ -249,22 +262,5 @@ class Charts
         }');
         //var_dump($chart->getConfigStr());
         return ($shortUrl) ?  '<figure class="m-1"><img src="' . $chart->getShortUrl() . '" title="' . $title . '" alt="' . $title . '" /></figure>' : '<figure class="m-1"><img src="' . $chart->getUrl() . '" title="' . $title . '" alt="' . $title . '" /></figure>';
-    }
-    public static function formatTimeLineArrayForLineChart(array $array, string $format = 'm-d h:m'): array
-    {
-        $timeline = $array[0]["TimeGenerated"];
-
-        $timeline = str_replace("[", "", $timeline);
-        $timeline = str_replace("]", "", $timeline);
-        $timeline = str_replace("\"", "", $timeline);
-
-        $timelineArray = explode(",", $timeline);
-
-        // Let's format the dates. Let's run all the timelineArray values through the GeneralMethods::convertToUTC() method
-        foreach ($timelineArray as $index => $date) {
-            $date = "' " . General::convertToUTC($date, $format) . "'";
-            $timelineArray[$index] = $date;
-        }
-        return $timelineArray;
     }
 }

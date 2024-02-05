@@ -58,7 +58,7 @@ define("MAIN_MENU", [
         'link' => '/datagrid',
     ],
     '404' => [
-        'link' => '/404'
+        'link' => '/blablabla'
     ]
 ]);
 

@@ -193,10 +193,16 @@ const createPieChart = (name, parentNodeId, canvasId, containerHeight, container
 
 // Line chart
 
-const createLineChart = (holder, type, data) => {
+const createLineChart = (title, parentDiv, width, height, labels, data) => {
+    let parent = document.getElementById(parentDiv);
+    let containerDiv = document.createElement('div');
+    parent.appendChild(containerDiv);
+    containerDiv.classList.add('w-80');
+    containerDiv.style.height = height;
+    containerDiv.style.width = width;
     let canvas = document.createElement('canvas');
-    holder.appendChild(canvas);
-    canvas.height = 200;
+    containerDiv.appendChild(canvas);
+
     let lineDataSets = [];
 
     const colors = [
@@ -211,9 +217,8 @@ const createLineChart = (holder, type, data) => {
         'rgba(255, 0, 255, 1)', // magenta
         'rgba(128, 128, 128, 1)' // grey
     ]; // Array of colors
-
+    
     data.forEach((array, index) => {
-        let countData = array.Count.replace("[", "").replace("]", "").split(",");
         let calculatedTarget = Object.entries(array)[0][1];
 
         // Get the color from the colors array based on the index. Uses the remainder operator (%) to cycle through the colors array and assign a color based on the index value.
@@ -221,7 +226,7 @@ const createLineChart = (holder, type, data) => {
 
         lineDataSets.push({
             label: calculatedTarget,
-            data: countData,
+            data: array['data'],
             borderColor: color,
             backgroundColor: color,
             fill: false,
@@ -229,21 +234,11 @@ const createLineChart = (holder, type, data) => {
         });
     });
 
-    // Now the label
-    const timeValues = [];
-
-    for (const obj of data) {
-        const timeArray = JSON.parse(obj.TimeGenerated);
-        timeValues.push(...timeArray);
-    }
-
-    const uniqueTimeValues = Array.from(new Set(timeValues));
-
     new Chart(canvas, {
         type: 'line',
         data: {
             datasets: lineDataSets,
-            labels: uniqueTimeValues,
+            labels: labels,
         },
         options: {
             responsive: true,
@@ -254,7 +249,7 @@ const createLineChart = (holder, type, data) => {
                 },
                 title: {
                     display: true,
-                    text: type.toUpperCase().replace("-", " "),
+                    text: title,
                 },
             },
         }

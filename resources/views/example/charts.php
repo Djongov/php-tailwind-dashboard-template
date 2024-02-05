@@ -1,6 +1,7 @@
 <?php
 
 use Template\Html;
+use Charts\Charts;
 
 echo Html::h1('Charts', true);
 
@@ -12,7 +13,15 @@ echo HTML::p('We can control which quickchart host we use by setting the QUICKCH
 
 echo HTML::p('shortUrls are used to shorten the URLs for the images so they can be used in emails for example. Also shortURLs are higher quality and are also only available at quickchart.io. ' . HTML::a("Read more", "https://quickchart.io/documentation/usage/short-urls-and-templates/#:~:text=To%20generate%20a%20short%20URL,.io%2Fchart%2Fcreate%20.&text=Go%20to%20the%20URL%20in,URLs%20to%20become%20active%20globally.", $theme, '_blank'));
 
-use Charts\Charts;
+// Let's use this general data for all the charts
+$chartData = [
+    'January' => rand(1, 1000),
+    'February' => rand(1, 1000),
+    'March' => rand(1, 1000),
+    'April' => rand(1, 1000),
+    'May' => rand(1, 1000),
+    'June' => rand(1, 1000),
+];
 
 echo '<div class="my-12 flex flex-wrap flex-row justify-center items-center">';
     // Pie chart
@@ -22,7 +31,7 @@ echo '<div class="my-12 flex flex-wrap flex-row justify-center items-center">';
 
         echo HTML::p('This is a pie chart.');
 
-        echo Charts::doughnutOrPieChart('pie', 'Pie chart', ['January', 'February', 'March', 'April', 'May', 'June'], [12, 19, 3, 5, 2, 3]);
+        echo Charts::doughnutOrPieChart('pie', 'Pie chart', array_keys($chartData), array_values($chartData));
 
     echo '</div>';
     // Doughnut chart
@@ -32,7 +41,7 @@ echo '<div class="my-12 flex flex-wrap flex-row justify-center items-center">';
 
         echo HTML::p('This is a doughnut chart.');
 
-        echo Charts::doughnutOrPieChart('doughnut', 'Doughnut chart', ['January', 'February', 'March', 'April', 'May', 'June'], [12, 19, 3, 5, 2, 3]);
+        echo Charts::doughnutOrPieChart('doughnut', 'Doughnut chart',array_keys($chartData), array_values($chartData));
 
     echo '</div>';
     // Radial gauge
@@ -59,15 +68,16 @@ echo '<div class="my-12 flex flex-wrap flex-row justify-center items-center">';
         echo HTML::p('This is a line chart.');
 
         $lineChartData = [
-            'labels' => ['January', 'February', 'March', 'April', 'May', 'June'],
+            'labels' => array_keys($chartData),
             'datasets' => [
                 [
                     'label' => 'User 1 data',
-                    'data' => [15, 22, 3, 52, 22, 3]
+                    'data' => array_values($chartData)
                 ],
                 [
                     'label' => 'User 2 data',
-                    'data' => [12, 55, 33, 5, 2, 3]
+                    // for the second user we will just use the same data but in reverse order
+                    'data' => array_reverse(array_values($chartData))
                 ]
             ]
         ];
@@ -91,8 +101,8 @@ echo '<div id="doughnut-limits-holder" class="my-12 flex flex-wrap flex-row just
                 'title' => 'Gauge chart',
                 'width' => 180,
                 'height' => 180,
-                'labels' => ['used', 'unused'],
-                'data' => [1, 5]
+                'labels' => ['used', 'remaining'],
+                'data' => [$randomNumber, $max]
             ]
         ],
         [
@@ -102,8 +112,28 @@ echo '<div id="doughnut-limits-holder" class="my-12 flex flex-wrap flex-row just
                 'title' => 'Pie Chart',
                 'width' => 300,
                 'height' => 300,
-                'labels' => ['January', 'February', 'March', 'April', 'May', 'June'],
-                'data' => [12, 19, 3, 5, 2, 3]
+                'labels' => array_keys($chartData),
+                'data' => array_values($chartData)
+            ]
+        ],
+        [
+            'type' => 'linechart',
+            'data' => [
+                'parentDiv' => 'doughnut-limits-holder',
+                'title' => 'Line Chart',
+                'width' => 400,
+                'height' => 200,
+                'labels' => array_keys($chartData),
+                'datasets' => [
+                    [
+                        'label' => 'User 1 data',
+                        'data' => array_values($chartData)
+                    ],
+                    [
+                        'label' => 'User 2 data',
+                        'data' => array_reverse(array_values($chartData))
+                    ]
+                ]
             ]
         ]
     ];

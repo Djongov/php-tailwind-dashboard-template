@@ -51,7 +51,7 @@ $login_message = 'You are not logged in';
         $destinationUrl = $_GET['destination'] ?? '/';
         endif;
         if (LOCAL_USER_LOGIN) :
-            echo HTML::p('login with your local account', 'text-center text-gray-500 mb-4');
+            echo HTML::p('login with your local account', ['text-center', 'text-gray-500', 'mb-4']);
             $localLoginForm = [
                 'inputs' => [
                     'input' => [
