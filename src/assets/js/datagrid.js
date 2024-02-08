@@ -115,7 +115,12 @@ if (tables.length > 0) {
                         modalBodyInputs.forEach(input => {
                             formData.append(input.name, input.value);
                         });
-
+                        // Now let's take care of potential checkboxes
+                        const modalBodyCheckboxes = modal.querySelectorAll(`input[type=checkbox]`);
+                        // Loop through the checkboxes and if they are checked, we transmit the value as 1, else as 0
+                        modalBodyCheckboxes.forEach(checkbox => {
+                            formData.append(checkbox.name, checkbox.checked ? 1 : 0);
+                        });
                         // Now let's send a fetch request to /api/process with form-data api-action and the apiAction value
                         fetch('/api/datagrid/update-records', {
                             method: 'POST',

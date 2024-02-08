@@ -154,6 +154,37 @@ class MYSQL
             }
         }
     }
+    public static function describe(string $table)
+    {
+        $query = "DESCRIBE `$table`";
+        $result = self::query($query);
+        $resultArray = $result->fetch_all(MYSQLI_ASSOC);
+        // Now we want to return an array of the column names and their types only
+        $resultArray = array_column($resultArray, 'Type', 'Field');
+        // Now go through the values and convert them to their respective types
+        foreach ($resultArray as $key => $value) {
+            $resultArray[$key] = self::mapDataTypesArray($value);
+        }
+        return $resultArray;
+    }
+    // This is used in the get-records datagrid API to present the data in the correct input type
+    public static function mapDataTypesArray(string $value) {
+        if (str_starts_with($value, 'tinyint')) {
+            return 'bool';
+        }
+        if (str_starts_with($value, 'int')) {
+            return 'int';
+        }
+        if (str_starts_with($value, 'decimal') || str_starts_with($value, 'float') || str_starts_with($value, 'double')) {
+            return 'float';
+        }
+        if (str_starts_with($value, 'date') || str_starts_with($value, 'time') || str_starts_with($value, 'year')) {
+            return 'datetime';
+        }
+        if (str_starts_with($value, 'varchar') || str_starts_with($value, 'text')) {
+            return 'string';
+        }
+    }
     // This method will check columns but also data types
     public static function checkDBColumnsAndTypes(array $array, string $table)
     {

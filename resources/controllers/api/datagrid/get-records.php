@@ -26,7 +26,12 @@ $selectColumnsString = '`' . implode('`, `', $selectColumnsArray) . '`';
 // Check if the columns exist in the database
 MYSQL::checkDBColumnsAndTypes($selectColumnsArray, $_POST['table']);
 
+// Now pull the data types from the db so we know what type of input to use
+$columns = MYSQL::describe($_POST['table']);
+
 $dataCheck = MYSQL::queryPrepared("SELECT $selectColumnsString FROM `" . $_POST['table'] . "` WHERE `id`=?", [$_POST['id']]);
+
+$dataTypes = MYSQL::describe($_POST['table']);
 
 if ($dataCheck->num_rows > 0) {
     $data_array = $dataCheck->fetch_assoc();
@@ -34,27 +39,39 @@ if ($dataCheck->num_rows > 0) {
     $html .= '<div class="mb-6">';
         foreach ($data_array as $key => $value) {
             $html .= '<div class="ml-4 my-2">';
-                $html .= '<label for="' . $key . '" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">' . $key . '</label>';
-                if (is_int($value)) {
-                    $type = 'number';
-                } else {
-                    $type = 'text';
-                }
-                $readonly = '';
-                $read_only_columns = ['date_created', 'id', 'invited_on', 'created_at', 'created_by', 'client_ip'];
-                $input_field_classes = 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg outline-none focus:ring-' . $theme . '-500 focus:border-' . $theme . '-500 block w-72 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500';
-                if (in_array($key, $read_only_columns)) {
-                    $readonly = 'readonly';
-                    // override the classes so that the disabled fields are more noticeable
-                    $input_field_classes = 'bg-gray-50 border border-red-500 text-gray-900 text-sm rounded-lg outline-none focus:ring-red-600 focus:border-red-700 block w-72 p-2.5 dark:bg-gray-700 dark:border-red-600 dark:placeholder-red-400 dark:text-white dark:focus:ring-red-600 dark:focus:border-red-700';
-                }
+                // First sanitize the value
                 if ($value !== null) {
                     $value = htmlentities($value);
                 }
-                if (strlen($value) > 255) {
-                    $html .= HTML::textArea($key, $value, '', $key, '', '', $theme, false, false, false, 10, 50);
+                // Decide whether a field is disabled or not
+                $read_only_columns = ['date_created', 'id', 'invited_on', 'created_at', 'created_by', 'client_ip'];
+                if (in_array($key, $read_only_columns)) {
+                    $readonly = true;
                 } else {
-                    $html .= '<input type="' . $type . '" name="' . $key . '" class="' . $input_field_classes . '" value="' . $value . '" ' . $readonly . ' />';
+                    $readonly = false;
+                }
+
+                // Now let's map the data types to the input types
+                if ($dataTypes[$key] === 'bool') {
+                    $html .= HTML::toggleCheckBox(uniqid(), $key, $value, $key, ($value === 1 || $value === "1") ? true : false, $theme, $readonly);
+                }
+                if ($dataTypes[$key] === 'int') {
+                    $html .= HTML::input('default', 'number', uniqid(), $key, $key, $value, '', '', $key, $theme, false, true, ($readonly) ? true : false);
+                }
+                if ($dataTypes[$key] === 'float') {
+                    $html .= HTML::input('default', 'number', uniqid(), $key, $key, $value, '', '', $key, $theme, false, true, ($readonly) ? true : false);
+                }
+                if ($dataTypes[$key] === 'datetime') {
+                    $html .= HTML::input('default', 'datetime-local', uniqid(), $key, $key, $value, '', '', $key, $theme, false, true, ($readonly) ? true : false);
+                }
+                if ($dataTypes[$key] === 'string') {
+                    if ($key === 'password') {
+                        $html .= HTML::input('default', 'password', uniqid(), $key, $key, $value, '', 'This is most likely a hashed value of the password', $key, $theme, false, true, ($readonly) ? true : false);
+                    } elseif (strlen($value) > 255) {
+                        $html .= HTML::textArea($key, $value, '', $key, '', '', $theme, false, false, false, 10, 50);
+                    } else {
+                        $html .= HTML::input('default', 'text', uniqid(), $key, $key, $value, '', '', $key, $theme, false, true, ($readonly) ? true : false);
+                    }
                 }
             $html .= '</div>';
         }

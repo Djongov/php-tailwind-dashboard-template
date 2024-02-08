@@ -140,7 +140,7 @@ class Forms
                         $html .= '</select>';
                         $html .= '</div>';
                         if (isset($inputOptionsArray['description'])) {
-                            $html .= HTML::p($inputOptionsArray['description'], 'mt-2 ml-2 text-sm text-gray-500 dark:text-gray-400');
+                            $html .= HTML::p($inputOptionsArray['description'], ['mt-2', 'ml-2', 'text-sm', 'text-gray-500', 'dark:text-gray-400']);
                         }
                         $html .= '</div>';
                         $html .= '</div>';

@@ -88,14 +88,14 @@ class Html
         }
     }
     /* Form elements */
-    public static function input(string $size, string $type, ?string $id, string $name, string $title, string $value, string $placeholder, string $description, string $label_name, string $theme, bool $disabled, bool $required, bool $readOnly, bool $encased = true, ?int $min = null, ?int $max = null, ?int $step = null, $pattern = '', $extraClasses = [], $dataAttributes = [])
+    public static function input(string $size, string $type, ?string $id, string $name, string $title, ?string $value, string $placeholder, string $description, string $label_name, string $theme, bool $disabled, bool $required, bool $readOnly, bool $encased = true, ?int $min = null, ?int $max = null, ?int $step = null, $pattern = '', $extraClasses = [], $dataAttributes = [])
     {
         if ($disabled || $readOnly) {
             $theme = 'red';
             array_push($extraClasses, 'cursor-not-allowed', 'border-red-500', 'dark:border-red-600');
         }
         // Check allowed types
-        $allowedTypes = ['text', 'number', 'email', 'password', 'search'];
+        $allowedTypes = ['text', 'number', 'email', 'password', 'search', 'datetime-local'];
         if (!in_array($type, $allowedTypes)) {
             throw new \Exception('Invalid type for input. Needs to be one of: ' . implode(', ', $allowedTypes) . '.');
         }
