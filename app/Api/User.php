@@ -9,6 +9,15 @@ use App\General;
 
 class User
 {
+    // Getter
+    public function get(string $id) : array
+    {
+        $user = MYSQL::queryPrepared('SELECT * FROM `users` WHERE `id`=?', [$id]);
+        if ($user->num_rows === 0) {
+            Output::error('User not found', 404);
+        }
+        return $user->fetch_assoc();
+    }
     public function create(array $data, string $provider) : void
     {
         if ($provider === 'local') {

@@ -280,7 +280,7 @@ const loaderString = () => {
 const editModal = (id) => {
     let html = `
         <!-- Main modal -->
-        <div id="${id}-container" class="mx-2 relative w-full bg-gray-50 dark:bg-gray-700 max-w-2xl max-h-full mx-auto border border-gray-700 dark:border-gray-400 shadow">
+        <div id="${id}-container" class="mx-2 relative w-full bg-gray-50 dark:bg-gray-700 max-w-2xl max-h-full mx-auto border border-gray-700 dark:border-gray-400 shadow overflow-auto">
             <!-- Modal content -->
             <div class="relative overflow-auto max-h-[44rem] rounded-lg dark:bg-gray-700 ">
                 <!-- Modal header -->

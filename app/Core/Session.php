@@ -20,4 +20,11 @@ class Session
         ]);
         session_start();
     }
+    // Reset the session
+    public static function reset()
+    {
+        session_unset();
+        session_destroy();
+        $_SESSION = [];
+    }
 }

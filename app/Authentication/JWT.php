@@ -4,6 +4,7 @@ namespace Authentication;
 
 use App\General;
 use Api\Output;
+use Core\Session;
 
 class JWT
 {
@@ -205,6 +206,7 @@ class JWT
         if (self::isTokenSet()) {
             unset($_COOKIE[AUTH_COOKIE_NAME]);
             setcookie(AUTH_COOKIE_NAME, false, -1, '/', str_replace(strstr($_SERVER['HTTP_HOST'], ':'), '', $_SERVER['HTTP_HOST']));
+            Session::reset();
             return false;
         } else {
             return false;
