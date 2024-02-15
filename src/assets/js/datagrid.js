@@ -380,29 +380,44 @@ const drawDataGrid = (id) => {
 }
 
 
-const drawDataGridFromData = (json, skeletonId, columnArray) => {
-    const tableWrapper = $('<div class="overflow-auto max-h-[44rem]"></div>'); // Create a wrapper div for the table
-    const tableHeaders = columnArray.map(column => ({
+const drawDataGridFromData = (json, skeletonId) => {
+    const tableWrapper = $('<div class="mx-2 overflow-auto max-h-[44rem]"></div>'); // Create a wrapper div for the table
+    // Create the loading screen for the table
+    const loadingScreen = tableLoadingScreen(skeletonId);
+    console.log(loadingScreen);
+    // Append the loading screen before the table
+    $(`#${skeletonId}`).before(loadingScreen);
+
+    const dataArray = [];
+    const headers = [];
+    const uniqueKeys = new Set();
+    json.forEach(obj => {
+        // Iterate over the keys and values of each user's data
+        Object.keys(obj).forEach(key => {
+            // Check if the key is not already present in the uniqueKeys set
+            if (!uniqueKeys.has(key)) {
+                // If not, push the key to the headers array and add it to the uniqueKeys set
+                headers.push({ name: key });
+                uniqueKeys.add(key);
+            }
+        });
+
+        // Initialize an array to store user data
+        const tempArray = Object.values(obj);
+
+        // Push the tempArray to the dataArray
+        dataArray.push(tempArray);
+    });
+
+    const tableHeaders = headers.map(column => ({
         title: column.name
         //data: column.name
     }));
-    /*
-    json = json.map(row => {
-        const obj = {};
-        row.forEach((value, index) => {
-            obj[tableHeaders[index].data] = value;
-        });
-        return obj;
-    });
-    
-    json.forEach(row => {
-        parsedLog.push(row);
-    });
-    */
+
     // Create the table and add data
     const table = $(`#${skeletonId}`).DataTable({
         ordering: true,
-        data: json,
+        data: dataArray,
         columns: tableHeaders,
         paging: true,
         pagingType: 'full_numbers',
@@ -416,31 +431,23 @@ const drawDataGridFromData = (json, skeletonId, columnArray) => {
             "targets": "_all",
             "createdCell": function (td, cellData, rowData, row, col) {
                 // Apply the common class names for each table cell
-                $(td).addClass('py-4 px-6 border border-gray-400 max-w-md break-words');
+                $(td).addClass('py-4 px-6 border border-slate-400');
                 // Let's deal with long text and truncate it so it doesn't make our table extremely long
                 if (td.innerHTML.length > 60) {
                     $(td).addClass('truncate');
                     $(td).addClass('overflow-hidden');
-                    $(td).addClass('max-w-2xl');
+                    //$(td).addClass('max-w-2xl');
                     // And here only show 60 cahracters of the text
                     $(td).text(decodeHTMLEntities(cellData).substring(0, 120) + '...');
                     // Add the full text as a title so it's visible on hover
                     $(td).attr('title', decodeHTMLEntities(cellData));
                 } else {
-                    // If we detect that cellData is an IP address, let's surround it with a link to the IP address page
-                    const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
-                    const ipv6Regex = /^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/;
-                    if (ipv4Regex.test(cellData) || ipv6Regex.test(cellData)) {
-                        $(td).html(`<a class="underline" target="_blank" href="/dashboard/tools/ip-address?ip=${cellData}">${cellData}</a>`);
-                    } else {
-                        // Sanitize all the cellData as it's WAF logs so it can contain malicious code
-                        $(td).text(decodeHTMLEntities(cellData));
-                    }
+                    $(td).text(decodeHTMLEntities(cellData));
                 }
             }
         }],
         initComplete: function () {
-            document.getElementById('loading-screen').remove();
+            document.getElementById(loadingScreen.id).remove();
         }
     });
 
@@ -461,13 +468,10 @@ const drawDataGridFromData = (json, skeletonId, columnArray) => {
  *
  * @param {DataTable} table - The DataTable instance.
  * @param {string} tableId - The ID of the table element.
- * @param {Array} columnSkipArray - An array of column indexes to skip.
+ * @param {Array} columnSkipArray - An optional array of column indexes to skip.
+ * @returns {void} - Creates the DataTable filters. Does not return a value.
  */
-const buildDataGridFilters = (table, tableId, columnSkipArray) => {
-    // First check if columnSkipArray is passed and if not set it to empty array
-    if (!columnSkipArray) {
-        columnSkipArray = [];
-    }
+const buildDataGridFilters = (table, tableId, columnSkipArray = []) => {
     // Loop through each column of the DataTable
     table.columns().every(function (col) {
         if (columnSkipArray.includes(col)) {
@@ -476,7 +480,7 @@ const buildDataGridFilters = (table, tableId, columnSkipArray) => {
         const column = table.column(this, { search: 'applied' }); // Get the DataTable column object
 
         // Create a select element and append it to the appropriate table header cell. (1) in this case is the 2nd thead so it doesn't do it on the first where the column names are
-        const select = $('<select class="text-center m-1 p-1 text-sm text-gray-900 border border-gray-300 rounded bg-gray-50 focus:ring-gray-500 focus:border-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-gray-500 dark:focus:border-gray-500"><option value="">No filter</option></select>')
+        const select = $(`<select class="text-center m-1 p-1 text-sm text-gray-900 border border-${theme}-300 rounded bg-gray-50 focus:ring-${theme}-500 focus:border-${theme}-500 dark:bg-gray-700 dark:border-${theme}-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-${theme}-500 dark:focus:border-${theme}-500"><option value="">No filter</option></select>`)
             .appendTo($(`#${tableId} thead tr:eq(1) th`).eq(column.index()).empty())
             .on('change', function () {
                 const val = $.fn.dataTable.util.escapeRegex(
@@ -489,18 +493,25 @@ const buildDataGridFilters = (table, tableId, columnSkipArray) => {
             });
 
         // Calculate the maximum width for the select options
-        const maxOptionWidth = Math.min(
+        let maxOptionWidth = Math.min(
             $(column.header()).outerWidth() || select.width(),
             150
         ); // You can adjust the maximum width as needed
+        if (maxOptionWidth < 150) {
+            maxOptionWidth = 150;
+        }
 
         // Iterate through the unique values in the column, create options for the select element
         column.data().unique().sort().each(function (d, j) {
             if (d !== null) {
-                // Truncate long select fields and add a title for hover
                 let optionText = d;
-                if (optionText.length > maxOptionWidth / 2) {
-                    optionText = optionText.substring(0, maxOptionWidth / 2) + '...';
+                if (optionText.length > maxOptionWidth / 2)  {
+                    if (optionText.length > maxOptionWidth / 2) {
+                        // Truncate the option text if it's longer than the maxOptionWidth
+                        optionText = optionText.substring(0, maxOptionWidth / 2) + '...';
+                    } else {
+                        optionText = optionText + '...';
+                    }
                 }
                 // Append the option with the selected attribute if necessary
                 select.append(`<option value="${d}" title="${d}">${optionText}</option>`);
@@ -528,78 +539,34 @@ const buildDataGridFilters = (table, tableId, columnSkipArray) => {
             select.addClass('dark:border-red-500');
         }
 
+        $(`#${tableId} thead`).addClass('bg-gray-300 dark:bg-gray-600 sticky top-0 dark:text-gray-300 border-collapse');
+
+        $(`#${tableId} thead tr:eq(0) th`).addClass('p-2');
+        $(`#${tableId} thead tr:eq(0) th`).addClass('border');
+        $(`#${tableId} thead tr:eq(0) th`).addClass('border-slate-400');
+        
         $(`#${tableId} thead tr:eq(1) th`).addClass('p-4');
         $(`#${tableId} thead tr:eq(1) th`).addClass('border');
         $(`#${tableId} thead tr:eq(1) th`).addClass('border-slate-400');
+
     });
-};
+}
 
-const buildDataGridFiltersData = (table, tableId) => {
-    const filtersRow = $(`#${tableId} thead tr:eq(1)`); // Get the second row in the thead
+const createSkeletonTable = () => {
+    // First decide the random ID
+    const skeletonId = generateUniqueId(4);
+    // Create the skeleton table
+    const table = document.createElement('table');
+    table.id = skeletonId;
+    // Add some classes to the table
+    table.classList.add('table-auto', 'mt-6', 'text-gray-700', 'dark:text-gray-400', 'border-collapse', 'border', 'border-slate-400', 'text-center');
+    return table;
+}
 
-    // Clear existing filters by emptying the filter cells
-    filtersRow.find('tr').empty();
-
-    // Loop through each column of the DataTable
-    table.columns().every(function (col) {
-        const column = table.column(this, { search: 'applied' }); // Get the DataTable column object
-
-        const filterCell = filtersRow.find('th').eq(column.index());
-        filterCell.html(''); // Clear existing content
-
-        // Create a select element and set it as the HTML content of the table header cell
-        const select = $('<select class="max-w-sm text-center m-1 p-1 text-sm text-gray-900 border border-gray-300 rounded bg-gray-50 focus:ring-gray-500 focus:border-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-gray-500 dark:focus:border-gray-500" title="filter"><option value="">No filter</option></select>')
-            .appendTo(filterCell)
-            .on('change', function () {
-                const val = $.fn.dataTable.util.escapeRegex(
-                    $(this).val()
-                );
-
-                // Apply the selected filter value to the column and redraw the table
-                column
-                    .search(val ? '^' + val + '$' : '', true, false)
-                    .draw();
-            });
-
-        // Calculate the maximum width for the select options
-        const maxOptionWidth = Math.min(
-            $(column.header()).outerWidth() || select.width(),
-            150
-        ); // You can adjust the maximum width as needed
-
-        // Iterate through the unique values in the column, create options for the select element
-        column.data().unique().sort().each(function (d, j) {
-            if (d !== null) {
-                // Truncate long select fields and add a title for hover
-                let optionText = d;
-                if (optionText.length > maxOptionWidth / 2) {
-                    console.log(`options length ${optionText.length}`);
-                    optionText = optionText.substring(0, maxOptionWidth / 2) + '...';
-                }
-                // Append the option with the selected attribute if necessary
-                select.append(`<option value="${d}" title="${optionText}">${optionText}</option>`);
-            }
-        });
-
-        // Repopulate the select element based on the current search filter
-        const currSearch = column.search();
-        if (currSearch) {
-            const searchValue = currSearch.substring(1, currSearch.length - 1);
-            select.val(searchValue); // Set the selected value
-
-            // Loop through the options and set the 'selected' attribute explicitly for the matched option
-            select.find('option').each(function () {
-                const optionValue = $(this).val();
-                // We need to replace the special characters from searchValue as searchValue comes with escaped special characters from column.search(). We want to apply the selected prop for the currently selected option so it's visible what has been filtered right now
-                if (optionValue === searchValue.replace(/\\/g, '')) {
-                    $(this).prop('selected', true);
-                } else {
-                    $(this).prop('selected', false);
-                }
-            });
-
-            select.addClass('border-red-500');
-            select.addClass('dark:border-red-500');
-        }
-    });
-};
+const tableLoadingScreen = (tableId) => {
+    const loadingScreen = document.createElement('div');
+    loadingScreen.id = `${tableId}-loading-table`;
+    loadingScreen.classList.add('m-4', 'bg-gray-500', 'h-10', 'w-full', 'text-center', 'text-white');
+    loadingScreen.innerHTML = `Data Loading... Please wait<svg class="inline mx-4 w-8 h-8 text-gray-200 dark:text-white animate-spin fill-blue-600 dark:fill-gray-500" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg>`;
+    return loadingScreen;
+}

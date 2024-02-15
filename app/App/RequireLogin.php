@@ -13,14 +13,18 @@ class RequireLogin
     public static function check()
     {
         $loginExempt = [
-        '/',
-        '/docs',
-        '/docs/*',
-        '/csp-report',
-        '/register',
-        '/auth-verify',
-        '/api/user',
-        '/install'];
+            '/',
+            '/docs',
+            '/docs/*',
+            '/csp-report',
+            '/register',
+            '/auth-verify',
+            '/api/user',
+            '/install',
+            '/charts',
+            '/forms',
+            '/datagrid'
+        ];
         
         $loggedIn = false;
 

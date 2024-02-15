@@ -192,6 +192,16 @@ if (autoLoadParams.length > 0) {
         if (type === 'linechart') {
             createLineChart(data.title, data.parentDiv, data.width, data.height, data.labels, data.datasets);
         }
+        if (type === 'table') {
+            // Create a table element
+            const table = createSkeletonTable();
+            // Add to parentDiv
+            document.getElementById(value.parentDiv).appendChild(table);
+            // Create the DataGrid table object
+            const dataGridTable = drawDataGridFromData(data, table.id);
+            // And the filters
+            buildDataGridFilters(dataGridTable, table.id);
+        }
     })
 }
 

@@ -9,7 +9,9 @@ echo Html::p('This is a forms page. Here is how we can use the form abilities bu
 
 echo Html::h2('Form example');
 
-$inputFieldFormOptions = [
+echo HTML::p('This is a sample form array to render a form with the least amount of options. It only produces a button and a hidden input field, suitable for button click actions.');
+
+$formOptions = [
     'inputs' => [
         'hidden' => [
             [
@@ -25,10 +27,10 @@ $inputFieldFormOptions = [
     ]
 ];
 
-echo Forms::render($inputFieldFormOptions);
+echo Forms::render($formOptions);
 
 echo HTML::code('
-$inputFieldFormOptions = [
+$formOptions = [
     "inputs" => [
         "hidden" => [
             [
