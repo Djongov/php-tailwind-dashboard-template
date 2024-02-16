@@ -8,28 +8,25 @@ class Html
 {
     public static function h1($text, $center = false, $classes = [])
     {
+        if ($center) {
+            array_push($classes, 'text-center');
+        }
         if (empty($classes)) {
-            if ($center) {
-                $class = ' text-center';
-            } else {
-                $class = '';
-            }
-            return '<h1 class="mx-2 my-2 text-3xl md:text-4xl lg:text-5xl font-bold leading-none tracking-tight text-gray-900 dark:text-white' . $class . '">' . $text . '</h1>';
+            return '<h1 class="mx-2 my-2 text-3xl md:text-4xl lg:text-5xl font-bold leading-none tracking-tight text-gray-900 dark:text-white">' . $text . '</h1>';
         } else {
-            return '<h1 class="' . $classes . '">' . $text . '</h1>';
+            return '<h1 class="mx-2 my-2 text-3xl md:text-4xl lg:text-5xl font-bold leading-none tracking-tight text-gray-900 dark:text-white ' . implode(' ', $classes) . '">' . $text . '</h1>';
         }
     }
     public static function h2($text, $center = false, $classes = [])
     {
+        if ($center) {
+            array_push($classes, 'text-center');
+        }
+
         if (empty($classes)) {
-            if ($center) {
-                $class = ' text-center';
-            } else {
-                $class = '';
-            }
-            return '<h2 class="mx-2 my-2 text-2xl md:text-3xl lg:text-4xl font-bold leading-none tracking-tight text-gray-900 dark:text-white' . $class . '">' . $text . '</h2>';
+            return '<h2 class="mx-2 my-2 text-2xl md:text-3xl lg:text-4xl font-bold leading-none tracking-tight text-gray-900 dark:text-white">' . $text . '</h2>';
         } else {
-            return '<h2 class="' . $classes . '">' . $text . '</h2>';
+            return '<h2 class="mx-2 my-2 text-2xl md:text-3xl lg:text-4xl font-bold leading-none tracking-tight text-gray-900 dark:text-white ' . implode(' ', $classes) . '">' . $text . '</h2>';
         }
     }
     public static function h3($text, $center = false, $classes = [])

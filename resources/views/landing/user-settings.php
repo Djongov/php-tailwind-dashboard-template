@@ -4,6 +4,33 @@ use App\General;
 use Template\Forms;
 use Template\Html;
 use Authentication\JWT;
+use Api\User;
+
+$user = new User();
+
+/* Profile picture update logic */
+$token = JWT::parseTokenPayLoad($_COOKIE[AUTH_COOKIE_NAME]);
+// This is mostly Google
+if (!empty($usernameArray['picture']) && isset($token['picture'])) {
+    $picture = $usernameArray['picture'];
+    // Checkl the picture from the JWT token, it might be updated
+    $token = JWT::parseTokenPayLoad($_COOKIE[AUTH_COOKIE_NAME]);
+    if ($picture !== $token['picture']) {
+        $picture = $token['picture'];
+        // Save the picture to the user
+        $user->update(['picture' => $picture], $usernameArray['id'], false);
+    }
+} elseif ($usernameArray['picture'] === null) {
+    // If no picture is set, use the ui-avatars.com service to generate a picture
+    $picture = 'https://ui-avatars.com/api/?name=' . $usernameArray['name'] . '&background=0D8ABC&color=fff';
+    // Save the picture to the user
+    $user->update(['picture' => $picture], $usernameArray['id'], false);
+}else {
+    // If no picture is set, use the ui-avatars.com service to generate a picture
+    $picture = 'https://ui-avatars.com/api/?name=' . $usernameArray['name'] . '&background=0D8ABC&color=fff';
+    // Save the picture to the user
+    $user->update(['picture' => $picture], $usernameArray['id'], false);
+}
 
 $allowed_themes = ['amber', 'green', 'stone', 'rose', 'lime', 'teal', 'sky', 'purple', 'red', 'fuchsia', 'indigo'];
 
