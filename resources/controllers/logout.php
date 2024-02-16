@@ -9,12 +9,12 @@ if (!isset($usernameArray['provider']) || empty($usernameArray['provider'])) {
     exit;
 }
 // Redirect to root page if provider is local
-if ($usernameArray['provider'] === 'local') {
+if ($usernameArray['provider'] === 'local' || $usernameArray['provider'] === 'google') {
     header('Location: /');
     exit;
 }
 // Send to AzureAD logout URL if provider is AzureAD
 if ($usernameArray['provider'] === 'azure') {
-    header('Location: ' . LOGOUT_BUTTON_URL);
+    header('Location: ' . AZURE_AD_LOGOUT_BUTTON_URL);
     exit;
 }

@@ -7,9 +7,120 @@ use Api\Checks;
 use App\General;
 use Api\User;
 use Authentication\JWT;
+use Authentication\Google;
+use Google\Client;
 
+// Let's decide whether the connection is over HTTP or HTTPS (later for setting up the cookie)
+$secure = (str_contains($_SERVER['HTTP_HOST'], 'localhost') || str_contains($_SERVER['HTTP_HOST'], '[::1]')) ? false : true;
 // First decide where the auth request is coming from, Azure, local login
+// If the request is a GET it must be coming from Google
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    if (!isset($_GET['code'])) {
+        Output::error('Invalid request', 400);
+    }
+    $state = $_GET['state'];
+    //$nonce = $_GET['nonce'];
+    $code = $_GET['code'];
 
+    if (str_contains($state, 'auth-verify') || str_contains($state, 'logout')) {
+        // If the state is /auth-verify or /logout, we need to set the state to /
+        $state = '/';
+    }
+    $client = new Client();
+
+    $client->setClientId(GOOGLE_CLIENT_ID);
+    $client->setClientSecret(GOOGLE_CLIENT_SECRET);
+    $client->setRedirectUri('https://' . $_SERVER['HTTP_HOST'] . '/auth-verify');
+    $client->addScope("email");
+    $client->addScope("profile");
+    $client->addScope("openid");
+    $client->setPrompt('select_account consent');
+    $client->setAccessType('offline');
+    // Set the state too
+    $client->setState($destination);
+    // Set nonce
+    $client->setLoginHint($google_nonce);
+    $client->setHttpClient(new \GuzzleHttp\Client(['verify' => CURL_CERT, 'timeout' => 60, 'http_errors' => false]));
+    // Exchange the code for an access token
+    $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
+    
+    if (isset($token['error']) && !isset($token['access_token'])) {
+        Output::error('Google Error: ' . $token['error_description'], 200);
+    }
+
+    $accessToken = $client->getAccessToken();
+
+    $idToken = $accessToken['id_token'];
+
+    // We are not going to use ['access_token'] as we are only using this for authentication
+
+    // verify the id token
+    if (!Google::verifyIdToken($idToken)) {
+        Output::error('Invalid token', 400);
+    }
+
+    $idTokenArray = JWT::parseTokenPayLoad($idToken);
+
+    $user = new User();
+
+    if ($user->existByUsername($idTokenArray['email'])) {
+        // User exists, let's update the last login
+        $user->recordLastLogin($idTokenArray['email']);
+    } else {
+        // User does not exist, let's create it (this will also update the last login)
+        $user->createGoogleUser($idTokenArray);
+    }
+
+    setcookie(AUTH_COOKIE_NAME, $idToken, [
+        'expires' => $idTokenArray['exp'] + 86400,
+        'path' => '/',
+        'domain' => str_replace(strstr($_SERVER['HTTP_HOST'], ':'), '', $_SERVER['HTTP_HOST']), // strip : from HOST in cases where localhost:8080 is used
+        'secure' => $secure, // This needs to be true for most scenarios, we leave the option to be false for local environments
+        'httponly' =>  true, // Prevent JavaScript from accessing the cookie
+        'samesite' => 'Lax' // This unlike the session cookie can be Lax
+    ]);
+
+    $destinationUrl = '/';
+
+    if (str_contains($destinationUrl, 'login') || str_contains($destinationUrl, 'auth-verify') || str_contains($destinationUrl, 'logout')) {
+        // Invalid destination or state, set a default state
+        $destinationUrl = '/';
+    }
+
+    header("Location: " . filter_var($destinationUrl, FILTER_SANITIZE_URL));
+    exit();
+
+    /* Instead of using the oauth client, we will get the data from the token */
+    /*
+    $client->setAccessToken($token['access_token']);
+
+    $oauth2 = new \Google\Service\Oauth2($client);
+
+    $userInfo = $oauth2->userinfo->get();
+
+    $name = $userInfo->name;
+
+    $profileImage = $userInfo->picture;
+
+    $email = $userInfo->email;
+
+    $country = $userInfo->locale;
+
+    $verifiedEmail = $userInfo->verified_email;
+    
+
+    $accessToken = $client->getAccessToken();
+    $user = new User();
+
+    if ($user->existByUsername($email)) {
+        // User exists, let's update the last login
+        $user->recordLastLogin($email);
+    } else {
+        // User does not exist, let's create it (this will also update the last login)
+        $user->createGoogleUser();
+    }
+    */
+}
 // If the request is coming from Azure, we should have a $_POST['id_token'] and a $_POST['state'] variable
 if (isset($_POST['id_token'], $_POST['state']) || isset($_POST['error'], $_POST['error_description'])) {
     // if error - throw it as an exception
@@ -27,8 +138,6 @@ if (isset($_POST['id_token'], $_POST['state']) || isset($_POST['error'], $_POST[
     if (!isset($idTokenArray['preferred_username'], $idTokenArray['name'], $idTokenArray['roles'], $idTokenArray['exp'])) {
         Output::error('Invalid token claims', 400);
     }
-    // Let's decide whether the connection is over HTTP or HTTPS (later for setting up the cookie)
-    $secure = (str_contains($_SERVER['HTTP_HOST'], 'localhost') || str_contains($_SERVER['HTTP_HOST'], '[::1]')) ? false : true;
     // Let's call the function to check the JWT token which is returned. We are checking stuff like expiration, issuer, app id. We also do validation of the token signature
     if (AzureAD::check($idToken)) {
         // Let's set the "auth_cookie" and put the id token as it's value, set the expiration date to when the token should expire and the rest of the cookie settings

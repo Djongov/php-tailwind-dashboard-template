@@ -83,6 +83,8 @@ class JWT
         // Extract the header and payload from the JWT
         $base64UrlHeader = $jwtParts[0];
         $base64UrlPayload = $jwtParts[1];
+        // Also the signature
+        $signature = $jwtParts[2];
 
         // Decode the base64url-encoded header and payload
         $header = General::base64url_decode($base64UrlHeader);
@@ -95,7 +97,8 @@ class JWT
 
         return [
             json_decode($header, true),
-            json_decode($payload, true)
+            json_decode($payload, true),
+            $signature
         ];
     }
     // A method to validate a token that's been signed with our private key
@@ -170,6 +173,9 @@ class JWT
         if (isset($payload['exp'], $payload['nbf'])) {
             // If the token is expired or not yet valid, return false
             return ($payload['exp'] < time() || $payload['nbf'] > time()) ? false : true;
+        // Google ID token doesn't have nbf
+        } elseif (isset($payload['exp'])) {
+            return ($payload['exp'] < time()) ? false : true;
         } else {
             return false;
         }
@@ -196,6 +202,9 @@ class JWT
             return $payload['username'];
         } elseif (isset($payload['preferred_username'])) {
             return $payload['preferred_username'];
+        // Google ID token doesn't have preferred_username
+        } elseif(isset($payload['email'])) {
+            return $payload['email'];
         } else {
             return '';
         }

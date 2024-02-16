@@ -69,6 +69,48 @@ class User
             Output::error('User creation failed', 400);
         }
     }
+    public function createGoogleUser(array $data)
+    {
+        // $data is the contents of the JWT token, so we need to do some transformations before we can use it
+        $insertData = [];
+        // usernames comes as preferred_username in the JWT token
+        $insertData['username'] = $data['email'] ?? Output::error('Missing email in token', 400);
+        // Prepare the email, if it's not present in the JWT token, use the username
+        $insertData['email'] = $data['email'];
+        // Name comes as name in the JWT token
+        $insertData['name'] = $data['name'] ?? Output::error('Missing name in token', 400);
+        // Last IPs comes as ipaddr in the JWT token, if it's not present, use the current IP
+        $insertData['last_ips'] = General::currentIP();
+        // If JWT has a claim called 'ctry' take it, otherwise take the browser language
+        $insertData['origin_country'] = (isset($data['locale'])) ? $data['locale'] : substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+        // Role comes as an array of roles in the JWT token, we only need the first one
+        $insertData['role'] = $data['roles'][0] ?? 'user';
+        // Theme is set to the default color scheme
+        $insertData['theme'] = COLOR_SCHEME;
+        $insertData['picture'] = $data['picture'] ?? null;
+        $insertData['provider'] = 'google';
+        $insertData['enabled'] = 1;
+
+        $allowedData = ['username', 'email', 'name', 'last_ips', 'origin_country', 'role', 'theme', 'provider', 'enabled'];
+
+        $checks = new Checks($allowedData, $insertData);
+
+        $checks->checkParams($allowedData, $insertData);
+
+        MYSQL::checkDBColumnsAndTypes($insertData, 'users');
+
+        if ($this->existByUsername($insertData['username'])) {
+            Output::error('Username already taken', 409);
+        }
+
+        $createUser = MYSQL::queryPrepared('INSERT INTO `users`(`username`, `email`, `name`, `last_ips`, `origin_country`, `role`, `last_login`, `theme`, `picture`, `provider`, `enabled`) VALUES (?,?,?,?,?,?,NOW(),?,?,?,?)', array_values($insertData));
+
+        if ($createUser->affected_rows === 1) {
+            echo Output::success('User created');
+        } else {
+            Output::error('User creation failed', 400);
+        }
+    }
     public function createLocalUser(array $data) : void
     {
 
@@ -131,10 +173,14 @@ class User
         $user = MYSQL::queryPrepared('SELECT * FROM `users` WHERE `id`=?', [$id]);
         return ($user->num_rows > 0) ? true : false;
     }
-    public function update(array $data, string $id)
+    public function update(array $data, string $id, bool $apiResponse = true)
     {
         if (!$this->existById($id)) {
-            Output::error('User not found', 404);
+            if ($apiResponse) {
+                Output::error('User not found', 404);
+            } else {
+                return false;
+            }
         }
 
         MYSQL::checkDBColumnsAndTypes($data, 'users');
@@ -159,11 +205,18 @@ class User
         $update_user = MYSQL::queryPrepared($sql, $values);
 
         if ($update_user->affected_rows === 0) {
-            echo Output::error('Nothing updated', 409);
+            if ($apiResponse) {
+                echo Output::error('Nothing updated', 409);
+            } else {
+                return false;
+            }
         } else {
-            echo Output::success('User updated');
+            if ($apiResponse) {
+                echo Output::success('User updated');
+            } else {
+                return true;
+            }
         }
-
     }
     public function recordLastLogin(string $username) : bool
     {

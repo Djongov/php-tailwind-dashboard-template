@@ -34,15 +34,13 @@ class Html
     }
     public static function h3($text, $center = false, $classes = [])
     {
+        if ($center) {
+            array_push($classes, 'text-center');
+        }
         if (empty($classes)) {
-            if ($center) {
-                $class = ' text-center';
-            } else {
-                $class = '';
-            }
-            return '<h3 class="mx-2 my-2 text-xl font-bold dark:text-white break-all' . $class . '">' . $text . '</h3>';
+            return '<h3 class="mx-2 my-2 text-xl font-bold dark:text-white break-all">' . $text . '</h3>';
         } else {
-            return '<h3 class="' . $classes . '">' . $text . '</h3>';
+            return '<h3 class="mx-2 my-2 text-xl font-bold dark:text-white break-all ' . implode(' ', $classes) . '">' . $text . '</h3>';
         }
     }
     public static function h4($text, $center = false, $classes = [])

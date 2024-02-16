@@ -52,6 +52,7 @@ return function (RouteCollector $router) {
     
     // Auth verify page
     $router->addRoute('POST', '/auth-verify', [$contollers_folder . '/auth-verify.php']);
+    $router->addRoute('GET', '/auth-verify', [$contollers_folder . '/auth-verify.php']);
     // Logout page
     $router->addRoute('GET', '/logout', [$contollers_folder . '/logout.php']);
     // CSP report endpoiont

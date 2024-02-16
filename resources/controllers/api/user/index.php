@@ -90,9 +90,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
         exit();
     }
 
-    // Let's catch php input stream
-    $data = Checks::jsonBody();
-
     // Also the router info should bring us the id
     if (!isset($routeInfo[2]['id'])) {
         echo Output::error('Missing user id', 400);

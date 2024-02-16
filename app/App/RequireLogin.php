@@ -5,6 +5,7 @@ namespace App;
 use Database\MYSQL;
 use Authentication\AzureAD;
 use Authentication\JWT;
+use Authentication\Google;
 use Api\Output;
 use Logs\SystemLog;
 
@@ -57,6 +58,13 @@ class RequireLogin
 
             // Now check if the issuer is the AzureAD endpoint
             if (str_starts_with($tokenPayload['iss'], 'https://login.microsoftonline.com/')) {
+                // Check if expired
+                if (!JWT::checkExpiration($_COOKIE[AUTH_COOKIE_NAME])) {
+                    // unse the cookie but do not return false, we want to redirect to MS login to get a new token
+                    JWT::handleValidationFailure();
+                    header('Location:' . AZURE_AD_LOGIN_BUTTON_URL);
+                    exit();
+                }
                 // Check if valid
                 if (AzureAD::check($_COOKIE[AUTH_COOKIE_NAME])) {
                     $provider = 'azure';
@@ -68,13 +76,32 @@ class RequireLogin
                     exit();
                 }
             }
+            // Now check Google
+            if ($tokenPayload['iss'] === 'https://accounts.google.com') {
+                if (!JWT::checkExpiration($_COOKIE[AUTH_COOKIE_NAME])) {
+                    // unse the cookie but do not return false, we want to redirect to MS login to get a new token
+                    JWT::handleValidationFailure();
+                    header('Location:' . GOOGLE_LOGIN_BUTTON_URL);
+                    exit();
+                }
+                if (Google::check($_COOKIE[AUTH_COOKIE_NAME])) {
+                    $provider = 'google';
+                    $loggedIn = true;
+                } else {
+                    // If checks for JWT token fail - unset cookie and redirect to /login
+                    JWT::handleValidationFailure();
+                    header('Location: /login?destination=' . $_SERVER['REQUEST_URI']);
+                    exit();
+                }
+            }
+
         } else {
             // Redirect to /login but preserve the destination if auth_cookie is missing
             /*
                 Do not redirect to /login if uri is in the list or exempt urls
                 !str_contains($_SERVER['REQUEST_URI'], '/login') is to prevent infinite redirects
             */
-            if (!General::matchRequestURI($loginExempt) && !str_contains($_SERVER['REQUEST_URI'], '/login')) {
+            if (!General::matchRequestURI($loginExempt) && !str_contains($_SERVER['REQUEST_URI'], '/login') && !str_contains($_SERVER['REQUEST_URI'], '/auth-verify')) {
                 header('Location: /login?destination=' . $_SERVER['REQUEST_URI']);
                 exit();
             }
@@ -110,8 +137,29 @@ class RequireLogin
             $usernameArray = $tokenPayload;
             $idTokenInfoArray = $tokenPayload;
         }
-        
 
+        // Now Google
+        if ($loggedIn && isset($_COOKIE[AUTH_COOKIE_NAME]) && $provider === 'google') {
+            $authCookieArray = $tokenPayload;
+            $expectedClaims = [
+                'username' => 'email',
+                'email' => 'email',
+                'name' => 'name',
+                'last_ip' => 'ipaddr',
+                'country' => 'locale',
+                'picture' => 'picture'
+            ];
+            foreach ($expectedClaims as $dbClaimName => $JWTClaimName) {
+                $idTokenInfoArray[$dbClaimName] = isset($authCookieArray[$JWTClaimName]) ? $authCookieArray[$JWTClaimName] : null;
+            }
+            // Now the special ones
+            $idTokenInfoArray["token_expiry"] = isset($authCookieArray['exp']) ? date("Y-m-d H:i:s", substr($authCookieArray['exp'], 0, 10)) : null;
+            // If roles is not set, we set it to user, otherwise we set it to the roles array
+            $idTokenInfoArray["roles"] = (isset($authCookieArray['roles'])) ? $authCookieArray['roles'] : ['user'];
+            // Now we search for the administrator role as role is an array of roles
+
+            $username = ($loggedIn) ? $idTokenInfoArray["username"] : null;
+        }
         // If we are logged in and we have an established username, we need to either fetch user data from the DB or create a new user in the DB
         if ($username !== null) {
             $userResult = MYSQL::query("SELECT * FROM `users` WHERE `username` = '$username'");

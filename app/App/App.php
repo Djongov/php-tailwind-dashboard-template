@@ -76,7 +76,6 @@ class App
 
             case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
                 $allowedMethods = $routeInfo[1];
-                var_dump($routeInfo);
                 // Handle 405 Method Not Allowed
                 Output::error('Method not allowed. Allowed methods are: ' . implode(',', $allowedMethods), 405);
                 break;
