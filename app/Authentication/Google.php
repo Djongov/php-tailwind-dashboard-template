@@ -8,6 +8,8 @@ use Api\Output;
 use App\General;
 use Google\Client;
 use Authentication\X5CHandler;
+use Authentication\TokenCache;
+use Logs\SystemLog;
 
 class Google
 {
@@ -32,13 +34,43 @@ class Google
             }
         }
     }
+    public static function checkTokenIntegrity(string $idToken)
+    {
+        $tokenParts = JWT::parse($idToken);
+        // We are expecting 3 parts
+        if (count($tokenParts) !== 3) {
+            return false;
+        }
+
+        // Extract the header and payload from the JWT
+        $header = $tokenParts[0];
+        $payload = $tokenParts[1];
+        $signature = $tokenParts[2];
+
+        // Header must have an iss, aud, typ
+        if (!isset($header['alg'], $header['kid'], $header['typ'])) {
+            return false;
+        }
+
+        // Payload must have an iss, sub, aud, exp, iat
+        if (!isset($payload['iss'], $payload['sub'], $payload['aud'], $payload['exp'], $payload['iat'])) {
+            return false;
+        }
+
+        // Signature must be present
+        if (empty($signature)) {
+            return false;
+        }
+        return true;
+
+    }
     public static function verifyIdToken(string $idToken)
     {
-        $idTokenArray = JWT::parse($idToken);
+        $payload = JWT::parseTokenPayLoad($idToken);
 
-        $header = $idTokenArray[0];
-        $payload = $idTokenArray[1];
-        $base64UrlSignature = $idTokenArray[2];
+        if (!self::checkTokenIntegrity($idToken)) {
+            return false;
+        }
 
         // Check the claims we need and if they are present
         $expectedClaims = ['email', 'name', 'exp', 'iat', 'iss', 'aud'];
@@ -63,9 +95,42 @@ class Google
             return false;
         }
 
-        $client = new Client(['client_id' => GOOGLE_CLIENT_ID]);
-        $client->setHttpClient(new \GuzzleHttp\Client(['verify' => CURL_CERT, 'timeout' => 60, 'http_errors' => false]));
-        $payload = $client->verifyIdToken($idToken);
+        // We don't want to verify the signature on every request as it's expensive, it calls the Google verification endpoint so it adds delay. So we will only be verifying once and if for the duration of the token (1h) and if the token is still valid, we will be using the cached token. We will be using the email as the unique property to store the token in the cache.
+
+        // If the token is not in the token cache, we will verify it
+        if (!TokenCache::exist($payload['email'])) {
+            // Verify the token
+            $client = new Client(['client_id' => GOOGLE_CLIENT_ID]);
+            $client->setHttpClient(new \GuzzleHttp\Client(['verify' => CURL_CERT, 'timeout' => 60, 'http_errors' => false]));
+            $payload = $client->verifyIdToken($idToken);
+            // If token is not valid, return false
+            if (!$payload) {
+                JWT::handleValidationFailure();
+                exit();
+            }
+            // Save the token in the cache
+            TokenCache::save($idToken);
+            SystemLog::write('Token for '. $payload['email'] . ' verified and saved', 'Google Auth');
+            echo 'Token verified and saved';
+        } else {
+            // If it exists, let's check if it's the same token, if not we will save it
+            //echo 'Pulling token';
+            $cachedToken = TokenCache::get(JWT::parseTokenPayLoad($idToken)['email']);
+            // Let's check if the expiration time of the token is different from the cached one, if not we need to update it, however the expiration in the cached token needs to eb converted to timestamp
+            $dbExpirationDatetime = new \DateTime($cachedToken['expiration'], new \DateTimeZone('UTC'));
+            $cachedTokenExpiration = $dbExpirationDatetime->getTimestamp();
+            // Check if the Token's expiration is different from the cached one
+            $tokenExpiration = JWT::parseTokenPayLoad($idToken)['exp'];
+            if ($tokenExpiration !== $cachedTokenExpiration) {
+                // Replace the token with the current one but verify it first
+                $client = new Client(['client_id' => GOOGLE_CLIENT_ID]);
+                $client->setHttpClient(new \GuzzleHttp\Client(['verify' => CURL_CERT, 'timeout' => 60, 'http_errors' => false]));
+                $payload = $client->verifyIdToken($idToken);
+                TokenCache::update($idToken, JWT::parseTokenPayLoad($idToken)['email']);
+                SystemLog::write('Token updated because there was a different between token expiration (' . $tokenExpiration . ') and cached token expiration (' . $cachedTokenExpiration . ')', 'Google Auth');
+                echo 'Token updated';
+            }
+        }
 
         if (!$payload) {
             return false;
@@ -115,11 +180,14 @@ class Google
     {
         $expiration = JWT::checkExpiration($idToken);
         if (!$expiration) {
-            Output::error('Token expired', 400);
-            return false;
+            JWT::handleValidationFailure();
+            header('Location:' . GOOGLE_LOGIN_BUTTON_URL);
+            exit();
         }
         $check = self::verifyIdToken($idToken);
         if (!$check) {
+            SystemLog::write('Token verification failed for ' . JWT::parseTokenPayLoad($idToken)['email'], 'Google Auth');
+            JWT::handleValidationFailure();
             Output::error('Invalid token', 400);
             return false;
         }

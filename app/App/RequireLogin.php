@@ -78,19 +78,13 @@ class RequireLogin
             }
             // Now check Google
             if ($tokenPayload['iss'] === 'https://accounts.google.com') {
-                if (!JWT::checkExpiration($_COOKIE[AUTH_COOKIE_NAME])) {
-                    // unse the cookie but do not return false, we want to redirect to MS login to get a new token
-                    JWT::handleValidationFailure();
-                    header('Location:' . GOOGLE_LOGIN_BUTTON_URL);
-                    exit();
-                }
                 if (Google::check($_COOKIE[AUTH_COOKIE_NAME])) {
                     $provider = 'google';
                     $loggedIn = true;
                 } else {
                     // If checks for JWT token fail - unset cookie and redirect to /login
                     JWT::handleValidationFailure();
-                    header('Location: /login?destination=' . $_SERVER['REQUEST_URI']);
+                    header('Location: /login');
                     exit();
                 }
             }
@@ -186,6 +180,10 @@ class RequireLogin
                 if ($role === 'administrator' && $usernameArray['role'] === 'administrator') {
                     $isAdmin = true;
                 }
+            }
+            // Also if the DB says admin, add admin
+            if ($usernameArray['role'] === 'administrator') {
+                $isAdmin = true;
             }
             // And if DB says admin but the JWT token no longer bears the admin role - remove it
             // elseif ($idTokenInfoArray["role"] !== 'administrator' && $usernameArray['role'] === 'administrator') {

@@ -71,7 +71,7 @@ class Checks
             Output::error('This action requires admin privileges');
         }
         if (!$this->isAdminJWT()) {
-            Output::error('This action requires admin privileges');
+            Output::error('This action requires admin privileges coming from JWT token');
         }
     }
     /**
