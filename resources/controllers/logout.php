@@ -9,7 +9,11 @@ if (!isset($usernameArray['provider']) || empty($usernameArray['provider'])) {
     exit;
 }
 // Redirect to root page if provider is local
-if ($usernameArray['provider'] === 'local' || $usernameArray['provider'] === 'google') {
+if ($usernameArray['provider'] === 'local') {
+    header('Location: /');
+    exit;
+}
+if ($usernameArray['provider'] === 'google') {
     header('Location: /');
     exit;
 }

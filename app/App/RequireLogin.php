@@ -58,14 +58,7 @@ class RequireLogin
 
             // Now check if the issuer is the AzureAD endpoint
             if (str_starts_with($tokenPayload['iss'], 'https://login.microsoftonline.com/')) {
-                // Check if expired
-                if (!JWT::checkExpiration($_COOKIE[AUTH_COOKIE_NAME])) {
-                    // unse the cookie but do not return false, we want to redirect to MS login to get a new token
-                    JWT::handleValidationFailure();
-                    header('Location:' . AZURE_AD_LOGIN_BUTTON_URL);
-                    exit();
-                }
-                // Check if valid
+                // Check
                 if (AzureAD::check($_COOKIE[AUTH_COOKIE_NAME])) {
                     $provider = 'azure';
                     $loggedIn = true;

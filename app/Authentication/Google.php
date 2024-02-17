@@ -68,6 +68,7 @@ class Google
     {
         $payload = JWT::parseTokenPayLoad($idToken);
 
+        // Check the token integrity for basic malformations
         if (!self::checkTokenIntegrity($idToken)) {
             return false;
         }
@@ -184,6 +185,7 @@ class Google
             header('Location:' . GOOGLE_LOGIN_BUTTON_URL);
             exit();
         }
+        // Now check the token
         $check = self::verifyIdToken($idToken);
         if (!$check) {
             SystemLog::write('Token verification failed for ' . JWT::parseTokenPayLoad($idToken)['email'], 'Google Auth');

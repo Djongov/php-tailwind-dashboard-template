@@ -143,6 +143,8 @@ if (GOOGLE_LOGIN) {
     // Set nonce
     $client->setLoginHint($google_nonce);
     define("GOOGLE_LOGIN_BUTTON_URL", $client->createAuthUrl());
+    define("GOOGLE_LOGOUT_BUTTON_URL", 'https://accounts.google.com/logout');
+    define("GOOGLE_REFRESH_TOKEN_URL", 'https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=' . GOOGLE_CLIENT_ID . '&redirect_uri=' . $_SERVER['HTTP_HOST'] . '/auth-verify&scope=openid+profile+email&state=redir=https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
 }
 
 if (AZURE_AD_LOGIN) {

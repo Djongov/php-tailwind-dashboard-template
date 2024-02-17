@@ -66,16 +66,16 @@ class AzureAD
     }
     public static function check(string $token) : bool
     {
-        // First validate signature of the token
-        if (!self::validateJWTSignature($token)) {
-            return JWT::handleValidationFailure();
-        }
         // Check validity of the token
         if (!JWT::checkExpiration($token)) {
             // unse the cookie but do not return false, we want to redirect to MS login to get a new token
             JWT::handleValidationFailure();
             header('Location:' . AZURE_AD_LOGIN_BUTTON_URL);
             exit();
+        }
+        // First validate signature of the token
+        if (!self::validateJWTSignature($token)) {
+            return JWT::handleValidationFailure();
         }
         // Parse the token
         $payloadArray = JWT::parseTokenPayLoad($token);
