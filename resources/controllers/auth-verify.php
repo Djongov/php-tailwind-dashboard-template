@@ -80,14 +80,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         'samesite' => 'Lax' // This unlike the session cookie can be Lax
     ]);
 
-    $destinationUrl = '/';
+    $state = '/';
 
-    if (str_contains($destinationUrl, 'login') || str_contains($destinationUrl, 'auth-verify') || str_contains($destinationUrl, 'logout')) {
+    if (str_contains($state, 'login') || str_contains($state, 'auth-verify') || str_contains($state, 'logout')) {
         // Invalid destination or state, set a default state
-        $destinationUrl = '/';
+        $state = '/';
     }
 
-    header("Location: " . filter_var($destinationUrl, FILTER_SANITIZE_URL));
+    header("Location: " . filter_var($state, FILTER_SANITIZE_URL));
     exit();
 
     /* Instead of using the oauth client, we will get the data from the token */
@@ -162,13 +162,8 @@ if (isset($_POST['id_token'], $_POST['state']) || isset($_POST['error'], $_POST[
         }
 
         $destinationUrl = $_POST['state'] ?? null;
-        if ($destinationUrl !== null && (substr($destinationUrl, 0, 1) !== '/' || !in_array($destinationUrl, ['/login', '/logout'
-        ]))) {
-            // Invalid destination or state, set a default state
-            $destinationUrl = '/';
-        }
         // Valid destination, proceed to redirect to the destination
-        header("Location: " . $destinationUrl);
+        header("Location: " . filter_var($destinationUrl, FILTER_SANITIZE_URL));
         exit();
         
     } else {
@@ -235,7 +230,7 @@ if (isset($_POST['username'], $_POST['password'], $_POST['csrf_token'])) {
         $destinationUrl = '/';
     }
     // Valid destination, proceed with your script
-    header("Location: " . $destinationUrl);
+    header("Location: " . filter_var($destinationUrl, FILTER_SANITIZE_URL));
     exit();
 }
 
