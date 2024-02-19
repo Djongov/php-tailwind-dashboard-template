@@ -68,7 +68,7 @@ if ($dataCheck->num_rows > 0) {
                     if ($key === 'password') {
                         $html .= HTML::input('default', 'password', uniqid(), $key, $key, $value, '', 'This is most likely a hashed value of the password', $key, $theme, false, true, ($readonly) ? true : false);
                     } elseif (strlen($value) > 255) {
-                        $html .= HTML::textArea($key, $value, '', $key, '', '', $theme, false, false, false, 10, 50);
+                        $html .= HTML::textArea(null, $key, $value, '', $key, '', '', $theme, false, false, false, 10, 50);
                     } else {
                         $html .= HTML::input('default', 'text', uniqid(), $key, $key, $value, '', '', $key, $theme, false, true, ($readonly) ? true : false);
                     }

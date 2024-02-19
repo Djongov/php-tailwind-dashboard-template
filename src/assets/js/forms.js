@@ -90,6 +90,8 @@ const handleFormFetch = (form, currentEvent, resultType) => {
     } else if (formMethod !== 'GET' && formMethod !== 'DELETE') {
         fetchOptions.body = data;
     }
+    console.log(data.toString());
+
     // Fetch function
     fetch(form.action, fetchOptions)
         // Handle response

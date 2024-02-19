@@ -67,6 +67,7 @@ return function (RouteCollector $router) {
     $router->addRoute('GET', '/adminx/csp-approved-domains', [$views_folder . '/admin/csp/csp-approved-domains.php', $genericMetaAdminDataArray]);
     $router->addRoute('GET', '/adminx/firewall', [$views_folder . '/admin/firewall.php', $genericMetaAdminDataArray]);
     $router->addRoute('GET', '/adminx/queries', [$views_folder . '/admin/queries.php', $genericMetaAdminDataArray]);
+    $router->addRoute('GET', '/adminx/mailer', [$views_folder . '/admin/mailer.php', $genericMetaAdminDataArray]);
 
     // Admin API
     $router->addRoute('POST', '/api/admin/csp/add', [$contollers_folder . '/api/admin/csp/add.php']);
@@ -82,6 +83,7 @@ return function (RouteCollector $router) {
     /* API Routes */
     $router->addRoute(['GET', 'PUT', 'DELETE'], '/api/user/{id:\d+}', [$contollers_folder . '/api/user/index.php']);
     $router->addRoute('POST', '/api/user', [$contollers_folder . '/api/user/index.php']);
+    $router->addRoute('POST', '/api/mailer/send', [$contollers_folder . '/api/mailer/send.php']);
 
     /* DataGrid Api */
     $router->addRoute('POST', '/api/datagrid/get-records', [$contollers_folder . '/api/datagrid/get-records.php']);

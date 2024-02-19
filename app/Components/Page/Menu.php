@@ -29,6 +29,10 @@ class Menu
                         if (isset($value['require_login']) && !isset($usernameArray['username'])) {
                             continue;
                         }
+                        // For keys with no value, skip them
+                        if ($value === null) {
+                            continue;
+                        }
                         // If the link is an array, it must be a dropdown
                         if (is_array($value['link'])) {
                             $html .= '<li class="min-w-fit mx-auto">';

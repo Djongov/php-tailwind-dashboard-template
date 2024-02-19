@@ -92,7 +92,21 @@ class Forms
                     if ($inputType === 'textarea') {
                         $rows = (isset($inputOptionsArray['rows'])) ? $inputOptionsArray['rows'] : 10;
                         $cols = (isset($inputOptionsArray['cols'])) ? $inputOptionsArray['cols'] : 100;
-                        $html .= HTML::textArea($inputOptionsArray['name'], $value, $placeholder, $title, $description, $label, $theme, $disabled, $required, $readonly, $rows, $cols,$extraClasses, $dataAttributes);
+                        $html .= HTML::textArea($id, $inputOptionsArray['name'], $value, $placeholder, $title, $description, $label, $theme, $disabled, $required, $readonly, $rows, $cols,$extraClasses, $dataAttributes);
+                    }
+                    // If tinymce
+                    if ($inputType === 'tinymce') {
+                        $html .= '<div class="my-4">';
+                            // If id is not passed, let's create a unique id
+                            if ($id === null || empty($id)) {
+                                $id = 'id="tinymce-' . uniqid() . '"';
+                            } else {
+                                $id = 'id="' . $id . '"';
+                            }
+                            $html .= HTML::label($id ?? $inputOptionsArray['name'], $label);
+                            $html .= '<textarea ' . $id . ' class="tinymce" name="' . $inputOptionsArray['name'] . '"></textarea>';
+                            $html .= HTML::p($description);
+                        $html .= '</div>';
                     }
                     // Inputs such as checkbox
                     if ($inputType === 'checkbox') {

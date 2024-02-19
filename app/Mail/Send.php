@@ -42,7 +42,7 @@ class Send
         $from = new From($from, $fromName);
 
         // Now deal with To
-        $to_array = [];
+        $toArray = [];
 
         foreach ($to as $recipient) {
             $dynamicData = [
@@ -51,13 +51,11 @@ class Send
                 'body' => $body,
                 'name' => $recipient['name']
             ];
-            array_push($to_array, new To($recipient['email'], $recipient['name'], $dynamicData, $subject));
+            array_push($toArray, new To($recipient['email'], $recipient['name'], $dynamicData, $subject));
         }
 
-        $email = new Mail(
-            $from,
-            $to_array
-        );
+
+        $email = new Mail($from, $toArray);
          
         if (defined('SENDGRID_TEMPLATE_ID')) {
             $email->setTemplateId(SENDGRID_TEMPLATE_ID);
@@ -72,11 +70,12 @@ class Send
             $response = $sendgrid->send($email);
             if ($response->statusCode() === 202) {
                 return Output::success('email sent successfully');
+            } else {
+                return Output::error(['status' => $response->statusCode(), 'error' => $response->body()]);
             }
         } catch (Exception $e) {
             Output::error('Caught exception: ' .  $e->getMessage() . "\n");
         }
-        $sendgrid->send($email);
     }
     
     // This proivate method will not only check if the passed 'email' key is set but also if it is a valid email address

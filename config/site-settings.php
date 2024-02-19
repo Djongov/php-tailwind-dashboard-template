@@ -87,10 +87,26 @@ Mailer Settings (Sendgrid)
 */
 
 define("SENDGRID", true);
-define("SENDGRID_API_KEY", $_ENV['SENDGRID_API_KEY']);
-define("FROM", 'admin@sunwellsolutions.com');
+if (SENDGRID) {
+    define("SENDGRID_API_KEY", $_ENV['SENDGRID_API_KEY']);
+    #define("SENDGRID_TEMPLATE_ID", 'd-381e01fdce2b44c48791d7a12683a9c3');
+}
+
+define("FROM", 'admin@gamerz-bg.com');
 define("FROM_NAME", 'No Reply');
-define("SENDGRID_TEMPLATE_ID", 'd-381e01fdce2b44c48791d7a12683a9c3');
+
+/*
+
+Text Editor Settings (TinyMCE)
+
+*/
+
+define("TINYMCE", true);
+
+if (TINYMCE) {
+    define("TINYMCE_SCRIPT_LINK", 'https://cdn.tiny.cloud/1/z5zdktmh1l2u1e6mhjuer9yzde2z48kc5ctgg9wsppaobz9s/tinymce/6/tinymce.min.js');
+    #define("TINYMCE_API_KEY", $_ENV['TINYMCE_API_KEY']);
+}
 
 /*
 

@@ -177,7 +177,7 @@ class Html
         return $html;
         
     }
-    public static function textArea(string $name, string $value, string $placeholder, string $title, string $description, string $label_name, string $theme, bool $disabled, bool $required, bool $readonly, int $rows, int $cols, $extraClasses = [], $dataAttributes = [])
+    public static function textArea(?string $id, string $name, string $value, string $placeholder, string $title, string $description, string $label_name, string $theme, bool $disabled, bool $required, bool $readonly, int $rows, int $cols, $extraClasses = [], $dataAttributes = [])
     {
         // Classes based on size
         $inputClasses = 'w-full p-2 text-sm bg-gray-100 appearance-none border-2 border-gray-100 rounded-lg text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-' . $theme . '-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500';
@@ -186,6 +186,7 @@ class Html
         $required = $required ? 'required' : '';
         $readonly = $readonly ? 'readonly' : '';
         $value = ($value == '') ? '' : $value;
+        $id = ($id === '' || $id === null) ? '' : 'id="' . $id . '"';
         // Title
         if ($title === '') {
             $title = ($label_name !== '') ? 'title="' . $label_name . '"' : 'title="' . $name . '"';
@@ -203,7 +204,7 @@ class Html
             }
         }
 
-        $inputHtml = '<textarea name="' . $name . '" class="' . $inputClasses . ' ' . $extraClasses . '" rows="' . $rows . '" cols="' . $cols . '"  ' . $placeholder . $required . ' ' . $disabled . ' ' . $readonly . ' ' . $title . ' ' . $dataAttributesString . '>' . $value . '</textarea>';
+        $inputHtml = '<textarea ' . $id . ' name="' . $name . '" class="' . $inputClasses . ' ' . $extraClasses . '" rows="' . $rows . '" cols="' . $cols . '"  ' . $placeholder . $required . ' ' . $disabled . ' ' . $readonly . ' ' . $title . ' ' . $dataAttributesString . '>' . $value . '</textarea>';
 
         $html = '';
         $html .= '<div class="my-4">';
