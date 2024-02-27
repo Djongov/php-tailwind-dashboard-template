@@ -17,7 +17,7 @@ if (isset($_COOKIE[AUTH_COOKIE_NAME])) {
             header('Location: ' . $destinationUrl);
         }
     }
-    if ($idToken['iss'] === 'https://login.microsoftonline.com/' . TENANT_ID . '/v2.0') {
+    if ($idToken['iss'] === 'https://login.microsoftonline.com/' . AZURE_AD_TENANT_ID . '/v2.0') {
         // Check if valid
         if (AzureAD::check($_COOKIE[AUTH_COOKIE_NAME])) {
             header('Location: ' . $destinationUrl);

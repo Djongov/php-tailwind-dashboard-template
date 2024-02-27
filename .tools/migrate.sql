@@ -10,6 +10,7 @@ CREATE TABLE `users` (
   `date_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_login` datetime,
   `theme` varchar(20) DEFAULT NULL,
+  `picture` varchar(255) DEFAULT NULL,
   `provider` varchar(255) DEFAULT NULL,
   `enabled` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`)

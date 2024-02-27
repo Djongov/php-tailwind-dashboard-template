@@ -6,6 +6,7 @@ use Api\Output;
 use Api\Checks;
 use Database\MYSQL;
 use App\General;
+use Logs\SystemLog;
 
 class User
 {
@@ -64,6 +65,7 @@ class User
         $createUser = MYSQL::queryPrepared('INSERT INTO `users`(`username`, `email`, `name`, `last_ips`, `origin_country`, `role`, `last_login`, `theme`, `provider`, `enabled`) VALUES (?,?,?,?,?,?,NOW(),?,?,?)', array_values($insertData));
 
         if ($createUser->affected_rows === 1) {
+            SystemLog::write('User with username ' . $insertData['username'] . ' and provider Azure created', 'User API');
             echo Output::success('User created');
         } else {
             Output::error('User creation failed', 400);
@@ -106,6 +108,7 @@ class User
         $createUser = MYSQL::queryPrepared('INSERT INTO `users`(`username`, `email`, `name`, `last_ips`, `origin_country`, `role`, `last_login`, `theme`, `picture`, `provider`, `enabled`) VALUES (?,?,?,?,?,?,NOW(),?,?,?,?)', array_values($insertData));
 
         if ($createUser->affected_rows === 1) {
+            SystemLog::write('User with username ' . $insertData['username'] . ' and provider Azure created', 'User API');
             echo Output::success('User created');
         } else {
             Output::error('User creation failed', 400);
@@ -158,6 +161,7 @@ class User
         ]);
 
         if ($createUser->affected_rows === 1) {
+            SystemLog::write('User with username ' . $data['username'] . ' and provider local created', 'User API');
             echo Output::success('User created');
         } else {
             Output::error('User creation failed', 400);
@@ -211,6 +215,7 @@ class User
                 return false;
             }
         } else {
+            SystemLog::write('User with id ' . $id . ' updated with ' . json_encode($data), 'User API');
             if ($apiResponse) {
                 echo Output::success('User updated');
             } else {
@@ -218,6 +223,17 @@ class User
             }
         }
     }
+    public function delete(string $id): void
+    {
+        $deleteUser = MYSQL::queryPrepared('DELETE FROM `users` WHERE `id`=?', [$id]);
+        if ($deleteUser->affected_rows === 0) {
+            Output::error('User not found', 404);
+        } else {
+            SystemLog::write('User with id ' . $id . ' deleted', 'User API');
+            echo Output::success('User deleted');
+        }
+    }
+    // Separated the recordLastLogin so it doesn't leave logs all the time
     public function recordLastLogin(string $username) : bool
     {
         $lastIp = General::currentIP();

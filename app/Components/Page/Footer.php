@@ -12,7 +12,7 @@ class Footer
         $html .= '<footer class="p-4 bg-white sm:p-6 dark:bg-gray-900">' . PHP_EOL;
         $html .= '<div class="md:flex md:justify-between">';
         $html .= '<div class="md:flex md:justify-between">';
-        $html .= '<a href="/" class="flex items-center">' . LOGO . '<span class="text-xl font-bold text-gray-800 dark:text-gray-200">' . SITE_TITLE . '</span></a>';
+        $html .= '<a href="/" class="flex items-center"><img src="' . LOGO . '" alt="logo" class="w-10 h-10 rounded-lg object-cover spin" /><span class="ml-2 text-xl font-bold text-gray-800 dark:text-gray-200">' . SITE_TITLE . '</span></a>';
         $html .= '</div>';
         // Start grid
         $html .= '<div class="grid grid-cols-3 gap-8 sm:gap-6 sm:grid-cols-4">';

@@ -287,7 +287,7 @@ class Checks
         // Now we need to get the put data and make into array
         $putData = json_decode($putData, true);
         if (!is_array($putData)) {
-            Output::error('Invalid json data');
+            Output::error('Invalid json data', 400);
         }
         return $putData;
     }

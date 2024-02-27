@@ -37,7 +37,7 @@ class AzureAD
             return false;
         }
 
-        $x5c = X5CHandler::load(CLIENT_ID, TENANT_ID, json_decode($header, true)['kid'], 'azure');
+        $x5c = X5CHandler::load(AZURE_AD_CLIENT_ID, AZURE_AD_TENANT_ID, json_decode($header, true)['kid'], 'azure');
 
         if ($x5c === false) {
             // Invalid signature
@@ -80,14 +80,14 @@ class AzureAD
         // Parse the token
         $payloadArray = JWT::parseTokenPayLoad($token);
         // Let's do some other possible checks that are specific to Azure AD
-        if ($payloadArray['aud'] !== CLIENT_ID) {
+        if ($payloadArray['aud'] !== AZURE_AD_CLIENT_ID) {
             return JWT::handleValidationFailure();
         }
         // Disable these 2 methods if app is multi-tenant and the issuer is different based on the incoming tenant
-        if ($payloadArray['iss'] !== 'https://login.microsoftonline.com/' . TENANT_ID . '/v2.0') {
+        if ($payloadArray['iss'] !== 'https://login.microsoftonline.com/' . AZURE_AD_TENANT_ID . '/v2.0') {
             return JWT::handleValidationFailure();
         }
-        if ($payloadArray['tid'] !== TENANT_ID) {
+        if ($payloadArray['tid'] !== AZURE_AD_TENANT_ID) {
             return JWT::handleValidationFailure();
         }
 

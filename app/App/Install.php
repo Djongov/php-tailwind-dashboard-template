@@ -29,7 +29,7 @@ class Install
         }
 
         // Create the database if it doesn't exist
-        $conn->query("CREATE DATABASE IF NOT EXISTS " . DB_NAME . " CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
+        $conn->query("CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
 
         // Select the database
         $conn->select_db(DB_NAME);

@@ -10,26 +10,26 @@ class Head
         $html .= '<!DOCTYPE html>' . PHP_EOL;
         $html .= '<html lang="en" class="h-full">' . PHP_EOL;
         $html .= '<head>' . PHP_EOL;
-            $html .=  '<title>' . $title . ' - ' . SITE_TITLE . '</title>' . PHP_EOL;
-            // Icon
-            $html .= '<link rel="icon" type="image/x-icon" href="/assets/images/icon.png" >' . PHP_EOL;
-            // General Meta tags
-            $html .= '<meta name="viewport" content="width=device-width, initial-scale=1">' . PHP_EOL;
-            $html .= '<meta name="robots" content="index, follow" >' . PHP_EOL;
-            $html .= '<meta name="author" content="Dimitar Dzhongov" >' . PHP_EOL;
-            $html .= '<meta name="keywords" content="' . implode(",", $keywords) . '" >' . PHP_EOL;
-            $html .= '<meta name="description" content="' . $description . '" >' . PHP_EOL;
-            // Og tags
-            $html .= self::ogTags($title, $description, $thumbimage);
-            // Twitter tags
-            $html .= self::twitterTags($title, $description, $thumbimage, '@Djongov', '@Djongov');
-            // CSS files
-            $html .= self::cssLoad($cssArray);
-            // Scripts
-            $html .= self::scriptLoad($scriptsArray);
-            // Inline scripts
-            $tailwindConfig = file_get_contents(dirname($_SERVER['DOCUMENT_ROOT']) . '/tailwind.config.js');
-            $html .= <<< InlineScript
+        $html .=  '<title>' . $title . ' - ' . SITE_TITLE . '</title>' . PHP_EOL;
+        // Icon
+        $html .= '<link rel="icon" type="image/x-icon" href="' . LOGO . '" >' . PHP_EOL;
+        // General Meta tags
+        $html .= '<meta name="viewport" content="width=device-width, initial-scale=1">' . PHP_EOL;
+        $html .= '<meta name="robots" content="index, follow" >' . PHP_EOL;
+        $html .= '<meta name="author" content="Dimitar Dzhongov" >' . PHP_EOL;
+        $html .= '<meta name="keywords" content="' . implode(",", $keywords) . '" >' . PHP_EOL;
+        $html .= '<meta name="description" content="' . $description . '" >' . PHP_EOL;
+        // Og tags
+        $html .= self::ogTags($title, $description, $thumbimage);
+        // Twitter tags
+        $html .= self::twitterTags($title, $description, $thumbimage, '@Djongov', '@Djongov');
+        // CSS files
+        $html .= self::cssLoad($cssArray);
+        // Scripts
+        $html .= self::scriptLoad($scriptsArray);
+        // Inline scripts
+        $tailwindConfig = file_get_contents(dirname($_SERVER['DOCUMENT_ROOT']) . '/tailwind.config.js');
+        $html .= <<< InlineScript
                 <script nonce="1nL1n3JsRuN1192kwoko2k323WKE">
                     $tailwindConfig
                 </script>

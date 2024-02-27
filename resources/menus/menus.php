@@ -43,6 +43,13 @@ define("ADMIN_MENU", [
         ],
         'link' => '/adminx/mailer',
     ] : null,
+    'Tools' => [
+        'link' => [
+            'Base64' => [
+                'sub_link' => '/adminx/base64'
+            ]
+        ]
+    ],
 ]);
 
 /* Menu Settings */

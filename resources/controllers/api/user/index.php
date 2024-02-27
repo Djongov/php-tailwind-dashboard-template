@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
 
 }
 if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-    
+
     // Let's check if the csrf token is passed as a query string in the DELETE request
     if (!isset($_GET['csrf_token'])) {
         echo Output::error('Missing CSRF Token', 401);
@@ -101,12 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
     $checks = new Checks($vars, []);
     $checks->apiChecksDelete($_GET['csrf_token']);
 
-    $deleteUser = MYSQL::queryPrepared('DELETE FROM `users` WHERE `id`=?', [$userId]);
-    if ($deleteUser->affected_rows === 0) {
-        echo Output::error('User not found');
-        exit();
-    } else {
-        echo Output::success('User deleted');
-        exit();
-    }
+    $user = new User();
+
+    $user->delete($userId);
 }
