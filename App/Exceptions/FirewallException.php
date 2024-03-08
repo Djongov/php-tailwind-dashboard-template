@@ -1,16 +1,20 @@
 <?php
 
+// Path: App/Exceptions/FirewallException.php
+
+// Used in /Controllers/Api/Firewall.php, /Models/Api/Firewall.php
+
 namespace App\Exceptions;
 
 class FirewallException extends TemplateException
 {
     public function ipAlreadyExists() : self
     {
-        return new self('IP already exists', 400);
+        return new self('IP already exists', 409);
     }
     public function ipDoesNotExist() : self
     {
-        return new self('IP does not exist', 400);
+        return new self('IP does not exist', 404);
     }
     public function ipNotUpdated() : self
     {
