@@ -1,9 +1,9 @@
 <?php
 
-namespace Logs;
+namespace App\Logs;
 
-use Authentication\JWT;
-use Database\MYSQL;
+use App\Authentication\JWT;
+use App\Database\MYSQL;
 
 class SystemLog
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Request;
+namespace App\Request;
 
 class NativeHttp {
     public static function get(string $url, array $headers = [], bool $sslIgnore = false) : array

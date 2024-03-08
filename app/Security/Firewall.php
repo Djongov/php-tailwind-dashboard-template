@@ -1,9 +1,9 @@
 <?php
 
-namespace Security;
+namespace App\Security;
 
-use Database\MYSQL;
-use Api\Output;
+use App\Database\MYSQL;
+use Controllers\Api\Output;
 
 class Firewall
 {

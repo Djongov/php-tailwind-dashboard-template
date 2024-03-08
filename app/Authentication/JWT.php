@@ -1,10 +1,10 @@
 <?php
 
-namespace Authentication;
+namespace App\Authentication;
 
 use App\General;
-use Api\Output;
-use Core\Session;
+use Controllers\Api\Output;
+use App\Core\Session;
 
 class JWT
 {

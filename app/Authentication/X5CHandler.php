@@ -1,11 +1,11 @@
 <?php
 
-namespace Authentication;
+namespace App\Authentication;
 
-use Authentication\AzureAD;
-use Authentication\Google;
-use Database\MYSQL;
-use Logs\SystemLog;
+use App\Authentication\AzureAD;
+use App\Authentication\Google;
+use App\Database\MYSQL;
+use App\Logs\SystemLog;
 
 class X5CHandler
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace Authentication;
+namespace App\Authentication;
 
-use Database\MYSQL;
-use Authentication\JWT;
+use App\Database\MYSQL;
+use App\Authentication\JWT;
 
 class TokenCache
 {

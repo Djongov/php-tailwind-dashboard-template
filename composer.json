@@ -12,9 +12,11 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "app/"
-        },
-        "exclude-from-classmap": ["app/"]
+            "App\\": "App/",
+            "Components\\": "Components/",
+            "Controllers\\": "Controllers/",
+            "Models\\": "Models/"
+        }
     },
     "extra": {
         "google/apiclient-services": []

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Mail;
+namespace App\Mail;
 
-use Api\Output;
+use Controllers\Api\Output;
 use Exception;
 use SendGrid\Mail\Mail;
 use SendGrid\Mail\To;

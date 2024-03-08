@@ -1,15 +1,14 @@
 <?php
 
-namespace Authentication;
+namespace App\Authentication;
 
 use Request\HttpClient;
-use Authentication\JWT;
-use Api\Output;
+use App\Authentication\JWT;
+use Controllers\Api\Output;
 use App\General;
 use Google\Client;
-use Authentication\X5CHandler;
-use Authentication\TokenCache;
-use Logs\SystemLog;
+use App\Authentication\TokenCache;
+use App\Logs\SystemLog;
 
 class Google
 {

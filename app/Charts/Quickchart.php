@@ -1,6 +1,6 @@
 <?php
 
-namespace Charts;
+namespace App\Charts;
 
 class QuickChart
 {

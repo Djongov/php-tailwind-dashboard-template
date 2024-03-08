@@ -1,8 +1,8 @@
 <?php
 
-namespace Database;
+namespace App\Database;
 
-use Api\Output;
+use Controllers\Api\Output;
 use Exception;
 
 class MYSQL

@@ -1,6 +1,6 @@
 <?php
 
-namespace Response;
+namespace App\Response;
 
 class HttpErrorHandler
 {

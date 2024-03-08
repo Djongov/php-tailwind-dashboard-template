@@ -1,9 +1,9 @@
 <?php
 
-namespace Authentication;
+namespace App\Authentication;
 
-use Authentication\X5CHandler;
-use Request\HttpClient;
+use App\Authentication\X5CHandler;
+use App\Request\HttpClient;
 use App\General;
 
 class AzureAD

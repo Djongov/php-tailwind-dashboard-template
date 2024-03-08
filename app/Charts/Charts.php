@@ -1,9 +1,8 @@
 <?php
 
-namespace Charts;
+namespace App\Charts;
 
-use App\General;
-use Charts\QuickChart;
+use App\Charts\QuickChart;
 
 class Charts
 {

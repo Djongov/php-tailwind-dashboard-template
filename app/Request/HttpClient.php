@@ -1,11 +1,11 @@
 <?php
 
-namespace Request;
+namespace App\Request;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
-use Api\Output;
+use Controllers\Api\Output;
 
 class HttpClient
 {

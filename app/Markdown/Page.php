@@ -1,6 +1,6 @@
 <?php
 
-namespace Markdown;
+namespace App\Markdown;
 
 use Components\Alerts;
 use Parsedown;
@@ -55,7 +55,7 @@ class Page
             $results[$match[1]] = $match[2];
         }
 
-        $title = (isset($results['title'])) ? $results['title'] : ucwords(str_replace('-', ' ', $file));
+        $title = (isset($results['title'])) ? $results['title'] : ucfirst(str_replace('-', ' ', basename($_SERVER['REQUEST_URI'])));
         $description = (isset($results['description'])) ? $results['description'] : GENERIC_DESCRIPTION;
         $keywords = (isset($results['keywords'])) ? $results['keywords'] : GENERIC_KEYWORDS;
         $thumbimage = (isset($results['thumbimage'])) ? $results['thumbimage'] : OG_LOGO;
