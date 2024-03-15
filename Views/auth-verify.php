@@ -1,13 +1,12 @@
 <?php
 
 use App\Authentication\AzureAD;
-use App\Database\MYSQL;
 use Controllers\Api\Output;
 use Controllers\Api\Checks;
 use App\General;
 use Controllers\Api\User;
 use Models\Api\User as UserModel;
-use App\Exceptions\User as UserExceptions;
+use App\Exceptions\UserExceptions;
 use App\Authentication\JWT;
 use App\Authentication\Google;
 use App\Logs\SystemLog;

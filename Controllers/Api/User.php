@@ -6,9 +6,7 @@ use Controllers\Api\Output;
 use Controllers\Api\Checks;
 use App\General;
 use Models\Api\User as UserModel;
-use App\Exceptions\User as UserExceptions;
-use App\Logs\SystemLog;
-use Google\Service\CloudSearch\UserMentionData;
+use App\Exceptions\UserExceptions;
 
 class User
 {
@@ -18,10 +16,8 @@ class User
         try {
             return $user->get($username);
         } catch (UserExceptions $e) {
-            // Handle user-specific exceptions
             Output::error($e->getMessage());
         } catch (\Exception $e) {
-            // Handle other exceptions
             Output::error($e->getMessage());
         }
     }
@@ -69,10 +65,8 @@ class User
             $createUser->create($insertData);
             echo Output::success('User created');
         } catch (UserExceptions $e) {
-            // Handle user-specific exceptions
             Output::error($e->getMessage());
         } catch (\Exception $e) {
-            // Handle other exceptions
             Output::error($e->getMessage());
         }
     }
@@ -109,10 +103,8 @@ class User
             $createUser->create($insertData);
             echo Output::success('User created');
         } catch (UserExceptions $e) {
-            // Handle user-specific exceptions
             Output::error($e->getMessage());
         } catch (\Exception $e) {
-            // Handle other exceptions
             Output::error($e->getMessage());
         }
     }
@@ -143,10 +135,8 @@ class User
             $createUser->create($data);
             echo Output::success('User created');
         } catch (UserExceptions $e) {
-            // Handle user-specific exceptions
             Output::error($e->getMessage());
         } catch (\Exception $e) {
-            // Handle other exceptions
             Output::error($e->getMessage());
         }
     }
@@ -157,10 +147,8 @@ class User
             $user->update($data, $id);
             echo Output::success('User updated');
         } catch (UserExceptions $e) {
-            // Handle user-specific exceptions
             Output::error($e->getMessage());
         } catch (\Exception $e) {
-            // Handle other exceptions
             Output::error($e->getMessage());
         }
     }
@@ -171,10 +159,8 @@ class User
             $user->delete($id);
             echo Output::success('User deleted');
         } catch (UserExceptions $e) {
-            // Handle user-specific exceptions
             Output::error($e->getMessage());
         } catch (\Exception $e) {
-            // Handle other exceptions
             Output::error($e->getMessage());
         }
     }
@@ -187,10 +173,8 @@ class User
         try {
             $updatedUser->update(['last_login' => date('Y-m-d H:i:s')], $updatedUserArray['id']);
         } catch (UserExceptions $e) {
-            // Handle user-specific exceptions
             Output::error($e->getMessage());
         } catch (\Exception $e) {
-            // Handle other exceptions
             Output::error($e->getMessage());
         }
     }

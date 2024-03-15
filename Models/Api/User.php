@@ -4,7 +4,7 @@ namespace Models\Api;
 
 use App\Database\MYSQL;
 use App\Logs\SystemLog;
-use App\Exceptions\User as UserExceptions;
+use App\Exceptions\UserExceptions;
 
 class User
 {
