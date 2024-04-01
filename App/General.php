@@ -22,7 +22,7 @@ class General
     }
     public static function currentBrowser()
     {
-        return $_SERVER['HTTP_USER_AGENT'];
+        return $_SERVER['HTTP_USER_AGENT'] ?? null;
     }
     // This method catches if current uri is in the array of uris including wildcards
     public static function matchRequestURI($uris)
