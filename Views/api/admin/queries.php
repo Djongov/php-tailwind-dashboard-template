@@ -3,6 +3,7 @@
 use App\Database\MYSQL;
 use Components\Alerts;
 use Components\DataGrid\SimpleVerticalDataGrid;
+use Components\DataGrid\DataGrid;
 use Controllers\Api\Checks;
 use App\Security\Firewall;
 
@@ -41,7 +42,7 @@ if (str_starts_with($query, 'SELECT')) {
     }
     $data = $result->fetch_all(MYSQLI_ASSOC);
     echo '<div class="mx-4">';
-        echo SimpleVerticalDataGrid::render($data);
+        echo DataGrid::createTable('query', $data, $theme, 'Custom query results', false, false);
     echo '</div>';
 } elseif (str_starts_with($query, 'DESCRIBE') || str_starts_with($query, 'SHOW')) {
     if ($result->num_rows === 0) {
@@ -50,7 +51,7 @@ if (str_starts_with($query, 'SELECT')) {
     } else {
         $data = $result->fetch_all(MYSQLI_ASSOC);
         echo '<div class="mx-4">';
-            echo SimpleVerticalDataGrid::render($data);
+            echo DataGrid::createTable('query', $data, $theme, 'Custom query results', false, false);
         echo '</div>';
     }
 } else {

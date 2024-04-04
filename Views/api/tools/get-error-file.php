@@ -1,11 +1,11 @@
 <?php
 
 use Components\Html;
-use Components\DataGrid\SimpleVerticalDataGrid;
 use Controllers\Api\Output;
 use Controllers\Api\Checks;
 use App\General;
 use App\Security\Firewall;
+use Components\DataGrid\DataGrid;
 
 Firewall::activate();
 
@@ -42,14 +42,11 @@ if (is_file($file)) {
             if ($line === "") {
                 continue;
             }
-            // echo '<p>[' . $line . '</p><div class="relative flex py-5 items-center">
-            //     <div class="flex-grow border-t border-gray-400"></div>
-            //     <span class="flex-shrink mx-4 text-gray-400">Error</span>
-            //     <div class="flex-grow border-t border-gray-400"></div>
             // </div>';
             array_push($errorFileArray, $line);
         }
-        echo SimpleVerticalDataGrid::render(General::assocToIndexed($errorFileArray));
+        $errorFileArray = General::assocToIndexed($errorFileArray);
+        echo DataGrid::createTable('error-file', $errorFileArray, $theme, 'Error file', false, false);
     } else {
         echo '<p class="red">File (' . $file . ') not readable</p>';
     }

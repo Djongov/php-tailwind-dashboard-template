@@ -42,6 +42,39 @@ class General
 
         return false; // No match found
     }
+    public static function parsePhpInfo() : array
+    {
+        ob_start();
+        phpinfo(INFO_ALL);
+        $phpinfo = ob_get_clean();
+
+        // Find table data
+        preg_match_all('/<tr>(?:.*?<td[^>]*>(.*?)<\/td>.*?<td[^>]*>(.*?)<\/td>)<\/tr>/', $phpinfo, $matches);
+
+        $result = array();
+        $currentCategory = '';
+        foreach ($matches[1] as $index => $name) {
+            if (empty($name)) {
+                continue;
+            }
+
+            if (strpos($name, '</') !== false) {
+                // Skip table headers and footers
+                continue;
+            }
+
+            if (strpos($name, '<') !== false) {
+                // Extract category name
+                $currentCategory = strip_tags($name);
+                $result[$currentCategory] = array();
+            } else {
+                // Add key-value pair to the current category
+                $result[$currentCategory][$name] = strip_tags($matches[2][$index]);
+            }
+        }
+
+        return $result;
+    }
     // Convert assoc array to indexed array
     public static function assocToIndexed(array $array): array
     {

@@ -68,4 +68,23 @@ echo DataGrid::createTable('', General::assocToIndexed($_SERVER), $theme, 'Serve
 
 echo HTML::h2('PHP Info', true);
 
-echo phpinfo();
+$phpInfoFormOptions = [
+    'inputs' => [
+        'hidden' => [
+            [
+                'name' => 'api-action',
+                'value' => 'prase-phpinfo'
+            ]
+        ]
+    ],
+    'theme' => $theme,
+    'action' => '/api/tools/php-info-parser',
+    'resultType' => 'html',
+    'reloadOnSubmit' => false,
+    'submitButton' => [
+        'text' => 'Get PHP Info',
+        'size' => 'medium',
+    ],
+];
+
+echo Forms::render($phpInfoFormOptions);

@@ -90,7 +90,6 @@ const handleFormFetch = (form, currentEvent, resultType) => {
     } else if (formMethod !== 'GET' && formMethod !== 'DELETE') {
         fetchOptions.body = data;
     }
-    console.log(data.toString());
 
     // Fetch function
     fetch(form.action, fetchOptions)
@@ -125,6 +124,22 @@ const handleFormFetch = (form, currentEvent, resultType) => {
             // If the response is of type text()
             if (typeof response === 'string') {
                 newResultDiv.innerHTML = `${response}`;
+                // Let's search the response for table and if we find a table, get the table id
+                const tablesArray = newResultDiv.querySelectorAll('table');
+                // If there are any tables in the result, there is a good chance that they are datagrids and will need initialization
+                if (tablesArray.length > 0) {
+                    tablesArray.forEach(table => {
+                        // get the table id
+                        const tableId = table.getAttribute('id');
+                        const dataTable = drawDataGrid(tableId);
+                        buildDataGridFilters(dataTable, tableId, []);
+                        // On every re-draw, rebuild them
+                        dataTable.on('draw', () => {
+                            console.log(`redraw occured`);
+                            buildDataGridFilters(dataTable, tableId, []);
+                        });
+                    })
+                }
                 // If there were copy buttons in the response, let's initiate them
                 copyToClipboard();
                 // If we have html coming in, it could hold other forms, so let's initiate them. So let's find if there is a form.generic selector in the response

@@ -77,6 +77,7 @@ return function (RouteCollector $router) {
     $router->addRoute('POST', '/api/tools/export-csv', [$viewsFolder . '/api/tools/export-csv.php']);
     $router->addRoute('POST', '/api/tools/export-tsv', [$viewsFolder . '/api/tools/export-tsv.php']);
     $router->addRoute('POST', '/api/tools/base64encode', [$viewsFolder . '/api/tools/base64encode.php']);
+    $router->addRoute('POST', '/api/tools/php-info-parser', [$viewsFolder . '/api/tools/php-info-parser.php']);
 
     /* API Routes */
     $router->addRoute(['GET','PUT','DELETE','POST'], '/api/user[/{id:\d+}]', [$viewsFolder . '/api/user.php']);

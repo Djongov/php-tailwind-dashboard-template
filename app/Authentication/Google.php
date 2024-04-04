@@ -2,7 +2,7 @@
 
 namespace App\Authentication;
 
-use Request\HttpClient;
+use App\Request\HttpClient;
 use App\Authentication\JWT;
 use Controllers\Api\Output;
 use App\General;
