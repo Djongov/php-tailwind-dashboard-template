@@ -104,11 +104,8 @@ $indexedArray = array_count_values($blockedUri);
 // Sort the array in descending order
 ksort($indexedArray, SORT_NUMERIC | SORT_DESC);
 
-echo '<div class="flex flex-row flex-wrap p-6 justify-center">';
-    echo '<div class="w-full md:w-1/2 lg:w-1/3">';
-        //echo SimpleVerticalDataGrid::render(General::assocToIndexed($indexedArray));
-        echo DataGrid::createTable('blocked_uri', General::assocToIndexed($indexedArray), $theme, 'Blocked URIs', false, false);
-    echo '</div>';
+echo '<div class="flex justify-center">';
+    echo DataGrid::createTable('blocked_uri', General::assocToIndexed($indexedArray), $theme, 'Blocked URIs', false, false);
 echo '</div>';
 
 echo DataGrid::createTable('csp_reports', $cspArray, $theme, 'CSP Reports', true, true);
