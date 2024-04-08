@@ -22,3 +22,8 @@ if ($usernameArray['provider'] === 'azure') {
     header('Location: ' . AZURE_AD_LOGOUT_BUTTON_URL);
     exit;
 }
+// MS live now
+if ($usernameArray['provider'] === 'mslive') {
+    header('Location: ' . MS_LIVE_LOGOUT_BUTTON_URL);
+    exit;
+}

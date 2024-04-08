@@ -29,6 +29,8 @@ class User
             $this->createAzureUser($data);
         } elseif ($provider === 'google') {
             $this->createGoogleUser($data);
+        } elseif ($provider === 'mslive') {
+            $this->createMsLiveUser($data);
         } else {
             Output::error('Invalid provider', 400);
         }
@@ -52,6 +54,43 @@ class User
         // Theme is set to the default color scheme
         $insertData['theme'] = COLOR_SCHEME;
         $insertData['provider'] = 'azure';
+        $insertData['enabled'] = 1;
+
+        $allowedData = ['username', 'email', 'name', 'last_ips', 'origin_country', 'role', 'theme', 'provider', 'enabled'];
+
+        $checks = new Checks($allowedData, $insertData);
+
+        $checks->checkParams($allowedData, $insertData);
+
+        try {
+            $createUser = new UserModel();
+            $createUser->create($insertData);
+            echo Output::success('User created');
+        } catch (UserExceptions $e) {
+            Output::error($e->getMessage());
+        } catch (\Exception $e) {
+            Output::error($e->getMessage());
+        }
+    }
+    public function createMsLiveUser(array $data)
+    {
+        // $data is the contents of the JWT token, so we need to do some transformations before we can use it
+        $insertData = [];
+        // usernames comes as preferred_username in the JWT token
+        $insertData['username'] = $data['preferred_username'] ?? Output::error('Missing preferred_username in token', 400);
+        // Prepare the email, if it's not present in the JWT token, use the username
+        $insertData['email'] = $data['email'] ?? $insertData['username'];
+        // Name comes as name in the JWT token
+        $insertData['name'] = $data['name'] ?? Output::error('Missing name in token', 400);
+        // Last IPs comes as ipaddr in the JWT token, if it's not present, use the current IP
+        $insertData['last_ips'] = General::currentIP();
+        // If JWT has a claim called 'ctry' take it, otherwise take the browser language
+        $insertData['origin_country'] = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+        // Role comes as an array of roles in the JWT token, we only need the first one
+        $insertData['role'] = 'user'; // There are no roles in live id tokens
+        // Theme is set to the default color scheme
+        $insertData['theme'] = COLOR_SCHEME;
+        $insertData['provider'] = 'mslive';
         $insertData['enabled'] = 1;
 
         $allowedData = ['username', 'email', 'name', 'last_ips', 'origin_country', 'role', 'theme', 'provider', 'enabled'];

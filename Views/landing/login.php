@@ -35,7 +35,17 @@ echo '<div class="flex items-center justify-center mx-4">';
                 echo '<a class="mb-4 w-full text-black dark:text-slate-400 font-medium text-center border border-gray-200 rounded-md shadow-sm hover:bg-gray-200 hover:dark:text-black" href="' . AZURE_AD_LOGIN_BUTTON_URL . '">';
                     echo '<div class="flex items-center justify-center py-3 px-3 leading-5">';
                         echo '<img height="32" width="32" src="/assets/images/MSFT.png" alt="MS Logo" />';
-                            echo '<span class="ml-3">Sign in with Microsoft</span>';
+                            echo '<span class="ml-3">Sign in with Microsoft Work or school</span>';
+                    echo '</div>';
+                echo '</a>';
+            echo '</div>';
+        }
+        if (MICROSOFT_LIVE_LOGIN) {
+            echo '<div class="flex gap-4 item-center">';
+                echo '<a class="mb-4 w-full text-black dark:text-slate-400 font-medium text-center border border-gray-200 rounded-md shadow-sm hover:bg-gray-200 hover:dark:text-black" href="' . MS_LIVE_LOGIN_BUTTON_URL . '">';
+                    echo '<div class="flex items-center justify-center py-3 px-3 leading-5">';
+                        echo '<img height="32" width="32" src="/assets/images/MSFT.png" alt="MS Logo" />';
+                            echo '<span class="ml-3">Sign in with Microsoft live account</span>';
                     echo '</div>';
                 echo '</a>';
             echo '</div>';
@@ -53,7 +63,9 @@ echo '<div class="flex items-center justify-center mx-4">';
         }
         // Local login
         if (LOCAL_USER_LOGIN) {
-            echo HTML::p('or login with your local account', ['text-center', 'text-gray-500', 'mb-4']);
+            if (AZURE_AD_LOGIN || GOOGLE_LOGIN || MICROSOFT_LIVE_LOGIN) {
+                echo HTML::p('or login with your local account', ['text-center', 'text-gray-500', 'mb-4']);
+            }
             $localLoginForm = [
                 'inputs' => [
                     'input' => [

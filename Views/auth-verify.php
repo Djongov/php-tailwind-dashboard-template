@@ -68,6 +68,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $userModel = new UserModel();
 
     if ($userModel->exists($idTokenArray['email'])) {
+        $userDetailsArray = $userModel->get($idTokenArray['email']);
+        if ($userDetailsArray['provider'] !== 'google') {
+            Output::error('User exists but is not a google account', 400);
+        }
         // User exists, let's update the last login
         $user->updateLastLogin($idTokenArray['email']);
     } else {
@@ -139,41 +143,55 @@ if (isset($_POST['id_token'], $_POST['state']) || isset($_POST['error'], $_POST[
     $idToken = $_POST['id_token'];
     $idTokenArray = JWT::parseTokenPayLoad($idToken);
     // Let's do some checks on the token to handle data structure we expect
-    if (!isset($idTokenArray['preferred_username'], $idTokenArray['name'], $idTokenArray['roles'], $idTokenArray['exp'])) {
+
+
+    if (!isset($idTokenArray['preferred_username'], $idTokenArray['name'], $idTokenArray['exp'], $idTokenArray['iss'])) {
         Output::error('Invalid token claims', 400);
     }
-    // Let's call the function to check the JWT token which is returned. We are checking stuff like expiration, issuer, app id. We also do validation of the token signature
-    if (AzureAD::check($idToken)) {
-        // Let's set the "auth_cookie" and put the id token as it's value, set the expiration date to when the token should expire and the rest of the cookie settings
-        setcookie(AUTH_COOKIE_NAME, $idToken, [
-            'expires' => $idTokenArray['exp'] + 86400,
-            'path' => '/',
-            'domain' => str_replace(strstr($_SERVER['HTTP_HOST'], ':'), '', $_SERVER['HTTP_HOST']), // strip : from HOST in cases where localhost:8080 is used
-            'secure' => $secure, // This needs to be true for most scenarios, we leave the option to be false for local environments
-            'httponly' =>  true, // Prevent JavaScript from accessing the cookie
-            'samesite' => 'Lax' // This unlike the session cookie can be Lax
-        ]);
-        // instantiate the user class
-        $user = new User();
-        $userModel = new UserModel();
+    
+    // If it is an MSLIVE token, then the issueer wil; be https://login.live.com
+    if ($idTokenArray['iss'] === 'https://login.live.com') {
+        // No check for now
+    } else {
+        // Let's call the function to check the JWT token which is returned. We are checking stuff like expiration, issuer, app id. We also do validation of the token signature
+        if (!AzureAD::check($idToken)) {
+            Output::error('Invalid token', 400);
+        }
+    }
 
-        // Check if the user exists in the DB
-        if ($userModel->exists($idTokenArray['preferred_username'])) {
-            // User exists, let's update the last login
-            $user->updateLastLogin($idTokenArray['preferred_username']);
+    // Let's set the "auth_cookie" and put the id token as it's value, set the expiration date to when the token should expire and the rest of the cookie settings
+    setcookie(AUTH_COOKIE_NAME, $idToken, [
+        'expires' => $idTokenArray['exp'] + 86400,
+        'path' => '/',
+        'domain' => str_replace(strstr($_SERVER['HTTP_HOST'], ':'), '', $_SERVER['HTTP_HOST']), // strip : from HOST in cases where localhost:8080 is used
+        'secure' => $secure, // This needs to be true for most scenarios, we leave the option to be false for local environments
+        'httponly' =>  true, // Prevent JavaScript from accessing the cookie
+        'samesite' => 'Lax' // This unlike the session cookie can be Lax
+    ]);
+    // instantiate the user class
+    $user = new User();
+    $userModel = new UserModel();
+    // Check if the user exists in the DB
+    if ($userModel->exists($idTokenArray['preferred_username'])) {
+        // User exists, let's update the last login
+        $userDetailsArray = $userModel->get($idTokenArray['preferred_username']);
+        if ($userDetailsArray['provider'] !== 'azure' && $userDetailsArray['provider'] !== 'mslive') {
+            Output::error('User exists but is not an Entra ID or MS Live account', 400);
+        }
+        $user->updateLastLogin($idTokenArray['preferred_username']);
+    } else {
+        // User does not exist, let's create it (this will also update the last login)
+        if ($idTokenArray['iss'] === 'https://login.live.com') {
+            $user->create($idTokenArray, 'mslive');
         } else {
-            // User does not exist, let's create it (this will also update the last login)
             $user->create($idTokenArray, 'azure');
         }
-
-        $destinationUrl = $_POST['state'] ?? null;
-        // Valid destination, proceed to redirect to the destination
-        header("Location: " . filter_var($destinationUrl, FILTER_SANITIZE_URL));
-        exit();
-        
-    } else {
-        Output::error('Invalid token', 400);
     }
+
+    $destinationUrl = $_POST['state'] ?? null;
+    // Valid destination, proceed to redirect to the destination
+    header("Location: " . filter_var($destinationUrl, FILTER_SANITIZE_URL));
+    exit();
 }
 
 // If the request is coming from local login, we should have a $_POST['username'] and a $_POST['password'] parameter

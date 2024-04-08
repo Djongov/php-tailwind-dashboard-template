@@ -106,7 +106,7 @@ echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
                 continue;
             }
             // Only show copy to clipboard on non-null items
-            echo ' <td class="w-full"><strong>' . $name . '</strong> : <span>' . $setting . '</span>  </td>';
+            echo ' <td class="w-full"><strong>' . $name . '</strong> : <span class="break-all">' . $setting . '</span>  </td>';
             echo '</tr>';
         }
         echo '</table>';

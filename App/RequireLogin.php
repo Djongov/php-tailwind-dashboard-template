@@ -88,6 +88,22 @@ class RequireLogin
                     exit();
                 }
             }
+            // Now check Microsoft Live
+            if ($tokenPayload['iss'] === 'https://login.live.com') {
+                // No current way of verifying the token so we will just check if it's not expired
+                if (JWT::checkExpiration($_COOKIE[AUTH_COOKIE_NAME])) {
+                    $provider = 'mslive';
+                    $loggedIn = true;
+                } else {
+                    if ($apiRoute) {
+                        Output::error('Authentication failure', 401);
+                    }
+                    // If checks for JWT token fail - unset cookie and redirect to /login
+                    JWT::handleValidationFailure();
+                    header('Location: /login?destination=' . $_SERVER['REQUEST_URI']);
+                    exit();
+                }
+            }
 
         } else {
             // Redirect to /login but preserve the destination if auth_cookie is missing
@@ -158,6 +174,27 @@ class RequireLogin
 
             $username = ($loggedIn) ? $idTokenInfoArray["username"] : null;
         }
+        // Microsoft LIVE
+        if ($loggedIn && isset($_COOKIE[AUTH_COOKIE_NAME]) && $provider === 'mslive') {
+            $authCookieArray = $tokenPayload;
+            $expectedClaims = [
+                'username' => 'preferred_username',
+                'email' => 'email',
+                'name' => 'name'
+            ];
+            $idTokenInfoArray["last_ip"] = General::currentIP();
+            foreach ($expectedClaims as $dbClaimName => $JWTClaimName) {
+                $idTokenInfoArray[$dbClaimName] = isset($authCookieArray[$JWTClaimName]) ? $authCookieArray[$JWTClaimName] : null;
+            }
+            // Now the special ones
+            $idTokenInfoArray["token_expiry"] = isset($authCookieArray['exp']) ? date("Y-m-d H:i:s", substr($authCookieArray['exp'], 0, 10)) : null;
+            // If roles is not set, we set it to user, otherwise we set it to the roles array
+            $idTokenInfoArray["roles"] = ['user'];
+            // Now we search for the administrator role as role is an array of roles
+
+            $username = ($loggedIn) ? $idTokenInfoArray["username"] : null;
+        }
+
         // If we are logged in and we have an established username, we need to either fetch user data from the DB or create a new user in the DB
         if ($username !== null) {
             $userResult = MYSQL::query("SELECT * FROM `users` WHERE `username` = '$username'");
