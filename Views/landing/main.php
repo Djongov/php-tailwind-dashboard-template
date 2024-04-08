@@ -10,7 +10,9 @@ use Models\Api\User;
 
 $user = new User();
 
-var_dump($user->exists('qwe'));
+
+
+//dd($usernameArray);
 
 
 
