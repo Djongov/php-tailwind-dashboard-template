@@ -124,7 +124,7 @@ echo '<div class="flex items-center justify-center mx-4">';
                 echo HTML::small('If you do not have an account, please contact your administrator');
             }
         }
-        if (!LOCAL_USER_LOGIN && !AZURE_AD_LOGIN) {
+        if (!LOCAL_USER_LOGIN && !AZURE_AD_LOGIN && !GOOGLE_LOGIN && !MICROSOFT_LIVE_LOGIN) {
             echo Alerts::danger('No login methods are enabled. Check config');
 }
     echo '</div>';
