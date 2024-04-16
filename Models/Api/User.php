@@ -83,7 +83,7 @@ class User
         $updateUser = MYSQL::queryPrepared($sql, $values);
 
         if ($updateUser->affected_rows === 0) {
-            throw (new UserExceptions)->userNotFound();
+            throw (new UserExceptions)->userNotUpdated();
         } else {
             SystemLog::write('User with id ' . $id . ' updated with ' . json_encode($data), 'User API');
             return true;

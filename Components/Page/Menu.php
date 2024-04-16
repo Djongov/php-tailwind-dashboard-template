@@ -14,7 +14,7 @@ class Menu
         // Holder div, used to have justify-between
         $html .= '<div class="flex flex-wrap justify-center">';
         // Logo + href to homepage
-        $html .= '<a href="/" class="flex items-center"><img src="' . LOGO . '" alt="logo" class="w-10 h-10 rounded-lg object-cover spin" /><p class="font-semibold ml-2">' . SITE_TITLE . '</p></a>';
+        $html .= '<a href="/" class="flex items-center"><img src="' . LOGO . '" alt="logo" class="w-10 h-10 rounded-lg hoverbright" /><p class="font-semibold ml-2">' . SITE_TITLE . '</p></a>';
         // Button for mobile menu sandwich
         $html .= '<button data-collapse-toggle="mobile-menu" type="button" class="inline-flex justify-center items-center ml-6 text-gray-800 rounded-lg md:hidden hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-' . $theme . '-300 dark:text-gray-400 dark:hover:text-white dark:focus:ring-gray-500" aria-controls="mobile-menu-2" aria-expanded="false">
                     <span class="sr-only">Open main menu</span>

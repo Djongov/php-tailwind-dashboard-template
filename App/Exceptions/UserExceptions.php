@@ -24,4 +24,8 @@ class UserExceptions extends TemplateException
     {
         return new self('User not deleted', 500);
     }
+    public function userNotUpdated() : self
+    {
+        return new self('Nothing to update', 409);
+    }
 }
