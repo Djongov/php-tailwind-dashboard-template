@@ -4,11 +4,10 @@ use Controllers\Api\Output;
 use App\Install;
 use Components\Alerts;
 
-
 // If we need to instrall
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 $conn = mysqli_init();
-if (defined("MYSQL_SSL") && MYSQL_SSL) {
+if (defined("DB_SSL") && DB_SSL) {
     mysqli_ssl_set($conn, NULL, NULL, CA_CERT, NULL, NULL);
     try {
         $conn->real_connect('p:' . DB_HOST, DB_USER, DB_PASS, DB_NAME, 3306, MYSQLI_CLIENT_SSL);

@@ -2,6 +2,10 @@
 
 use Google\Client;
 
+if (!isset($_ENV['GOOGLE_CLIENT_ID']) || !isset($_ENV['GOOGLE_CLIENT_SECRET'])) {
+    die('GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, must be set in the .env file if GOOGLE_LOGIN is set to true');
+}
+
 define("GOOGLE_CLIENT_ID", $_ENV['GOOGLE_CLIENT_ID']);
 define("GOOGLE_CLIENT_SECRET", $_ENV['GOOGLE_CLIENT_SECRET']);
 $google_nonce = $_SESSION['nonce'] ?? null;

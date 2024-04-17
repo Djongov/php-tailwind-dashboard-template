@@ -1,6 +1,6 @@
 <?php
 
-use App\Database\MYSQL;
+use App\Database\DB;
 use Controllers\Api\Output;
 use App\Logs\SystemLog;
 use Controllers\Api\Checks;
@@ -28,7 +28,9 @@ $sql = 'UPDATE `' . $_POST['table'] . '` SET ';
 unset($_POST['csrf_token']);
 unset($_POST['table']);
 
-MYSQL::checkDBColumnsAndTypes($_POST, $table);
+$db = new DB();
+
+$db->checkDBColumnsAndTypes($_POST, $table);
 
 $updates = [];
 
@@ -52,12 +54,15 @@ $values = array_values($_POST);
 
 $values[] = $_POST['id']; // Add the 'id' for the WHERE clause
 
-$editRecord = MYSQL::queryPrepared($sql, $values);
+$pdo = $db->getConnection();
 
+$stmt = $pdo->prepare($sql);
 
-if ($editRecord->affected_rows === 0) {
+$stmt->execute($values);
+
+if ($stmt->rowCount() === 0) {
     Output::error('Nothing updated', 409);
 } else {
     SystemLog::write('Record id ' . $_POST['id'] . ' edited in ' . $table, 'DataGrid Edit');
-    echo Output::success('successfully edited ' . $editRecord->affected_rows . ' records in ' . $table . '');
+    echo Output::success('successfully edited ' . $stmt->rowCount() . ' records in ' . $table . '');
 }

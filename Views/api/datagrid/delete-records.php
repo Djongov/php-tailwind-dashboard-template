@@ -1,6 +1,6 @@
 <?php
 
-use App\Database\MYSQL;
+use App\Database\DB;
 use Controllers\Api\Output;
 use Controllers\Api\Checks;
 use App\Logs\SystemLog;
@@ -14,15 +14,22 @@ if (!isset($_POST['table'], $_POST['id']) xor isset($_POST['deleteRecords'], $_P
 
 $checks->apiChecks();
 
+$db = new DB();
+
+$pdo = $db->getConnection();
+
 // If a single delete somes from the button
 if (isset($_POST['table'], $_POST['id'])) {
-    $deleteSingleRecord = MYSQL::queryPrepared("DELETE FROM `" . $_POST['table'] . "` WHERE `id`=?", $_POST['id']);
-    if ($deleteSingleRecord->affected_rows === 0) {
+    $stmt = $pdo->prepare("SELECT * FROM `" . $_POST['table'] . "` WHERE `id`=?");
+    $stmt->execute([$_POST['id']]);
+    if ($stmt->rowCount() === 0) {
         Output::error('No records were deleted', 400);
     }
-    if ($deleteSingleRecord->affected_rows > 0) {
+    $stmt = $pdo->prepare("DELETE FROM `" . $_POST['table'] . "` WHERE `id`=?");
+    $stmt->execute([$_POST['id']]);
+    if ($stmt->rowCount() > 0) {
         SystemLog::write('Record id ' . $_POST['id'] . ' deleted from ' . $_POST['table'], 'DataGrid Delete');
-        echo Output::success('successfully deleted ' . $deleteSingleRecord->affected_rows . ' records');
+        echo Output::success('successfully deleted ' . $stmt->rowCount() . ' records');
     }
 // Or mass delete from the Delete selected button
 } elseif (isset($_POST['deleteRecords'], $_POST['row'])) {
@@ -35,16 +42,18 @@ if (isset($_POST['table'], $_POST['id'])) {
         }
     }
     $sql = "DELETE FROM `" . $_POST['deleteRecords'] . "` WHERE `id` IN ($ids)";
-    
-    $deleteAllRecords = MYSQL::queryPrepared($sql, [...$_POST['row']]);
 
+    $stmt = $pdo->prepare($sql);
+
+    $stmt->execute([...$_POST['row']]);
     
-    if ($deleteAllRecords->affected_rows === 0) {
+    
+    if ($stmt->rowCount() === 0) {
         Output::error('No records were deleted', 400);
     }
-    if ($deleteAllRecords->affected_rows > 0) {
-        SystemLog::write($deleteAllRecords->affected_rows . ' records deleted from ' . $_POST['deleteRecords'], 'DataGrid Delete');
-        echo Output::success('successfully deleted ' . $deleteAllRecords->affected_rows . ' records');
+    if ($stmt->rowCount() > 0) {
+        SystemLog::write($stmt->rowCount() . ' records deleted from ' . $_POST['deleteRecords'], 'DataGrid Delete');
+        echo Output::success('successfully deleted ' . $stmt->rowCount() . ' records');
     }
 } else {
     Output::error('Incorrect arguments', 400);

@@ -4,7 +4,7 @@ namespace App\Authentication;
 
 use App\Authentication\AzureAD;
 use App\Authentication\Google;
-use App\Database\MYSQL;
+use App\Database\DB;
 use App\Logs\SystemLog;
 
 class X5CHandler
@@ -21,11 +21,14 @@ class X5CHandler
         } elseif ($provider === 'google') {
             $type = 'x509';
         }
-        // First we check for cached x5c in the database
-        $x5c = MYSQL::queryPrepared("SELECT * FROM `cache` WHERE `type`=? AND `unique_property`=?", [$type, $kid]);
+        $db = new DB();
+        $pdo = $db->getConnection();
+        $stmt = $pdo->prepare("SELECT * FROM `cache` WHERE `type`=? AND `unique_property`=?");
+        $stmt->execute([$type, $kid]);
+        $x5c = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         // Check if we have a result
-        if ($x5c->num_rows === 1) {
+        if (!empty($x5c)) {
             $x5cResultArray = $x5c->fetch_assoc();
             // We have a result, let's check if it's expired
             if (strtotime($x5cResultArray['expiration']) > time()) {
@@ -33,10 +36,10 @@ class X5CHandler
                 return $x5cResultArray['value'];
             } else {
                 // We have an expired x5c, let's delete it
-                MYSQL::queryPrepared("DELETE FROM `cache` WHERE `type`=? AND `unique_property`=?", [$type, $kid]);
+                $stmt = $pdo->prepare("DELETE FROM `cache` WHERE `type`=? AND `unique_property`=?");
+                $stmt->execute([$type, $kid]);
                 // Let's fetch a new x5c
                 $newX5c = self::fetch($appId, $tenant, $kid, $provider);
-
                 SystemLog::write('Fetched new ' . $type, $type);
                 // Let's return the x5c if not false
                 return (!$newX5c) ? false : $newX5c;
@@ -67,8 +70,10 @@ class X5CHandler
             $type = 'x509';
             $x5c = $x5cResult['n'] . ' ' . $x5cResult['e'];
         }
-        // We have a result, let's cache it
-        MYSQL::queryPrepared("INSERT INTO `cache` (`type`, `unique_property`, `value`, `expiration`) VALUES (?, ?, ?, ?)", [$type, $kid, $x5c, date('Y-m-d H:i:s', strtotime('+1 day'))]);
+        $db = new DB();
+        $pdo = $db->getConnection();
+        $stmt = $pdo->prepare("INSERT INTO `cache` (`type`, `unique_property`, `value`, `expiration`) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$type, $kid, $x5c, date('Y-m-d H:i:s', strtotime('+1 day'))]);
 
         // Return the x5c
         SystemLog::write('Fetched new ' . $type . ' and wrote it to DB', $type);

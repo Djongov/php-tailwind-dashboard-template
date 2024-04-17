@@ -2,7 +2,7 @@
 
 namespace Models\Api;
 
-use App\Database\MYSQL;
+use App\Database\DB;
 use App\Logs\SystemLog;
 use App\Exceptions\UserExceptions;
 
@@ -13,11 +13,15 @@ class User
     {
         // If the param is a string, we assume it's a username
         if (is_string($param)) {
-            $exists = MYSQL::queryPrepared('SELECT `id` FROM `users` WHERE `username` = ?', [$param]);
+            $query = 'SELECT `id` FROM `users` WHERE `username` = ?';
         } else {
-            $exists = MYSQL::queryPrepared('SELECT `id` FROM `users` WHERE `id` = ?', [$param]);
+            $query = 'SELECT `id` FROM `users` WHERE `id` = ?';
         }
-        return ($exists->num_rows === 0) ? false : true;
+        $db = new DB();
+        $pdo = $db->getConnection();
+        $stmt = $pdo->prepare($query);
+        $stmt->execute([$param]);
+        return ($stmt->rowCount() > 0) ? true : false;
     }
     // User get
     public function get(string|int $param) : array
@@ -30,8 +34,11 @@ class User
             } else {
                 $column = 'id';
             }
-            $user = MYSQL::queryPrepared('SELECT * FROM `users` WHERE `' . $column . '` = ?', [$param]);
-            return $user->fetch_assoc();
+            $db = new DB();
+            $pdo = $db->getConnection();
+            $stmt = $pdo->prepare('SELECT * FROM `users` WHERE `' . $column . '` = ?');
+            $stmt->execute([$param]);
+            return $stmt->fetch(\PDO::FETCH_ASSOC);
         }
     }
     // User Deleter
@@ -45,8 +52,11 @@ class User
             } else {
                 $column = 'id';
             }
-            $delete = MYSQL::queryPrepared('DELETE FROM `users` WHERE `' . $column . '` = ?', [$param]);
-            if ($delete->affected_rows === 0) {
+            $db = new DB();
+            $pdo = $db->getConnection();
+            $stmt = $pdo->prepare('DELETE FROM `users` WHERE `' . $column . '` = ?');
+            $stmt->execute([$param]);
+            if ($stmt->rowCount() === 0) {
                 throw (new UserExceptions)->userNotDeleted();
             } else {
                 SystemLog::write('User with ' . $column . ' ' . $param . ' deleted', 'User API');
@@ -61,7 +71,9 @@ class User
         if (!$this->exists($id)) {
             throw (new UserExceptions)->userNotFound();
         }
-        MYSQL::checkDBColumnsAndTypes($data, 'users');
+        $db = new DB();
+
+        $db->checkDBColumnsAndTypes($data, 'users');
 
         $sql = 'UPDATE `users` SET ';
         $updates = [];
@@ -80,9 +92,13 @@ class User
         $values = array_values($data);
         $values[] = $id; // Add the id for the WHERE clause
 
-        $updateUser = MYSQL::queryPrepared($sql, $values);
+        $pdo = $db->getConnection();
 
-        if ($updateUser->affected_rows === 0) {
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($values);
+
+
+        if ($stmt->rowCount() === 0) {
             throw (new UserExceptions)->userNotUpdated();
         } else {
             SystemLog::write('User with id ' . $id . ' updated with ' . json_encode($data), 'User API');
@@ -96,8 +112,10 @@ class User
         if ($this->exists($data['username'])) {
             throw (new UserExceptions)->userAlreadyExists();
         }
+        $db = new DB();
+
         // Now let's check if the structure of the data matches the table
-        MYSQL::checkDBColumnsAndTypes($data, 'users');
+        $db->checkDBColumnsAndTypes($data, 'users');
 
         $sql = 'INSERT INTO `users` (';
         $columns = [];
@@ -108,9 +126,11 @@ class User
         }
         $sql .= implode(', ', $columns) . ') VALUES (' . implode(', ', $values) . ')';
 
-        $createUser = MYSQL::queryPrepared($sql, array_values($data));
+        $pdo = $db->getConnection();
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(array_values($data));
 
-        if ($createUser->affected_rows === 0) {
+        if ($stmt->rowCount() === 0){
             SystemLog::write('User not created with ' . json_encode($data), 'User API');
             throw (new UserExceptions)->userNotCreated();
         } else {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Authentication\AzureAD;
 use Controllers\Api\Output;
 use Controllers\Api\Checks;
@@ -240,12 +242,21 @@ if (isset($_POST['username'], $_POST['password'], $_POST['csrf_token'])) {
     ]);
 
     $expiry_addition = ($_POST['remember'] === "1") ? 86400 * 24 * 12 : 86400;
+    $domainCookie = $_SERVER['HTTP_HOST'];
+    $colonPosition = strstr($domainCookie,
+        ':'
+    ) ?? '';
 
+    if ($colonPosition === false) {
+        $colonPosition = '';
+    }
+
+    $domainCookie = str_replace($colonPosition, '', $domainCookie);
     // Let's set the auth cookie
     setcookie(AUTH_COOKIE_NAME, $idToken, [
         'expires' => time() + $expiry_addition,
         'path' => '/',
-        'domain' => str_replace(strstr($_SERVER['HTTP_HOST'], ':'), '', $_SERVER['HTTP_HOST']), // strip : from HOST in cases where localhost:8080 is used
+        'domain' => $domainCookie, // strip : from HOST in cases where localhost:8080 is used
         'secure' => true, // This needs to be true for most scenarios, we leave the option to be false for local environments
         'httponly' =>  true, // Prevent JavaScript from accessing the cookie
         'samesite' => 'Lax' // This needs to be None otherwise, the trip to ms login endpoint and back will not hold the cookie

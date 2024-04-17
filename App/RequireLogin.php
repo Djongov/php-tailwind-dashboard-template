@@ -2,7 +2,7 @@
 
 namespace App;
 
-use App\Database\MYSQL;
+use App\Database\DB;
 use App\Authentication\AzureAD;
 use App\Authentication\JWT;
 use App\Authentication\Google;
@@ -197,12 +197,16 @@ class RequireLogin
 
         // If we are logged in and we have an established username, we need to either fetch user data from the DB or create a new user in the DB
         if ($username !== null) {
-            $userResult = MYSQL::query("SELECT * FROM `users` WHERE `username` = '$username'");
-            if ($userResult->num_rows > 0) {
-                $usernameArray = $userResult->fetch_assoc();
+            $db = new DB();
+            $pdo = $db->getConnection();
+            $stmt = $pdo->prepare("SELECT * FROM `users` WHERE `username` = ?");
+            $stmt->execute([$username]);
+            $usernameArray = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if (!empty($usernameArray)) {
                 // Let's check if the last_ip is different from what we have in the DB, and update it
                 if ($usernameArray['last_ips'] !== $idTokenInfoArray["last_ip"]) {
-                    MYSQL::queryPrepared("UPDATE `users` SET `last_ips`=? WHERE `username`=?",[$idTokenInfoArray["last_ip"], $username]);
+                    $stmt = $pdo->prepare("UPDATE `users` SET `last_ips`=? WHERE `username`=?");
+                    $stmt->execute([$idTokenInfoArray["last_ip"], $username]);
                 }
             } else {
                 if (empty($usernameArray)) {
@@ -226,20 +230,12 @@ class RequireLogin
             if ($usernameArray['role'] === 'administrator') {
                 $isAdmin = true;
             }
-            // And if DB says admin but the JWT token no longer bears the admin role - remove it
-            // elseif ($idTokenInfoArray["role"] !== 'administrator' && $usernameArray['role'] === 'administrator') {
-            //     MYSQL::queryPrepared("UPDATE `users` SET `role`=NULL WHERE `username`=?", [$usernameArray['username']]);
-            //     // Good to alert as well
-            // }
         }
 
         // Kill disabled users early
         if (isset($usernameArray["enabled"]) && $usernameArray["enabled"] === 0) {
             Output::error('Your user has been disabled', 401);
         }
-
-        //$theme = (isset($usernameArray["theme"])) ? $usernameArray["theme"] : COLOR_SCHEME;
-        //$theme = $usernameArray['theme'] ?? COLOR_SCHEME;
 
         // If this gets executed on /login, we need to keep logged in users away from the login page
         if (str_contains($_SERVER['REQUEST_URI'], 'login') && $loggedIn) {

@@ -2,8 +2,9 @@
 
 namespace App\Security;
 
-use App\Database\MYSQL;
+use App\Database\DB;
 use Controllers\Api\Output;
+use App\Logs\SystemLog;
 
 class Firewall
 {
@@ -29,10 +30,13 @@ class Firewall
             // or just use the normal remote addr
             $client_ip = $_SERVER['REMOTE_ADDR'];
         }
-        $firewall_ips_check = MYSQL::query('SELECT * FROM `firewall`');
-        $firewall_array = $firewall_ips_check->fetch_all(MYSQLI_ASSOC);
+        $db = new DB();
+        $pdo = $db->getConnection();
+        $stmt = $pdo->prepare("SELECT * FROM `firewall`");
+        $stmt->execute();
+        $firewall_array = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         $allow_list = [];
-        foreach ($firewall_array as $index => $array) {
+        foreach ($firewall_array as $array) {
             foreach ($array as $name => $value) {
                 if ($name === 'ip_cidr') {
                     array_push($allow_list, $value);
@@ -52,8 +56,7 @@ class Firewall
             }
         }
         if (!$valid_ip) {
-            //include_once dirname($_SERVER['DOCUMENT_ROOT']) . '/functions/systemLog/systemLog.php';
-            //writeToSystemLog('just tried to access the web app and got Unauthorized', 'Access');
+            SystemLog::write('just tried to access the web app and got Unauthorized', 'Access');
             Output::error('Unauthorized access for IP Address ' . $client_ip . ' on uri ' . $_SERVER['REQUEST_URI'], 401);
         }
     }

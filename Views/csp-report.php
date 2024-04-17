@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 use Controllers\Api\Output;
 use App\Logs\SystemLog;
 use Models\CSP;

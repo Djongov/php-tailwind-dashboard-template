@@ -1,8 +1,7 @@
 <?php
 
-use App\Database\MYSQL;
+use App\Database\DB;
 use Components\Alerts;
-use Components\DataGrid\SimpleVerticalDataGrid;
 use Components\DataGrid\DataGrid;
 use Controllers\Api\Checks;
 use App\Security\Firewall;
@@ -33,31 +32,37 @@ if (str_contains($query, 'JOIN')) {
     return;
 }
 
-$result = MYSQL::query($query);
+$db = new DB();
+
+$pdo = $db->getConnection();
+
+$stmt = $pdo->prepare($query);
+
+$stmt->execute();
+
+$data = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
 if (str_starts_with($query, 'SELECT')) {
-    if ($result->num_rows === 0) {
-        echo Alerts::danger('No data found');
+    if (empty($data)) {
+        echo Alerts::danger('No data found for this SELECT query');
         return;
     }
-    $data = $result->fetch_all(MYSQLI_ASSOC);
     echo '<div class="mx-4">';
         echo DataGrid::createTable('query', $data, $theme, 'Custom query results', false, false);
     echo '</div>';
 } elseif (str_starts_with($query, 'DESCRIBE') || str_starts_with($query, 'SHOW')) {
-    if ($result->num_rows === 0) {
-        echo Alerts::danger('No data found');
+    if (empty($data)) {
+        echo Alerts::danger('No data found for this DESCRIBE or SHOW query');
         return;
     } else {
-        $data = $result->fetch_all(MYSQLI_ASSOC);
         echo '<div class="mx-4">';
             echo DataGrid::createTable('query', $data, $theme, 'Custom query results', false, false);
         echo '</div>';
     }
 } else {
-    if ($result->affected_rows === 0) {
+    if (empty($data)) {
         echo Alerts::danger('No rows changed');
     } else {
-        echo Alerts::success('Query executed successfully. ' . $result->affected_rows . ' rows affected');
+        echo Alerts::success('Query executed successfully. ' . $stmt->rowCount() . ' rows affected');
     }
 }

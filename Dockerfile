@@ -2,7 +2,6 @@ FROM php:8.3-apache
 
 # Set build-time arguments for secrets
 ARG DB_MODE
-ARG MYSQL_SSL
 ARG DB_HOST
 ARG DB_NAME
 ARG DB_USER
@@ -17,7 +16,6 @@ RUN rm -f ".env"
 
 # Create and populate the .env file with secrets
 RUN echo "DB_MODE=${DB_MODE}" > .env
-RUN echo "MYSQL_SSL=${MYSQL_SSL}" >> .env
 RUN echo "DB_HOST=${DB_HOST}" >> .env
 RUN echo "DB_NAME=${DB_NAME}" >> .env
 RUN echo "DB_USER=${DB_USER}" >> .env

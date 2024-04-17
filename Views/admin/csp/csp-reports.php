@@ -3,7 +3,7 @@
 use App\Security\Firewall;
 use Controllers\Api\Output;
 use App\General;
-use App\Database\MYSQL;
+use App\Database\DB;
 use Components\Alerts;
 use Components\DataGrid\DataGrid;
 use Components\Html;
@@ -17,14 +17,21 @@ if (!$isAdmin) {
     Output::error('You are not an admin', 403);
 }
 
-$result = MYSQL::query('SELECT `id`,`created_at`,`domain`,`url`,`referrer`,`violated_directive`,`effective_directive`,`disposition`,`blocked_uri`,`line_number`,`column_number`,`source_file`,`status_code`,`script_sample` FROM `csp_reports` ORDER BY `id` DESC');
+$db = new DB();
 
-if ($result->num_rows === 0) {
+$pdo = $db->getConnection();
+
+$stmt = $pdo->prepare('SELECT `id`,`created_at`,`domain`,`url`,`referrer`,`violated_directive`,`effective_directive`,`disposition`,`blocked_uri`,`line_number`,`column_number`,`source_file`,`status_code`,`script_sample` FROM `csp_reports` ORDER BY `id` DESC');
+
+$stmt->execute();
+
+
+if ($stmt->rowCount() === 0) {
     echo Alerts::danger('No CSP reports data found');
     return;
 }
 
-$cspArray = $result->fetch_all(MYSQLI_ASSOC);
+$cspArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
 // Let's build some autoload charts
 

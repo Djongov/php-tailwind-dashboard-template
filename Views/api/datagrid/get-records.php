@@ -1,6 +1,6 @@
 <?php
 
-use App\Database\MYSQL;
+use App\Database\DB;
 use Controllers\Api\Output;
 use Controllers\Api\Checks;
 use App\Logs\SystemLog;
@@ -23,18 +23,22 @@ $selectColumnsArray = explode(',', $_POST['columns']);
 // Now let's implode them so that we can use them in the query ``, ``, ``
 $selectColumnsString = '`' . implode('`, `', $selectColumnsArray) . '`';
 
+$db = new DB();
+
 // Check if the columns exist in the database
-MYSQL::checkDBColumnsAndTypes($selectColumnsArray, $_POST['table']);
+$db->checkDBColumnsAndTypes($selectColumnsArray, $_POST['table']);
 
-// Now pull the data types from the db so we know what type of input to use
-$columns = MYSQL::describe($_POST['table']);
+$pdo = $db->getConnection();
 
-$dataCheck = MYSQL::queryPrepared("SELECT $selectColumnsString FROM `" . $_POST['table'] . "` WHERE `id`=?", [$_POST['id']]);
+$stmt = $pdo->prepare("SELECT $selectColumnsString FROM `" . $_POST['table'] . "` WHERE `id`=?");
 
-$dataTypes = MYSQL::describe($_POST['table']);
+$stmt->execute([$_POST['id']]);
 
-if ($dataCheck->num_rows > 0) {
-    $data_array = $dataCheck->fetch_assoc();
+
+$dataTypes = $db->describe($_POST['table']);
+
+if ($stmt->rowCount() > 0) {
+    $data_array = $stmt->fetch(\PDO::FETCH_ASSOC);
     $html = '';
     $html .= '<div class="mb-6">';
         foreach ($data_array as $key => $value) {
@@ -67,7 +71,7 @@ if ($dataCheck->num_rows > 0) {
                 if ($dataTypes[$key] === 'string') {
                     if ($key === 'password') {
                         $html .= HTML::input('default', 'password', uniqid(), $key, $key, $value, '', 'This is most likely a hashed value of the password', $key, $theme, false, true, ($readonly) ? true : false);
-                    } elseif (strlen($value) > 255) {
+                    } elseif ($value !== null && strlen($value) > 255) {
                         $html .= HTML::textArea(null, $key, $value, '', $key, '', '', $theme, false, false, false, 10, 50);
                     } else {
                         $html .= HTML::input('default', 'text', uniqid(), $key, $key, $value, '', '', $key, $theme, false, true, ($readonly) ? true : false);

@@ -1,7 +1,6 @@
 <?php
 
-use App\General;
-use App\Database\MYSQL;
+use App\Database\DB;
 use Components\Html;
 
 echo HTML::h1('DataGrid', true);
@@ -65,9 +64,14 @@ echo HTML::h2('Example 4: Autoloading the DataGrid from Javascript, using the au
 
 echo HTML::p('This example will autoload the DataGrid from Javascript, using the autoloader. The data is fetched from the database and then passed to the autoloader. Check source code to see how it is done.');
 
-$usersData = MYSQL::query('SELECT * FROM `csp_approved_domains`');
+$db = new DB();
 
-$usersArray = $usersData->fetch_all(MYSQLI_ASSOC);
+$pdo = $db->getConnection();
+
+$usersData = $pdo->query('SELECT * FROM `csp_approved_domains`');
+
+// PDO fetch now
+$usersArray = $usersData->fetchAll(\PDO::FETCH_ASSOC);
 
 $autoloadArray = [
     [

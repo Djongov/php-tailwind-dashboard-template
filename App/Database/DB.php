@@ -21,7 +21,7 @@ class DB
             'password' => $password,
             'charset' => $charset
         ];
-
+        
         $this->connect($config);
     }
 
@@ -29,13 +29,8 @@ class DB
     {
         $dsn = $this->buildDsn($config);
         $options = $this->getPDOOptions();
-
-        try {
-            $this->pdo = new \PDO($dsn, $config['username'], $config['password'], $options);
-            $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        } catch (\PDOException $e) {
-            throw new \PDOException("Failed to connect to database: " . $e->getMessage());
-        }
+        $this->pdo = new \PDO($dsn, $config['username'], $config['password'], $options);
+        $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
     }
 
     public function getConnection(): \PDO
@@ -79,5 +74,115 @@ class DB
     public function __destruct()
     {
         $this->pdo = null;
+    }
+
+    public function multiQuery(array $queryArray)
+    {
+        try {
+            $pdo = $this->getConnection();
+            $pdo->beginTransaction();
+
+            foreach ($queryArray as $query) {
+                $pdo->exec($query);
+            }
+
+            $pdo->commit();
+        } catch (\PDOException $e) {
+            // If an error occurs, roll back the transaction
+            $pdo->rollBack();
+
+            // Handle the exception, log it, or throw a custom exception
+            throw new \PDOException("Error executing multiple queries: " . $e->getMessage());
+        }
+    }
+
+    public function checkDBColumnsAndTypes(array $array, string $table)
+    {
+        $db = new self();
+        $pdo = $db->getConnection();
+        $stmt = $pdo->prepare("DESCRIBE `$table`");
+        $stmt->execute();
+        $dbTableArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        // Extract column names and data types from the table structure
+        $dbColumns = array_column($dbTableArray, 'Type', 'Field');
+
+        // Check if all columns in $_POST exist in the database
+        foreach ($array as $key => $value) {
+            if (is_int($key)) {
+                // This is a numeric array, so the column name is the value
+                $key = $value;
+            }
+            if (!array_key_exists($key, $dbColumns)) {
+                // Column does not exist in the database
+                throw new \Exception("Column '$key' does not exist in table '$table'");
+            } else {
+                // Column exists, check data type
+                $expectedType = self::normalizeDataType($dbColumns[$key]);
+                $actualType = self::normalizeDataType(gettype($value));
+
+                if (self::checkDataType($expectedType, $actualType)) {
+                    throw new \Exception("Column '$key' in table '$table' has incorrect data type. Expected '$expectedType', got '$actualType'");
+                }
+            }
+        }
+    }
+    private static function checkDataType($expectedType, $actualType)
+    {
+        // Implement your own logic for data type checking
+        // This is a simple example, you may need to extend it based on your requirements
+        return $expectedType === $actualType;
+    }
+    private static function normalizeDataType($type)
+    {
+        // Adjust this based on your specific requirements
+        // Convert common MySQL data types to PHP types
+        $typeMap = [
+            'tinyint' => 'int',
+            'smallint' => 'int',
+            'mediumint' => 'int',
+            'int' => 'int',
+            'bigint' => 'int',
+            'decimal' => 'float',
+            'float' => 'float',
+            'double' => 'float',
+            // ... add more mappings as needed
+        ];
+
+        return $typeMap[strtolower($type)] ?? $type;
+    }
+    public function describe(string $dbTable) : array
+    {
+        $db = new self();
+        $pdo = $db->getConnection();
+        $stmt = $pdo->prepare("DESCRIBE `$dbTable`");
+        $stmt->execute();
+
+        $resultArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        // Now we want to return an array of the column names and their types only
+        $resultArray = array_column($resultArray, 'Type', 'Field');
+        // Now go through the values and convert them to their respective types
+        foreach ($resultArray as $key => $value) {
+            $resultArray[$key] = $db->mapDataTypesArray($value);
+        }
+        return $resultArray;
+    }
+    public function mapDataTypesArray(string $value)
+    {
+        if (str_starts_with($value, 'tinyint')) {
+            return 'bool';
+        }
+        if (str_starts_with($value, 'int')) {
+            return 'int';
+        }
+        if (str_starts_with($value, 'decimal') || str_starts_with($value, 'float') || str_starts_with($value, 'double')) {
+            return 'float';
+        }
+        if (str_starts_with($value, 'date') || str_starts_with($value, 'time') || str_starts_with($value, 'year')) {
+            return 'datetime';
+        }
+        if (str_starts_with($value, 'varchar') || str_starts_with($value, 'text')) {
+            return 'string';
+        }
     }
 }

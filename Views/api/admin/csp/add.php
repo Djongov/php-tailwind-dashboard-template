@@ -2,7 +2,7 @@
 
 use Controllers\Api\Output;
 use Controllers\Api\Checks;
-use App\Database\MYSQL;
+use App\Database\DB;
 use App\Security\Firewall;
 
 Firewall::activate();
@@ -26,18 +26,25 @@ if (!filter_var($_POST['domain'], FILTER_VALIDATE_DOMAIN)) {
 // Strip the csrf_token from the POST array and check if we have such a column in the firewall table
 unset($_POST['csrf_token']);
 
-// Check if the provided IP is already in the firewall table
-$checkDomain = MYSQL::queryPrepared('SELECT * FROM `csp_approved_domains` WHERE `domain` = ?', [$_POST['domain']]);
-if ($checkDomain->num_rows === 1) {
-    Output::error('domain already in DB');
+$db = new DB();
+
+$pdo = $db->getConnection();
+
+$stmt = $pdo->prepare('SELECT `id` FROM `csp_approved_domains` WHERE `domain` = ?');
+
+$stmt->execute([$_POST['domain']]);
+
+if ($stmt->rowCount() > 0) {
+    echo Output::error('Domain already in DB');
+    return;
 }
 
-// Insert the domain in the DB
-$addDomain = MYSQL::queryPrepared('INSERT INTO `csp_approved_domains` (`domain`, `created_by`) VALUES (?,?)', [$_POST['domain'], $vars['usernameArray']['username']]);
+$stmt = $pdo->prepare('INSERT INTO `csp_approved_domains` (`domain`, `created_by`) VALUES (?,?)');
 
-// Check if the insert was successful
-if ($addDomain->affected_rows === 1) {
-    echo Output::success('domain added');
+$stmt->execute([$_POST['domain'], $vars['usernameArray']['username']]);
+
+if ($stmt->rowCount() === 1) {
+    echo Output::success('Domain added');
 } else {
-    Output::error('domain not added');
+    echo Output::error('Domain not added');
 }

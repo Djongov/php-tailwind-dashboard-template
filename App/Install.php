@@ -13,7 +13,7 @@ class Install
         $html = '';
         $html .= HTML::h2('Database does not exist, attempting to create it', true);
         // Connect to MySQL without specifying the database
-        if (defined("MYSQL_SSL") && MYSQL_SSL) {
+        if (defined("DB_SSL") && DB_SSL) {
             try {
                 mysqli_ssl_set($conn, NULL, NULL, CA_CERT, NULL, NULL);
                 $conn->real_connect('p:' . DB_HOST, DB_USER, DB_PASS, null, 3306, MYSQLI_CLIENT_SSL);

@@ -3,26 +3,30 @@
 namespace Components\DataGrid;
 
 use Components\DataGrid\DataGrid;
-use App\Database\MYSQL;
+use App\Database\DB;
 use Components\Alerts;
 
 class DataGridDBTable extends DataGrid
 {
     public static function renderTable(string $title, string $table, string $theme, bool $edit = true, bool $delete = true, array $skipColumns = [])
     {
+        $db = new DB();
+
+        $pdo = $db->getConnection();
+
         // First the SELECT query
         if (empty($skipColumns)) {
-            $queryResult = MYSQL::query("SELECT * FROM $table ORDER by `id` DESC");
+            $queryResult = $pdo->query("SELECT * FROM $table ORDER by `id` DESC");
         } else {
             $queryArray = [
                 "SET @sql = CONCAT('SELECT ', (SELECT GROUP_CONCAT(COLUMN_NAME) FROM information_schema.columns WHERE table_schema = '" . DB_NAME . "' AND table_name = '$table' AND COLUMN_NAME NOT IN (" . implode(', ', array_map('self::add_quotes', $skipColumns)) . ")), ' from `$table` ORDER by `id` DESC');",
                 "PREPARE stmt1 FROM @sql;",
                 "EXECUTE stmt1;"
             ];
-            $queryResult = MYSQL::multiQuery($queryArray);
+            $queryResult = $db->multiQuery($queryArray);
         }
         // Save the result as array in $data to be used for export later
-        $data = $queryResult->fetch_all(MYSQLI_ASSOC);
+        $data = $queryResult->fetchAll(\PDO::FETCH_ASSOC);
         if (count($data) === 0) {
             return Alerts::danger('No results for ' . $table);
         }
@@ -31,13 +35,17 @@ class DataGridDBTable extends DataGrid
     }
     public static function renderQuery(string $title, string $query, string $theme, bool $edit = true, bool $delete = true, $dbName = '')
     {
-        $dataResult = MYSQL::query($query);
+        $db = new DB();
 
-        if ($dataResult->num_rows === 0) {
+        $pdo = $db->getConnection();
+
+        $dataResult = $pdo->query($query);
+
+        if ($dataResult->rowCount() === 0) {
             return Alerts::danger('No results for ' . $query);
         }
 
-        $data = $dataResult->fetch_all(MYSQLI_ASSOC);
+        $data = $dataResult->fetchAll(\PDO::FETCH_ASSOC);
         
         if ($edit || $delete) {
             // If edit or delete is true, we need to have an `id` column and we need it to be the first one

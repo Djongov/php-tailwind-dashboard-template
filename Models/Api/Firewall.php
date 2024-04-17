@@ -8,7 +8,7 @@
 
 namespace Models\Api;
 
-use App\Database\MYSQL;
+use App\Database\DB;
 use App\Exceptions\FirewallException;
 use App\Logs\SystemLog;
 
@@ -30,13 +30,16 @@ class Firewall
      */
     public function exists(string|int $param) : bool
     {
+        $db = new DB();
         // If the parameter is an integer, we assume it's an ID
         if (is_int($param)) {
-            $result = MYSQL::queryPrepared("SELECT `$this->mainColumn` FROM `$this->table` WHERE `id` = ?", $param);
+            $query = "SELECT `$this->mainColumn` FROM `$this->table` WHERE `id` = ?";
         } else {
-            $result = MYSQL::queryPrepared("SELECT `$this->mainColumn` FROM `$this->table` WHERE `$this->mainColumn` = ?", $param);
+            $query = "SELECT `$this->mainColumn` FROM `$this->table` WHERE `$this->mainColumn` = ?";
         }
-        return $result->num_rows === 1;
+        $stmt = $db->getConnection()->prepare($query);
+        $stmt->execute([$param]);
+        return ($stmt->rowCount() > 0) ? true : false;
     }
     /**
      * Gets an IP from the `firewall` table, accepts an ID or an IP in CIDR notation. If no parameter is provided, returns all IPs
@@ -48,18 +51,21 @@ class Firewall
      */
     public function get(string|int $param) : array
     {
+        $db = new DB();
+        $pdo = $db->getConnection();
         // if the parameter is empty, we assume we want all the IPs
         if (empty($param)) {
-            $result = MYSQL::query("SELECT * FROM `$this->table`");
-            return $result->fetch_all(MYSQLI_ASSOC);
+            $stmt = $pdo->query("SELECT * FROM `$this->table`");
+            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
         }
         // If the parameter is an integer, we assume it's an ID
         if (is_int($param)) {
             if (!$this->exists($param)) {
                 throw (new FirewallException())->ipDoesNotExist();
             }
-            $result = MYSQL::queryPrepared("SELECT * FROM `$this->table` WHERE `id` = ?", $param);
-            return $result->fetch_assoc();
+            $stmt = $pdo->prepare("SELECT * FROM `$this->table` WHERE `id` = ?");
+            $stmt->execute([$param]);
+            return $stmt->fetch(\PDO::FETCH_ASSOC);
         } else {
             // Format the IP
             $param = $this->formatIp($param);
@@ -67,8 +73,9 @@ class Firewall
             if (!$this->exists($param)) {
                 throw (new FirewallException())->ipDoesNotExist();
             }
-            $result = MYSQL::queryPrepared("SELECT * FROM `$this->table` WHERE `$this->mainColumn` = ?", $param);
-            return $result->fetch_assoc();
+            $stmt = $pdo->prepare("SELECT * FROM `$this->table` WHERE `$this->mainColumn` = ?");
+            $stmt->execute([$param]);
+            return $stmt->fetch(\PDO::FETCH_ASSOC);
         }
     }
     /**
@@ -90,9 +97,12 @@ class Firewall
         if ($this->exists($ip)) {
             throw (new FirewallException())->ipAlreadyExists();
         }
-        $save = MYSQL::queryPrepared("INSERT INTO `$this->table` (`$this->mainColumn`, `created_by`, `comment`) VALUES (?,?,?)", [$ip, $createdBy, $comment]);
-        if ($save->affected_rows === 1) {
-            SystemLog::write('IP ' . $ip . ' added to the firewall table by ' . $createdBy . ' under the id ' . $save->insert_id, 'Firewall');
+        $db = new DB();
+        $pdo = $db->getConnection();
+        $stmt = $pdo->prepare("INSERT INTO `$this->table` (`$this->mainColumn`, `created_by`, `comment`) VALUES (?,?,?)");
+        $stmt->execute([$ip, $createdBy, $comment]);
+        if ($stmt->rowCount() === 1) {
+            SystemLog::write('IP ' . $ip . ' added to the firewall table by ' . $createdBy . ' under the id ' . $pdo->lastInsertId(), 'Firewall');
             return true;
         } else {
             throw (new FirewallException())->notSaved('IP not saved');
@@ -106,12 +116,15 @@ class Firewall
      * @param      int $id the id of the IP
      * @param      string $updatedBy the user who updates the IP
      * @return     bool
-     * @throws     FirewallException ipDoesNotExist, also `MYSQL::checkDBColumnsAndTypes` stops the script if the data does not match the columns
+     * @throws     FirewallException ipDoesNotExist
      * @system_log IP updated and by who and what data was passed
      */
     public function update(array $data, int $id, string $updatedBy) : bool
     {
-        MYSQL::checkDBColumnsAndTypes($data, $this->table);
+        $db = new DB();
+        // Check if the data matches the columns
+
+        $db->checkDBColumnsAndTypes($data, $this->table);
 
         if (!$this->exists($id)) {
             throw (new FirewallException())->ipDoesNotExist();
@@ -133,9 +146,11 @@ class Firewall
         // Prepare and execute the query using queryPrepared
         $values = array_values($data);
         $values[] = $id; // Add the id for the WHERE clause
-        $update = MYSQL::queryPrepared($sql, $values);
+        $pdo = $db->getConnection();
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($values);
 
-        if ($update->affected_rows === 1) {
+        if ($stmt->rowCount() === 1) {
             SystemLog::write('IP with id ' . $id . ' updated by ' . $updatedBy . ' with data ' . json_encode($data), 'Firewall');
             return true;
         } else {
@@ -160,8 +175,11 @@ class Firewall
         }
         // We only know the id, so just for logging purposes, we will pull the IP
         $ip = $this->get($id)[$this->mainColumn];
-        $delete = MYSQL::queryPrepared("DELETE FROM `$this->table` WHERE `id` = ?", $id);
-        if ($delete->affected_rows === 1) {
+        $db = new DB();
+        $pdo = $db->getConnection();
+        $stmt = $pdo->prepare("DELETE FROM `$this->table` WHERE `id` = ?");
+        $stmt->execute([$id]);
+        if ($stmt->rowCount() === 1) {
             SystemLog::write('IP ' . $ip . ' (id ' . $id . ') deleted by ' . $deletedBy, 'Firewall');
             return true;
         } else {

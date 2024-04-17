@@ -50,6 +50,11 @@ define("DEFAULT_METADATA", [
 // Default theme for unathenticated users and first-time logins, possible values: 'amber', 'green', 'stone', 'rose', 'lime', 'teal', 'sky', 'purple', 'red', 'fuchsia', 'indigo'
 define("COLOR_SCHEME", "amber");
 
+// Do a check here if .env file exists
+if (!file_exists(dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '.env')) {
+    die('The .env file is missing. Please create one in the root of the project');
+}
+
 /*
 
 DB Settings
@@ -57,9 +62,23 @@ DB Settings
 $_ENV is taking values from the .env file in the root of the project. If you are not using .env, hardcode them or pass them as env variables in your server
 
 */
+$requiredDBConstants = [
+    'DB_SSL',
+    'DB_DRIVER',
+    'DB_HOST',
+    'DB_USER',
+    'DB_PASS',
+    'DB_NAME'
+];
 
-define("MYSQL_SSL", filter_var($_ENV['MYSQL_SSL'], FILTER_VALIDATE_BOOLEAN));
+foreach ($requiredDBConstants as $constant) {
+    if (!isset($_ENV[$constant])) {
+        die($constant . ' must be set in the .env file');
+    }
+}
+
 define("DB_SSL", filter_var($_ENV['DB_SSL'], FILTER_VALIDATE_BOOLEAN));
+define("DB_DRIVER", $_ENV['DB_DRIVER']);
 define("DB_HOST", $_ENV['DB_HOST']);
 define("DB_USER", $_ENV['DB_USER']);
 define("DB_PASS", $_ENV['DB_PASS']);
@@ -81,8 +100,11 @@ Mailer Settings (Sendgrid)
 
 */
 
-define("SENDGRID", true);
+define("SENDGRID", false);
 if (SENDGRID) {
+    if (!isset($_ENV['SENDGRID_API_KEY'])) {
+        die('SENDGRID_API_KEY must be set in the .env file');
+    }
     define("SENDGRID_API_KEY", $_ENV['SENDGRID_API_KEY']);
     #define("SENDGRID_TEMPLATE_ID", 'd-381e01fdce2b44c48791d7a12683a9c3');
 }
@@ -128,6 +150,9 @@ $protocol = (str_contains($_SERVER['HTTP_HOST'], 'localhost')) ? 'http' : 'https
 // Whether to allow users to login with local accounts
 define('LOCAL_USER_LOGIN', true);
 if (LOCAL_USER_LOGIN) {
+    if (!isset($_ENV['JWT_PUBLIC_KEY']) || !isset($_ENV['JWT_PRIVATE_KEY'])) {
+        die('JWT_PUBLIC_KEY and JWT_PRIVATE_KEY must be set in the .env file');
+    }
     // This is used by the JWT handler to sign the tokens. It's should be a base64 encoded string of the public key
     define("JWT_PUBLIC_KEY", $_ENV['JWT_PUBLIC_KEY']);
     // This is used by the JWT handler to sign the tokens. It's should to be a base64 encoded string of the private key
@@ -136,16 +161,50 @@ if (LOCAL_USER_LOGIN) {
     define('MANUAL_REGISTRATION', true);
 }
 // Whether to allow users to login with Azure AD accounts
-define('AZURE_AD_LOGIN', true);
+define('AZURE_AD_LOGIN', false);
 if (AZURE_AD_LOGIN) {
     include_once dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'azure-ad-auth-config.php';
 }
-define('MICROSOFT_LIVE_LOGIN', true);
+define('MICROSOFT_LIVE_LOGIN', false);
 if (MICROSOFT_LIVE_LOGIN) {
     include_once dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'microsoft-live-auth-config.php';
 }
 // Google login
-define('GOOGLE_LOGIN', true);
+define('GOOGLE_LOGIN', false);
 if (GOOGLE_LOGIN) {
     include_once dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'google-auth-config.php';
+}
+
+/* App checks */
+$missing_extensions = [];
+
+$required_extensions = [
+    'curl',
+    'openssl'
+];
+
+if (DB_DRIVER === 'pgsql') {
+    $required_extensions[] = 'pdo_pgsql';
+}
+
+if (DB_DRIVER === 'sqlsrv') {
+    $required_extensions[] = 'pdo_sqlsrv';
+}
+
+if (DB_DRIVER === 'sqlite') {
+    $required_extensions[] = 'pdo_sqlite';
+}
+
+if (DB_DRIVER === 'mysql') {
+    $required_extensions[] = 'pdo_mysql';
+}
+
+foreach ($required_extensions as $extension) {
+    if (!extension_loaded($extension)) {
+        $missing_extensions[] = $extension;
+    }
+}
+
+if (!empty($missing_extensions)) {
+    die('The following extensions are missing: ' . implode(', ', $missing_extensions));
 }

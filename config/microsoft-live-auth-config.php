@@ -1,4 +1,7 @@
 <?php
+if (!isset($_ENV['AZURE_AD_CLIENT_ID']) || !isset($_ENV['AZURE_AD_TENANT_ID'])) {
+    die('AZURE_AD_CLIENT_ID, AZURE_AD_TENANT_ID, must be set in the .env file if MICROSOFT_LIVE_LOGIN is set to true');
+}
 // Azure App registratin client id
 define('MS_LIVE_CLIENT_ID', $_ENV['AZURE_AD_CLIENT_ID']);
 // Azure App registration tenant id
