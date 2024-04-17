@@ -24,7 +24,8 @@ class RequireLogin
             '/install',
             '/charts',
             '/forms',
-            '/datagrid'
+            '/datagrid',
+            '/blablabla' // to showcase the 404 page
         ];
         
         $loggedIn = false;

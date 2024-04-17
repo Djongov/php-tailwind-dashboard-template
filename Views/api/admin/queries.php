@@ -38,7 +38,13 @@ $pdo = $db->getConnection();
 
 $stmt = $pdo->prepare($query);
 
-$stmt->execute();
+// In this particular situation we will be catching the exception because we want to display the error message
+try {
+    $stmt->execute();
+} catch (\PDOException $e) {
+    echo Alerts::danger('Error executing query: ' . $e->getMessage());
+    return;
+}
 
 $data = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 

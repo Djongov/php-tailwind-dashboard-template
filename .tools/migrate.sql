@@ -8,6 +8,7 @@ CREATE TABLE `users` (
   `origin_country` varchar(25) DEFAULT NULL,
   `role` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `date_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `last_login` datetime,
   `theme` varchar(20) DEFAULT NULL,
   `picture` varchar(255) DEFAULT NULL,
@@ -20,6 +21,7 @@ CREATE TABLE `cache` (
   `id` int NOT NULL AUTO_INCREMENT,
   `value` varchar(5000) COLLATE utf8mb4_general_ci NOT NULL,
   `expiration` datetime NOT NULL,
+  `last_updated` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `type` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
   `unique_property` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
   PRIMARY KEY (`id`)
@@ -30,6 +32,7 @@ CREATE TABLE `firewall` (
   `ip_cidr` varchar(256) NOT NULL,
   `created_by` varchar(1000) DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `last_updated` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `comment` varchar(1000) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
@@ -44,6 +47,7 @@ VALUES
 CREATE TABLE `csp_reports` (
   `id` int NOT NULL AUTO_INCREMENT,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `last_updated` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `data` json NOT NULL,
   `domain` varchar(60) DEFAULT NULL,
   `url` varchar(2500) DEFAULT NULL,
@@ -66,6 +70,7 @@ CREATE TABLE `csp_approved_domains` (
   `domain` varchar(255) NOT NULL,
   `created_by` varchar(60) DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `last_updated` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
@@ -75,6 +80,7 @@ CREATE TABLE `system_log` (
   `client_ip` varchar(256) NOT NULL,
   `user-agent` text NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `last_updated` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `created_by` varchar(255) NOT NULL,
   `category` varchar(255) NOT NULL,
   `uri` text NOT NULL,

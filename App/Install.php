@@ -55,7 +55,7 @@ class Install
             $password = General::randomString(12);
             $conn->query("INSERT INTO `users`(`username`, `password`, `email`, `name`, `last_ips`, `origin_country`, `role`, `last_login`, `theme`, `provider`, `enabled`) VALUES ('admin', '" . password_hash($password, PASSWORD_DEFAULT) . "', 'admin', 'admin', '" . General::currentIP() . "', 'US', 'administrator', NOW(), '" . COLOR_SCHEME . "', 'local', 1)");
             // Print the credentials to the screen
-            $html .= Alerts::info('Database "' . DB_NAME . '" and system tables created successfully. Please go to <a class="underline" href="/login">Login</a> page. Use "admin" as username. Do not refresh the page until you have copied the password below.');
+            $html .= Alerts::success('Database "' . DB_NAME . '" and system tables created successfully. Please go to <a class="underline" href="/login">Login</a> page. Use "admin" as username. Do not refresh the page until you have copied the password below.');
             $html .= HTML::p('<span class="c0py">' . $password . '</span>');
             $conn->close();
         } catch (\mysqli_sql_exception $e) {

@@ -39,6 +39,7 @@ $dataTypes = $db->describe($_POST['table']);
 
 if ($stmt->rowCount() > 0) {
     $data_array = $stmt->fetch(\PDO::FETCH_ASSOC);
+    unset($data_array['last_updated']); // Hide and do not interact with last_updated so it can be updated automatically even from calling it from this endpoint
     $html = '';
     $html .= '<div class="mb-6">';
         foreach ($data_array as $key => $value) {
@@ -48,7 +49,7 @@ if ($stmt->rowCount() > 0) {
                     $value = htmlentities($value);
                 }
                 // Decide whether a field is disabled or not
-                $read_only_columns = ['date_created', 'id', 'invited_on', 'created_at', 'created_by', 'client_ip'];
+                $read_only_columns = ['date_created', 'id', 'invited_on', 'created_at', 'created_by', 'client_ip', 'last_updated'];
                 if (in_array($key, $read_only_columns)) {
                     $readonly = true;
                 } else {

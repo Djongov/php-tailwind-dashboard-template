@@ -169,20 +169,22 @@ class DB
     }
     public function mapDataTypesArray(string $value)
     {
+        $type = '';
         if (str_starts_with($value, 'tinyint')) {
-            return 'bool';
+            $type = 'bool';
         }
         if (str_starts_with($value, 'int')) {
-            return 'int';
+            $type = 'int';
         }
         if (str_starts_with($value, 'decimal') || str_starts_with($value, 'float') || str_starts_with($value, 'double')) {
-            return 'float';
+            $type = 'float';
         }
         if (str_starts_with($value, 'date') || str_starts_with($value, 'time') || str_starts_with($value, 'year')) {
-            return 'datetime';
+            $type = 'datetime';
         }
         if (str_starts_with($value, 'varchar') || str_starts_with($value, 'text')) {
-            return 'string';
+            $type = 'string';
         }
+        return $type;
     }
 }
