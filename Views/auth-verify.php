@@ -16,6 +16,17 @@ use Google\Client;
 
 // Let's decide whether the connection is over HTTP or HTTPS (later for setting up the cookie)
 $secure = (str_contains($_SERVER['HTTP_HOST'], 'localhost') || str_contains($_SERVER['HTTP_HOST'], '[::1]')) ? false : true;
+$domainCookie = $_SERVER['HTTP_HOST'];
+$colonPosition = strstr(
+    $domainCookie,
+    ':'
+) ?? '';
+
+if ($colonPosition === false) {
+    $colonPosition = '';
+}
+
+$domainCookie = str_replace($colonPosition, '', $domainCookie);
 // First decide where the auth request is coming from, Azure, local login
 // If the request is a GET it must be coming from Google
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -84,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     setcookie(AUTH_COOKIE_NAME, $idToken, [
         'expires' => $idTokenArray['exp'] + 86400,
         'path' => '/',
-        'domain' => str_replace(strstr($_SERVER['HTTP_HOST'], ':'), '', $_SERVER['HTTP_HOST']), // strip : from HOST in cases where localhost:8080 is used
+        'domain' => $domainCookie, // strip : from HOST in cases where localhost:8080 is used
         'secure' => $secure, // This needs to be true for most scenarios, we leave the option to be false for local environments
         'httponly' =>  true, // Prevent JavaScript from accessing the cookie
         'samesite' => 'Lax' // This unlike the session cookie can be Lax
@@ -165,7 +176,7 @@ if (isset($_POST['id_token'], $_POST['state']) || isset($_POST['error'], $_POST[
     setcookie(AUTH_COOKIE_NAME, $idToken, [
         'expires' => $idTokenArray['exp'] + 86400,
         'path' => '/',
-        'domain' => str_replace(strstr($_SERVER['HTTP_HOST'], ':'), '', $_SERVER['HTTP_HOST']), // strip : from HOST in cases where localhost:8080 is used
+        'domain' => $domainCookie, // strip : from HOST in cases where localhost:8080 is used
         'secure' => $secure, // This needs to be true for most scenarios, we leave the option to be false for local environments
         'httponly' =>  true, // Prevent JavaScript from accessing the cookie
         'samesite' => 'Lax' // This unlike the session cookie can be Lax
@@ -242,16 +253,7 @@ if (isset($_POST['username'], $_POST['password'], $_POST['csrf_token'])) {
     ]);
 
     $expiry_addition = ($_POST['remember'] === "1") ? 86400 * 24 * 12 : 86400;
-    $domainCookie = $_SERVER['HTTP_HOST'];
-    $colonPosition = strstr($domainCookie,
-        ':'
-    ) ?? '';
-
-    if ($colonPosition === false) {
-        $colonPosition = '';
-    }
-
-    $domainCookie = str_replace($colonPosition, '', $domainCookie);
+    
     // Let's set the auth cookie
     setcookie(AUTH_COOKIE_NAME, $idToken, [
         'expires' => time() + $expiry_addition,

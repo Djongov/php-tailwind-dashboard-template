@@ -29,11 +29,10 @@ class X5CHandler
 
         // Check if we have a result
         if (!empty($x5c)) {
-            $x5cResultArray = $x5c->fetch_assoc();
             // We have a result, let's check if it's expired
-            if (strtotime($x5cResultArray['expiration']) > time()) {
+            if (strtotime($x5c['expiration']) > time()) {
                 // We have a valid x5c, let's return it
-                return $x5cResultArray['value'];
+                return $x5c['value'];
             } else {
                 // We have an expired x5c, let's delete it
                 $stmt = $pdo->prepare("DELETE FROM `cache` WHERE `type`=? AND `unique_property`=?");
