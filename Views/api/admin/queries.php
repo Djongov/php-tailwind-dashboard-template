@@ -62,7 +62,7 @@ if (str_starts_with($query, 'SELECT')) {
         return;
     } else {
         echo '<div class="mx-4">';
-            echo DataGrid::createTable('query', $data, $theme, 'Custom query results', false, false);
+            echo DataGrid::createTable('query', $data, $theme, 'Custom query results', false, false, false);
         echo '</div>';
     }
 } else {

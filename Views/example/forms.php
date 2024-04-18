@@ -27,7 +27,7 @@ $formOptions = [
     ]
 ];
 
-echo Forms::render($formOptions);
+echo Forms::render($formOptions, $theme);
 
 echo HTML::code('
 $formOptions = [

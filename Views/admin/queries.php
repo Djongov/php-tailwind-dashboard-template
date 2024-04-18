@@ -42,5 +42,5 @@ ORDER BY Count DESC;',
 ];
 
 echo '<div class="p-4 m-4 max-w-full bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700">';
-    echo Forms::render($formOptions);
+    echo Forms::render($formOptions, $theme);
 echo '</div>';

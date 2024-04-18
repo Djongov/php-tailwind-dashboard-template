@@ -15,8 +15,6 @@ if (!$isAdmin) {
     Output::error('You are not an admin', 403);
 }
 
-//var_dump($usernameArray);
-
 $dbTables = [];
 
 $db = new DB();
@@ -42,7 +40,5 @@ echo '<div class="p-4 m-4 max-w-md bg-white rounded-lg border border-gray-200 sh
     echo HTML::p('DB User: ' . DB_USER);
     echo HTML::p('Using SSL: ' . (DB_SSL ? 'Yes' : 'No'));
     echo HTML::p('Total tables: ' . count($dbTables));
-    echo DataGrid::createTable('Tables', General::assocToIndexed($dbTables), $theme, 'Tables', false, false);
+    echo DataGrid::createTable('Tables', General::assocToIndexed($dbTables), $theme, 'Tables', false, false, false);
 echo '</div>';
-
-

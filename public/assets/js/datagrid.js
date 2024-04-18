@@ -384,7 +384,6 @@ const drawDataGridFromData = (json, skeletonId) => {
     const tableWrapper = $('<div class="mx-2 overflow-auto max-h-[44rem]"></div>'); // Create a wrapper div for the table
     // Create the loading screen for the table
     const loadingScreen = tableLoadingScreen(skeletonId);
-    console.log(loadingScreen);
     // Append the loading screen before the table
     $(`#${skeletonId}`).before(loadingScreen);
 
@@ -471,7 +470,10 @@ const drawDataGridFromData = (json, skeletonId) => {
  * @param {Array} columnSkipArray - An optional array of column indexes to skip.
  * @returns {void} - Creates the DataTable filters. Does not return a value.
  */
-const buildDataGridFilters = (table, tableId, columnSkipArray = []) => {
+const buildDataGridFilters = (table, tableId, columnSkipArray = [], enabled = 1) => {
+    if (enabled === 0) {
+        return;
+    }
     // Loop through each column of the DataTable
     table.columns().every(function (col) {
         if (columnSkipArray.includes(col)) {
