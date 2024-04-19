@@ -182,19 +182,27 @@ class DataGrid
         } else {
             $skipColumnArray = '[]';
         }
-        $html .= <<<EOL
-            <script nonce="1nL1n3JsRuN1192kwoko2k323WKE">
-            $(document).ready(() => {
-                const table = drawDataGrid('$id');
-                buildDataGridFilters(table, '$id', $skipColumnArray);
+        if ($filters) {
+            $filterJS = <<<JS
+            buildDataGridFilters(table, '$id', $skipColumnArray);
                 // On every re-draw, rebuild them
                 table.on('draw', () => {
-                    console.log(`redraw occured`);
+                    console.log('redraw occurred');
                     buildDataGridFilters(table, '$id', $skipColumnArray);
                 });
-            });
-            </script>
-            EOL;
+            JS;
+        } else {
+            $filterJS = '';
+        }
+        $html .= <<<EOL
+        <script nonce="1nL1n3JsRuN1192kwoko2k323WKE">
+        $(document).ready(() => {
+            const table = drawDataGrid('$id');
+            $filterJS
+        });
+        </script>
+        EOL;
+
         // Close all encompassing div
         $html .= '</div>';
         return $html;

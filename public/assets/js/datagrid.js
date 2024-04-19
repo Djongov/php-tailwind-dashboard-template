@@ -470,8 +470,8 @@ const drawDataGridFromData = (json, skeletonId) => {
  * @param {Array} columnSkipArray - An optional array of column indexes to skip.
  * @returns {void} - Creates the DataTable filters. Does not return a value.
  */
-const buildDataGridFilters = (table, tableId, columnSkipArray = [], enabled = 1) => {
-    if (enabled === 0) {
+const buildDataGridFilters = (table, tableId, columnSkipArray = [], enabled = true) => {
+    if (!enabled) {
         return;
     }
     // Loop through each column of the DataTable

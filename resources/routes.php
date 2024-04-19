@@ -46,6 +46,7 @@ return function (RouteCollector $router) {
     $router->addRoute('GET', '/charts', [$viewsFolder . '/example/charts.php', $genericMetaDataArray]);
     $router->addRoute('GET', '/forms', [$viewsFolder . '/example/forms.php', $genericMetaDataArray]);
     $router->addRoute('GET', '/datagrid', [$viewsFolder . '/example/datagrid.php', $genericMetaDataArray]);
+    $router->addRoute('GET', '/dummy', [$viewsFolder . '/example/dummy.php', $genericMetaDataArray]);
     
     // Auth verify page
     $router->addRoute('POST', '/auth-verify', [$viewsFolder . '/auth-verify.php']);
