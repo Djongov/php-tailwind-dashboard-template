@@ -5,7 +5,7 @@ use App\Database\DB;
 use App\Security\Firewall;
 use Controllers\Api\Output;
 use App\General;
-use Components\DataGrid\DataGrid;
+use Components\DataGrid;
 
 // First firewall check
 Firewall::activate();
@@ -40,5 +40,5 @@ echo '<div class="p-4 m-4 max-w-md bg-white rounded-lg border border-gray-200 sh
     echo HTML::p('DB User: ' . DB_USER);
     echo HTML::p('Using SSL: ' . (DB_SSL ? 'Yes' : 'No'));
     echo HTML::p('Total tables: ' . count($dbTables));
-    echo DataGrid::createTable('Tables', General::assocToIndexed($dbTables), $theme, 'Tables', false, false, false);
+    echo DataGrid::fromData('Database Tables', $dbTables, $theme);
 echo '</div>';

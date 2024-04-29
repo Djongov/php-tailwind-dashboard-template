@@ -2,12 +2,9 @@
 
 use App\Security\Firewall;
 use Controllers\Api\Output;
-use App\General;
 use App\Database\DB;
 use Components\Alerts;
-use Components\DataGrid\DataGrid;
-use Components\Html;
-use Components\DataGrid\SimpleVerticalDataGrid;
+use Components\DataGrid;
 
 // First firewall check
 Firewall::activate();
@@ -108,11 +105,8 @@ $blockedUri = array_column($cspArray, 'blocked_uri');
 // Let's calculate the total number of blocked_uri based on the occurrence of each key in the $blockedUri array
 $indexedArray = array_count_values($blockedUri);
 
-// Sort the array in descending order
-ksort($indexedArray, SORT_NUMERIC | SORT_DESC);
-
 echo '<div class="flex justify-center">';
-    echo DataGrid::createTable('blocked_uri', General::assocToIndexed($indexedArray), $theme, 'Blocked URIs', false, false);
+    echo DataGrid::fromData('blocked_uri', $indexedArray, $theme);
 echo '</div>';
 
-echo DataGrid::createTable('csp_reports', $cspArray, $theme, 'CSP Reports', true, true);
+echo DataGrid::fromData('CSP Reports', $cspArray, $theme);

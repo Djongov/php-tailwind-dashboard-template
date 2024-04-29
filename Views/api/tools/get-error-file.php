@@ -1,11 +1,13 @@
 <?php
 
 use Components\Html;
+use Components\Alerts;
 use Controllers\Api\Output;
 use Controllers\Api\Checks;
 use App\General;
 use App\Security\Firewall;
-use Components\DataGrid\DataGrid;
+use Components\DataGrid;
+use Google\Service\Adsense\Alert;
 
 Firewall::activate();
 
@@ -30,7 +32,7 @@ $file = ini_get('error_log');
 if (is_file($file)) {
     if (is_readable($file)) {
         if (empty(file($file))) {
-            echo HTML::p('File (' . $file . ') is empty');
+            echo Alerts::danger('File (' . $file . ') is empty');
             return;
         }
         echo HTML::h3(realpath($file));
@@ -46,11 +48,11 @@ if (is_file($file)) {
             array_push($errorFileArray, $line);
         }
         $errorFileArray = General::assocToIndexed($errorFileArray);
-        echo DataGrid::createTable('error-file', $errorFileArray, $theme, 'Error file', false, false);
+        echo DataGrid::fromData('error-file', $errorFileArray, $theme);
     } else {
-        echo '<p class="red">File (' . $file . ') not readable</p>';
+         echo Alerts::danger('File (' . $file . ') not readable');
     }
 } else {
-    echo '<p class="red">File (' . $file . ') does not exist</p>';
+    echo Alerts::danger('File (' . $file . ') does not exist');
 }
 echo '</div>';

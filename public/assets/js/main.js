@@ -201,9 +201,11 @@ if (autoLoadParams.length > 0) {
             // Add to parentDiv
             document.getElementById(value.parentDiv).appendChild(table);
             // Create the DataGrid table object
-            const dataGridTable = drawDataGridFromData(data, table.id);
+            const dataGridTable = drawDataGridFromData(data, table.id, value.tableOptions);
             // And the filters
-            buildDataGridFilters(dataGridTable, table.id);
+            if (value.filters) {
+                buildDataGridFilters(dataGridTable, table.id);
+            }
         }
     })
 }

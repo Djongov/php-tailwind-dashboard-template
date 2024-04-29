@@ -2,8 +2,7 @@
 
 use App\Security\Firewall;
 use Controllers\Api\Output;
-use App\Database\MYSQL;
-use Components\DataGrid\DataGridDBTable;
+use Components\DataGrid;
 
 // First firewall check
 Firewall::activate();
@@ -13,4 +12,4 @@ if (!$isAdmin) {
     Output::error('You are not an admin', 403);
 }
 
-echo DataGridDBTable::renderTable('Users', 'users', $theme);
+echo DataGrid::fromDBTable('users', 'Users', $theme);

@@ -2,24 +2,23 @@
 
 use App\Database\DB;
 use Components\Html;
+use Components\DataGrid;
 
 echo HTML::h1('DataGrid', true);
 
 echo HTML::p('DataGrid is a special class that can be used to display data in a table format with a filterable and paginated table (datagrid) with just a few lines of code. It is a very powerful tool that can be used to display data from the database, from an API, or a PHP array. Provides a edit/delete buttons and export to csv and tsv.');
 
-// Example 1
+// Exampple 1: From DB Table
 
 echo HTML::h2('Example 1: Displaying data from a MySQL table');
 
 echo HTML::p('This example will display the data from the `users` table in the database. There are switches for Editing or Deleting the data. This is only available for database related DataGrids. The table is filterable and paginated.');
 
-use Components\DataGrid\DataGridDBTable;
-
-echo DataGridDBTable::renderTable('Users', 'users', $theme, true, true);
+echo DataGrid::fromDBTable('users', 'Users', $theme);
 
 echo HTML::horizontalLine();
 
-// Example 2
+// Example 2: From Query
 
 echo HTML::h2('Example 2: Displaying data from a MySQL query');
 
@@ -27,15 +26,13 @@ $query = "SELECT `id`, `theme` FROM `users`";
 
 echo HTML::p('This example will render data from a custom query - ' . $query . '.');
 
-echo DataGridDBTable::renderQuery('Custom query', $query, $theme, true, true, 'users');
+echo DataGrid::fromQuery('users', $query, 'Custom query', $theme);
 
 echo HTML::horizontalLine();
 
-// Example 3
+// Example 3: From Data
 
 echo HTML::h2('Example 3: Displaying data from a PHP array');
-
-use Components\DataGrid\DataGrid;
 
 $users = [
     [
@@ -54,11 +51,16 @@ $users = [
     ],
 ];
 
-echo DataGrid::createTable('', $users, $theme, 'User details', false, false);
+echo DataGrid::fromData('From PHP Array', $users, $theme, [
+    'filters' => false,
+    'ordering' => true,
+    'paging' => true,
+    'lengthMenu' => [[10, 50, 100], [10, 50, 100]],
+]);
 
 echo HTML::horizontalLine();
 
-// Example 4
+// Example 4 : Autoloading the DataGrid from Javascript, using the autoloader
 
 echo HTML::h2('Example 4: Autoloading the DataGrid from Javascript, using the autoloader');
 
@@ -77,7 +79,12 @@ $autoloadArray = [
     [
         'type' => 'table',
         'parentDiv' => 'dataGridDataLoader',
-        //'data' => General::assocToIndexed($_SERVER)
+        'tableOptions' => [
+            'ordering' => false,
+            'paging' => false,
+            'lengthMenu' => [[10, 50, 100], [10, 50, 100]],
+            'filters' => false,
+        ],
         'data' => $usersArray
     ]
 ];
@@ -87,5 +94,3 @@ foreach ($autoloadArray as $array) {
 }
 
 echo '<div id="dataGridDataLoader" class="mx-2 my-12 flex flex-wrap flex-row justify-center items-center"></div>';
-
-echo HTML::horizontalLine();

@@ -4,7 +4,7 @@ use Components\Forms;
 use Components\Html;
 use App\Security\Firewall;
 use Controllers\Api\Output;
-use Components\DataGrid\DataGridDBTable;
+use Components\DataGrid;
 
 // First firewall check
 Firewall::activate();
@@ -43,4 +43,4 @@ echo '<div class="p-4 m-4 max-w-md bg-white rounded-lg border border-gray-200 sh
     echo Forms::render($CspApprovedDomainsForm, $theme);
 echo '</div>';
 
-echo DataGridDBTable::renderTable('CSP Approved Domains', 'csp_approved_domains', $theme);
+echo DataGrid::fromDBTable('csp_approved_domains', 'CSP Approved Domains', $theme);

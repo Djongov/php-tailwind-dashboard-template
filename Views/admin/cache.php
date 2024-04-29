@@ -2,7 +2,7 @@
 
 use App\Security\Firewall;
 use Controllers\Api\Output;
-use Components\DataGrid\DataGridDBTable;
+use Components\DataGrid;
 
 // First firewall check
 Firewall::activate();
@@ -12,4 +12,4 @@ if (!$isAdmin) {
     Output::error('You are not an admin', 403);
 }
 
-echo DataGridDBTable::renderTable('Cache', 'cache', $theme);
+echo DataGrid::fromDBTable('cache', 'Cache', $theme);

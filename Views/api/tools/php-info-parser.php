@@ -1,11 +1,10 @@
 <?php
 
-use Components\Html;
 use Controllers\Api\Output;
 use Controllers\Api\Checks;
 use App\General;
 use App\Security\Firewall;
-use Components\DataGrid\DataGrid;
+use Components\DataGrid;
 
 Firewall::activate();
 
@@ -27,5 +26,5 @@ if ($_POST['api-action'] !== 'prase-phpinfo') {
 $phpInfoArray = General::parsePhpInfo();
 
 echo '<div class="ml-4 dark:text-gray-400">';
-    echo DataGrid::createTable('php-info', General::assocToIndexed($phpInfoArray[""]), $theme, '', false, false);
+    echo DataGrid::fromData('php-info', $phpInfoArray[""], $theme);
 echo '</div>';

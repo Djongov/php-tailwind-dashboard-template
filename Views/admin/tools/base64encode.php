@@ -22,6 +22,6 @@ $formOptions = [
 ];
 
 // Let's wrap it
-echo '<div class="container">';
-    echo Forms::render($formOptions);
+echo '<div class="container mx-auto">';
+    echo Forms::render($formOptions, $theme);
 echo '</div>';

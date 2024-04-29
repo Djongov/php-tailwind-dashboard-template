@@ -2,7 +2,7 @@
 
 use App\Database\DB;
 use Components\Alerts;
-use Components\DataGrid\DataGrid;
+use Components\DataGrid;
 use Controllers\Api\Checks;
 use App\Security\Firewall;
 
@@ -54,7 +54,10 @@ if (str_starts_with($query, 'SELECT')) {
         return;
     }
     echo '<div class="mx-4">';
-        echo DataGrid::createTable('query', $data, $theme, 'Custom query results', false, false);
+        // Capture the table from the query
+        $table = explode('FROM', $query);
+        $table = explode(' ', $table[1]);
+        echo DataGrid::fromData('Custom Query', $data, $theme);
     echo '</div>';
 } elseif (str_starts_with($query, 'DESCRIBE') || str_starts_with($query, 'SHOW')) {
     if (empty($data)) {
@@ -62,7 +65,7 @@ if (str_starts_with($query, 'SELECT')) {
         return;
     } else {
         echo '<div class="mx-4">';
-            echo DataGrid::createTable('query', $data, $theme, 'Custom query results', false, false, false);
+            echo DataGrid::fromData('Custom Query', $data, $theme);
         echo '</div>';
     }
 } else {

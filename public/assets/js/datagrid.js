@@ -17,17 +17,18 @@ if (tables.length > 0) {
     tables.forEach(table => {
         // Let's get some elements we will be using
         const tableId = table.id;
-        // Now the results elements
-        let totalResults = document.getElementById(tableId + '-total');
-        let selectedResults = document.getElementById(tableId + '-selected');
-        let filteredResults = document.getElementById(tableId + '-filtered');
-        filteredResults.innerText = countVisibleRows(tableId);
         // Now the modal elements for the mass delete
         const massDeleteModalTriggerer = document.getElementById(tableId + '-mass-delete-modal-trigger');
         const massDeleteModalText = document.getElementById(tableId + '-mass-delete-modal-text');
         const deleteLoadingScreen = document.getElementById(tableId + '-delete-loading-screen');
         const deleteLoadingScreenText = document.getElementById(tableId + '-delete-loading-screen-text');
-
+        // Now the results elements
+        let totalResults = document.getElementById(tableId + '-total');
+        if (massDeleteModalText) {
+            let selectedResults = document.getElementById(tableId + '-selected');
+            let filteredResults = document.getElementById(tableId + '-filtered');
+            filteredResults.innerText = countVisibleRows(tableId);
+        }
         // First the Edit button and get records
         const editButtons = document.querySelectorAll(`#${tableId} button.edit`);
 
@@ -344,10 +345,14 @@ if (tables.length > 0) {
     });
 }
 
-const drawDataGrid = (id) => {
+const drawDataGrid = (id, options = {
+    ordering: true,
+    paging: true,
+    lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "All"]]
+}) => {
     const tableWrapper = $('<div class="overflow-auto max-h-[44rem]"></div>'); // Create a wrapper div for the table
     const table = $(`#${id}`).DataTable({
-        ordering: true, // Need to make it work so it orders from the 1st row not the 2nd where the filters are
+        ordering: options.ordering, // Need to make it work so it orders from the 1st row not the 2nd where the filters are
         order: [[0, 'asc']],
         // Make sure that the ordering is done on the 1st row not the 2nd where the filters are
         orderCellsTop: true,
@@ -356,9 +361,9 @@ const drawDataGrid = (id) => {
         scrollX: 600,
         */
         //scrollCollapse: false,
-        paging: true,
+        paging: options.paging,
         pagingType: 'full_numbers',
-        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        lengthMenu: options.lengthMenu,
         //stateSave: true,
         createdRow: function (row, data, dataIndex) {
             $(row).attr('tabindex', dataIndex)
@@ -380,7 +385,12 @@ const drawDataGrid = (id) => {
 }
 
 
-const drawDataGridFromData = (json, skeletonId) => {
+const drawDataGridFromData = (json, skeletonId, options = {
+    ordering : true,
+    paging : true,
+    filters: true,
+    lengthMenu : [[25, 50, 100, -1], [25, 50, 100, "All"]]
+}) => {
     const tableWrapper = $('<div class="mx-2 overflow-auto max-h-[44rem]"></div>'); // Create a wrapper div for the table
     // Create the loading screen for the table
     const loadingScreen = tableLoadingScreen(skeletonId);
@@ -415,12 +425,12 @@ const drawDataGridFromData = (json, skeletonId) => {
 
     // Create the table and add data
     const table = $(`#${skeletonId}`).DataTable({
-        ordering: true,
+        ordering: options.ordering,
         data: dataArray,
         columns: tableHeaders,
-        paging: true,
+        paging: options.paging,
         pagingType: 'full_numbers',
-        lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "All"]],
+        lengthMenu: options.lengthMenu,
         createdRow: function (row, data, dataIndex) {
             $(row).attr('tabindex', dataIndex);
             $(row).addClass('focus:outline-none focus:bg-gray-300 focus:text-gray-900 dark:focus:bg-gray-700 dark:focus:text-amber-500');
@@ -454,10 +464,11 @@ const drawDataGridFromData = (json, skeletonId) => {
     // First, get the first row of the thead
     $(`#${skeletonId} thead tr:first-child th`).append(' <span class="text-xs text-gray-400 cursor-pointer">&#x25B2;&#x25BC;</span>');
     const filtersRow = $('<tr></tr>').insertAfter($(`#${skeletonId} thead tr`));
-    tableHeaders.forEach(header => {
-        filtersRow.append(`<th class="py-4 px-6 border border-gray-400 max-w-md break-words"></th>`);
-    });
-
+    if (options.filters) {
+        tableHeaders.forEach(header => {
+            filtersRow.append(`<th class="py-4 px-6 border border-gray-400 max-w-md break-words"></th>`);
+        });
+    }
     $(`#${skeletonId}`).wrap(tableWrapper); // Wrap the table with the wrapper div
     return table;
 };

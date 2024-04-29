@@ -5,8 +5,7 @@ use Components\Html;
 use App\Logs\SystemLog;
 use App\Security\Firewall;
 use Controllers\Api\Output;
-use App\General;
-use Components\DataGrid\DataGrid;
+use Components\DataGrid;
 
 // First firewall check
 Firewall::activate();
@@ -64,7 +63,7 @@ echo '<div class="flex">';
     echo Forms::render($clearErrorFileformArray);
 echo '</div>';
 
-echo DataGrid::createTable('', General::assocToIndexed($_SERVER), $theme, 'Server details', false, false);
+echo DataGrid::fromData('Server Info', $_SERVER, $theme);
 
 echo HTML::h2('PHP Info', true);
 

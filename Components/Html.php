@@ -6,80 +6,82 @@ use GuzzleHttp\RetryMiddleware;
 
 class Html
 {
-    public static function h1($text, $center = false, $classes = [])
+    public static function h1($text, $center = false, $extraClasses = [])
     {
         if ($center) {
-            array_push($classes, 'text-center');
+            array_push($extraClasses, 'text-center');
         }
-        if (empty($classes)) {
+        if (!$extraClasses) {
             return '<h1 class="mx-2 my-2 text-3xl md:text-4xl lg:text-5xl font-bold leading-none tracking-tight text-gray-900 dark:text-white">' . $text . '</h1>';
         } else {
-            return '<h1 class="mx-2 my-2 text-3xl md:text-4xl lg:text-5xl font-bold leading-none tracking-tight text-gray-900 dark:text-white ' . implode(' ', $classes) . '">' . $text . '</h1>';
+            return '<h1 class="mx-2 my-2 text-3xl md:text-4xl lg:text-5xl font-bold leading-none tracking-tight text-gray-900 dark:text-white ' . implode(' ', $extraClasses) . '">' . $text . '</h1>';
         }
     }
-    public static function h2($text, $center = false, $classes = [])
+    public static function h2($text, $center = false, $extraClasses = [])
     {
         if ($center) {
-            array_push($classes, 'text-center');
+            array_push($extraClasses, 'text-center');
         }
 
-        if (empty($classes)) {
+        if (!$extraClasses) {
             return '<h2 class="mx-2 my-2 text-2xl md:text-3xl lg:text-4xl font-bold leading-none tracking-tight text-gray-900 dark:text-white">' . $text . '</h2>';
         } else {
-            return '<h2 class="mx-2 my-2 text-2xl md:text-3xl lg:text-4xl font-bold leading-none tracking-tight text-gray-900 dark:text-white ' . implode(' ', $classes) . '">' . $text . '</h2>';
+            return '<h2 class="mx-2 my-2 text-2xl md:text-3xl lg:text-4xl font-bold leading-none tracking-tight text-gray-900 dark:text-white ' . implode(' ', $extraClasses) . '">' . $text . '</h2>';
         }
     }
-    public static function h3($text, $center = false, $classes = [])
+    public static function h3($text, $center = false, $extraClasses = [])
     {
         if ($center) {
-            array_push($classes, 'text-center');
+            array_push($extraClasses, 'text-center');
         }
-        if (empty($classes)) {
-            return '<h3 class="mx-2 my-2 text-xl font-bold dark:text-white break-all">' . $text . '</h3>';
+        if (!$extraClasses) {
+            return '<h3 class="mx-2 my-2 text-xl font-bold dark:text-white break-words">' . $text . '</h3>';
         } else {
-            return '<h3 class="mx-2 my-2 text-xl font-bold dark:text-white break-all ' . implode(' ', $classes) . '">' . $text . '</h3>';
+            return '<h3 class="mx-2 my-2 text-xl font-bold dark:text-white break-words ' . implode(' ', $extraClasses) . '">' . $text . '</h3>';
         }
     }
-    public static function h4($text, $center = false, $classes = [])
+    public static function h4($text, $center = false, $extraClasses = [])
     {
-        if (empty($classes)) {
-            if ($center) {
-                $class = ' text-center';
-            } else {
-                $class = '';
-            }
-            return '<h4 class="mx-2 my-2 text-md font-bold dark:text-white' . $class . '">' . $text . '</h4>';
+        if ($center) {
+            array_push($extraClasses, 'text-center');
+        }
+        if (!$extraClasses) {
+            return '<h4 class="mx-2 my-2 text-md font-bold dark:text-white break-words' . $extraClasses . '">' . $text . '</h4>';
         } else {
-            return '<h4 class="' . $classes . '">' . $text . '</h4>';
+            return '<h4 class="mx-2 my-2 text-md font-bold dark:text-white break-words ' . implode(' ', $extraClasses) . '">' . $text . '</h4>';
         }
     }
     // Anchor
-    public static function a($text, $href, $theme, $target = '_self')
+    public static function a($text, $href, $theme, $target = '_self', $extraClasses = [])
     {
-        return '<a href="' . $href . '" target="' . $target . '" class="text-' . $theme . '-500 hover:underline dark:text-' . $theme . '-400">' . $text . '</a>';
-    }
-    public static function p(string $text, array $additionalClasses = []) : string
-    {
-        if (empty($additionalClasses)) {
-            return '<p class="mx-2 my-2 break-all">' . $text . '</p>';
+        if (!$extraClasses) {
+            return '<a href="' . $href . '" target="' . $target . '" class="text-' . $theme . '-500 hover:underline dark:text-' . $theme . '-400">' . $text . '</a>';
         } else {
-            return '<p class="mx-2 my-2 break-all ' . implode(' ', $additionalClasses) . '">' . $text . '</p>';
+            return '<a href="' . $href . '" target="' . $target . '" class="text-' . $theme . '-500 hover:underline dark:text-' . $theme . '-400 ' . implode(' ', $extraClasses) . '">' . $text . '</a>';
         }
     }
-    public static function small($text, $classes = [])
+    public static function p(string $text, array $extraClasses = []) : string
     {
-        if (empty($classes)) {
-            return '<small class="my-2 break-all text-center">' . $text . '</small>';
+        if (!$extraClasses) {
+            return '<p class="mx-2 my-2 break-words">' . $text . '</p>';
         } else {
-            return '<small class="' . $classes . '">' . $text . '</small>';
+            return '<p class="mx-2 my-2 break-words ' . implode(' ', $extraClasses) . '">' . $text . '</p>';
         }
     }
-    public static function warningParagraph($text, $classes = [])
+    public static function small($text, $extraClasses = [])
     {
-        if (empty($classes)) {
+        if (!$extraClasses) {
+            return '<small class="my-2 break-words text-center">' . $text . '</small>';
+        } else {
+            return '<small class="my-2 break-words text-center ' . implode(' ', $extraClasses) . '">' . $text . '</small>';
+        }
+    }
+    public static function warningParagraph($text, $extraClasses = [])
+    {
+        if (!$extraClasses) {
             return '<p class="mx-2 my-2 text-red-500 font-semibold">' . $text . '</p>';
         } else {
-            return '<p class="' . $classes . '">' . $text . '</p>';
+            return '<p class="mx-2 my-2 text-red-500 font-semibold ' . implode(' ', $extraClasses) . '">' . $text . '</p>';
         }
     }
     /* Form elements */
@@ -256,7 +258,7 @@ class Html
     public static function code($text, $codeTitle = '', $classes = [])
     {
         if (empty($classes)) {
-            return '<pre class="p-4 m-4 max-w-fit overflow-auto bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700 break-all"><p class="font-bold">' . $codeTitle . '</p><code class="c0py">' . $text . '</code></pre>';
+            return '<pre class="p-4 m-4 max-w-fit overflow-auto bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700 break-words"><p class="font-bold">' . $codeTitle . '</p><code class="c0py">' . $text . '</code></pre>';
         } else {
             return '<pre class="' . $classes . '"><code class="c0py">' . $text . '</code></pre>';
         }
