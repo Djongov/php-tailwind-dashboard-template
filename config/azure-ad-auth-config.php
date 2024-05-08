@@ -1,13 +1,5 @@
 <?php
 
-if (!isset($_ENV['AZURE_AD_CLIENT_ID']) || !isset($_ENV['AZURE_AD_TENANT_ID'])) {
-    die('AZURE_AD_CLIENT_ID, AZURE_AD_TENANT_ID, must be set in the .env file if AZURE_AD_LOGIN is set to true');
-}
-// Azure App registratin client id
-define('AZURE_AD_CLIENT_ID', $_ENV['AZURE_AD_CLIENT_ID']);
-// Azure App registration tenant id
-define('AZURE_AD_TENANT_ID', $_ENV['AZURE_AD_TENANT_ID']);
-
 if (AZURE_AD_LOGIN) {
     // if this env var is available, then we must be deployed into an app service and therefore control the auth settings from the app's settings as various env variable set by the platform
     if (getenv('WEBSITE_AUTH_CLIENT_ID')) {
@@ -30,6 +22,15 @@ if (AZURE_AD_LOGIN) {
             $_SESSION['nonce'] ?? null  . '&state=redir=https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
         // We end up here if we are using our own App Registration
     } else {
+
+        if (!isset($_ENV['AZURE_AD_CLIENT_ID']) || !isset($_ENV['AZURE_AD_TENANT_ID'])) {
+            die('AZURE_AD_CLIENT_ID, AZURE_AD_TENANT_ID, must be set in the .env file if AZURE_AD_LOGIN is set to true');
+        }
+        // Azure App registratin client id
+        define('AZURE_AD_CLIENT_ID', $_ENV['AZURE_AD_CLIENT_ID']);
+        // Azure App registration tenant id
+        define('AZURE_AD_TENANT_ID', $_ENV['AZURE_AD_TENANT_ID']);
+
         // This is how we form the redirect URL. Note that https:// is hardcoded, which is fine as app registrations do not allow for http:// unless it's http://localhost.
         define('REDIRECT_URI', $protocol . '://' . $_SERVER['HTTP_HOST'] . '/auth-verify');
         // Let's build the oauth URL which includes the tenant. This is where we will be sending the request to login

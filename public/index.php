@@ -1,8 +1,14 @@
 <?php
 define("START_TIME", microtime(true));
-// Load the autoloaders, local and composer
-//require_once dirname($_SERVER['DOCUMENT_ROOT']) . '/resources/autoload.php';
-require_once dirname($_SERVER['DOCUMENT_ROOT']) . '/vendor/autoload.php';
+// autoloader
+$path = dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+
+if (file_exists($path)) {
+    require_once $path;
+    // Additional code that depends on the autoload.php file
+} else {
+    die('<b>' . $path . '</b> file not found. You need to run <b>composer update</b>');
+}
 
 function dd()
 {
@@ -18,4 +24,6 @@ use App\App;
 $app = new App();
 
 // Run the app
-$app->init();
+//if ($_SERVER['REQUEST_URI'] !== '/create-env') {
+    $app->init();
+//}

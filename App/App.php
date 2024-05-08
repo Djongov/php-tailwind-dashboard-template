@@ -7,14 +7,10 @@ use App\Page;
 use Controllers\Api\Output;
 use App\Core\Session;
 
-
 class App
 {
     public function init()
     {
-        // Load the environment variables from the .env file which resides in the root of the project
-        $dotenv = \Dotenv\Dotenv::createImmutable(dirname($_SERVER['DOCUMENT_ROOT']));
-        $dotenv->load();
         // Start session
         Session::start();
 
@@ -25,6 +21,7 @@ class App
 
         // Now that we've loaded the env, let's get the site settings
         require_once dirname($_SERVER['DOCUMENT_ROOT']) . '/config/site-settings.php';
+        
         /*
             Now Routing
         */

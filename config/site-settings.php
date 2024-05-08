@@ -52,7 +52,16 @@ define("COLOR_SCHEME", "amber");
 
 // Do a check here if .env file exists
 if (!file_exists(dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '.env')) {
-    die('The .env file is missing. Please create one in the root of the project');
+    die('The .env file is missing. Please create one in the root of the project or use the <a href="/create-env">helper</a>');
+}
+
+// Load the environment variables from the .env file which resides in the root of the project
+$dotenv = \Dotenv\Dotenv::createImmutable(dirname($_SERVER['DOCUMENT_ROOT']));
+
+try {
+    $dotenv->load();
+} catch (\Exception $e) {
+    die($e->getMessage());
 }
 
 /*
