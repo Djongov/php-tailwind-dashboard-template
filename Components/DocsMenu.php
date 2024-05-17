@@ -18,7 +18,7 @@ class DocsMenu
         $currentLink = $_SERVER['REQUEST_URI'];
         $currentLink = str_replace($base, '', $currentLink);
         // Now let's build the menu
-        $html = '<aside id="default-sidebar" class="min-w-fit my-4 z-40 w-64 h-fit" aria-label="Sidebar">';
+        $html = '<aside id="default-sidebar" class="min-w-fit md:mx-2 mx-auto my-4 z-40 w-64 h-fit" aria-label="Sidebar">';
             $html .= '<div class="h-full mx-2 px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-900">';
                 $html .= HTML::h2(ucfirst(str_replace('/', '', $base)), true);
                 $html .= HTML::horizontalLine();
