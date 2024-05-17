@@ -4,7 +4,7 @@ use Components\Html;
 use Components\Alerts;
 use Controllers\Api\Output;
 use Controllers\Api\Checks;
-use App\General;
+use App\Utilities\General;
 use App\Security\Firewall;
 use Components\DataGrid;
 use Google\Service\Adsense\Alert;

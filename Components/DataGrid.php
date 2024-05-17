@@ -2,7 +2,7 @@
 
 namespace Components;
 
-use App\General;
+use App\Utilities\General;
 use Components\Html;
 use Components\Alerts;
 use App\Security\CSRF;

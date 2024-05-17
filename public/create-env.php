@@ -6,7 +6,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         die('No work to be done here');
     }
 ?>
-
+<h2>This is a form to help you create a .env file not by hand</h2>
+<p>Have in mind that most of the settings that control this app are in /config folder.</p>
 <form id="env">
     <label for="DB_SSL">DB_SSL:</label>
     <select id="DB_SSL" name="DB_SSL">
@@ -33,17 +34,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         <option value="sqlite">SQLite</option>
     </select><br><br>
 
-    <input type="checkbox" id="SENDGRID" name="SENDGRID">
-    <label for="SENDGRID">SENDGRID</label><br><br>
+    <label for="SENDGRID">SENDGRID
+        <input type="checkbox" id="SENDGRID" name="SENDGRID">
+    </label>
+    <br><br>
 
-    <input type="checkbox" id="Entra_ID_login" name="Entra_ID_login">
-    <label for="Entra_ID_login">Entra ID Login (formerly Azure AD)</label><br><br>
+    
+    <label for="Entra_ID_login">Entra ID Login (formerly Azure AD)
+        <input type="checkbox" id="Entra_ID_login" name="Entra_ID_login">
+    </label>
+    <br><br>
 
     <!--<input type="checkbox" id="Microsoft_LIVE_login" name="Microsoft_LIVE_login">
     <label for="Microsoft_LIVE_login">Microsoft LIVE Login</label><br><br>-->
 
-    <input type="checkbox" id="local_login" name="local_login">
+    <label for="Google_login">Google Login
+        <input type="checkbox" id="Google_login" name="Google_login">
+    </label>
+    <br><br>
+
+    <input type="checkbox" id="local_login" name="local_login" checked>
     <label for="local_login">Local Login</label><br><br>
+    
 
     <button type="submit">Submit</button>
 </form>
@@ -132,6 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         fclose($fileHandle);
         echo "The .env file has been created successfully.";
     } else {
+        http_response_code(404);
         echo "Unable to create the .env file.";
     }
 

@@ -5,6 +5,8 @@ namespace App;
 use Components\Alerts;
 use Components\Html;
 use Controllers\Api\Output;
+use App\Utilities\IP;
+use App\Utilities\General;
 
 class Install
 {
@@ -48,12 +50,22 @@ class Install
                 $conn->store_result();
             }
 
+            $ip = IP::currentIP();
+
             // Now you can execute additional queries
             $conn->query("INSERT INTO `csp_approved_domains` (`domain`, `created_by`) VALUES ('" . $_SERVER['HTTP_HOST'] . "', 'System')");
-            $conn->query("INSERT INTO `firewall` (`ip_cidr`, `created_by`, `comment`) VALUES ('" . General::currentIP() . "/32', 'System', 'Initial Admin IP')");
+            $conn->query("INSERT INTO `firewall` (`ip_cidr`, `created_by`, `comment`) VALUES ('" . $ip . "/32', 'System', 'Initial Admin IP')");
             // Insert administrator for first time login
             $password = General::randomString(12);
-            $conn->query("INSERT INTO `users`(`username`, `password`, `email`, `name`, `last_ips`, `origin_country`, `role`, `last_login`, `theme`, `provider`, `enabled`) VALUES ('admin', '" . password_hash($password, PASSWORD_DEFAULT) . "', 'admin', 'admin', '" . General::currentIP() . "', 'US', 'administrator', NOW(), '" . COLOR_SCHEME . "', 'local', 1)");
+            if (IP::isPublicIp($ip)) {
+                $ipGeoLocate = $request = \App\Request\NativeHttp::get('http://ip-api.com/json/' . $ip, [], true);
+                if ($ipGeoLocate['status'] === 'success') {
+                    $countryCode = $ipGeoLocate['countryCode'];
+                }
+            } else {
+                $countryCode = 'US';
+            }
+            $conn->query("INSERT INTO `users`(`username`, `password`, `email`, `name`, `last_ips`, `origin_country`, `role`, `last_login`, `theme`, `provider`, `enabled`) VALUES ('admin', '" . password_hash($password, PASSWORD_DEFAULT) . "', 'admin', 'admin', '" . $ip . "', '$countryCode', 'administrator', NOW(), '" . COLOR_SCHEME . "', 'local', 1)");
             // Print the credentials to the screen
             $html .= Alerts::success('Database "' . DB_NAME . '" and system tables created successfully. Please go to <a class="underline" href="/login">Login</a> page. Use "admin" as username. Do not refresh the page until you have copied the password below.');
             $html .= HTML::p('<span class="c0py">' . $password . '</span>');

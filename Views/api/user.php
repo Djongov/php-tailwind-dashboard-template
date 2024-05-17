@@ -3,7 +3,7 @@
 use Controllers\Api\Output;
 use Controllers\Api\Checks;
 use Controllers\Api\User;
-use App\General;
+use App\Utilities\IP;
 use App\Authentication\JWT;
 
 // This is the API endpoint controller for the user actions
@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     unset($data['csrf_token']);
 
-    $data['last_ips'] = General::currentIP();
+    $data['last_ips'] = IP::currentIP();
 
     $data['origin_country'] = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
 

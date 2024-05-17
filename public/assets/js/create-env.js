@@ -34,6 +34,14 @@ form.addEventListener('submit', (event) => {
         responseDiv.innerHTML = data;
         // Append the div to the document body
         document.body.appendChild(responseDiv);
+
+        if (data === 'The .env file has been created successfully.') {
+            responseDiv.innerText += ` Redirecting to root...`;
+            responseDiv.style.color = 'green';
+            setInterval(() => {
+                window.location = '/';
+            }, 2000)
+        }
     })
     .catch(error => {
         // Handle errors
@@ -52,6 +60,7 @@ function toggleAdditionalField(checkboxId, fieldName, placeholder) {
         inputField.placeholder = placeholder;
         inputField.required = true; // Optionally make it required
         inputField.id = `${fieldName}Field`;
+        inputField.style.margin = '6px';
 
         // Create a div container for the additional input field
         const fieldContainer = document.createElement('div');
@@ -77,5 +86,11 @@ document.getElementById('SENDGRID').addEventListener('change', () => {
 document.getElementById('Entra_ID_login').addEventListener('change', () => {
     toggleAdditionalField('Entra_ID_login', 'AZURE_AD_CLIENT_ID', 'App ID');
     toggleAdditionalField('Entra_ID_login', 'AZURE_AD_TENANT_ID', 'Tenant ID');
+});
+
+// Google login
+document.getElementById('Google_login').addEventListener('change', () => {
+    toggleAdditionalField('Google_login', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_ID');
+    toggleAdditionalField('Google_login', 'GOOGLE_CLIENT_SECRET', 'GOOGLE_CLIENT_SECRET');
 });
 

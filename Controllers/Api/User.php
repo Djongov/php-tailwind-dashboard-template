@@ -4,7 +4,7 @@ namespace Controllers\Api;
 
 use Controllers\Api\Output;
 use Controllers\Api\Checks;
-use App\General;
+use App\Utilities\IP;
 use Models\Api\User as UserModel;
 use App\Exceptions\UserExceptions;
 
@@ -46,7 +46,7 @@ class User
         // Name comes as name in the JWT token
         $insertData['name'] = $data['name'] ?? Output::error('Missing name in token', 400);
         // Last IPs comes as ipaddr in the JWT token, if it's not present, use the current IP
-        $insertData['last_ips'] = $data['ipaddr'] ?? General::currentIP();
+        $insertData['last_ips'] = $data['ipaddr'] ?? IP::currentIP();
         // If JWT has a claim called 'ctry' take it, otherwise take the browser language
         $insertData['origin_country'] = (isset($data['ctry'])) ? $data['ctry'] : substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
         // Role comes as an array of roles in the JWT token, we only need the first one
@@ -83,7 +83,7 @@ class User
         // Name comes as name in the JWT token
         $insertData['name'] = $data['name'] ?? Output::error('Missing name in token', 400);
         // Last IPs comes as ipaddr in the JWT token, if it's not present, use the current IP
-        $insertData['last_ips'] = General::currentIP();
+        $insertData['last_ips'] = IP::currentIP();
         // If JWT has a claim called 'ctry' take it, otherwise take the browser language
         $insertData['origin_country'] = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
         // Role comes as an array of roles in the JWT token, we only need the first one
@@ -120,7 +120,7 @@ class User
         // Name comes as name in the JWT token
         $insertData['name'] = $data['name'] ?? Output::error('Missing name in token', 400);
         // Last IPs comes as ipaddr in the JWT token, if it's not present, use the current IP
-        $insertData['last_ips'] = General::currentIP();
+        $insertData['last_ips'] = IP::currentIP();
         // If JWT has a claim called 'ctry' take it, otherwise take the browser language
         $insertData['origin_country'] = (isset($data['locale'])) ? $data['locale'] : substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
         // Role comes as an array of roles in the JWT token, we only need the first one

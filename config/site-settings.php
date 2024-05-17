@@ -109,7 +109,7 @@ Mailer Settings (Sendgrid)
 
 */
 
-define("SENDGRID", true);
+define("SENDGRID", false);
 if (SENDGRID) {
     if (!isset($_ENV['SENDGRID_API_KEY'])) {
         die('SENDGRID_API_KEY must be set in the .env file');
@@ -170,16 +170,16 @@ if (LOCAL_USER_LOGIN) {
     define('MANUAL_REGISTRATION', true);
 }
 // Whether to allow users to login with Azure AD accounts
-define('AZURE_AD_LOGIN', true);
+define('AZURE_AD_LOGIN', false);
 if (AZURE_AD_LOGIN) {
     include_once dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'azure-ad-auth-config.php';
 }
-define('MICROSOFT_LIVE_LOGIN', true);
+define('MICROSOFT_LIVE_LOGIN', false);
 if (MICROSOFT_LIVE_LOGIN) {
     include_once dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'microsoft-live-auth-config.php';
 }
 // Google login
-define('GOOGLE_LOGIN', true);
+define('GOOGLE_LOGIN', false);
 if (GOOGLE_LOGIN) {
     include_once dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'google-auth-config.php';
 }
@@ -189,7 +189,8 @@ $missing_extensions = [];
 
 $required_extensions = [
     'curl',
-    'openssl'
+    'openssl',
+    'intl'
 ];
 
 if (DB_DRIVER === 'pgsql') {

@@ -4,7 +4,7 @@ namespace App\Authentication;
 
 use App\Authentication\X5CHandler;
 use App\Request\HttpClient;
-use App\General;
+use App\Utilities\General;
 
 class AzureAD
 {

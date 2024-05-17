@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Authentication\AzureAD;
 use Controllers\Api\Output;
 use Controllers\Api\Checks;
-use App\General;
+use App\Utilities\IP;
 use Controllers\Api\User;
 use Models\Api\User as UserModel;
 use App\Exceptions\UserExceptions;
@@ -249,7 +249,7 @@ if (isset($_POST['username'], $_POST['password'], $_POST['csrf_token'])) {
         'roles' => [
             $userArray['role'],
         ],
-        'last_ip' => General::currentIP()
+        'last_ip' => IP::currentIP()
     ]);
 
     $expiry_addition = ($_POST['remember'] === "1") ? 86400 * 24 * 12 : 86400;

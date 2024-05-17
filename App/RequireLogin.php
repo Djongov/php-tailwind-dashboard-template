@@ -8,6 +8,8 @@ use App\Authentication\JWT;
 use App\Authentication\Google;
 use Controllers\Api\Output;
 use App\Logs\SystemLog;
+use App\Utilities\General;
+use App\Utilities\IP;
 
 class RequireLogin
 {
@@ -183,7 +185,7 @@ class RequireLogin
                 'email' => 'email',
                 'name' => 'name'
             ];
-            $idTokenInfoArray["last_ip"] = General::currentIP();
+            $idTokenInfoArray["last_ip"] = IP::currentIP();
             foreach ($expectedClaims as $dbClaimName => $JWTClaimName) {
                 $idTokenInfoArray[$dbClaimName] = isset($authCookieArray[$JWTClaimName]) ? $authCookieArray[$JWTClaimName] : null;
             }

@@ -55,8 +55,6 @@ if (str_starts_with($query, 'SELECT')) {
     }
     echo '<div class="mx-4">';
         // Capture the table from the query
-        $table = explode('FROM', $query);
-        $table = explode(' ', $table[1]);
         echo DataGrid::fromData('Custom Query', $data, $theme);
     echo '</div>';
 } elseif (str_starts_with($query, 'DESCRIBE') || str_starts_with($query, 'SHOW')) {

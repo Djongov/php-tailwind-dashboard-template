@@ -2,7 +2,7 @@
 
 namespace App\Authentication;
 
-use App\General;
+use App\Utilities\General;
 use Controllers\Api\Output;
 use App\Core\Session;
 

@@ -107,6 +107,9 @@ const handleFormFetch = (form, currentEvent, resultType) => {
                     newResultDiv.innerHTML = '<p class="font-semibold text-red-500">Fetch interrupted. Refreshing page</p>';
                     location.reload();
                 }
+            } else if (response.status === 405) {
+                window.alert(`Receiving HTTP Status 405 means that you might have a misconfiguration on the server not accepting verbs such as ${formMethod}`);
+                return response.text();
             } else {
                 if (contentType && contentType.indexOf("application/json") === -1) {
                     return response.text();

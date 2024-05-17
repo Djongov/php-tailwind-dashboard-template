@@ -5,7 +5,7 @@ namespace App\Authentication;
 use App\Request\HttpClient;
 use App\Authentication\JWT;
 use Controllers\Api\Output;
-use App\General;
+use App\Utilities\General;
 use Google\Client;
 use App\Authentication\TokenCache;
 use App\Logs\SystemLog;
