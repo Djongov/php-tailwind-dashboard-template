@@ -3,7 +3,7 @@
 namespace App;
 
 use App\Database\DB;
-use App\Authentication\AzureAD;
+use App\Authentication\Azure\AzureAD;
 use App\Authentication\JWT;
 use App\Authentication\Google;
 use Controllers\Api\Output;
@@ -20,7 +20,9 @@ class RequireLogin
             '/docs/*',
             '/api/csp-report',
             '/register',
-            '/auth-verify',
+            '/auth/azure-ad',
+            '/auth/google',
+            '/auth/local',
             '/api/user',
             '/install',
             '/charts',
@@ -113,7 +115,7 @@ class RequireLogin
                 Do not redirect to /login if uri is in the list or exempt urls
                 !str_contains($_SERVER['REQUEST_URI'], '/login') is to prevent infinite redirects
             */
-            if (!General::matchRequestURI($loginExempt) && !str_contains($_SERVER['REQUEST_URI'], '/login') && !str_contains($_SERVER['REQUEST_URI'], '/auth-verify')) {
+            if (!General::matchRequestURI($loginExempt) && !str_contains($_SERVER['REQUEST_URI'], '/login') && !str_contains($_SERVER['REQUEST_URI'], '/auth/azure-ad') && !str_contains($_SERVER['REQUEST_URI'], '/auth/google') && !str_contains($_SERVER['REQUEST_URI'], '/auth/local')) {
                 if ($apiRoute) {
                     Output::error('missing token', 401);
                 } else {
@@ -236,7 +238,10 @@ class RequireLogin
 
         // Kill disabled users early
         if (isset($usernameArray["enabled"]) && $usernameArray["enabled"] === 0) {
-            Output::error('Your user has been disabled', 401);
+            //Output::error('Your user has been disabled', 401);
+            echo 'Your user has been disabled';
+            JWT::handleValidationFailure();
+            exit();
         }
 
         // If this gets executed on /login, we need to keep logged in users away from the login page

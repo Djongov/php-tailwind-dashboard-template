@@ -1,6 +1,6 @@
 <?php
 
-use App\Authentication\AzureAd;
+use App\Authentication\Azure\AzureAD;
 use App\Authentication\JWT;
 use Components\Html;
 use Components\Forms;
@@ -104,7 +104,7 @@ echo '<div class="flex items-center justify-center mx-4">';
                 ],
                 'theme' => $theme,
                 'method' => 'POST',
-                'action' => '/auth-verify',
+                'action' => '/auth/local',
                 'id' => 'local-login-form',
                 'resultType' => 'text',
                 'submitButton' => [

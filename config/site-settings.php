@@ -18,34 +18,11 @@ define("GENERIC_KEYWORDS", [
 // Site description for SEO
 define("GENERIC_DESCRIPTION", "Dashboard Template");
 
-// Logo for the SEO OG tags
-define("OG_LOGO", 'https://' . $_SERVER['HTTP_HOST'] . '/assets/images/Logos/awm-full-logo-card.png');
-
-// Used in terms of service
-define("THIRD_PARTY_LIST", []);
-// Used in terms of service
-define("COMPANY_NAME", "Sunwell Solutions LTD");
-// Used in terms of service
-define("COMPANY_EMAIL", "info@sunwellsolutions.com");
-// Used in terms of service
-define("COMPANY_COUNTRY", "Bulgaria");
-// Used in terms of service
-define("COMPANY_PHONE", "+359887755355");
-// Used in terms of service
-define("COMPANY_ADDRESS", "Sofia, Khan Krum street 13");
-// Used in terms of service
-define("COMPANY_URL", "https://sunwellsolutions.com");
-
 // Logo that sits on the menu and the footer
 define("LOGO", '/assets/images/logo.jpg');
 
-// Default set of metadata for the site, used in routes.php
-define("DEFAULT_METADATA", [
-    'title' => SITE_TITLE,
-    'description' => GENERIC_DESCRIPTION,
-    'keywords' => GENERIC_KEYWORDS,
-    'thumbimage' => OG_LOGO,
-]);
+// Logo for the SEO OG tags
+define("OG_LOGO", 'https://' . $_SERVER['HTTP_HOST'] . '/assets/images/Logos/awm-full-logo-card.png');
 
 // Default theme for unathenticated users and first-time logins, possible values: 'amber', 'green', 'stone', 'rose', 'lime', 'teal', 'sky', 'purple', 'red', 'fuchsia', 'indigo'
 define("COLOR_SCHEME", "amber");

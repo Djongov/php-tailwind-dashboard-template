@@ -21,7 +21,7 @@ This works by either creating an app registration in your Azure tenant (works wi
 #### Your own app registration
 
 1. Create App Registration
-2. In Authentication -> Put the redirect uri - https://example.com/auth-verify
+2. In Authentication -> Put the redirect uri - https://example.com/auth/azure-ad
 3. In Authentication -> Enable ID Tokens
 4. In Token Configuration -> Add optional claims - ctry, ipaddr
 5. In App Roles -> Create app role -> display name => App Name Admins, allowed member types => Users/Groups, Value = administrator

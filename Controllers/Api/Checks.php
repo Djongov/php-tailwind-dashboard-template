@@ -4,7 +4,7 @@ namespace Controllers\Api;
 
 use Controllers\Api\Output;
 use App\Authentication\JWT;
-use App\Authentication\AzureAD;
+use App\Authentication\Azure\AzureAD;
 
 class Checks
 {

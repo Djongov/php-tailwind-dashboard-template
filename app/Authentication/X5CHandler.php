@@ -2,10 +2,10 @@
 
 namespace App\Authentication;
 
-use App\Authentication\AzureAD;
+use App\Authentication\Azure\AzureAD;
 use App\Authentication\Google;
-use App\Database\DB;
 use App\Logs\SystemLog;
+use Models\Core\DBCache;
 
 class X5CHandler
 {
@@ -21,22 +21,17 @@ class X5CHandler
         } elseif ($provider === 'google') {
             $type = 'x509';
         }
-        $db = new DB();
-        $pdo = $db->getConnection();
-        $stmt = $pdo->prepare("SELECT * FROM `cache` WHERE `type`=? AND `unique_property`=?");
-        $stmt->execute([$type, $kid]);
-        $x5c = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $x5c = DBCache::get($type, $kid);
 
         // Check if we have a result
-        if (!empty($x5c)) {
+        if ($x5c) {
             // We have a result, let's check if it's expired
             if (strtotime($x5c['expiration']) > time()) {
                 // We have a valid x5c, let's return it
                 return $x5c['value'];
             } else {
                 // We have an expired x5c, let's delete it
-                $stmt = $pdo->prepare("DELETE FROM `cache` WHERE `type`=? AND `unique_property`=?");
-                $stmt->execute([$type, $kid]);
+                DBCache::delete($type, $kid);
                 // Let's fetch a new x5c
                 $newX5c = self::fetch($appId, $tenant, $kid, $provider);
                 SystemLog::write('Fetched new ' . $type, $type);
@@ -69,10 +64,7 @@ class X5CHandler
             $type = 'x509';
             $x5c = $x5cResult['n'] . ' ' . $x5cResult['e'];
         }
-        $db = new DB();
-        $pdo = $db->getConnection();
-        $stmt = $pdo->prepare("INSERT INTO `cache` (`type`, `unique_property`, `value`, `expiration`) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$type, $kid, $x5c, date('Y-m-d H:i:s', strtotime('+1 day'))]);
+        DBCache::create($x5c, date('Y-m-d H:i:s', strtotime('+1 day')), $type, $kid);
 
         // Return the x5c
         SystemLog::write('Fetched new ' . $type . ' and wrote it to DB', $type);

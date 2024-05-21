@@ -12,7 +12,7 @@ $google_nonce = $_SESSION['nonce'] ?? null;
 $client = new Client();
 $client->setClientId(GOOGLE_CLIENT_ID);
 $client->setClientSecret(GOOGLE_CLIENT_SECRET);
-$client->setRedirectUri('https://' . $_SERVER['HTTP_HOST'] . '/auth-verify');
+$client->setRedirectUri('https://' . $_SERVER['HTTP_HOST'] . '/auth/google');
 $client->addScope("email");
 $client->addScope("profile");
 $client->addScope("openid");

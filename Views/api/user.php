@@ -10,7 +10,11 @@ use App\Authentication\JWT;
 
 // POST /api/user
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // This endpoint is for creating a new local user. Cloud users are create in /auth-verify
+    if (!MANUAL_REGISTRATION) {
+        Output::error('Manual registration is disabled', 400);
+        exit();
+    }
+    // This endpoint is for creating a new local user.
     $checks = new Checks($vars, $_POST);
     $checks->apiChecksNoUser();
 

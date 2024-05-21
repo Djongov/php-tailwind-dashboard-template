@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Authentication;
+namespace App\Authentication\Azure;
 
 use App\Authentication\X5CHandler;
+use App\Authentication\JWT;
 use App\Request\HttpClient;
 use App\Utilities\General;
 

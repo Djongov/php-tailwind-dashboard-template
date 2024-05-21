@@ -1,6 +1,6 @@
 <?php
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+if ($_SERVER['REQUEST_METHOD'] === 'GET') :
 
     if (file_exists(dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '.env')) {
         die('No work to be done here');
@@ -63,11 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 <script src="/assets/js/create-env.js"></script>
 
 <?php
-}
+endif;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    //return var_dump($_POST);
 
 
     if (file_exists(dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '.env')) {
@@ -88,18 +86,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "private_key_bits" => 2048,
             "private_key_type" => OPENSSL_KEYTYPE_RSA,
         ];
-
-        function encryptData($value){
-            $key = $userKey;
-            $text = $value;
-            $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB);
-            $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
-            $crypttext = mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $key, $text, MCRYPT_MODE_ECB, $iv);
-            return $crypttext;
-         }
         
         // Create the keypair
         $res = openssl_pkey_new($config);
+
+        if (!$res) {
+            die('You need openssl installed on the web server apart from having the extension enabled');
+        }
 
         // Get private key
         openssl_pkey_export($res, $privKey);

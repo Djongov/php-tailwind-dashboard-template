@@ -10,7 +10,7 @@ define('MS_LIVE_TENANT_ID', $_ENV['AZURE_AD_TENANT_ID']);
 if (MICROSOFT_LIVE_LOGIN) {
     // Set the protocol to http:// if hostname contains localhost
     // This is how we form the redirect URL. Note that https:// is hardcoded, which is fine as app registrations do not allow for http:// unless it's http://localhost.
-    define('MS_LIVE_REDIRECT_URI', $protocol . '://' . $_SERVER['HTTP_HOST'] . '/auth-verify');
+    define('MS_LIVE_REDIRECT_URI', $protocol . '://' . $_SERVER['HTTP_HOST'] . '/auth-azure-ad');
     // Let's build the oauth URL which includes the tenant. This is where we will be sending the request to login
     //define('OAUTHURL', 'https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize?');
     define('MS_LIVE_OAUTH_URL', 'https://login.live.com/oauth20_authorize.srf?');

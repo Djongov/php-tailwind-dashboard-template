@@ -30,9 +30,10 @@ if (AZURE_AD_LOGIN) {
         define('AZURE_AD_CLIENT_ID', $_ENV['AZURE_AD_CLIENT_ID']);
         // Azure App registration tenant id
         define('AZURE_AD_TENANT_ID', $_ENV['AZURE_AD_TENANT_ID']);
+        define('AZURE_AD_CLIENT_SECRET', $_ENV['AZURE_AD_CLIENT_SECRET'] ?? null);
 
         // This is how we form the redirect URL. Note that https:// is hardcoded, which is fine as app registrations do not allow for http:// unless it's http://localhost.
-        define('REDIRECT_URI', $protocol . '://' . $_SERVER['HTTP_HOST'] . '/auth-verify');
+        define('REDIRECT_URI', $protocol . '://' . $_SERVER['HTTP_HOST'] . '/auth/azure-ad');
         // Let's build the oauth URL which includes the tenant. This is where we will be sending the request to login
         //define('OAUTHURL', 'https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize?');
         define('OAUTHURL', 'https://login.microsoftonline.com/' . AZURE_AD_TENANT_ID . '/oauth2/v2.0/authorize?');

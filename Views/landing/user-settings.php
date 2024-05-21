@@ -7,6 +7,8 @@ use App\Authentication\JWT;
 use Models\Api\User;
 use App\Exceptions\User as UserExceptions;
 
+var_dump(App\Authentication\Azure\GetAccessToken::get($_COOKIE[AUTH_COOKIE_NAME]));
+
 $user = new User();
 
 /* Profile picture update logic */

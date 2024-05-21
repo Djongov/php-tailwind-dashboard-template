@@ -59,14 +59,14 @@ class HttpClient
             $headers['Content-Type'] = 'application/json';
         }
 
-        $options = [
-            'headers' => $headers,
-        ];
+        // Add the headers to the options array
+        $options['headers'] = $headers;
 
         // If path is null, then use the base_uri
         if (empty($path)) {
             $path = '';
         }
+
 
         try {
             $response = $this->client->request($method, $path, $options);
