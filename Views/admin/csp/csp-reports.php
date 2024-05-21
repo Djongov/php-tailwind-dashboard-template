@@ -109,4 +109,17 @@ echo '<div class="flex justify-center">';
     echo DataGrid::fromData('blocked_uri', $indexedArray, $theme);
 echo '</div>';
 
-echo DataGrid::fromData('CSP Reports', $cspArray, $theme);
+$cspReportsQuery = 'SELECT `id`,`domain`,`url`,`referrer`,`violated_directive`,`effective_directive`,`disposition`,`blocked_uri`,`line_number`,`column_number`,`source_file`,`script_sample` FROM `csp_reports`';
+
+echo DataGrid::fromQuery('csp_reports', $cspReportsQuery, 'CSP Reports', $theme, true, true, [
+    'filters' => true,
+    'ordering' => true,
+    'paging' => true,
+    'lengthMenu' => [[10, 50, 100, -1], [10, 50, 100, 'All']],
+]);
+// echo DataGrid::fromData('CSP Reports', $cspArray, $theme, [
+//     'filters' => true,
+//     'ordering' => true,
+//     'paging' => true,
+//     'lengthMenu' => [[10, 50, 100], [10, 50, 100]],
+// ]);

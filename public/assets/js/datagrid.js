@@ -1,6 +1,6 @@
 /* DataGrid DataTable
 
-Here are the functions that are for DataGrid display. Using DataTables library
+Here are the functions that are for DataGrid display. Using DataTables 1.12.1 library
 
 */
 const countAllCheckedCheckboxes = (tableId) => {
@@ -9,6 +9,20 @@ const countAllCheckedCheckboxes = (tableId) => {
 
 const countVisibleRows = (tableId) => {
     return document.querySelectorAll(`#${tableId} > tbody > tr:not([style*="display: none;"])`).length;
+}
+
+const updateSelectedResults = (tableId, newValue) => {
+    const selectedResults = document.getElementById(tableId + '-selected');
+    if (selectedResults) {
+        selectedResults.innerText = newValue;
+    }
+}
+
+const updateFilteredResults = (tableId, newValue) => {
+    const filteredResults = document.getElementById(tableId + '-filtered');
+    if (filteredResults) {
+        filteredResults.innerText = newValue;
+    }
 }
 
 const tables = document.querySelectorAll(`table.datagrid`);
@@ -24,11 +38,7 @@ if (tables.length > 0) {
         const deleteLoadingScreenText = document.getElementById(tableId + '-delete-loading-screen-text');
         // Now the results elements
         let totalResults = document.getElementById(tableId + '-total');
-        if (massDeleteModalText) {
-            let selectedResults = document.getElementById(tableId + '-selected');
-            let filteredResults = document.getElementById(tableId + '-filtered');
-            filteredResults.innerText = countVisibleRows(tableId);
-        }
+        updateFilteredResults(tableId, countVisibleRows(tableId));
         // First the Edit button and get records
         const editButtons = document.querySelectorAll(`#${tableId} button.edit`);
 
@@ -178,8 +188,8 @@ if (tables.length > 0) {
                         checkbox.parentNode.parentNode.classList.remove('bg-gray-200', 'text-black');
                     }
                     const allTableCheckedCheckboxes = countAllCheckedCheckboxes(tableId);
-                    selectedResults.innerText = allTableCheckedCheckboxes;
-                    filteredResults.innerText = countVisibleRows(tableId);
+                    updateSelectedResults(tableId, allTableCheckedCheckboxes);
+                    updateFilteredResults(tableId, countVisibleRows(tableId));
                     if (massDeleteModalTriggerer && massDeleteModalText) {
                         massDeleteModalText.innerText = 'Are you sure you want to delete ' + allTableCheckedCheckboxes + ' entries?';
                         massDeleteModalTriggerer.disabled = (allTableCheckedCheckboxes > 0) ? false : true;
@@ -300,7 +310,7 @@ if (tables.length > 0) {
                             totalResults.innerText = parseInt(totalResults.innerText) - 1;
                             // Decrease the filtered results if the row is visible
                             if (closestRow.style.display !== 'none') {
-                                filteredResults.innerText = parseInt(filteredResults.innerText) - 1;
+                                updateFilteredResults(tableId, countVisibleRows(tableId) - 1);
                             }
                             // Completely remove the modal
                             modal.remove();
@@ -336,7 +346,7 @@ if (tables.length > 0) {
             });
             // After this action, we need to update the "Selected" count, as well as tell the modal how many rows we have selected         
             const allTableCheckedCheckboxes = countAllCheckedCheckboxes(tableId);
-            selectedResults.innerText = allTableCheckedCheckboxes;
+            updateSelectedResults(tableId, allTableCheckedCheckboxes);
             if (massDeleteModalTriggerer && massDeleteModalText) {
                 massDeleteModalText.innerText = 'Are you sure you want to delete ' + allTableCheckedCheckboxes + ' entries?';
                 massDeleteModalTriggerer.disabled = (allTableCheckedCheckboxes > 0) ? false : true;

@@ -142,6 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
     */
 }
+return var_dump($_POST);
 // If the request is coming from Azure, we should have a $_POST['id_token'] and a $_POST['state'] variable
 if (isset($_POST['id_token'], $_POST['state']) || isset($_POST['error'], $_POST['error_description'])) {
     // if error - throw it as an exception

@@ -1,6 +1,5 @@
 <?php
 
-use Components\Html;
 use Components\Alerts;
 
 try {
@@ -11,7 +10,7 @@ try {
     if (str_contains($errorMessage, 'Unknown database')) {
         // Pick up the database name from the error
         $databaseName = explode('Unknown database ', $errorMessage)[1];
-        $errorMessage = 'Database ' . $databaseName . ' not found. Please install the application by going to ' . HTML::a('/install', '/install', $theme);
+        $errorMessage = 'Database ' . $databaseName . ' not found. Please install the application by going to ' . Components\Html::a('/install', '/install', $theme);
     }
     echo Alerts::danger($errorMessage); // Handle the exception
     return;

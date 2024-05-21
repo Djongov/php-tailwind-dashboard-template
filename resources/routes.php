@@ -54,7 +54,7 @@ return function (RouteCollector $router) {
     // Logout page
     $router->addRoute('GET', '/logout', [$viewsFolder . '/logout.php']);
     // CSP report endpoiont
-    $router->addRoute('POST', '/csp-report', [$viewsFolder . '/csp-report.php']);
+    $router->addRoute('POST', '/api/csp-report', [$viewsFolder . '/api/csp-report.php']);
     // Admin
     $router->addRoute('GET', '/adminx', [$viewsFolder . '/admin/index.php', $genericMetaAdminDataArray]);
     $router->addRoute('GET', '/adminx/server', [$viewsFolder . '/admin/server.php', $genericMetaAdminDataArray]);

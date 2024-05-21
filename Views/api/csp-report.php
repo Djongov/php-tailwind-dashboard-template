@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 use Controllers\Api\Output;
 use App\Logs\SystemLog;
-use Models\CSP;
-use App\Exceptions\CSP as CSPException;
+use Models\ContentSecurityPolicy\CSPReports;
+use Models\ContentSecurityPolicy\CSPApprovedDomains;
+use App\Exceptions\ContentSecurityPolicyExceptions;
 
 //First of all check if Content-Type is application/csp-report
 if ($_SERVER['CONTENT_TYPE'] !== 'application/csp-report') {
     Output::error('Incorrect Content-Type', 400);
 }
 
-$jsonData = file_get_contents('php://input'); // Read the data from the POST request
+$jsonData = file_get_contents('php://input'); // Read the data from the POST request as it's JSON and won't show up on $_POST
 
 // Check if the data is JSON
 if (!($jsonArray = json_decode($jsonData, true))) {
@@ -46,20 +47,22 @@ if ($domain === false || $domain === null || $domain === '') {
     Output::error('Invalid domain', 400);
 }
 
-$csp = new CSP();
+$cspApprovedDomains = new CSPApprovedDomains();
 
-if ($csp->domainExist($domain) !== true) {
+if (!$cspApprovedDomains->domainExist($domain)) {
     SystemLog::write($domain . ' attempted to send report', 'CSP Domain Not Allowed');
     Output::error('Domain not allowed', 401);
 }
 
+$csp = new CSPReports();
+
 // All god, let's save the data
 try {
-    $csp->save($jsonArray, $domain);
-} catch (CSPException $e) {
+    $csp->create($jsonArray);
+    http_response_code(204); // Send HTTP 204 No Content response and content is also empty at this point
+    exit();
+} catch (ContentSecurityPolicyExceptions $e) {
     SystemLog::write($e->getMessage(), 'CSP Report Not Saved');
     Output::error($e->getMessage(), $e->getCode());
 }
 
-http_response_code(204); // Send HTTP 204 No Content response and content is also empty at this point
-exit();

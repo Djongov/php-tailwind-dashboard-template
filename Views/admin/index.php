@@ -4,7 +4,7 @@ use Components\Html;
 use App\Database\DB;
 use App\Security\Firewall;
 use Controllers\Api\Output;
-use App\Utilities\General;
+use Components\Gallery;
 
 // First firewall check
 Firewall::activate();
@@ -41,3 +41,9 @@ echo '<div class="p-4 m-4 max-w-md bg-white rounded-lg border border-gray-200 sh
     echo HTML::p('Total tables: ' . count($dbTables));
     echo \Components\Table::auto($dbTables);
 echo '</div>';
+
+echo '<div class="max-w-md">';
+    echo Gallery::fromFolder($_SERVER['DOCUMENT_ROOT'] . '/assets/images', 'Public Images', false, false, '160', 'auto');
+echo '</div>';
+
+echo Components\Image::display('/assets/images/msft.png', 'Microsoft Logo', 'Microsoft Logo', '150', 'auto', true, 'qweqweqwe');

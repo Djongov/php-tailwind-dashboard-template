@@ -170,7 +170,7 @@ if (LOCAL_USER_LOGIN) {
     define('MANUAL_REGISTRATION', true);
 }
 // Whether to allow users to login with Azure AD accounts
-define('AZURE_AD_LOGIN', false);
+define('AZURE_AD_LOGIN', true);
 if (AZURE_AD_LOGIN) {
     include_once dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'azure-ad-auth-config.php';
 }

@@ -7,7 +7,6 @@ use App\Authentication\AzureAD;
 use App\Authentication\JWT;
 use App\Authentication\Google;
 use Controllers\Api\Output;
-use App\Logs\SystemLog;
 use App\Utilities\General;
 use App\Utilities\IP;
 
@@ -19,7 +18,7 @@ class RequireLogin
             '/',
             '/docs',
             '/docs/*',
-            '/csp-report',
+            '/api/csp-report',
             '/register',
             '/auth-verify',
             '/api/user',

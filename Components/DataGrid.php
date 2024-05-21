@@ -90,6 +90,12 @@ class DataGrid
     }
     public static function fromQuery(string $dbTable, string $query, string $title, string $theme, bool $edit = true, bool $delete = true, $tableOptions = null) : string
     {
+        // First of all, check if query has SELECT in it and if it does, we need to make sure that `id` has been passed
+        if ($edit || $delete) {
+            if (stripos($query, 'SELECT') !== false && stripos($query, 'id') === false) {
+                return Alerts::danger('Please include `id` column in your query, if you have enabled edit or delete options.');
+            }
+        }
         // We pull from query
         $db = new DB();
         $pdo = $db->getConnection();
