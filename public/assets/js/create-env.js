@@ -88,6 +88,12 @@ document.getElementById('Entra_ID_login').addEventListener('change', () => {
     toggleAdditionalField('Entra_ID_login', 'AZURE_AD_TENANT_ID', 'Tenant ID');
 });
 
+// MS Live
+document.getElementById('Google_login').addEventListener('change', () => {
+    toggleAdditionalField('Google_login', 'Microsoft_LIVE_login', 'MS_LIVE_CLIENT_ID');
+    toggleAdditionalField('Google_login', 'Microsoft_LIVE_login', 'MS_LIVE_CLIENT_SECRET');
+});
+
 // Google login
 document.getElementById('Google_login').addEventListener('change', () => {
     toggleAdditionalField('Google_login', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_ID');

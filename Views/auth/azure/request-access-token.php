@@ -1,0 +1,25 @@
+<?php
+
+use App\Authentication\JWT;
+
+$state = $_GET['state'] ?? '/';
+
+$username = JWT::extractUserName($_COOKIE[AUTH_COOKIE_NAME]) ?? die('No username found');
+
+$data = [
+    'client_id' => AZURE_AD_CLIENT_ID,
+    'response_type' => 'token',
+    'redirect_uri' => AZURE_AD_CODE_REDIRECT_URI,
+    'scope' => 'https://graph.microsoft.com/user.read',
+    'response_mode' => 'form_post',
+    'state' => $state . '&username=' . $username,
+    'nonce' => $_SESSION['nonce'],
+    'prompt' => 'none',
+    'login_hint' => $username
+];
+
+$location = AZURE_AD_OAUTH_URL . http_build_query($data);
+
+header('Location: ' . $location);
+
+exit();

@@ -45,8 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') :
     </label>
     <br><br>
 
-    <!--<input type="checkbox" id="Microsoft_LIVE_login" name="Microsoft_LIVE_login">
-    <label for="Microsoft_LIVE_login">Microsoft LIVE Login</label><br><br>-->
+    <input type="checkbox" id="Microsoft_LIVE_login" name="Microsoft_LIVE_login">
+    <label for="Microsoft_LIVE_login">Microsoft LIVE Login</label><br><br>
 
     <label for="Google_login">Google Login
         <input type="checkbox" id="Google_login" name="Google_login">

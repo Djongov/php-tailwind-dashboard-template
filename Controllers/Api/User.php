@@ -217,4 +217,30 @@ class User
             Output::error($e->getMessage());
         }
     }
+    public function saveAzureProfilePicture(string $username, string $response) : void
+    {
+        $imageName = $username . '_' . uniqid() . '.jpeg';
+        $imageRelativePath = '/assets/images/profile/' . $imageName;
+        $savePath = $_SERVER['DOCUMENT_ROOT'] . '/assets/images/profile/' . $imageName;
+
+        file_put_contents($savePath, $response);
+
+        $user = new UserModel();
+
+        try {
+            $usernameConfirmed = $user->get($username);
+        } catch (UserExceptions $e) {
+            Output::error($e->getMessage());
+        } catch (\Exception $e) {
+            Output::error($e->getMessage());
+        }
+
+        try {
+            $user->update(['picture' => $imageRelativePath], $usernameConfirmed['id']);
+        } catch (UserExceptions $e) {
+            Output::error($e->getMessage());
+        } catch (\Exception $e) {
+            Output::error($e->getMessage());
+        }
+    }
 }

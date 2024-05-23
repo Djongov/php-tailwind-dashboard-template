@@ -1,19 +1,20 @@
 <?php
-if (!isset($_ENV['AZURE_AD_CLIENT_ID']) || !isset($_ENV['AZURE_AD_TENANT_ID'])) {
-    die('AZURE_AD_CLIENT_ID, AZURE_AD_TENANT_ID, must be set in the .env file if MICROSOFT_LIVE_LOGIN is set to true');
-}
-// Azure App registratin client id
-define('MS_LIVE_CLIENT_ID', $_ENV['AZURE_AD_CLIENT_ID']);
-// Azure App registration tenant id
-define('MS_LIVE_TENANT_ID', $_ENV['AZURE_AD_TENANT_ID']);
 
 if (MICROSOFT_LIVE_LOGIN) {
+    // Azure App registration tenant id
+    define('MS_LIVE_TENANT_ID', $_ENV['MS_LIVE_TENANT_ID']);
+    // Azure App registratin client id
+    define('MS_LIVE_CLIENT_ID', $_ENV['MS_LIVE_CLIENT_ID']);
+    // Azure App registration client secret
+    define('MS_LIVE_CLIENT_SECRET', $_ENV['MS_LIVE_CLIENT_SECRET']);
     // Set the protocol to http:// if hostname contains localhost
     // This is how we form the redirect URL. Note that https:// is hardcoded, which is fine as app registrations do not allow for http:// unless it's http://localhost.
-    define('MS_LIVE_REDIRECT_URI', $protocol . '://' . $_SERVER['HTTP_HOST'] . '/auth-azure-ad');
+    define('MS_LIVE_REDIRECT_URI', $protocol . '://' . $_SERVER['HTTP_HOST'] . '/auth/azure-ad');
     // Let's build the oauth URL which includes the tenant. This is where we will be sending the request to login
     //define('OAUTHURL', 'https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize?');
     define('MS_LIVE_OAUTH_URL', 'https://login.live.com/oauth20_authorize.srf?');
+    
+    define('MS_LIVE_CODE_REDIRECT_URI', $protocol . '://' . $_SERVER['HTTP_HOST'] . '/auth/azure/azure-ad-code-exchange');
 
     $authenticationData = [
         'client_id' => MS_LIVE_CLIENT_ID,
@@ -27,9 +28,9 @@ if (MICROSOFT_LIVE_LOGIN) {
         'state' => $destination
     ];
     // This basically merges OAUTH URL and $data
-    $request_id_token_url = MS_LIVE_OAUTH_URL . http_build_query($authenticationData);
+    $ms_live_request_token_url = MS_LIVE_OAUTH_URL . http_build_query($authenticationData);
     // Let's form what the login url will be
-    define('MS_LIVE_LOGIN_BUTTON_URL', $request_id_token_url);
+    define('MS_LIVE_LOGIN_BUTTON_URL', $ms_live_request_token_url);
     // For this one, the logout will be our own script
     define('MS_LIVE_LOGOUT_BUTTON_URL', 'https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=https://' . $_SERVER['HTTP_HOST']);
 }

@@ -48,12 +48,15 @@ return function (RouteCollector $router) {
     $router->addRoute('GET', '/datagrid', [$viewsFolder . '/example/datagrid.php', $genericMetaDataArray]);
     $router->addRoute('GET', '/dummy', [$viewsFolder . '/example/dummy.php', $genericMetaDataArray]);
     
-    // Auth verify page
+    // Auth
     $router->addRoute('POST', '/auth/local', [$viewsFolder . '/auth/local.php']);
     $router->addRoute('GET', '/auth/google', [$viewsFolder . '/auth/google.php']);
     $router->addRoute('POST', '/auth/azure-ad', [$viewsFolder . '/auth/azure-ad.php']);
     $router->addRoute(['POST', 'GET'], '/auth/azure-ad-access-token', [$viewsFolder . '/auth/azure-ad-access-token.php']);
     $router->addRoute('GET', '/logout', [$viewsFolder . '/auth/logout.php']);
+    // Azure experiments
+    $router->addRoute('GET', '/auth/azure/request-access-token', [$viewsFolder . '/auth/azure/request-access-token.php']);
+    $router->addRoute('POST', '/auth/azure/azure-ad-code-exchange', [$viewsFolder . '/auth/azure/azure-ad-code-exchange.php']);
     
     // CSP report endpoiont
     $router->addRoute('POST', '/api/csp-report', [$viewsFolder . '/api/csp-report.php']);

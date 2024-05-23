@@ -5,9 +5,10 @@ use Components\Forms;
 use Components\Html;
 use App\Authentication\JWT;
 use Models\Api\User;
-use App\Exceptions\User as UserExceptions;
+use App\Exceptions\UserExceptions;
+use App\Request\HttpClient;
 
-var_dump(App\Authentication\Azure\GetAccessToken::get($_COOKIE[AUTH_COOKIE_NAME]));
+//return var_dump(App\Authentication\Azure\GetAccessToken::get());
 
 $user = new User();
 
@@ -32,17 +33,27 @@ if (!empty($usernameArray['picture']) && isset($token['picture'])) {
         }
     }
 } elseif ($usernameArray['picture'] === null) {
-    // If no picture is set, use the ui-avatars.com service to generate a picture
-    $picture = 'https://ui-avatars.com/api/?name=' . $usernameArray['name'] . '&background=0D8ABC&color=fff';
-    // Save the picture to the user
-    try {
-        $user->update(['picture' => $picture], $usernameArray['id']);
-    } catch (UserExceptions $e) {
-        // Handle user-specific exceptions
-        echo $e->getMessage();
-    } catch (\Exception $e) {
-        // Handle other exceptions
-        echo $e->getMessage();
+    // If Azure
+    if ($usernameArray['provider'] === 'azure' || $usernameArray['provider'] === 'mslive') {
+        $accessToken = App\Authentication\Azure\GetAccessToken::get();
+        $client = new HttpClient('https://graph.microsoft.com/v1.0/me/photo/$value');
+        $response = $client->call('GET', '', [], $accessToken, false, ['Accept: image/jpeg'], false);
+        $userController = new Controllers\Api\User();
+        $userController->saveAzureProfilePicture($usernameArray['username'], $response);
+    // If Local account
+    } else {
+        // If no picture is set, use the ui-avatars.com service to generate a picture
+        $picture = 'https://ui-avatars.com/api/?name=' . $usernameArray['name'] . '&background=0D8ABC&color=fff';
+        // Save the picture to the user
+        try {
+            $user->update(['picture' => $picture], $usernameArray['id']);
+        } catch (UserExceptions $e) {
+            // Handle user-specific exceptions
+            echo $e->getMessage();
+        } catch (\Exception $e) {
+            // Handle other exceptions
+            echo $e->getMessage();
+        }
     }
 }
 

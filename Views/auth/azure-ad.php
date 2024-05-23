@@ -9,12 +9,11 @@ use Controllers\Api\User;
 use Models\Api\User as UserModel;
 use App\Core\Cookies;
 
-if (isset($_POST['id_token'], $_POST['state']) || isset($_POST['error'], $_POST['error_description'])) {
-    // if error - throw it as an exception
-    if (isset($_POST['error'], $_POST['error_description'])) {
-        Output::error("Azure Error: " . $_POST['error'] . " with Description: " . $_POST['error_description'], 400);
-    }
+if (isset($_POST['error'], $_POST['error_description'])) {
+    Output::error("Azure Error: " . $_POST['error'] . " with Description: " . $_POST['error_description'], 400);
+}
 
+if (isset($_POST['id_token'], $_POST['state'])) {
     // If someone comes directly from /login, we need to set the state to /
     if ($_POST['state'] === '/login' || $_POST['state'] === '/logout') {
         $_POST['state'] = '/';

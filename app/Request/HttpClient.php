@@ -22,7 +22,7 @@ class HttpClient
         ]);
     }
 
-    public function call($method, $path, $data = [], $bearer_token = null, $sendJson = false, $headers = [])
+    public function call($method, $path, $data = [], $bearer_token = null, $sendJson = false, $headers = [], $expectJson = true)
     {
         $method = strtoupper($method);
 
@@ -68,10 +68,12 @@ class HttpClient
         }
 
 
+
         try {
             $response = $this->client->request($method, $path, $options);
             // Let's extract the statusCode
             $statusCode = $response->getStatusCode();
+
             // Let's extract the reasonPhrase
             $reasonPhrase = $response->getReasonPhrase();
             // Let's extract the headers
@@ -87,7 +89,11 @@ class HttpClient
                     return ['response' => $response, 'statusCode' => $statusCode];
                 }
             } else {
-                return $response = json_decode($response, true);
+                if ($expectJson) {
+                    return $response = json_decode($response, true);
+                } else {
+                    return $response;
+                }                    
             }
         } catch (ConnectException $e) {
             // Handle the connection exception

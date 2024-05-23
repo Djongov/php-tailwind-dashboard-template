@@ -23,6 +23,7 @@ class RequireLogin
             '/auth/azure-ad',
             '/auth/google',
             '/auth/local',
+            '/auth/azure/azure-ad-code-exchange',
             '/api/user',
             '/install',
             '/charts',
