@@ -26,13 +26,13 @@ if (isset($_COOKIE[AUTH_COOKIE_NAME])) {
 }
 
 echo '<div class="flex items-center justify-center mx-4">';
-    echo '<div class="flex flex-col w-full max-w-md my-16 px-4 py-6 bg-gray-50 rounded-lg ' . DARK_COLOR_SCHEME_CLASS . ' sm:px-6 md:px-8 lg:px-10 border border-gray-300 shadow-md">';
+    echo '<div class="flex flex-col w-full max-w-md my-16 px-4 py-6 rounded-lg ' . LIGHT_COLOR_SCHEME_CLASS . ' ' . DARK_COLOR_SCHEME_CLASS . ' sm:px-6 md:px-8 lg:px-10 border border-gray-300 shadow-md">';
         // Now the different external provider login options
         echo HTML::h3('Login with a provider account', true, ['my-6']);
         // Azure
         if (AZURE_AD_LOGIN) {
             echo '<div class="flex gap-4 item-center">';
-                echo '<a class="mb-4 w-full text-black dark:text-slate-400 font-medium text-center border border-gray-200 rounded-md shadow-sm hover:bg-gray-200 hover:dark:text-black" href="' . AZURE_AD_LOGIN_BUTTON_URL . '">';
+                echo '<a class="mb-4 w-full ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' font-medium text-center border border-gray-200 rounded-md shadow-sm hover:bg-gray-200 hover:dark:text-black" href="' . AZURE_AD_LOGIN_BUTTON_URL . '">';
                     echo '<div class="flex items-center justify-center py-3 px-3 leading-5">';
                         echo '<img height="32" width="32" src="/assets/images/MSFT.png" alt="MS Logo" />';
                             echo '<span class="ml-3">Sign in with Microsoft Work or school</span>';
@@ -42,7 +42,7 @@ echo '<div class="flex items-center justify-center mx-4">';
         }
         if (MICROSOFT_LIVE_LOGIN) {
             echo '<div class="flex gap-4 item-center">';
-                echo '<a class="mb-4 w-full text-black dark:text-slate-400 font-medium text-center border border-gray-200 rounded-md shadow-sm hover:bg-gray-200 hover:dark:text-black" href="' . MS_LIVE_LOGIN_BUTTON_URL . '">';
+                echo '<a class="mb-4 w-full ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' font-medium text-center border border-gray-200 rounded-md shadow-sm hover:bg-gray-200 hover:dark:text-black" href="' . MS_LIVE_LOGIN_BUTTON_URL . '">';
                     echo '<div class="flex items-center justify-center py-3 px-3 leading-5">';
                         echo '<img height="32" width="32" src="/assets/images/MSFT.png" alt="MS Logo" />';
                             echo '<span class="ml-3">Sign in with Microsoft live account</span>';
@@ -53,7 +53,7 @@ echo '<div class="flex items-center justify-center mx-4">';
         // Google
         if (GOOGLE_LOGIN) {
             echo '<div class="flex gap-4 item-center">';
-                echo '<a class="mb-4 w-full text-black dark:text-slate-400 font-medium text-center border border-gray-200 rounded-md shadow-sm hover:bg-gray-200 hover:dark:text-black" href="' . GOOGLE_LOGIN_BUTTON_URL . '">';
+                echo '<a class="mb-4 w-full ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' font-medium text-center border border-gray-200 rounded-md shadow-sm hover:bg-gray-200 hover:dark:text-black" href="' . GOOGLE_LOGIN_BUTTON_URL . '">';
                     echo '<div class="flex items-center justify-center py-3 px-3 leading-5">';
                         echo '<img height="32" width="32" src="/assets/images/google.png" alt="Google Logo" />';
                         echo '<span class="ml-3">Sign in with Google</span>';

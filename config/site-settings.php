@@ -35,13 +35,13 @@ define("TEXT_COLOR_SCHEME", "text-gray-900");
 // This is the text while in the dark mode
 define("TEXT_DARK_COLOR_SCHEME", "dark:text-gray-100");
 // This is the background color while in the light mode
-define("LIGHT_COLOR_SCHEME_CLASS", "bg-gray-50");
+define("LIGHT_COLOR_SCHEME_CLASS", "bg-purple-300");
 // This is the background color while in the dark mode
-define("DARK_COLOR_SCHEME_CLASS", "dark:bg-gray-900");
+define("DARK_COLOR_SCHEME_CLASS", "dark:bg-purple-900");
 // This is the background color for the body while in the light mode
-define("BODY_COLOR_SCHEME_CLASS", "bg-gray-200");
+define("BODY_COLOR_SCHEME_CLASS", "bg-purple-200");
 // This is the background color for the body while in the dark mode
-define("BODY_DARK_COLOR_SCHEME_CLASS", "dark:bg-gray-800");
+define("BODY_DARK_COLOR_SCHEME_CLASS", "dark:bg-purple-800");
 
 // Data grid color schemes
 

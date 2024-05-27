@@ -9,7 +9,7 @@ if (LOCAL_USER_LOGIN) {
     if (MANUAL_REGISTRATION) {
     // Registration form here
     echo '<div class="flex items-center justify-center mx-4">
-        <div class="flex flex-col w-full max-w-md my-16 px-4 py-8 bg-gray-50 rounded-lg ' . DARK_COLOR_SCHEME_CLASS . ' sm:px-6 md:px-8 lg:px-10 border border-gray-300 shadow-md">';
+        <div class="flex flex-col w-full max-w-md my-16 px-4 py-8 rounded-lg ' . LIGHT_COLOR_SCHEME_CLASS . ' ' . DARK_COLOR_SCHEME_CLASS . ' sm:px-6 md:px-8 lg:px-10 border border-gray-300 shadow-md">';
             $registrationForm = [
                 'inputs' => [
                     'input' => [
