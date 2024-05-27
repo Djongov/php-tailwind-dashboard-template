@@ -24,8 +24,39 @@ define("LOGO", '/assets/images/logo.jpg');
 // Logo for the SEO OG tags
 define("OG_LOGO", 'https://' . $_SERVER['HTTP_HOST'] . '/assets/images/Logos/awm-full-logo-card.png');
 
+/* Color Scheme */
 // Default theme for unathenticated users and first-time logins, possible values: 'amber', 'green', 'stone', 'rose', 'lime', 'teal', 'sky', 'purple', 'red', 'fuchsia', 'indigo'
+
+// This is a default color scheme for small parts such as buttons and links
 define("COLOR_SCHEME", "amber");
+
+// This is the text while in the light mode
+define("TEXT_COLOR_SCHEME", "text-gray-900");
+// This is the text while in the dark mode
+define("TEXT_DARK_COLOR_SCHEME", "dark:text-gray-100");
+// This is the background color while in the light mode
+define("LIGHT_COLOR_SCHEME_CLASS", "bg-gray-50");
+// This is the background color while in the dark mode
+define("DARK_COLOR_SCHEME_CLASS", "dark:bg-gray-900");
+// This is the background color for the body while in the light mode
+define("BODY_COLOR_SCHEME_CLASS", "bg-gray-200");
+// This is the background color for the body while in the dark mode
+define("BODY_DARK_COLOR_SCHEME_CLASS", "dark:bg-gray-800");
+
+// Data grid color schemes
+
+// This is the background color for the table body while in the light mode
+define("DATAGRID_TBODY_COLOR_SCHEME", "bg-gray-100");
+// This is the background color for the table body while in the dark mode
+define("DATAGRID_TBODY_DARK_COLOR_SCHEME", "dark:bg-gray-800");
+// This is the background color for the table head while in the light mode
+define("DATAGRID_THEAD_COLOR_SCHEME", "bg-gray-300");
+// This is the background color for the table head while in the dark mode
+define("DATAGRID_THEAD_DARK_COLOR_SCHEME", "dark:bg-gray-700");
+// This is the table text color while in the light mode
+define("DATAGRID_TEXT_COLOR_SCHEME", "text-gray-900");
+// This is the table text color while in the dark mode
+define("DATAGRID_TEXT_DARK_COLOR_SCHEME", "dark:text-gray-100");
 
 // Do a check here if .env file exists
 if (!file_exists(dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '.env')) {

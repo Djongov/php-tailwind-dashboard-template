@@ -62,12 +62,13 @@ $allowed_themes = ['amber', 'green', 'stone', 'rose', 'lime', 'teal', 'sky', 'pu
 $locale = (isset($usernameArray['origin_country'])) ? General::countryCodeToLocale($usernameArray['origin_country']) : 'en_US';
 $fmt = new IntlDateFormatter($locale, IntlDateFormatter::LONG, IntlDateFormatter::GREGORIAN);
 echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
-    echo '<div class="p-4 m-4 max-w-lg bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700">';
+    echo '<div class="p-4 m-4 max-w-lg ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700">';
         echo Html::h2('User settings');
+        echo '<img src="' . $usernameArray['picture'] . '" class="rounded-full w-32 h-32" alt="Profile Picture">';
         echo '<table class="w-auto">';
         foreach ($usernameArray as $name => $setting) {
             echo '<tr>';
-            if ($name === 'id' || $name === 'password') {
+            if ($name === 'id' || $name === 'password' || $name === 'picture') {
                 continue;
             }
             // Check if date
@@ -124,7 +125,7 @@ echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
         }
         echo '</table>';
         echo '</div>';
-        echo '<div class="p-4 m-4 max-w-lg bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700">';
+        echo '<div class="p-4 m-4 max-w-lg ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700">';
             echo Html::h2('Session Info');
             echo '<p><strong>Token expiry: </strong>' . $fmt->format(strtotime(date("Y-m-d H:i:s", substr(JWT::parseTokenPayLoad($_COOKIE[AUTH_COOKIE_NAME])['exp'], 0, 10)))) . '</p>';
             echo '<p><strong>Token: </strong></p><p class="break-all c0py">' . $_COOKIE[AUTH_COOKIE_NAME] . '</p>';
@@ -147,7 +148,7 @@ echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
     echo '</div>';
 
     if (empty($usernameArray['email']) || filter_var($usernameArray['email'], FILTER_VALIDATE_EMAIL) === false) {
-        echo '<div class="p-4 m-4 max-w-lg bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700">';
+        echo '<div class="p-4 m-4 max-w-lg ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700">';
         echo '<div class="flex flex-row flex-wrap items-center mb-4">';
         echo '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="inline-block w-6 h-6 fill-amber-500">
                     <title>Missing Email</title>
@@ -194,7 +195,7 @@ echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
     }
     // Change password for local users
     if ($usernameArray['provider'] === 'local') {
-        echo '<div class="p-4 m-4 max-w-md bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700">';
+        echo '<div class="p-4 m-4 max-w-md ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700">';
             echo Html::h2('Change Password');
             $changePasswordForm = [
                 'inputs' => [
@@ -239,7 +240,7 @@ echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
             echo HTML::small('Successfully changing the password will log you out of the app. You will need to login again with your new password.');
         echo '</div>';
     }
-    echo '<div class="p-4 m-4 max-w-fit bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700">';
+    echo '<div class="p-4 m-4 max-w-fit ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700">';
         echo Html::h2('Forget About me');
         echo Html::p('This will delete your account in our database along with any data we have about your account.');
         $deleteUserFormOptions = [

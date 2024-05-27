@@ -15,7 +15,7 @@ class Table
             return $html;
         }
         $html .= '<div class="w-full my-4 overflow-auto max-h-[44rem]">';
-            $html .= '<table class="mx-auto my-4 table-auto w-max-sm border boreder-black dark:border-gray-400 text-center bg-gray-100 dark:bg-gray-900">';
+            $html .= '<table class="mx-auto my-4 table-auto w-max-sm border boreder-black dark:border-gray-400 text-center bg-gray-100 ' . DARK_COLOR_SCHEME_CLASS . '">';
                 if ($columns) {
                     $html .= '<thead class="bg-gray-200">';
                         $html .= '<tr>';

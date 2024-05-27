@@ -26,7 +26,7 @@ if (isset($_COOKIE[AUTH_COOKIE_NAME])) {
 }
 
 echo '<div class="flex items-center justify-center mx-4">';
-    echo '<div class="flex flex-col w-full max-w-md my-16 px-4 py-6 bg-gray-50 rounded-lg dark:bg-gray-900 sm:px-6 md:px-8 lg:px-10 border border-gray-300 shadow-md">';
+    echo '<div class="flex flex-col w-full max-w-md my-16 px-4 py-6 bg-gray-50 rounded-lg ' . DARK_COLOR_SCHEME_CLASS . ' sm:px-6 md:px-8 lg:px-10 border border-gray-300 shadow-md">';
         // Now the different external provider login options
         echo HTML::h3('Login with a provider account', true, ['my-6']);
         // Azure

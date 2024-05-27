@@ -45,7 +45,7 @@ $firewallAddForm = [
     ],
 ];
 
-echo '<div class="p-4 m-4 max-w-md bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700">';
+echo '<div class="p-4 m-4 max-w-md ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700">';
     echo HTML::h2('Add IP', true);
     echo HTML::p('Add an IP to the firewall. Use only CIDR notations');
     echo Forms::render($firewallAddForm, $theme);

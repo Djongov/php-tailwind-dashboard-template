@@ -99,14 +99,6 @@ class App
                         if ($httpMethod === 'GET') {
                             if (!empty($params)) {
                                 $menuArray = $params['menu'];
-                                // echo Page::head($params['title'], $params['description'], $params['keywords'], $params['thumbimage'], $theme);
-                                // echo '<body class="h-full antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-400">';
-                                // echo '<div class="md:mx-auto bg-gray-200 dark:bg-gray-800">';
-                                // echo Page::header($usernameArray, $menuArray, $isAdmin, $theme);
-                                // include $controllerName;
-                                // echo Page::footer($theme);
-                                // echo '</div>';
-                                // echo '</body>';
                                 $page = new Page();
                                 echo $page->build($params['title'], $params['description'], $params['keywords'], $params['thumbimage'], $theme, $menuArray, $usernameArray, $controllerName, $isAdmin);
                             } else {

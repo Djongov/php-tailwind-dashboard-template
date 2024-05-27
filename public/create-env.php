@@ -40,27 +40,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') :
     <br><br>
 
     
-    <label for="Entra_ID_login">Entra ID Login (formerly Azure AD)
+    <label for="Entra_ID_login">Entra ID Login (formerly Azure AD)</label>
         <input type="checkbox" id="Entra_ID_login" name="Entra_ID_login">
-    </label>
     <br><br>
 
-    <input type="checkbox" id="Microsoft_LIVE_login" name="Microsoft_LIVE_login">
-    <label for="Microsoft_LIVE_login">Microsoft LIVE Login</label><br><br>
+    <label for="Microsoft_LIVE_login">Microsoft LIVE Login</label>
+        <input type="checkbox" id="Microsoft_LIVE_login" name="Microsoft_LIVE_login">
+    <br><br>
 
     <label for="Google_login">Google Login
         <input type="checkbox" id="Google_login" name="Google_login">
     </label>
     <br><br>
 
-    <input type="checkbox" id="local_login" name="local_login" checked>
-    <label for="local_login">Local Login</label><br><br>
+    <input type="checkbox" id="local_login" name="local_login" checked></label>
+    <label for="local_login">Local Login<br><br>
     
 
     <button type="submit">Submit</button>
 </form>
 
-<script src="/assets/js/create-env.js"></script>
+<script src="/assets/js/create-env.js?<?=time()?>"></script>
 
 <?php
 endif;

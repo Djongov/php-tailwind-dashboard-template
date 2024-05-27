@@ -84,19 +84,62 @@ document.getElementById('SENDGRID').addEventListener('change', () => {
 
 // Add event listener to Entra ID Login
 document.getElementById('Entra_ID_login').addEventListener('change', () => {
+    toggleAdditionalField('Entra_ID_login', 'AZURE_AD_CLIENT_SECRET', 'Client Secret');
     toggleAdditionalField('Entra_ID_login', 'AZURE_AD_CLIENT_ID', 'App ID');
     toggleAdditionalField('Entra_ID_login', 'AZURE_AD_TENANT_ID', 'Tenant ID');
+    // Add a small paragraph with the instructions
+    if (document.getElementById('Entra_ID_login').checked) {
+        addInstructions('Entra_ID_login', 'Entra_ID_instructions', 'Create a new App registration in Azure AD. Create a secret and copy the values to the fields below. Make sure to add the redirect URI to the App registration. More info in the README.md file.');
+    } else {
+        removeInstructions('Entra_ID_instructions');
+    }
+
 });
 
 // MS Live
-document.getElementById('Google_login').addEventListener('change', () => {
-    toggleAdditionalField('Google_login', 'Microsoft_LIVE_login', 'MS_LIVE_CLIENT_ID');
-    toggleAdditionalField('Google_login', 'Microsoft_LIVE_login', 'MS_LIVE_CLIENT_SECRET');
+document.getElementById('Microsoft_LIVE_login').addEventListener('change', () => {
+    toggleAdditionalField('Microsoft_LIVE_login', 'MS_LIVE_CLIENT_SECRET', 'Client Secret');
+    toggleAdditionalField('Microsoft_LIVE_login', 'MS_LIVE_CLIENT_ID', 'Client ID');
+    toggleAdditionalField('Microsoft_LIVE_login', 'MS_LIVE_TENANT_ID', 'Tenant ID');
+    if (document.getElementById('Microsoft_LIVE_login').checked) {
+        addInstructions('Microsoft_LIVE_login', 'Microsoft_LIVE_instructions', 'Create a new App registration in Entra ID. Make sure that LIVE accounts are supported. Create a secret and copy the values to the fields below. Make sure to add the redirect URI to the App registration. More info in the README.md file.');
+    } else {
+        removeInstructions('Microsoft_LIVE_instructions');
+    }
 });
 
 // Google login
 document.getElementById('Google_login').addEventListener('change', () => {
     toggleAdditionalField('Google_login', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_ID');
     toggleAdditionalField('Google_login', 'GOOGLE_CLIENT_SECRET', 'GOOGLE_CLIENT_SECRET');
+
+    if (document.getElementById('Google_login').checked) {
+        addInstructions('Google_login', 'Google_login_instructions', 'Register new Credentials in GPC. Go to API and Services -> Credentials -> Create Credentials -> OAuth Client ID. Select Web Application and fill the form. Copy the Client ID and Client Secret to the fields below. Make sure to add the redirect URI to the Credentials. More info in the README.md file.');
+    } else {
+        removeInstructions('Google_login_instructions');
+    }
 });
+
+const addInstructions = (checkboxId, instructionsId, text) => {
+    const existingInstructions = document.getElementById(instructionsId);
+    if (existingInstructions) {
+        existingInstructions.remove();
+    }
+    const checkbox = document.getElementById(checkboxId);
+    const instructions = document.createElement('p');
+    instructions.innerText = text;
+    instructions.style.color = 'gray';
+    instructions.style.fontSize = '12px';
+    instructions.style.margin = '6px';
+    instructions.id = instructionsId;
+    // Append it after the label of the checkbox
+    checkbox.parentNode.insertBefore(instructions, checkbox.nextSibling);
+}
+
+const removeInstructions = (instructionsId) => {    
+    const existingInstructions = document.getElementById(instructionsId);
+    if (existingInstructions) {
+        existingInstructions.remove();
+    }
+}
 

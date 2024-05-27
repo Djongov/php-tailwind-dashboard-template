@@ -562,7 +562,7 @@ const buildDataGridFilters = (table, tableId, columnSkipArray = [], enabled = tr
             select.addClass('dark:border-red-500');
         }
 
-        $(`#${tableId} thead`).addClass('bg-gray-300 dark:bg-gray-600 sticky top-0 dark:text-gray-300 border-collapse');
+        //$(`#${tableId} thead`).addClass('bg-gray-300 dark:bg-gray-600 sticky top-0 dark:text-gray-300 border-collapse');
 
         $(`#${tableId} thead tr:eq(0) th`).addClass('p-2');
         $(`#${tableId} thead tr:eq(0) th`).addClass('border');

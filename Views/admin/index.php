@@ -32,7 +32,7 @@ if ($stmt->rowCount() > 0) {
     }
 }
 
-echo '<div class="p-4 m-4 max-w-md bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700 overflow-auto">';
+echo '<div class="p-4 m-4 max-w-md ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700 overflow-auto">';
     echo HTML::h2('Database Tables', true);
     echo HTML::p('Connected to DB: ' . DB_NAME);
     echo HTML::p('DB Host: ' . DB_HOST);

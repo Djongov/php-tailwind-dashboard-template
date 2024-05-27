@@ -11,11 +11,13 @@ class Footer
         $html = '';
         $siteTitle = SITE_TITLE;
         $currentYear = date('Y');
+        $footerClass = 'mt-auto ' . LIGHT_COLOR_SCHEME_CLASS . ' ' . DARK_COLOR_SCHEME_CLASS;
+        $textClass = TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME;
         $html .= <<<HTML
-        <footer class="mt-auto bg-white dark:bg-gray-900">
+        <footer class="$footerClass">
             <div class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
-                <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© $currentYear <a href="/" class="hover:underline">$siteTitle</a>. All Rights Reserved.</span>
-                <ul class="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0">
+                <span class="text-sm sm:text-center $textClass">© $currentYear <a href="/" class="hover:underline">$siteTitle</a>. All Rights Reserved.</span>
+                <ul class="flex flex-wrap items-center mt-3 text-sm font-medium sm:mt-0">
                 <li>
                 <a href="#" class="hover:underline me-4 md:me-6">About</a>
                 </li>

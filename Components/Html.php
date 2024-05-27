@@ -12,9 +12,9 @@ class Html
             array_push($extraClasses, 'text-center');
         }
         if (!$extraClasses) {
-            return '<h1 class="mx-2 my-2 text-3xl md:text-4xl lg:text-5xl font-bold leading-none tracking-tight text-gray-900 dark:text-white">' . $text . '</h1>';
+            return '<h1 class="mx-2 my-2 text-3xl md:text-4xl lg:text-5xl font-bold leading-none tracking-tight ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . '">' . $text . '</h1>';
         } else {
-            return '<h1 class="mx-2 my-2 text-3xl md:text-4xl lg:text-5xl font-bold leading-none tracking-tight text-gray-900 dark:text-white ' . implode(' ', $extraClasses) . '">' . $text . '</h1>';
+            return '<h1 class="mx-2 my-2 text-3xl md:text-4xl lg:text-5xl font-bold leading-none tracking-tight ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' ' . implode(' ', $extraClasses) . '">' . $text . '</h1>';
         }
     }
     public static function h2($text, $center = false, $extraClasses = [])
@@ -24,9 +24,9 @@ class Html
         }
 
         if (!$extraClasses) {
-            return '<h2 class="mx-2 my-2 text-2xl md:text-3xl lg:text-4xl font-bold leading-none tracking-tight text-gray-900 dark:text-white">' . $text . '</h2>';
+            return '<h2 class="mx-2 my-2 text-2xl md:text-3xl lg:text-4xl font-bold leading-none tracking-tight ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . '">' . $text . '</h2>';
         } else {
-            return '<h2 class="mx-2 my-2 text-2xl md:text-3xl lg:text-4xl font-bold leading-none tracking-tight text-gray-900 dark:text-white ' . implode(' ', $extraClasses) . '">' . $text . '</h2>';
+            return '<h2 class="mx-2 my-2 text-2xl md:text-3xl lg:text-4xl font-bold leading-none tracking-tight ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' ' . implode(' ', $extraClasses) . '">' . $text . '</h2>';
         }
     }
     public static function h3($text, $center = false, $extraClasses = [])
@@ -35,9 +35,9 @@ class Html
             array_push($extraClasses, 'text-center');
         }
         if (!$extraClasses) {
-            return '<h3 class="mx-2 my-2 text-xl font-bold dark:text-white break-words">' . $text . '</h3>';
+            return '<h3 class="mx-2 my-2 text-xl font-bold ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' break-words">' . $text . '</h3>';
         } else {
-            return '<h3 class="mx-2 my-2 text-xl font-bold dark:text-white break-words ' . implode(' ', $extraClasses) . '">' . $text . '</h3>';
+            return '<h3 class="mx-2 my-2 text-xl font-bold ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' break-words ' . implode(' ', $extraClasses) . '">' . $text . '</h3>';
         }
     }
     public static function h4($text, $center = false, $extraClasses = [])
@@ -46,9 +46,9 @@ class Html
             array_push($extraClasses, 'text-center');
         }
         if (!$extraClasses) {
-            return '<h4 class="mx-2 my-2 text-md font-bold dark:text-white break-words' . $extraClasses . '">' . $text . '</h4>';
+            return '<h4 class="mx-2 my-2 text-md font-bold ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' break-words' . $extraClasses . '">' . $text . '</h4>';
         } else {
-            return '<h4 class="mx-2 my-2 text-md font-bold dark:text-white break-words ' . implode(' ', $extraClasses) . '">' . $text . '</h4>';
+            return '<h4 class="mx-2 my-2 text-md font-bold ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' break-words ' . implode(' ', $extraClasses) . '">' . $text . '</h4>';
         }
     }
     // Anchor
@@ -134,11 +134,11 @@ class Html
 
         // Classes based on size
         if ($size === 'small') {
-            $inputClasses = $width . ' p-1 text-sm bg-gray-100 appearance-none border-2 border-gray-100 rounded-lg text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-' . $theme . '-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500';
+            $inputClasses = $width . ' p-1 text-sm ' . BODY_COLOR_SCHEME_CLASS . ' appearance-none border-2 border-gray-100 rounded-lg text-gray-700 leading-tight focus:outline-none focus:' . BODY_COLOR_SCHEME_CLASS. ' focus:border-' . $theme . '-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500';
         } else if ($size === 'large') {
-            $inputClasses = $width . ' p-4 text-sm bg-gray-100 appearance-none border-2 border-gray-100 rounded-lg text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-' . $theme . '-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500';
+            $inputClasses = $width . ' p-4 text-sm ' . BODY_COLOR_SCHEME_CLASS . ' appearance-none border-2 border-gray-100 rounded-lg text-gray-700 leading-tight focus:outline-none focus:' . BODY_COLOR_SCHEME_CLASS. ' focus:border-' . $theme . '-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500';
         } else {
-            $inputClasses = $width . ' p-2 text-sm bg-gray-100 appearance-none border-2 border-gray-100 rounded-lg text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-' . $theme . '-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500';
+            $inputClasses = $width . ' p-2 text-sm ' . BODY_COLOR_SCHEME_CLASS . ' appearance-none border-2 border-gray-100 rounded-lg text-gray-700 leading-tight focus:outline-none focus:' . BODY_COLOR_SCHEME_CLASS. ' focus:border-' . $theme . '-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500';
         }
         // First get some of the meta data
         $disabled = $disabled ? 'disabled' : '';
@@ -182,7 +182,7 @@ class Html
     public static function textArea(?string $id, string $name, string $value, string $placeholder, string $title, string $description, string $label_name, string $theme, bool $disabled, bool $required, bool $readonly, int $rows, int $cols, $extraClasses = [], $dataAttributes = [])
     {
         // Classes based on size
-        $inputClasses = 'w-full p-2 text-sm bg-gray-100 appearance-none border-2 border-gray-100 rounded-lg text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-' . $theme . '-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500';
+        $inputClasses = 'w-full p-2 text-sm ' . BODY_COLOR_SCHEME_CLASS . ' appearance-none border-2 border-gray-100 rounded-lg text-gray-700 leading-tight focus:outline-none focus:' . BODY_COLOR_SCHEME_CLASS. ' focus:border-' . $theme . '-500 ' . BODY_DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500';
         // First get some of the meta data
         $disabled = $disabled ? 'disabled' : '';
         $required = $required ? 'required' : '';
@@ -225,7 +225,7 @@ class Html
         if ($description === null || $description === '') {
             $description = '';
         } else {
-            $description = '<i data-popover-target="' . $id . '-info" class="cursor-pointer ml-1 rounded-full border border-gray-300">i<div data-popover id="' . $id . '-info" role="tooltip" class="absolute z-10 invisible inline-block w-64 text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 dark:text-gray-400 dark:border-gray-600 dark:bg-gray-800">
+            $description = '<i data-popover-target="' . $id . '-info" class="cursor-pointer ml-1 rounded-full border border-gray-300">i<div data-popover id="' . $id . '-info" role="tooltip" class="absolute z-10 invisible inline-block w-64 text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 dark:text-gray-400 dark:border-gray-600 ' . BODY_DARK_COLOR_SCHEME_CLASS . '">
                     <div class="px-3 py-2">
                         <p>' . $description . '</p>
                     </div>
@@ -253,12 +253,12 @@ class Html
     }
     public static function label(string $name, string $label_name)
     {
-        return '<label for="' . $name . '" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">' . $label_name . '</label>';
+        return '<label for="' . $name . '" class="block mb-2 text-sm font-medium ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . '">' . $label_name . '</label>';
     }
     public static function code($text, $codeTitle = '', $classes = [])
     {
         if (empty($classes)) {
-            return '<pre class="p-4 m-4 max-w-fit overflow-auto bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-900 dark:border-gray-700 break-words"><p class="font-bold">' . $codeTitle . '</p><code class="c0py">' . $text . '</code></pre>';
+            return '<pre class="p-4 m-4 max-w-fit overflow-auto ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700 break-words"><p class="font-bold">' . $codeTitle . '</p><code class="c0py">' . $text . '</code></pre>';
         } else {
             return '<pre class="' . $classes . '"><code class="c0py">' . $text . '</code></pre>';
         }
@@ -269,7 +269,7 @@ class Html
     }
     public static function selectInputClasses($theme)
     {
-        return 'ml-2 p-1 text-sm text-gray-900 border outline-none border-gray-300 rounded bg-gray-50 focus:ring-' . $theme . '-500 focus:border-' . $theme . '-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500';
+        return 'ml-2 p-1 text-sm text-gray-900 border outline-none border-gray-300 rounded ' . BODY_COLOR_SCHEME_CLASS . ' ' . BODY_DARK_COLOR_SCHEME_CLASS . ' focus:ring-' . $theme . '-500 focus:border-' . $theme . '-500  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500';
     }
     public static function badge($text, $theme)
     {
@@ -321,7 +321,7 @@ class Html
     {
         $html = '';
         $html .= '<i data-popover-target="' . $id . '" class="w-3 mx-1 h-6 text-gray-100 bg-' . $theme . '-500 text-center cursor-pointer ml-1 rounded-full border border-gray-300">i';
-        $html .= '<div data-popover id="' . $id . '" role="tooltip" class="absolute z-10 invisible inline-block w-fit text-sm text-gray-900 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 dark:text-gray-400 dark:border-gray-600 dark:bg-gray-800">';
+        $html .= '<div data-popover id="' . $id . '" role="tooltip" class="absolute z-10 invisible inline-block w-fit text-sm text-gray-900 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 dark:text-gray-400 dark:border-gray-600 ' . BODY_DARK_COLOR_SCHEME_CLASS . '">';
         $html .= '<div class="px-3 py-2">';
         $html .= '<p>' . $text . '</p>';
         $html .= '</div>';
@@ -384,13 +384,13 @@ class Html
     }
     public static function searchInput($theme)
     {
-        return '<input type="search" class="filterSearch my-2 py-2 px-4 w-48 h-8 text-sm bg-gray-50 outline-none appearance-none border border-gray-300 rounded-lg text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-' . $theme . '-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500" placeholder="search..." />';
+        return '<input type="search" class="filterSearch my-2 py-2 px-4 w-48 h-8 text-sm ' . BODY_COLOR_SCHEME_CLASS . ' outline-none appearance-none border border-gray-300 rounded-lg text-gray-700 leading-tight focus:outline-none focus:' . BODY_COLOR_SCHEME_CLASS . ' focus:border-' . $theme . '-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500" placeholder="search..." />';
     }
     public static function popOver($text, $id, $theme = 'gray')
     {
         $html = '';
         $html .= '<button data-popover-target="' . $id . '" data-popover-placement="bottom-end" type="button"><svg class="w-4 h-4 ml-1 text-' . $theme . '-400 hover:text-' . $theme . '-500" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg><span class="sr-only">Show information</span></button>';
-        $html .= '<div data-popover id="' . $id . '" role="tooltip" class="max-w-fit absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400">';
+        $html .= '<div data-popover id="' . $id . '" role="tooltip" class="max-w-fit absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 ' . LIGHT_COLOR_SCHEME_CLASS . ' border border-gray-200 rounded-lg shadow-sm opacity-0 ' . BODY_DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-600 dark:text-gray-400">';
         $html .= '<div class="p-3 space-y-2">';
         $html .= $text;
         $html .= '</div>';

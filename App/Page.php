@@ -71,11 +71,11 @@ class Page
     {
         $html = '';
         $html .= $this->head($title, $description, $keywords, $thumbimage, $theme);
-        $html .= '<body class="h-full antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-400">';
-            $html .= '<div class="md:mx-auto bg-gray-200 dark:bg-gray-800">';
+        $html .= '<body class="h-full antialiased ' . LIGHT_COLOR_SCHEME_CLASS . ' ' . DARK_COLOR_SCHEME_CLASS . ' ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . '">';
+            $html .= '<div class="md:mx-auto  ' . BODY_COLOR_SCHEME_CLASS . ' ' . BODY_DARK_COLOR_SCHEME_CLASS . '">';
                 $html .= $this->header($usernameArray, $menuArray, $isAdmin, $theme);
                 if (SHOW_LOADING_SCREEN) {
-                    $html .= '<div id="loading-screen" class="w-fit mx-auto my-12 flex items-center border border-black dark:border-gray-400 bg-white dark:bg-gray-700 p-8 rounded z-99999"><div class="animate-spin border-t-4 border-' . $theme . '-500 border-solid rounded-full h-16 w-16"></div>
+                    $html .= '<div id="loading-screen" class="w-fit mx-auto my-12 flex items-center border border-black dark:border-gray-400 ' . LIGHT_COLOR_SCHEME_CLASS . ' ' . BODY_DARK_COLOR_SCHEME_CLASS . ' p-8 rounded z-99999"><div class="animate-spin border-t-4 border-' . $theme . '-500 border-solid rounded-full h-16 w-16"></div>
                     <p class="ml-2">Loading...</p></div>';
                 }
                 $mainContentClass = (SHOW_LOADING_SCREEN) ? 'class="hidden"' : 'class=""';

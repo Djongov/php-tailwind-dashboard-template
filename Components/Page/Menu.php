@@ -10,7 +10,7 @@ class Menu
     public static function render(array $array, array $usernameArray, bool $isAdmin, string $theme)
     {
         // Start the nav
-        $html = '<nav class="px-2 bg-gray-50 border-gray-200 dark:border-gray-700 dark:bg-gray-900">';
+        $html = '<nav class="px-2 ' . LIGHT_COLOR_SCHEME_CLASS . ' border-gray-200 dark:border-gray-700 ' . DARK_COLOR_SCHEME_CLASS . '">';
         // Holder div, used to have justify-between
         $html .= '<div class="flex flex-wrap justify-center">';
         // Logo + href to homepage
@@ -22,7 +22,7 @@ class Menu
                 </button>';
         // Menu itself
         $html .= '<div class="hidden w-full md:block md:w-auto" id="mobile-menu">';
-        $html .= '<ul class="bg-gray-200 md:bg-transparent mx-auto flex md:flex-row flex-col flex-wrap justify-center items-center p-4 mt-4 rounded-lg border border-gray-100 md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">';
+        $html .= '<ul class="' . BODY_COLOR_SCHEME_CLASS . ' md:bg-transparent mx-auto flex md:flex-row flex-col flex-wrap justify-center items-center p-4 mt-4 rounded-lg border border-gray-100 md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 ' . BODY_DARK_COLOR_SCHEME_CLASS . ' md:' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700">';
         $uniqueIdCounter = 0;
         foreach ($array as $name => $value) {
             // Mechanism to skip entries that should be under login only
@@ -44,10 +44,10 @@ class Menu
                         $html .= '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mr-2 w-6 h-6 stroke-' . $theme . '-500">' . $value['icon']['src'] . '</svg>';
                     }
                 }
-                $html .= '<button id="dropdownNavbarLink" data-dropdown-toggle="dropdownNavbar-' . $uniqueIdCounter . '" class="text-base font-normal ml-0 flex justify-between hover:bg-' . $theme . '-500 hover:boder hover:border-black hover:text-white text-gray-700 dark:text-gray-400 dark:hover:text-white dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 hover:rounded-md p-1">' . $name . '<svg class="ml-1 w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg></button>';
+                $html .= '<button id="dropdownNavbarLink" data-dropdown-toggle="dropdownNavbar-' . $uniqueIdCounter . '" class="text-base font-normal ml-0 flex justify-between hover:bg-' . $theme . '-500 hover:boder hover:border-black hover:text-white ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' dark:hover:text-white dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 hover:rounded-md p-1">' . $name . '<svg class="ml-1 w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg></button>';
                 $html .= '</div>';
-                $html .= '<div id="dropdownNavbar-' . $uniqueIdCounter . '" class="z-10 w-44 font-normal bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 block hidden" data-popper-reference-hidden="" data-popper-escaped="" data-popper-placement="bottom" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate3d(381px, 66px, 0px);">';
-                $html .= '<ul class="py-1 text-sm text-gray-700 dark:text-gray-400" aria-labelledby="dropdownLargeButton">';
+                $html .= '<div id="dropdownNavbar-' . $uniqueIdCounter . '" class="z-10 w-44 font-normal ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 block hidden" data-popper-reference-hidden="" data-popper-escaped="" data-popper-placement="bottom" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate3d(381px, 66px, 0px);">';
+                $html .= '<ul class="py-1 text-sm ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . '" aria-labelledby="dropdownLargeButton">';
                 foreach ($value['link'] as $sub_name => $sub_array) {
                     $html .= '<li class="min-w-fit">';
                     $html .= '<div class="flex flex-row items-center">';
@@ -77,7 +77,7 @@ class Menu
                         $html .= '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-2 w-6 h-6 stroke-' . $theme . '-500">' . $value['icon']['src'] . '</svg>';
                     }
                 }
-                $html .= '<a href="' . $value['link'] . '" class="min-w-fit block py-2 text-base font-normal hover:bg-' . $theme . '-500 hover:boder hover:border-black hover:text-white text-gray-700 dark:text-gray-400 dark:hover:text-white dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 hover:rounded-md p-1">' . $name . '</a>';
+                $html .= '<a href="' . $value['link'] . '" class="min-w-fit block py-2 text-base font-normal hover:bg-' . $theme . '-500 hover:boder hover:border-black hover:text-white ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' dark:hover:text-white dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 hover:rounded-md p-1">' . $name . '</a>';
                 $html .= '</div>';
                 $html .= '</li>';
             }
@@ -124,9 +124,9 @@ class Menu
         $html .= '</div>';
         $html .= '</div>';
         // Dropdown menu itself
-        $html .= '<div id="userAvatarDropDownNavBar" class="z-10 w-44 font-normal bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 block hidden" data-popper-reference-hidden="" data-popper-escaped="" data-popper-placement="bottom" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate3d(381px, 66px, 0px);">';
+        $html .= '<div id="userAvatarDropDownNavBar" class="z-10 w-44 font-normal ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 block hidden" data-popper-reference-hidden="" data-popper-escaped="" data-popper-placement="bottom" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate3d(381px, 66px, 0px);">';
         // Open the <ul>
-        $html .= '<ul class="py-1 text-sm text-gray-700 dark:text-gray-400" aria-labelledby="dropdownLargeButton">';
+        $html .= '<ul class="py-1 text-sm ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . '" aria-labelledby="dropdownLargeButton">';
         // Display the admin menus to admin users
         foreach (USERNAME_DROPDOWN_MENU as $name => $array) {
             if ($array['admin'] && $isAdmin) {
