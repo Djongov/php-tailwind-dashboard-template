@@ -80,10 +80,10 @@ $autoloadArray = [
         'type' => 'table',
         'parentDiv' => 'dataGridDataLoader',
         'tableOptions' => [
-            'ordering' => false,
-            'paging' => false,
+            'ordering' => true,
+            'paging' => true,
             'lengthMenu' => [[10, 50, 100], [10, 50, 100]],
-            'filters' => false,
+            'filters' => true,
         ],
         'data' => $usersArray
     ]

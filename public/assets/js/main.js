@@ -203,7 +203,7 @@ if (autoLoadParams.length > 0) {
             // Create the DataGrid table object
             const dataGridTable = drawDataGridFromData(data, table.id, value.tableOptions);
             // And the filters
-            if (value.filters) {
+            if (value.tableOptions.filters) {
                 buildDataGridFilters(dataGridTable, table.id);
             }
         }

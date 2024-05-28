@@ -582,7 +582,7 @@ const createSkeletonTable = () => {
     const table = document.createElement('table');
     table.id = skeletonId;
     // Add some classes to the table
-    table.classList.add('table-auto', 'mt-6', 'text-gray-700', 'dark:text-gray-400', 'border-collapse', 'border', 'border-slate-400', 'text-center');
+    table.classList.add('table-auto', 'bg-gray-100', 'dark:bg-gray-900', 'mt-6', 'text-gray-800', 'dark:text-gray-400', 'border-collapse', 'border', 'border-slate-400', 'text-center');
     return table;
 }
 

@@ -70,13 +70,16 @@ class DataGrid
     {
         return self::createTable('', $title, $data, $theme, false, false, $tableOptions);
     }
-    public static function fromDBTable(string $dbTable, string $title, string $theme, bool $edit = true, bool $delete = true, $tableOptions = null) : string
+    public static function fromDBTable(string $dbTable, string $title, string $theme, bool $edit = true, bool $delete = true, $orderBy = 'id', $sortBy = 'desc', $tableOptions = null) : string
     {
         // We pull from table
+        if ($sortBy !== 'asc' && $sortBy !== 'desc') {
+            return Alerts::danger('Invalid sort order. Please use either "asc" or "desc"');
+        }
         $db = new DB();
         $pdo = $db->getConnection();
         try {
-            $stmt = $pdo->query('SELECT * FROM `' . $dbTable . '`');
+            $stmt = $pdo->query('SELECT * FROM `' . $dbTable . '` ORDER BY `' . $orderBy . '` ' . strtoupper($sortBy) . '');
             $data = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
             return Alerts::danger('Error fetching data from the database: ' . $e->getMessage());
