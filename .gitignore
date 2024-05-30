@@ -9,4 +9,4 @@ node_modules
 composer.lock
 
 # Profile picutres
-/assets/images/profile/*
+/public/assets/images/profile/*

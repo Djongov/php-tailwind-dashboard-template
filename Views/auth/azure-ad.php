@@ -25,8 +25,8 @@ if (isset($_POST['id_token'], $_POST['state'])) {
         Output::error('Invalid token claims', 400);
     }
     
-    // If it is an MSLIVE token, then the issueer wil; be https://login.live.com
-    if ($idTokenArray['iss'] === 'https://login.live.com') {
+    // If it is an MSLIVE token, then the issueer wil; be https://login.live.com or https://login.microsoftonline.com/9188040d-6c67-4c5b-b112-36a304b66dad/v2.0
+    if ($idTokenArray['iss'] === 'https://login.live.com' || $idTokenArray['iss'] === 'https://login.microsoftonline.com/9188040d-6c67-4c5b-b112-36a304b66dad/v2.0') {
         // No check for now
     } else {
         // Let's call the function to check the JWT token which is returned. We are checking stuff like expiration, issuer, app id. We also do validation of the token signature

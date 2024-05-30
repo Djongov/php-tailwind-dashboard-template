@@ -18,7 +18,7 @@ $db = new DB();
 
 $pdo = $db->getConnection();
 
-$stmt = $pdo->prepare('SELECT `id`,`created_at`,`domain`,`url`,`referrer`,`violated_directive`,`effective_directive`,`disposition`,`blocked_uri`,`line_number`,`column_number`,`source_file`,`status_code`,`script_sample` FROM `csp_reports` ORDER BY `id` DESC');
+$stmt = $pdo->prepare('SELECT `id`,`domain`,`url`,`referrer`,`violated_directive`,`effective_directive`,`disposition`,`blocked_uri`,`line_number`,`column_number`,`source_file`,`status_code`,`script_sample` FROM `csp_reports` ORDER BY `id` DESC');
 
 $stmt->execute();
 

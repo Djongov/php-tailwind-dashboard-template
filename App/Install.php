@@ -1,5 +1,7 @@
 <?php
 
+// We are using mysqli for this, perhaps can be rewritten to PDO
+
 namespace App;
 
 use Components\Alerts;
@@ -20,13 +22,13 @@ class Install
                 mysqli_ssl_set($conn, NULL, NULL, CA_CERT, NULL, NULL);
                 $conn->real_connect('p:' . DB_HOST, DB_USER, DB_PASS, null, 3306, MYSQLI_CLIENT_SSL);
             } catch (\mysqli_sql_exception $e) {
-                Output::error($e->getMessage(), 400);
+                Output::error('Connection error: ' . $e->getMessage(), 400);
             }
         } else {
             try {
                 $conn->real_connect(DB_HOST, DB_USER, DB_PASS);
             } catch (\mysqli_sql_exception $e) {
-                Output::error($e->getMessage(), 400);
+                Output::error('Connection error: ' . $e->getMessage(), 400);
             }
         }
 
@@ -49,32 +51,47 @@ class Install
                 $conn->next_result();
                 $conn->store_result();
             }
-
-            $ip = IP::currentIP();
-
-            // Now you can execute additional queries
-            $conn->query("INSERT INTO `csp_approved_domains` (`domain`, `created_by`) VALUES ('" . $_SERVER['HTTP_HOST'] . "', 'System')");
-            $conn->query("INSERT INTO `firewall` (`ip_cidr`, `created_by`, `comment`) VALUES ('" . $ip . "/32', 'System', 'Initial Admin IP')");
-            // Insert administrator for first time login
-            $password = General::randomString(12);
-            if (IP::isPublicIp($ip)) {
-                $ipGeoLocate = $request = \App\Request\NativeHttp::get('http://ip-api.com/json/' . $ip, [], true);
-                if ($ipGeoLocate['status'] === 'success') {
-                    $countryCode = $ipGeoLocate['countryCode'];
-                }
-            } else {
-                $countryCode = 'US';
-            }
-            $conn->query("INSERT INTO `users`(`username`, `password`, `email`, `name`, `last_ips`, `origin_country`, `role`, `last_login`, `theme`, `provider`, `enabled`) VALUES ('admin', '" . password_hash($password, PASSWORD_DEFAULT) . "', 'admin', 'admin', '" . $ip . "', '$countryCode', 'administrator', NOW(), '" . COLOR_SCHEME . "', 'local', 1)");
-            // Print the credentials to the screen
-            $html .= Alerts::success('Database "' . DB_NAME . '" and system tables created successfully. Please go to <a class="underline" href="/login">Login</a> page. Use "admin" as username. Do not refresh the page until you have copied the password below.');
-            $html .= HTML::p('<span class="c0py">' . $password . '</span>');
-            $conn->close();
         } catch (\mysqli_sql_exception $e) {
             $error = $e->getMessage();
-            $html .= Alerts::danger('Error creating tables: ' . $error);
-            throw new \Exception("Error creating tables: " . $error);
+            Output::error('error in migrate file: ' . $error, 400);
         }
+        $ip = IP::currentIP();
+
+        // Now you can execute additional queries
+        try {
+            $conn->query("INSERT INTO `csp_approved_domains` (`domain`, `created_by`) VALUES ('" . $_SERVER['HTTP_HOST'] . "', 'System')");
+        } catch (\mysqli_sql_exception $e) {
+            $error = $e->getMessage();
+            Output::error('inserting csp_approved_domains rule for host ' . $_SERVER['HTTP_HOST'] . ' error: . ' . $error, 400);
+        }
+        try {
+            $conn->query("INSERT INTO `firewall` (`ip_cidr`, `created_by`, `comment`) VALUES ('" . $ip . "/32', 'System', 'Initial Admin IP')");
+        } catch (\mysqli_sql_exception $e) {
+            $error = $e->getMessage();
+            Output::error('inserting firewall rule for ip ' . $ip . ' error: . ' . $error, 400);
+        }
+        // Insert administrator for first time login
+        $password = General::randomString(12);
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        if (IP::isPublicIp($ip)) {
+            $ipGeoLocate = \App\Request\NativeHttp::get('http://ip-api.com/json/' . $ip, [], true);
+            if ($ipGeoLocate['status'] === 'success') {
+                $countryCode = $ipGeoLocate['countryCode'];
+            }
+        } else {
+            $countryCode = 'US';
+        }
+        try {
+            $conn->query("INSERT INTO `users`(`username`, `password`, `email`, `name`, `last_ips`, `origin_country`, `role`, `last_login`, `theme`, `provider`, `enabled`) VALUES ('admin', '" . $hashedPassword . "', 'admin', 'admin', '" . $ip . "', '$countryCode', 'administrator', NOW(), '" . COLOR_SCHEME . "', 'local', 1)");
+        } catch (\mysqli_sql_exception $e) {
+            $error = $e->getMessage();
+            Output::error('inserting admin user error:' . $error, 400);
+        }
+        // Print the credentials to the screen
+        $html .= Alerts::success('Database "' . DB_NAME . '" and system tables created successfully. Please go to <a class="underline" href="/login">Login</a> page. Use "admin" as username. Do not refresh the page until you have copied the password below.');
+        $html .= HTML::p('<span class="c0py">' . $password . '</span>');
+        $conn->close();
+
         return $html;
     }
 }

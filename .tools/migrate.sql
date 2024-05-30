@@ -38,12 +38,12 @@ CREATE TABLE `firewall` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO `firewall`(`ip_cidr`, `created_by`, `created_at`, `comment`)
+INSERT INTO `firewall`(`ip_cidr`, `created_by`, `comment`)
 VALUES 
-    ('127.0.0.1/32', 'System', NOW(), 'private range'),
-    ('10.0.0.0/8', 'System', NOW(), 'private range'),
-    ('172.16.0.0/12', 'System', NOW(), 'private range'),
-    ('192.168.0.0/16', 'System', NOW(), 'private range');
+    ('127.0.0.1/32', 'System', 'private range'),
+    ('10.0.0.0/8', 'System', 'private range'),
+    ('172.16.0.0/12', 'System', 'private range'),
+    ('192.168.0.0/16', 'System', 'private range');
 
 CREATE TABLE `csp_reports` (
   `id` int NOT NULL AUTO_INCREMENT,
