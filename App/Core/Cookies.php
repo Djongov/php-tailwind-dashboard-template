@@ -10,7 +10,7 @@ class Cookies
     {
         setcookie($name, $value, time() + $expiration, $path, $domain, $secure, $httponly);
     }
-    public static function setAuthCookie($token, $expiry = 86400)
+    public static function setAuthCookie($token, $expiry = AUTH_COOKIE_EXPIRY)
     {
         // Let's decide whether the connection is over HTTP or HTTPS (later for setting up the cookie)
         $secure = (str_contains($_SERVER['HTTP_HOST'], 'localhost') || str_contains($_SERVER['HTTP_HOST'], '[::1]')) ? false : true;

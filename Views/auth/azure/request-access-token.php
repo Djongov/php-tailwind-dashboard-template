@@ -1,10 +1,11 @@
 <?php
 
 use App\Authentication\JWT;
+use App\Authentication\AuthToken;
 
 $state = $_GET['state'] ?? '/';
 
-$username = JWT::extractUserName($_COOKIE[AUTH_COOKIE_NAME]) ?? die('No username found');
+$username = JWT::extractUserName(AuthToken::get()) ?? die('No username found');
 
 $data = [
     'client_id' => AZURE_AD_CLIENT_ID,

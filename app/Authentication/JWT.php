@@ -5,11 +5,12 @@ namespace App\Authentication;
 use App\Utilities\General;
 use Controllers\Api\Output;
 use App\Core\Session;
+use App\Authentication\AuthToken;
 
 class JWT
 {
     // A method to generate a JWT token based off a private key and a set of claims
-    public static function generateToken(array $claims): string
+    public static function generateToken(array $claims, $expiration = JWT_TOKEN_EXPIRY): string
     {
         // First let's make sure that the claims structure is correct
 
@@ -32,9 +33,6 @@ class JWT
         if (!is_array($claims['roles'])) {
             throw new \Exception('Roles claim needs to be an array');
         }
-
-        // Expiration time
-        $expiration = 3600;
 
         $claims['exp'] = time() + $expiration;
 
@@ -68,7 +66,8 @@ class JWT
     // Check if token is set
     public static function isTokenSet(): bool
     {
-        return isset($_COOKIE[AUTH_COOKIE_NAME]);
+        $tokenSet = AuthToken::get();
+        return ($tokenSet !== null) ? true : false;
     }
     // Method to parse a JWT token and return an array with the header and payload
     public static function parse(string $token): array
@@ -213,8 +212,7 @@ class JWT
     public static function handleValidationFailure(): bool
     {
         if (self::isTokenSet()) {
-            unset($_COOKIE[AUTH_COOKIE_NAME]);
-            setcookie(AUTH_COOKIE_NAME, false, -1, '/', str_replace(strstr($_SERVER['HTTP_HOST'], ':'), '', $_SERVER['HTTP_HOST']));
+            AuthToken::unset();
             Session::reset();
             return false;
         } else {

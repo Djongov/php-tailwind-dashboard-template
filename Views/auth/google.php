@@ -8,7 +8,7 @@ use Google\Client;
 use Controllers\Api\User;
 use Models\Api\User as UserModel;
 use App\Authentication\JWT;
-use App\Core\Cookies;
+use App\Authentication\AuthToken;
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (!isset($_GET['code'])) {
@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $user->create($idTokenArray, 'google');
     }
 
-    Cookies::setAuthCookie($idToken);
+    AuthToken::set($idToken);
 
     $state = '/';
 

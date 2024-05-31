@@ -4,13 +4,14 @@ namespace App\Logs;
 
 use App\Authentication\JWT;
 use App\Database\DB;
+use App\Authentication\AuthToken;
 
 class SystemLog
 {
     public static function write($message, $category)
     {
-        if (isset($_COOKIE[AUTH_COOKIE_NAME])) {
-            $username = JWT::extractUserName($_COOKIE[AUTH_COOKIE_NAME]);
+        if (AuthToken::get() !== null) {
+            $username = JWT::extractUserName(AuthToken::get());
         } else {
             $username = 'unknown';
         }

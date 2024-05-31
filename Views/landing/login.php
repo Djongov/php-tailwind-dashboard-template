@@ -2,24 +2,25 @@
 
 use App\Authentication\Azure\AzureAD;
 use App\Authentication\JWT;
+use App\Authentication\AuthToken;
 use Components\Html;
 use Components\Forms;
 use Components\Alerts;
 
 $destinationUrl = $_GET['destination'] ?? '/';
 
-if (isset($_COOKIE[AUTH_COOKIE_NAME])) {
-    $idToken = JWT::parseTokenPayLoad($_COOKIE[AUTH_COOKIE_NAME]);
+if (AuthToken::get() !== null) {
+    $idToken = JWT::parseTokenPayLoad(AuthToken::get());
     // Decide whether it is a local login or AzureAD login
     if ($idToken['iss'] === $_SERVER['HTTP_HOST']) {
         // Check if valid
-        if (JWT::checkToken($_COOKIE[AUTH_COOKIE_NAME])) {
+        if (JWT::checkToken(AuthToken::get())) {
             header('Location: ' . $destinationUrl);
         }
     }
     if ($idToken['iss'] === 'https://login.microsoftonline.com/' . AZURE_AD_TENANT_ID . '/v2.0') {
         // Check if valid
-        if (AzureAD::check($_COOKIE[AUTH_COOKIE_NAME])) {
+        if (AzureAD::check(AuthToken::get())) {
             header('Location: ' . $destinationUrl);
         }
     }

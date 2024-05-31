@@ -4,6 +4,7 @@ namespace App\Authentication\Azure;
 
 use Models\Core\DBCache;
 use App\Authentication\JWT;
+use App\Authentication\AuthToken;
 
 class GetAccessToken
 {
@@ -24,13 +25,13 @@ class GetAccessToken
     public static function fetch()
     {
         // This will go to a special endpoint where the user will be asked to consent and get an access token after which it will be saved to the DB
-        //header('Location: /auth/azure-ad-access-token?username=' . JWT::extractUserName($_COOKIE[AUTH_COOKIE_NAME]));
-        header('Location: /auth/azure/request-access-token?state=' . $_SERVER['REQUEST_URI'] . '&username=' . JWT::extractUserName($_COOKIE[AUTH_COOKIE_NAME]));
+        //header('Location: /auth/azure-ad-access-token?username=' . JWT::extractUserName(AuthToken::get()));
+        header('Location: /auth/azure/request-access-token?state=' . $_SERVER['REQUEST_URI'] . '&username=' . JWT::extractUserName(AuthToken::get()));
         exit();
     }
     public static function get()
     {
-        $username = JWT::extractUserName($_COOKIE[AUTH_COOKIE_NAME]);
+        $username = JWT::extractUserName(AuthToken::get());
         $cachedToken = self::dbGet($username);
         // Let's find out if the token is expired
         if (isset($cachedToken['value'])) {

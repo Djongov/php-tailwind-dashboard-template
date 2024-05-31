@@ -5,6 +5,7 @@ use Controllers\Api\Checks;
 use Controllers\Api\User;
 use App\Utilities\IP;
 use App\Authentication\JWT;
+use App\Authentication\AuthToken;
 
 // This is the API endpoint controller for the user actions
 
@@ -63,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
     $user = new User();
 
     // Make sure that the user submitting this is the same as the user being updated. The only secure way of doing this is by checking the JWT token. This will prevent user from updating another user's data by changing the `username` paramter's value in the request
-    if (isset($data['username']) && JWT::extractUserName($_COOKIE[AUTH_COOKIE_NAME]) !== $data['username']) {
+    if (isset($data['username']) && JWT::extractUserName(AuthToken::get()) !== $data['username']) {
         Output::error('You are not allowed to update this user', 409);
         exit();
     }

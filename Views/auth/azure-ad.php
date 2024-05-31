@@ -7,7 +7,8 @@ use App\Authentication\JWT;
 use App\Authentication\Azure\AzureAD;
 use Controllers\Api\User;
 use Models\Api\User as UserModel;
-use App\Core\Cookies;
+use App\Authentication\AuthToken;
+use Google\Service\ServiceControl\Auth;
 
 if (isset($_POST['error'], $_POST['error_description'])) {
     Output::error("Azure Error: " . $_POST['error'] . " with Description: " . $_POST['error_description'], 400);
@@ -36,7 +37,7 @@ if (isset($_POST['id_token'], $_POST['state'])) {
     }
 
     // Let's set the "auth_cookie" and put the id token as it's value, set the expiration date to when the token should expire and the rest of the cookie settings
-    Cookies::setAuthCookie($idToken);
+    AuthToken::set($idToken);
     // instantiate the user class
     $user = new User();
     $userModel = new UserModel();

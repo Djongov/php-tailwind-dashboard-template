@@ -9,7 +9,7 @@ use App\Exceptions\UserExceptions;
 use Controllers\Api\Checks;
 use App\Logs\SystemLog;
 use App\Authentication\JWT;
-use App\Core\Cookies;
+use App\Authentication\AuthToken;
 use App\Utilities\IP;
 
 // If the request is coming from local login, we should have a $_POST['username'] and a $_POST['password'] parameter
@@ -46,6 +46,8 @@ if (isset($_POST['username'], $_POST['password'], $_POST['csrf_token'])) {
     }
 
     // By now we assume the user is valid, so let's generate a JWT token
+
+    $tokenExpiration = ($_POST['remember'] === "1") ? 3600 * 24 * 3 : 3600; // 3 day or 1 hour
     
     $idToken = JWT::generateToken([
         'iss' => $_SERVER['HTTP_HOST'],
@@ -55,11 +57,11 @@ if (isset($_POST['username'], $_POST['password'], $_POST['csrf_token'])) {
             $userArray['role'],
         ],
         'last_ip' => IP::currentIP()
-    ]);
+    ], $tokenExpiration);
 
-    $expiry_addition = ($_POST['remember'] === "1") ? 86400 * 24 * 12 : 86400;
+    //$expiry_addition = ($_POST['remember'] === "1") ? 86400 * 24 * 12 : 86400;
     
-    Cookies::setAuthCookie($idToken, $expiry_addition);
+    AuthToken::set($idToken);
     // Record last login
     $user->updateLastLogin($userArray['username']);
 

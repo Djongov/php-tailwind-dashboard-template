@@ -7,18 +7,19 @@ use App\Authentication\JWT;
 use Models\Api\User;
 use App\Exceptions\UserExceptions;
 use App\Request\HttpClient;
+use App\Authentication\AuthToken;
 
 //return var_dump(App\Authentication\Azure\GetAccessToken::get());
 
 $user = new User();
 
 /* Profile picture update logic */
-$token = JWT::parseTokenPayLoad($_COOKIE[AUTH_COOKIE_NAME]);
+$token = JWT::parseTokenPayLoad(AuthToken::get());
 // This is mostly Google
 if (!empty($usernameArray['picture']) && isset($token['picture'])) {
     $picture = $usernameArray['picture'];
     // Checkl the picture from the JWT token, it might be updated
-    $token = JWT::parseTokenPayLoad($_COOKIE[AUTH_COOKIE_NAME]);
+    $token = JWT::parseTokenPayLoad(AuthToken::get());
     if ($picture !== $token['picture']) {
         $picture = $token['picture'];
         // Save the picture to the user
@@ -127,9 +128,9 @@ echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
         echo '</div>';
         echo '<div class="p-4 m-4 max-w-lg ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700">';
             echo Html::h2('Session Info');
-            echo '<p><strong>Token expiry: </strong>' . $fmt->format(strtotime(date("Y-m-d H:i:s", substr(JWT::parseTokenPayLoad($_COOKIE[AUTH_COOKIE_NAME])['exp'], 0, 10)))) . '</p>';
-            echo '<p><strong>Token: </strong></p><p class="break-all c0py">' . $_COOKIE[AUTH_COOKIE_NAME] . '</p>';
-            $token = JWT::parseTokenPayLoad($_COOKIE[AUTH_COOKIE_NAME]);
+            echo '<p><strong>Token expiry: </strong>' . $fmt->format(strtotime(date("Y-m-d H:i:s", substr(JWT::parseTokenPayLoad(AuthToken::get())['exp'], 0, 10)))) . '</p>';
+            echo '<p><strong>Token: </strong></p><p class="break-all c0py">' . AuthToken::get() . '</p>';
+            $token = JWT::parseTokenPayLoad(AuthToken::get());
             // echo '<ul>';
             //     foreach ($token as $key => $value) {
             //         if (!is_array($value)) {

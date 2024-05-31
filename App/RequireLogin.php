@@ -9,6 +9,7 @@ use App\Authentication\Google;
 use Controllers\Api\Output;
 use App\Utilities\General;
 use App\Utilities\IP;
+use App\Authentication\AuthToken;
 
 class RequireLogin
 {
@@ -41,14 +42,14 @@ class RequireLogin
         $username = null;
         $provider = '';
         // If auth cookie exists
-        if (isset($_COOKIE[AUTH_COOKIE_NAME])) {
+        if (AuthToken::get() !== null) {
             // First parse the JWT token
-            $tokenPayload = JWT::parseTokenPayLoad($_COOKIE[AUTH_COOKIE_NAME]);
+            $tokenPayload = JWT::parseTokenPayLoad(AuthToken::get());
 
             // If the issuer is $_SERVER['HTTP_HOST'], we are dealing with a local login
             if ($tokenPayload['iss'] === $_SERVER['HTTP_HOST']) {
                 // Check if valid
-                if (JWT::checkToken($_COOKIE[AUTH_COOKIE_NAME])) {
+                if (JWT::checkToken(AuthToken::get())) {
                     $provider = 'local';
                     $loggedIn = true;
                 } else {
@@ -65,7 +66,7 @@ class RequireLogin
             // Now check if the issuer is the AzureAD endpoint
             if (str_starts_with($tokenPayload['iss'], 'https://login.microsoftonline.com/')) {
                 // Check
-                if (AzureAD::check($_COOKIE[AUTH_COOKIE_NAME])) {
+                if (AzureAD::check(AuthToken::get())) {
                     $provider = 'azure';
                     $loggedIn = true;
                 } else {
@@ -80,7 +81,7 @@ class RequireLogin
             }
             // Now check Google
             if ($tokenPayload['iss'] === 'https://accounts.google.com') {
-                if (Google::check($_COOKIE[AUTH_COOKIE_NAME])) {
+                if (Google::check(AuthToken::get())) {
                     $provider = 'google';
                     $loggedIn = true;
                 } else {
@@ -96,7 +97,7 @@ class RequireLogin
             // Now check Microsoft Live
             if ($tokenPayload['iss'] === 'https://login.live.com') {
                 // No current way of verifying the token so we will just check if it's not expired
-                if (JWT::checkExpiration($_COOKIE[AUTH_COOKIE_NAME])) {
+                if (JWT::checkExpiration(AuthToken::get())) {
                     $provider = 'mslive';
                     $loggedIn = true;
                 } else {
@@ -128,7 +129,7 @@ class RequireLogin
 
         $idTokenInfoArray = [];
 
-        if ($loggedIn && isset($_COOKIE[AUTH_COOKIE_NAME]) && $provider === 'azure') {
+        if ($loggedIn && AuthToken::get() !== null && $provider === 'azure') {
             // Let's parse the JWT token from the auth cookie and look at the claims
             $authCookieArray = $tokenPayload;
             // We are mapping what the claims are called in the DB (keys) vs in the JWT token (values)
@@ -158,7 +159,7 @@ class RequireLogin
         }
 
         // Now Google
-        if ($loggedIn && isset($_COOKIE[AUTH_COOKIE_NAME]) && $provider === 'google') {
+        if ($loggedIn && AuthToken::get() !== null && $provider === 'google') {
             $authCookieArray = $tokenPayload;
             $expectedClaims = [
                 'username' => 'email',
@@ -180,7 +181,7 @@ class RequireLogin
             $username = ($loggedIn) ? $idTokenInfoArray["username"] : null;
         }
         // Microsoft LIVE
-        if ($loggedIn && isset($_COOKIE[AUTH_COOKIE_NAME]) && $provider === 'mslive') {
+        if ($loggedIn && AuthToken::get() !== null && $provider === 'mslive') {
             $authCookieArray = $tokenPayload;
             $expectedClaims = [
                 'username' => 'preferred_username',

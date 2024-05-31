@@ -5,6 +5,7 @@ namespace Controllers\Api;
 use Controllers\Api\Output;
 use App\Authentication\JWT;
 use App\Authentication\Azure\AzureAD;
+use App\Authentication\AuthToken;
 
 class Checks
 {
@@ -40,7 +41,7 @@ class Checks
     public function isAdminJWT(): bool
     {
         // Parse the JWT token
-        $payload = JWT::parseTokenPayLoad($_COOKIE[AUTH_COOKIE_NAME]);
+        $payload = JWT::parseTokenPayLoad(AuthToken::get());
         // Check if the roles are set
         if (!isset($payload['roles'])) {
             return false;
@@ -81,16 +82,16 @@ class Checks
      */
     public function checkJWT(): void
     {
-        if (!isset($_COOKIE[AUTH_COOKIE_NAME])) {
+        if (AuthToken::get() === null) {
             Output::error('Missing token', 401);
         }
         if (!isset($this->userVars['usernameArray']['provider'])) {
             Output::error('Missing provider in user');
         }
-        if ($this->userVars['usernameArray']['provider'] === 'local' && !JWT::checkToken($_COOKIE[AUTH_COOKIE_NAME])) {
+        if ($this->userVars['usernameArray']['provider'] === 'local' && !JWT::checkToken(AuthToken::get())) {
             Output::error('Invalid local token', 401);
         }
-        if ($this->userVars['usernameArray']['provider'] === 'azure' && !AzureAD::check($_COOKIE[AUTH_COOKIE_NAME])) {
+        if ($this->userVars['usernameArray']['provider'] === 'azure' && !AzureAD::check(AuthToken::get())) {
             Output::error('Invalid Azure token', 401);
         }
     }
@@ -102,13 +103,13 @@ class Checks
      */
     public function checkUsernameIntegrity(): void
     {
-        if (!isset($_COOKIE[AUTH_COOKIE_NAME])) {
-            Output::error('Missing auth cookie');
+        if (AuthToken::get() === null) {
+            Output::error('Missing auth token');
         }
         if (!isset($this->userVars['usernameArray']['username'])) {
             Output::error('Missing username');
         }
-        if ($this->userVars['usernameArray']['username'] !== JWT::extractUserName($_COOKIE[AUTH_COOKIE_NAME])) {
+        if ($this->userVars['usernameArray']['username'] !== JWT::extractUserName(AuthToken::get())) {
             JWT::handleValidationFailure();
             Output::error('Username anomaly');
         }
