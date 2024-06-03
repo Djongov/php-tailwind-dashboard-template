@@ -16,6 +16,11 @@ AddType image/webp .webp
 
 RewriteEngine On
 
+# Add the rewrite rule for create-env
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^create-env$ create-env.php [L]
+
 RewriteCond %{HTTP_ACCEPT} image/webp
 RewriteCond %{DOCUMENT_ROOT}/$1.webp -f
 RewriteRule ^(.*\.(jpg|jpeg|png))$ $1.webp [T=image/webp,E=accept:1]
@@ -25,9 +30,6 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !\.(jpg|jpeg|png|gif|webp)$ [NC]
 RewriteRule ^.*$ index.php [L]
-
-# Rewrite /docs to /docs
-RewriteRule ^documentation/(.*)$ /docs/$1 [R=301,L]
 
 <Files "Dockerfile|docker-compose\.yml">  
     Order Allow,Deny

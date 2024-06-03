@@ -99,7 +99,7 @@ document.getElementById('Entra_ID_login').addEventListener('change', () => {
 // MS Live
 document.getElementById('Microsoft_LIVE_login').addEventListener('change', () => {
     toggleAdditionalField('Microsoft_LIVE_login', 'MS_LIVE_CLIENT_SECRET', 'Client Secret');
-    toggleAdditionalField('Microsoft_LIVE_login', 'MS_LIVE_CLIENT_ID', 'Client ID');
+    toggleAdditionalField('Microsoft_LIVE_login', 'MS_LIVE_CLIENT_ID', 'App ID');
     toggleAdditionalField('Microsoft_LIVE_login', 'MS_LIVE_TENANT_ID', 'Tenant ID');
     if (document.getElementById('Microsoft_LIVE_login').checked) {
         addInstructions('Microsoft_LIVE_login', 'Microsoft_LIVE_instructions', 'Create a new App registration in Entra ID. Make sure that LIVE accounts are supported. Create a secret and copy the values to the fields below. Make sure to add the redirect URI to the App registration. More info in the README.md file.');
@@ -110,8 +110,8 @@ document.getElementById('Microsoft_LIVE_login').addEventListener('change', () =>
 
 // Google login
 document.getElementById('Google_login').addEventListener('change', () => {
-    toggleAdditionalField('Google_login', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_ID');
     toggleAdditionalField('Google_login', 'GOOGLE_CLIENT_SECRET', 'GOOGLE_CLIENT_SECRET');
+    toggleAdditionalField('Google_login', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_ID');
 
     if (document.getElementById('Google_login').checked) {
         addInstructions('Google_login', 'Google_login_instructions', 'Register new Credentials in GPC. Go to API and Services -> Credentials -> Create Credentials -> OAuth Client ID. Select Web Application and fill the form. Copy the Client ID and Client Secret to the fields below. Make sure to add the redirect URI to the Credentials. More info in the README.md file.');

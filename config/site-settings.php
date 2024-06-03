@@ -22,7 +22,7 @@ define("GENERIC_DESCRIPTION", "Dashboard Template");
 define("LOGO", '/assets/images/logo.jpg');
 
 // Logo for the SEO OG tags
-define("OG_LOGO", 'https://' . $_SERVER['HTTP_HOST'] . '/assets/images/Logos/awm-full-logo-card.png');
+define("OG_LOGO", 'https://' . $_SERVER['HTTP_HOST'] . '/assets/images/logo.jpg');
 
 /* Color Scheme */
 // Default theme for unathenticated users and first-time logins, possible values: 'amber', 'green', 'stone', 'rose', 'lime', 'teal', 'sky', 'purple', 'red', 'fuchsia', 'indigo'

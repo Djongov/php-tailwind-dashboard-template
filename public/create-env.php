@@ -113,6 +113,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     unset($envContentArray['Entra_ID_login']);
     unset($envContentArray['SENDGRID']);
 
+    return var_dump($_POST);
+
     $envContent = '';
 
     foreach ($envContentArray as $key => $value) {
