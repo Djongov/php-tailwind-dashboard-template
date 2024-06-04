@@ -26,6 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') :
     <label for="DB_NAME">DB_NAME:</label>
     <input type="text" id="DB_NAME" name="DB_NAME" placeholder="dashboard" value="dashboard" required><br><br>
 
+    <label for="DB_PORT">DB_PORT:</label>
+    <input type="number" id="DB_PORT" name="DB_PORT" value="3306" required><br><br>
+
     <label for="DB_DRIVER">DB_DRIVER:</label>
     <select id="DB_DRIVER" name="DB_DRIVER">
         <option value="mysql">MySQL</option>
@@ -75,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Create the .env file
     $envContentArray = $_POST;
     
-    if (isset($_POST['local_login'])) {
+    if (isset($_POST['local_login']) && $_POST["local_login"] === 'on') {
         if (!extension_loaded('openssl')) {
             die('Enable openssl extension');
         }
@@ -107,13 +110,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $envContentArray['JWT_PUBLIC_KEY'] = $base64PublicKey;
         $envContentArray['JWT_PRIVATE_KEY'] = $base64PrivateKey;
+
+        $envContentArray['LocalLoginEnabled'] = 'true';
+    } else {
+        $envContentArray['LocalLoginEnabled'] = 'false';
     }
 
-    unset($envContentArray['local_login']);
-    unset($envContentArray['Entra_ID_login']);
-    unset($envContentArray['SENDGRID']);
+    if (isset($_POST['Google_login']) && $_POST["Google_login"] === 'on') {
+        $envContentArray['GoogleLoginEnabled'] = 'true';
+    } else {
+        $envContentArray['GoogleLoginEnabled'] = 'false';
+    }
 
-    return var_dump($_POST);
+    if (isset($_POST['Microsoft_LIVE_login']) && $_POST["Microsoft_LIVE_login"] === 'on') {
+        $envContentArray['MicrosoftLiveLoginEnabled'] = 'true';
+    } else {
+        $envContentArray['MicrosoftLiveLoginEnabled'] = 'false';
+    }
+
+    if (isset($_POST['Entra_ID_login']) && $_POST["Entra_ID_login"] === 'on') {
+        $envContentArray['EntraIDLoginEnabled'] = 'true';
+    } else {
+        $envContentArray['EntraIDLoginEnabled'] = 'false';
+    }
+
+    if (isset($_POST['SENDGRID']) && $_POST["SENDGRID"] === 'on') {
+        $envContentArray['SENDGRID_ENABLED'] = 'true';
+    } else {
+        $envContentArray['SENDGRID_ENABLED'] = 'false';
+    }
 
     $envContent = '';
 
@@ -127,7 +152,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $envContent .= $key . '=' . $updatedValue . '' . PHP_EOL;
     }
 
-    
+    // Let's unset the ones that we don't want to be in the .env file
+    unset($envContentArray['local_login']);
+    unset($envContentArray['Google_login']);
+    unset($envContentArray['Microsoft_LIVE_login']);
+    unset($envContentArray['Entra_ID_login']);
+    unset($envContentArray['SENDGRID']);
 
     $envFilePath = dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '.env';
 

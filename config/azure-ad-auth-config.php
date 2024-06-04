@@ -10,7 +10,7 @@ if (AZURE_AD_LOGIN) {
     define('AZURE_AD_TENANT_ID', $_ENV['AZURE_AD_TENANT_ID']);
     define('AZURE_AD_CLIENT_SECRET', $_ENV['AZURE_AD_CLIENT_SECRET'] ?? die('Check you if you have set the AZURE_AD_CLIENT_SECRET'));
 
-    define('AZURE_AD_MULTITENANT', true); // Set to true if you want to allow users from any tenant to login
+    define('AZURE_AD_MULTITENANT', false); // Set to true if you want to allow users from any tenant to login
 
     if (AZURE_AD_MULTITENANT) {
         define('AZURE_AD_OAUTH_URL', 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?');

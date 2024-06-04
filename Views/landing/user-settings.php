@@ -9,8 +9,6 @@ use App\Exceptions\UserExceptions;
 use App\Request\HttpClient;
 use App\Authentication\AuthToken;
 
-//return var_dump(App\Authentication\Azure\GetAccessToken::get());
-
 $user = new User();
 
 /* Profile picture update logic */

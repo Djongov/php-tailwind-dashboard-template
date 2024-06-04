@@ -21,11 +21,12 @@ This works by either creating an app registration in your Azure tenant (works wi
 #### Your own app registration
 
 1. Create App Registration
-2. In Authentication -> Put the redirect uri - https://example.com/auth/azure-ad
-3. In Authentication -> Enable ID Tokens
-4. In Token Configuration -> Add optional claims - ctry, ipaddr
-5. In App Roles -> Create app role -> display name => App Name Admins, allowed member types => Users/Groups, Value = administrator
-6. To assign admins browse the app registration as Enterprise app -> Users and groups -> Add user/group -> Select users -> Role should be only the new admin role
+2. In Authentication -> Put the redirect uri - https://example.com/auth/azure-ad and https://example.com/auth/azure/azure-ad-code-exchange
+3. In Authentication -> Enable ID Tokens, Access tokens
+4. In Certificates & secrets -> Create a new secret and record it
+5. In Token Configuration (optional) -> Add optional claims - ctry, ipaddr
+6. In App Roles -> Create app role -> display name => Admins, allowed member types => Users/Groups, Value = administrator, description => This role provides administrator access to the app
+7. To assign admins browse the app registration as Enterprise app -> Users and groups -> Add user/group -> Select users -> Role should be only the new admin role
 
 #### Azure App Service Web app with Authentication enabled
 

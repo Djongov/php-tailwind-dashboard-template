@@ -6,8 +6,6 @@ use App\Authentication\JWT;
 if (isset($_POST['error'], $_POST['error_description'])) {
     if (str_contains($_POST['error'], 'consent_required')) {
         // Send an Authorization request if the error is AADSTS65001 (consent_required)
-        $authorizationUrl = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?';
-
         $data = [
             'client_id' => AZURE_AD_CLIENT_ID,
             'response_type' => 'code',
@@ -20,9 +18,28 @@ if (isset($_POST['error'], $_POST['error_description'])) {
             'login_hint' => $username
         ];
 
-        header('Location: ' . $authorizationUrl . http_build_query($data));
+        header('Location: ' . AZURE_AD_OAUTH_URL . http_build_query($data));
         exit();
     }
+    if (str_contains($_POST['error'], 'login_required')) {
+        // Send an Authorization request if the error is AADSTS50058 (login_required)
+        // $data = [
+        //     'client_id' => AZURE_AD_CLIENT_ID,
+        //     'response_type' => 'code',
+        //     'redirect_uri' => $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] , // redirect back to the same page
+        //     'scope' => 'https://graph.microsoft.com/user.read',
+        //     'response_mode' => 'form_post',
+        //     'state' => $_POST['state'],
+        //     'nonce' => $_SESSION['nonce'],
+        //     'prompt' => 'login',
+        //     'login_hint' => $username
+        // ];
+
+        // header('Location: ' . AZURE_AD_OAUTH_URL . http_build_query($data));
+        // exit();
+        Output::error("App Registration Error: " . $_POST['error'] . " with Description: " . $_POST['error_description']);
+    }
+
     Output::error("Azure Error: " . $_POST['error'] . " with Description: " . $_POST['error_description']);
 }
 
@@ -42,10 +59,11 @@ if (isset($_POST['code'], $_POST['state'], $_POST['session_state'])) {
 
     $request = $client->call('POST', '', $postData);
 
-    if (isset($request['error_description'])) {
+    $response = json_decode($request['response'], true);
+
+    if (isset($response['error_description'])) {
         // AADSTS70008: The provided authorization code or refresh token has expired due to inactivity. Send a new interactive authorization request for this user and resource
-        if (str_contains($request['error_description'], 'AADSTS70008') || str_contains($request['error_description'], 'AADSTS54005')) {
-            $authorizationUrl = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?';
+        if (str_contains($response['error_description'], 'AADSTS70008') || str_contains($response['error_description'], 'AADSTS54005')) {
 
             $data = [
                 'client_id' => AZURE_AD_CLIENT_ID,
@@ -59,7 +77,7 @@ if (isset($_POST['code'], $_POST['state'], $_POST['session_state'])) {
                 'login_hint' => $username
             ];
 
-            header('Location: ' . $authorizationUrl . http_build_query($data));
+            header('Location: ' . AZURE_AD_OAUTH_URL . http_build_query($data));
             exit();
         } else {
             Output::error($response['error_description'], 400);

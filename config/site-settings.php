@@ -85,7 +85,12 @@ $requiredDBConstants = [
     'DB_HOST',
     'DB_USER',
     'DB_PASS',
-    'DB_NAME'
+    'DB_NAME',
+    'LocalLoginEnabled',
+    'GoogleLoginEnabled',
+    'MicrosoftLiveLoginEnabled',
+    'EntraIDLoginEnabled',
+    'SENDGRID_ENABLED'
 ];
 
 foreach ($requiredDBConstants as $constant) {
@@ -100,6 +105,7 @@ define("DB_HOST", $_ENV['DB_HOST']);
 define("DB_USER", $_ENV['DB_USER']);
 define("DB_PASS", $_ENV['DB_PASS']);
 define("DB_NAME", $_ENV['DB_NAME']);
+define("DB_PORT", $_ENV['DB_PORT']);
 
 // This is the DigiCertGlobalRootCA.crt.pem file that is used to verify the SSL connection to the DB. It's located in the .tools folder
 define("CA_CERT", dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '.tools' . DIRECTORY_SEPARATOR . 'DigiCertGlobalRootCA.crt.pem');
@@ -117,7 +123,8 @@ Mailer Settings (Sendgrid)
 
 */
 
-define("SENDGRID", false);
+define("SENDGRID", filter_var($_ENV['SENDGRID_ENABLED'], FILTER_VALIDATE_BOOLEAN));
+
 if (SENDGRID) {
     if (!isset($_ENV['SENDGRID_API_KEY'])) {
         die('SENDGRID_API_KEY must be set in the .env file');
@@ -159,7 +166,7 @@ Authentication Settings
 */
 
 // Name of the authentication cookie which holds the JWT token
-define('AUTH_HANDLER', 'session'); // cookie/session
+define('AUTH_HANDLER', 'cookie'); // cookie/session
 define('JWT_TOKEN_EXPIRY', 3600);
 define('AUTH_COOKIE_EXPIRY', 86400); // In case cookie is used for handler, make the duration 1 day. Even if Azure tokens cannot exceed 1 hour, if cookie is present it will redirect on its own to refresh the token, so for best user experience it's good to have a longer duration than the token itself
 
@@ -175,7 +182,7 @@ $destination = (isset($_GET['destination'])) ? $_GET['destination'] : $_SERVER['
 $protocol = (str_contains($_SERVER['HTTP_HOST'], 'localhost')) ? 'http' : 'https';
 
 // Whether to allow users to login with local accounts
-define('LOCAL_USER_LOGIN', true);
+define('LOCAL_USER_LOGIN', filter_var($_ENV['LocalLoginEnabled'], FILTER_VALIDATE_BOOLEAN));
 if (LOCAL_USER_LOGIN) {
     if (!isset($_ENV['JWT_PUBLIC_KEY']) || !isset($_ENV['JWT_PRIVATE_KEY'])) {
         die('JWT_PUBLIC_KEY and JWT_PRIVATE_KEY must be set in the .env file');
@@ -188,16 +195,16 @@ if (LOCAL_USER_LOGIN) {
     define('MANUAL_REGISTRATION', true);
 }
 // Whether to allow users to login with Azure AD accounts
-define('AZURE_AD_LOGIN', true);
+define('AZURE_AD_LOGIN', filter_var($_ENV['EntraIDLoginEnabled'], FILTER_VALIDATE_BOOLEAN));
 if (AZURE_AD_LOGIN) {
     include_once dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'azure-ad-auth-config.php';
 }
-define('MICROSOFT_LIVE_LOGIN', true);
+define('MICROSOFT_LIVE_LOGIN', filter_var($_ENV['MicrosoftLiveLoginEnabled'], FILTER_VALIDATE_BOOLEAN));
 if (MICROSOFT_LIVE_LOGIN) {
     include_once dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'microsoft-live-auth-config.php';
 }
 // Google login
-define('GOOGLE_LOGIN', true);
+define('GOOGLE_LOGIN', filter_var($_ENV['GoogleLoginEnabled'], FILTER_VALIDATE_BOOLEAN));
 if (GOOGLE_LOGIN) {
     include_once dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'google-auth-config.php';
 }

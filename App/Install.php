@@ -1,7 +1,5 @@
 <?php
 
-// We are using mysqli for this, perhaps can be rewritten to PDO
-
 namespace App;
 
 use Components\Alerts;
@@ -9,34 +7,47 @@ use Components\Html;
 use Controllers\Api\Output;
 use App\Utilities\IP;
 use App\Utilities\General;
+use PDO;
+use PDOException;
 
 class Install
 {
-    public function start($conn)
+    public function start()
     {
         $html = '';
         $html .= HTML::h2('Database does not exist, attempting to create it', true);
-        // Connect to MySQL without specifying the database
-        if (defined("DB_SSL") && DB_SSL) {
-            try {
-                mysqli_ssl_set($conn, NULL, NULL, CA_CERT, NULL, NULL);
-                $conn->real_connect('p:' . DB_HOST, DB_USER, DB_PASS, null, 3306, MYSQLI_CLIENT_SSL);
-            } catch (\mysqli_sql_exception $e) {
-                Output::error('Connection error: ' . $e->getMessage(), 400);
+
+        // Connect to the database server without specifying the database
+        try {
+            $dsn = sprintf("%s:host=%s;port=%d;charset=utf8mb4", DB_DRIVER, DB_HOST, DB_PORT);
+            $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
+
+            if (defined("DB_SSL") && DB_SSL && DB_DRIVER === 'mysql') {
+                $options[PDO::MYSQL_ATTR_SSL_CA] = CA_CERT;
             }
-        } else {
-            try {
-                $conn->real_connect(DB_HOST, DB_USER, DB_PASS);
-            } catch (\mysqli_sql_exception $e) {
-                Output::error('Connection error: ' . $e->getMessage(), 400);
-            }
+
+            $conn = new PDO($dsn, DB_USER, DB_PASS, $options);
+        } catch (PDOException $e) {
+            Output::error('Connection error: ' . $e->getMessage(), 400);
+            return $html;
         }
 
         // Create the database if it doesn't exist
-        $conn->query("CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
+        try {
+            $conn->exec("CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
+        } catch (PDOException $e) {
+            Output::error('Database creation error: ' . $e->getMessage(), 400);
+            return $html;
+        }
 
-        // Select the database
-        $conn->select_db(DB_NAME);
+        // Reconnect to the newly created database
+        try {
+            $dsnWithDb = $dsn . ";dbname=" . DB_NAME;
+            $conn = new PDO($dsnWithDb, DB_USER, DB_PASS, $options);
+        } catch (PDOException $e) {
+            Output::error('Database selection error: ' . $e->getMessage(), 400);
+            return $html;
+        }
 
         // Read and execute queries from the SQL file to create tables
         $migrateFile = dirname($_SERVER['DOCUMENT_ROOT']) . '/.tools/migrate.sql';
@@ -44,53 +55,57 @@ class Install
 
         try {
             // Execute multiple queries
-            $conn->multi_query($migrate);
-
-            // Consume the results of multi_query
-            while ($conn->more_results()) {
-                $conn->next_result();
-                $conn->store_result();
-            }
-        } catch (\mysqli_sql_exception $e) {
-            $error = $e->getMessage();
-            Output::error('error in migrate file: ' . $error, 400);
+            $conn->exec($migrate);
+        } catch (PDOException $e) {
+            Output::error('Error in migrate file: ' . $e->getMessage(), 400);
+            return $html;
         }
+
         $ip = IP::currentIP();
 
         // Now you can execute additional queries
         try {
-            $conn->query("INSERT INTO `csp_approved_domains` (`domain`, `created_by`) VALUES ('" . $_SERVER['HTTP_HOST'] . "', 'System')");
-        } catch (\mysqli_sql_exception $e) {
-            $error = $e->getMessage();
-            Output::error('inserting csp_approved_domains rule for host ' . $_SERVER['HTTP_HOST'] . ' error: . ' . $error, 400);
+            $stmt = $conn->prepare("INSERT INTO `csp_approved_domains` (`domain`, `created_by`) VALUES (?, 'System')");
+            $stmt->execute([$_SERVER['HTTP_HOST']]);
+        } catch (PDOException $e) {
+            Output::error('Inserting csp_approved_domains rule for host ' . $_SERVER['HTTP_HOST'] . ' error: ' . $e->getMessage(), 400);
+            return $html;
         }
+
         try {
-            $conn->query("INSERT INTO `firewall` (`ip_cidr`, `created_by`, `comment`) VALUES ('" . $ip . "/32', 'System', 'Initial Admin IP')");
-        } catch (\mysqli_sql_exception $e) {
-            $error = $e->getMessage();
-            Output::error('inserting firewall rule for ip ' . $ip . ' error: . ' . $error, 400);
+            $stmt = $conn->prepare("INSERT INTO `firewall` (`ip_cidr`, `created_by`, `comment`) VALUES (?, 'System', 'Initial Admin IP')");
+            $stmt->execute([$ip . '/32']);
+        } catch (PDOException $e) {
+            Output::error('Inserting firewall rule for IP ' . $ip . ' error: ' . $e->getMessage(), 400);
+            return $html;
         }
-        // Insert administrator for first time login
-        $password = General::randomString(12);
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        if (IP::isPublicIp($ip)) {
-            $ipGeoLocate = \App\Request\NativeHttp::get('http://ip-api.com/json/' . $ip, [], true);
-            if ($ipGeoLocate['status'] === 'success') {
-                $countryCode = $ipGeoLocate['countryCode'];
-            }
-        } else {
+
+        // Insert administrator for first time login but only if local login is used
+        if (LOCAL_USER_LOGIN) {
+            $password = General::randomString(12);
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
             $countryCode = 'US';
+            if (IP::isPublicIp($ip)) {
+                $ipGeoLocate = \App\Request\NativeHttp::get('http://ip-api.com/json/' . $ip, [], true);
+                if ($ipGeoLocate['status'] === 'success') {
+                    $countryCode = $ipGeoLocate['countryCode'];
+                }
+            }
+
+            try {
+                $stmt = $conn->prepare("INSERT INTO `users`(`username`, `password`, `email`, `name`, `last_ips`, `origin_country`, `role`, `last_login`, `theme`, `provider`, `enabled`) VALUES ('admin', ?, 'admin', 'admin', ?, ?, 'administrator', NOW(), ?, 'local', 1)");
+                $stmt->execute([$hashedPassword, $ip, $countryCode, COLOR_SCHEME]);
+            } catch (PDOException $e) {
+                Output::error('Inserting admin user error: ' . $e->getMessage(), 400);
+                return $html;
+            }
+            // Print the credentials to the screen
+            $html .= Alerts::success('Database "' . DB_NAME . '" and system tables created successfully. Please go to <a class="underline" href="/login">Login</a> page. Use "admin" as username. Do not refresh the page until you have copied the password below.');
+            $html .= HTML::p('<span class="c0py">' . $password . '</span>');
+        } else {
+            $html .= Alerts::success('Database "' . DB_NAME . '" and system tables created successfully. Please go to <a class="underline" href="/login">Login</a> page. Because no local login is enabled you need to control admin accounts through the provider claims.');
         }
-        try {
-            $conn->query("INSERT INTO `users`(`username`, `password`, `email`, `name`, `last_ips`, `origin_country`, `role`, `last_login`, `theme`, `provider`, `enabled`) VALUES ('admin', '" . $hashedPassword . "', 'admin', 'admin', '" . $ip . "', '$countryCode', 'administrator', NOW(), '" . COLOR_SCHEME . "', 'local', 1)");
-        } catch (\mysqli_sql_exception $e) {
-            $error = $e->getMessage();
-            Output::error('inserting admin user error:' . $error, 400);
-        }
-        // Print the credentials to the screen
-        $html .= Alerts::success('Database "' . DB_NAME . '" and system tables created successfully. Please go to <a class="underline" href="/login">Login</a> page. Use "admin" as username. Do not refresh the page until you have copied the password below.');
-        $html .= HTML::p('<span class="c0py">' . $password . '</span>');
-        $conn->close();
 
         return $html;
     }

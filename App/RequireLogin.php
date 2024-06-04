@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Database\DB;
+use Models\Api\User;
 use App\Authentication\Azure\AzureAD;
 use App\Authentication\JWT;
 use App\Authentication\Google;
@@ -203,16 +204,12 @@ class RequireLogin
 
         // If we are logged in and we have an established username, we need to either fetch user data from the DB or create a new user in the DB
         if ($username !== null) {
-            $db = new DB();
-            $pdo = $db->getConnection();
-            $stmt = $pdo->prepare("SELECT * FROM `users` WHERE `username` = ?");
-            $stmt->execute([$username]);
-            $usernameArray = $stmt->fetch(\PDO::FETCH_ASSOC);
-            if (!empty($usernameArray)) {
+            $user = new User();
+            $usernameArray = $user->get($username);
+            if ($usernameArray) {
                 // Let's check if the last_ip is different from what we have in the DB, and update it
                 if ($usernameArray['last_ips'] !== $idTokenInfoArray["last_ip"]) {
-                    $stmt = $pdo->prepare("UPDATE `users` SET `last_ips`=? WHERE `username`=?");
-                    $stmt->execute([$idTokenInfoArray["last_ip"], $username]);
+                     $user->update(['last_ips' => $idTokenInfoArray["last_ip"]], $usernameArray['id']);
                 }
             } else {
                 if (empty($usernameArray)) {
@@ -236,11 +233,15 @@ class RequireLogin
             if ($usernameArray['role'] === 'administrator') {
                 $isAdmin = true;
             }
+            // If token has admin role, but DB does not, we need to update the DB
+            if (in_array('administrator', $idTokenInfoArray["roles"]) && $usernameArray['role'] !== 'administrator') {
+                $user->update(['role' => 'administrator'], $usernameArray['id']);
+                $isAdmin = true;
+            }
         }
 
         // Kill disabled users early
         if (isset($usernameArray["enabled"]) && $usernameArray["enabled"] === 0) {
-            //Output::error('Your user has been disabled', 401);
             echo 'Your user has been disabled';
             JWT::handleValidationFailure();
             exit();
