@@ -57,6 +57,7 @@ return function (RouteCollector $router) {
     // Azure experiments
     $router->addRoute('GET', '/auth/azure/request-access-token', [$viewsFolder . '/auth/azure/request-access-token.php']);
     $router->addRoute('POST', '/auth/azure/azure-ad-code-exchange', [$viewsFolder . '/auth/azure/azure-ad-code-exchange.php']);
+    $router->addRoute('POST', '/auth/azure/mslive-code-exchange', [$viewsFolder . '/auth/azure/mslive-code-exchange.php']);
     
     // CSP report endpoiont
     $router->addRoute('POST', '/api/csp-report', [$viewsFolder . '/api/csp-report.php']);

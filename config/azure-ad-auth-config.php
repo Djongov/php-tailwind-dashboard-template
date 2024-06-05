@@ -14,8 +14,10 @@ if (AZURE_AD_LOGIN) {
 
     if (AZURE_AD_MULTITENANT) {
         define('AZURE_AD_OAUTH_URL', 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?');
+        define('AZURE_AD_TOKEN_URL', 'https://login.microsoftonline.com/common/oauth2/v2.0/token');
     } else {
         define('AZURE_AD_OAUTH_URL', 'https://login.microsoftonline.com/' . AZURE_AD_TENANT_ID . '/oauth2/v2.0/authorize?');
+        define('AZURE_AD_TOKEN_URL', 'https://login.microsoftonline.com/' . AZURE_AD_TENANT_ID . '/oauth2/v2.0/token');
     }
 
     /* ID Token */

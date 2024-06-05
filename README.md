@@ -21,7 +21,7 @@ This works by either creating an app registration in your Azure tenant (works wi
 #### Your own app registration
 
 1. Create App Registration
-2. In Authentication -> Put the redirect uri - https://example.com/auth/azure-ad and https://example.com/auth/azure/azure-ad-code-exchange
+2. In Authentication -> Put the redirect uri - https://example.com/auth/azure-ad and https://example.com/auth/azure/azure-ad-code-exchange and/or https://example.com/auth/azure/mslive-code-exchange (for Personal accounts)
 3. In Authentication -> Enable ID Tokens, Access tokens
 4. In Certificates & secrets -> Create a new secret and record it
 5. In Token Configuration (optional) -> Add optional claims - ctry, ipaddr

@@ -139,6 +139,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $envContentArray['SENDGRID_ENABLED'] = 'false';
     }
+    
+    // Let's unset the ones that we don't want to be in the .env file
+    unset($envContentArray['local_login']);
+    unset($envContentArray['Google_login']);
+    unset($envContentArray['Microsoft_LIVE_login']);
+    unset($envContentArray['Entra_ID_login']);
+    unset($envContentArray['SENDGRID']);
 
     $envContent = '';
 
@@ -152,12 +159,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $envContent .= $key . '=' . $updatedValue . '' . PHP_EOL;
     }
 
-    // Let's unset the ones that we don't want to be in the .env file
-    unset($envContentArray['local_login']);
-    unset($envContentArray['Google_login']);
-    unset($envContentArray['Microsoft_LIVE_login']);
-    unset($envContentArray['Entra_ID_login']);
-    unset($envContentArray['SENDGRID']);
 
     $envFilePath = dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '.env';
 

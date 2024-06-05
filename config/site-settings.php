@@ -166,7 +166,7 @@ Authentication Settings
 */
 
 // Name of the authentication cookie which holds the JWT token
-define('AUTH_HANDLER', 'cookie'); // cookie/session
+define('AUTH_HANDLER', 'session'); // cookie/session
 define('JWT_TOKEN_EXPIRY', 3600);
 define('AUTH_COOKIE_EXPIRY', 86400); // In case cookie is used for handler, make the duration 1 day. Even if Azure tokens cannot exceed 1 hour, if cookie is present it will redirect on its own to refresh the token, so for best user experience it's good to have a longer duration than the token itself
 

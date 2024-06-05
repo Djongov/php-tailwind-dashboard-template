@@ -14,7 +14,8 @@ if (MICROSOFT_LIVE_LOGIN) {
     //define('OAUTHURL', 'https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize?');
     define('MS_LIVE_OAUTH_URL', 'https://login.live.com/oauth20_authorize.srf?');
     
-    define('MS_LIVE_CODE_REDIRECT_URI', $protocol . '://' . $_SERVER['HTTP_HOST'] . '/auth/azure/azure-ad-code-exchange');
+    define('MS_LIVE_CODE_REDIRECT_URI', $protocol . '://' . $_SERVER['HTTP_HOST'] . '/auth/azure/mslive-code-exchange');
+    define('MS_LIVE_TOKEN_URL', 'https://login.microsoftonline.com/' . MS_LIVE_TENANT_ID . '/oauth2/v2.0/token');
 
     $authenticationData = [
         'client_id' => MS_LIVE_CLIENT_ID,

@@ -2,7 +2,6 @@
 
 namespace App;
 
-use App\Database\DB;
 use Models\Api\User;
 use App\Authentication\Azure\AzureAD;
 use App\Authentication\JWT;
@@ -26,6 +25,7 @@ class RequireLogin
             '/auth/google',
             '/auth/local',
             '/auth/azure/azure-ad-code-exchange',
+            '/auth/azure/mslive-code-exchange',
             '/api/user',
             '/install',
             '/charts',
