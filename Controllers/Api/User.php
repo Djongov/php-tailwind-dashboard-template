@@ -10,29 +10,30 @@ use App\Exceptions\UserExceptions;
 
 class User
 {
-    public function get(string $username) : array
+    public function get(string|int $username = null) : array
     {
         $user = new UserModel();
         try {
             return $user->get($username);
         } catch (UserExceptions $e) {
-            Output::error($e->getMessage());
+            $this->handleUserErrorsApiResponse($e, 'user controller: UserExceptions getting user', 'unable to get username');
         } catch (\Exception $e) {
-            Output::error($e->getMessage());
+            $this->handleUserErrorsApiResponse($e, 'user controller: Exception getting user', 'unable to get username');
         }
     }
     public function create(array $data, string $provider) : void
     {
-        if ($provider === 'local') {
-            $this->createLocalUser($data);
-        } elseif ($provider === 'azure') {
+        if (!in_array($provider, SUPPORTED_AUTH_PROVIDERS)) {
+            Output::error('Provider not supported. Must be on of ' . implode(', ', SUPPORTED_AUTH_PROVIDERS), 400);
+        }
+        if ($provider === 'azure') {
             $this->createAzureUser($data);
-        } elseif ($provider === 'google') {
-            $this->createGoogleUser($data);
         } elseif ($provider === 'mslive') {
             $this->createMsLiveUser($data);
-        } else {
-            Output::error('Invalid provider', 400);
+        } elseif ($provider === 'google') {
+            $this->createGoogleUser($data);
+        } elseif ($provider === 'local') {
+            $this->createLocalUser($data);
         }
     }
     public function createAzureUser(array $data) : void
@@ -67,9 +68,9 @@ class User
             $createUser->create($insertData);
             echo Output::success('User created');
         } catch (UserExceptions $e) {
-            Output::error($e->getMessage());
+            $this->handleUserErrorsApiResponse($e, 'user controller: UserExceptions creating azure provider user', 'unable to create user');
         } catch (\Exception $e) {
-            Output::error($e->getMessage());
+            $this->handleUserErrorsApiResponse($e, 'user controller: Exception creating azure provider user', 'unable to create user');
         }
     }
     public function createMsLiveUser(array $data)
@@ -104,9 +105,9 @@ class User
             $createUser->create($insertData);
             echo Output::success('User created');
         } catch (UserExceptions $e) {
-            Output::error($e->getMessage());
+            $this->handleUserErrorsApiResponse($e, 'user controller: UserExceptions creating mslive provider user', 'unable to create user');
         } catch (\Exception $e) {
-            Output::error($e->getMessage());
+            $this->handleUserErrorsApiResponse($e, 'user controller: Exception creating mslive provider user', 'unable to create user');
         }
     }
     public function createGoogleUser(array $data)
@@ -142,9 +143,9 @@ class User
             $createUser->create($insertData);
             echo Output::success('User created');
         } catch (UserExceptions $e) {
-            Output::error($e->getMessage());
+            $this->handleUserErrorsApiResponse($e, 'user controller: UserExceptions creating google provider user', 'unable to create user');
         } catch (\Exception $e) {
-            Output::error($e->getMessage());
+            $this->handleUserErrorsApiResponse($e, 'user controller: Exception creating google provider user', 'unable to create user');
         }
     }
     public function createLocalUser(array $data) : void
@@ -174,9 +175,9 @@ class User
             $createUser->create($data);
             echo Output::success('User created');
         } catch (UserExceptions $e) {
-            Output::error($e->getMessage());
+            $this->handleUserErrorsApiResponse($e, 'user controller: UserExceptions creating local provider user', $e->getMessage());
         } catch (\Exception $e) {
-            Output::error($e->getMessage());
+            $this->handleUserErrorsApiResponse($e, 'user controller: Exception creating local provider user', $e->getMessage());
         }
     }
     public function update(array $data, int $id) : void
@@ -186,9 +187,9 @@ class User
             $user->update($data, $id);
             echo Output::success('User updated');
         } catch (UserExceptions $e) {
-            Output::error($e->getMessage());
+            $this->handleUserErrorsApiResponse($e, 'user controller: UserExceptions updating user with id ' . $id . ' and data ' . json_encode($data), 'unable to update user');
         } catch (\Exception $e) {
-            Output::error($e->getMessage());
+            $this->handleUserErrorsApiResponse($e, 'user controller: Exception updating user with id ' . $id . ' and data ' . json_encode($data), 'unable to update user');
         }
     }
     public function delete(int $id) : void
@@ -198,9 +199,9 @@ class User
             $user->delete($id);
             echo Output::success('User deleted');
         } catch (UserExceptions $e) {
-            Output::error($e->getMessage());
+            $this->handleUserErrorsApiResponse($e, 'user controller: UserExceptions deleting user with id ' . $id, 'unable to delete user');
         } catch (\Exception $e) {
-            Output::error($e->getMessage());
+            $this->handleUserErrorsApiResponse($e, 'user controller: Exception deleting user with id ' . $id, 'unable to delete user');
         }
     }
     public function updateLastLogin(string $username) : void
@@ -212,9 +213,9 @@ class User
         try {
             $updatedUser->update(['last_login' => date('Y-m-d H:i:s')], $updatedUserArray['id']);
         } catch (UserExceptions $e) {
-            Output::error($e->getMessage());
+            $this->handleUserErrorsApiResponse($e, 'user controller: UserExceptions updating last login for username ' . $username, 'unable to update last login');
         } catch (\Exception $e) {
-            Output::error($e->getMessage());
+            $this->handleUserErrorsApiResponse($e, 'user controller: Exception updating last login for username ' . $username, 'unable to update last login');
         }
     }
     public function saveAzureProfilePicture(string $username, string $response) : void
@@ -230,17 +231,25 @@ class User
         try {
             $usernameConfirmed = $user->get($username);
         } catch (UserExceptions $e) {
-            Output::error($e->getMessage());
+            $this->handleUserErrorsApiResponse($e, 'user controller: UserExceptions getting user for saving azure profile picture', 'unable to get username');
         } catch (\Exception $e) {
-            Output::error($e->getMessage());
+            $this->handleUserErrorsApiResponse($e, 'user controller: Exception getting user for saving azure profile picture', 'unable to get username');
         }
 
         try {
             $user->update(['picture' => $imageRelativePath], $usernameConfirmed['id']);
         } catch (UserExceptions $e) {
-            Output::error($e->getMessage());
+            $this->handleUserErrorsApiResponse($e, 'user controller: error saving azure profile picture', 'unable to save profile picture');
         } catch (\Exception $e) {
-            Output::error($e->getMessage());
+            $this->handleUserErrorsApiResponse($e, 'user controller: error saving azure profile picture', 'unable to save profile picture');
+        }
+    }
+    private function handleUserErrorsApiResponse(\Exception $e, string $verboseError, string $publicError) : void
+    {
+        if (ERROR_VERBOSE) {
+            Output::error($verboseError . '. Error: ' . $e->getMessage());
+        } else {
+            Output::error($publicError, 404);
         }
     }
 }

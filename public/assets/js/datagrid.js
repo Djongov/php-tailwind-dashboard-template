@@ -147,27 +147,32 @@ if (tables.length > 0) {
                                 modalBody.innerHTML = `<p class="text-red-500 font-semibold">Response not ok, refreshing</p>`;
                                 location.reload();
                             } else {
-                                return response.json()
+                                // Check if the response is JSON or text/HTML
+                                if (response.headers.get('content-type').includes('application/json')) {
+                                    return response.json().then(data => ({ data, isJson: true }));
+                                } else {
+                                    return response.text().then(data => ({ data, isJson: false }));
+                                }
                             }
-                        }).then(json => {
-                            // So if the response is status is 404 on the update, it mans nothing got updated, so we display it.
+                        }).then(({ data, isJson }) => {
+                            // If the response status is >= 400, handle it as an error
                             if (responseStatus >= 400) {
                                 saveButton.innerText = 'Retry';
-                                let errorMessage = '';
-                                if (json.data) {
-                                    errorMessage = json.data;
-                                } else {
-                                    errorMessage = JSON.stringify(json);
-                                }
+                                let errorMessage = isJson ? (data.data || JSON.stringify(data)) : data;
                                 modalResult.innerHTML = `<p class="text-red-500 font-semibold">${errorMessage}</p>`;
                             } else {
                                 saveButton.innerText = initialButtonText;
-                                modalResult.innerHTML = `<p class="text-green-500 font-semibold">${json.data}</p>`;
-                                location.reload();
+                        
+                                if (isJson) {
+                                    modalResult.innerHTML = `<p class="text-green-500 font-semibold">${data.data}</p>`;
+                                    location.reload();
+                                } else {
+                                    modalResult.innerHTML = `<p class="text-red-500 font-semibold">${data}</p>`;
+                                }
                             }
                         }).catch(error => {
                             console.error('Error during fetch:', error);
-                        });
+                        });                                           
                     })
                 })
             });

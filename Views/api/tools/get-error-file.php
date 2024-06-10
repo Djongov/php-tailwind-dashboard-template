@@ -48,7 +48,7 @@ if (is_file($file)) {
             array_push($errorFileArray, $line);
         }
         $errorFileArray = General::assocToIndexed($errorFileArray);
-        echo DataGrid::fromData('error-file', $errorFileArray, $theme);
+        echo DataGrid::fromData('error-file (' . $file . ')', $errorFileArray, $theme);
     } else {
          echo Alerts::danger('File (' . $file . ') not readable');
     }

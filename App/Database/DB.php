@@ -2,6 +2,8 @@
 
 namespace App\Database;
 
+use App\Utilities\General;
+
 class DB
 {
     private $pdo;
@@ -11,17 +13,19 @@ class DB
         string $username = DB_USER,
         string $password = DB_PASS,
         string $database = DB_NAME,
-        string $charset = 'utf8'
+        int $port = DB_PORT,
+        string $driver = DB_DRIVER
     ) {
         $config = [
-            'driver' => defined('DB_DRIVER') ? constant('DB_DRIVER') : 'mysql', // Default to MySQL if DB_DRIVER constant is not defined
+            'driver' => $driver,
             'host' => $host,
             'dbname' => $database,
             'username' => $username,
             'password' => $password,
-            'charset' => $charset
+            'port' => $port,
+            'driver' => $driver
         ];
-        
+
         $this->connect($config);
     }
 
@@ -29,8 +33,32 @@ class DB
     {
         $dsn = $this->buildDsn($config);
         $options = $this->getPDOOptions();
-        $this->pdo = new \PDO($dsn, $config['username'], $config['password'], $options);
-        $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+        // Logging for debugging
+        error_log("DB: Attempting to connect with DSN: $dsn");
+        error_log("DB: PDO options: " . json_encode($options));
+        error_log("DB: Config: " . json_encode($config));
+
+        try {
+            $this->pdo = new \PDO($dsn, $config['username'], $config['password'], $options);
+            $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        } catch (\PDOException $e) {
+            if (ERROR_VERBOSE) {
+                throw new \PDOException("DB: PDO connection failed: " . $e->getMessage());
+            } else {
+                \Controllers\Api\Output::error('Database connection failed', 500);
+            }
+            error_log("DB: PDO connection failed: " . $e->getMessage());
+            throw $e;
+        } catch (\Exception $e) {
+            if (ERROR_VERBOSE) {
+                throw new \PDOException("DB: PDO connection failed: " . $e->getMessage());
+            } else {
+                \Controllers\Api\Output::error('Database connection failed', 500);
+            }
+            error_log("DB: PDO connection failed: " . $e->getMessage());
+            throw $e;
+        }
     }
 
     public function getConnection(): \PDO
@@ -38,7 +66,7 @@ class DB
         if ($this->pdo instanceof \PDO) {
             return $this->pdo;
         } else {
-            throw new \PDOException("Database connection has not been established.");
+            throw new \PDOException("DB: Database connection has not been established.");
         }
     }
 
@@ -70,7 +98,26 @@ class DB
         }
         return $options;
     }
-
+    public function executeQuery(\PDO $pdo, string $sql, array $params = [])
+    {
+        try {
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
+            return $stmt;
+        } catch (\PDOException $e) {
+            if (ERROR_VERBOSE) {
+                throw new \PDOException("Error executing query: " . $e->getMessage() . ' SQL: ' . $sql . ' Params: ' . json_encode($params) . ' Error Code: ' . $e->getCode());
+            } else {
+                throw new \PDOException("Error executing query");
+            }
+        } catch (\Exception $e) {
+            if (ERROR_VERBOSE) {
+                throw new \PDOException("Error executing query: " . $e->getMessage() . ' SQL: ' . $sql . ' Params: ' . json_encode($params) . ' Error Code: ' . $e->getCode());
+            } else {
+                throw new \PDOException("Error executing query");
+            }
+        }
+    }
     public function __destruct()
     {
         $this->pdo = null;
@@ -95,96 +142,188 @@ class DB
             throw new \PDOException("Error executing multiple queries: " . $e->getMessage());
         }
     }
-
-    public function checkDBColumnsAndTypes(array $array, string $table)
+    public function checkDBColumns(array $columns, string $table)
     {
-        $db = new self();
-        $pdo = $db->getConnection();
-        $stmt = $pdo->prepare("DESCRIBE `$table`");
-        $stmt->execute();
-        $dbTableArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-        // Extract column names and data types from the table structure
-        $dbColumns = array_column($dbTableArray, 'Type', 'Field');
-
-        // Check if all columns in $_POST exist in the database
-        foreach ($array as $key => $value) {
-            if (is_int($key)) {
-                // This is a numeric array, so the column name is the value
-                $key = $value;
-            }
-            if (!array_key_exists($key, $dbColumns)) {
-                // Column does not exist in the database
-                throw new \Exception("Column '$key' does not exist in table '$table'");
-            } else {
-                // Column exists, check data type
-                $expectedType = self::normalizeDataType($dbColumns[$key]);
-                $actualType = self::normalizeDataType(gettype($value));
-
-                if (self::checkDataType($expectedType, $actualType)) {
-                    throw new \Exception("Column '$key' in table '$table' has incorrect data type. Expected '$expectedType', got '$actualType'");
-                }
+        $dbTableArray = $this->describe($table);
+    
+        // Extract column names from the table structure
+        $dbColumns = [];
+        foreach ($dbTableArray as $row => $type) {
+            array_push($dbColumns, $row);
+        }
+    
+        // Check if all columns in the input array exist in the database
+        foreach ($columns as $column) {
+            if (!in_array($column, $dbColumns)) {
+                throw new \Exception("Column '$column' does not exist in table '$table'");
             }
         }
     }
-    private static function checkDataType($expectedType, $actualType)
+    public function checkDBColumnsAndTypes(array $array, string $table)
     {
-        // Implement your own logic for data type checking
-        // This is a simple example, you may need to extend it based on your requirements
-        return $expectedType === $actualType;
+        $dbTableArray = $this->describe($table);
+        
+        // First check if all columns exist in the database
+        foreach ($array as $column=>$data) {
+            if (!array_key_exists($column, $dbTableArray)) {
+                throw new \Exception("Column '$column' does not exist in table '$table'");
+            }
+            // Now let's check the data types
+            $expectedType = $dbTableArray[$column];
+            $expectedType = self::normalizeDataType($expectedType);
+            // Let's do the data type now
+            if (is_string($data)) {
+                if (General::isDateOrDatetime($data)) {
+                    $dataType = 'datetime';
+                } else {
+                    $dataType = 'string';
+                }
+            } elseif (in_array($data, ['0', '1', 'true', 'false', 1, 0])) {
+                $dataType = 'bool';
+            } elseif (is_numeric($data)) {
+                $dataType = 'int';
+            } else {
+                $dataType = gettype($data);
+            }
+            // Compare the data types
+            if ($dataType !== $expectedType) {
+                throw new \Exception("Data type mismatch for column '$column'. Expected '$expectedType', got '$dataType'");
+            }
+        }
     }
     private static function normalizeDataType($type)
     {
+        if (str_starts_with($type, 'varchar(')) {
+            return 'string';
+        }
+        if (str_starts_with($type, 'tinyint(')) {
+            return 'bool';
+        }
         // Adjust this based on your specific requirements
-        // Convert common MySQL data types to PHP types
+        // Convert common MySQL/PostgreSQL data types to PHP types
         $typeMap = [
             'tinyint' => 'int',
             'smallint' => 'int',
             'mediumint' => 'int',
             'int' => 'int',
+            'integer' => 'int',
             'bigint' => 'int',
             'decimal' => 'float',
             'float' => 'float',
             'double' => 'float',
+            'real' => 'float', // PostgreSQL specific
+            'date' => 'datetime',
+            'datetime' => 'datetime',
+            'timestamp' => 'datetime',
+            'timestamp without time zone' => 'datetime', // PostgreSQL specific
+            'time' => 'datetime',
+            'year' => 'datetime',
+            'char' => 'string',
+            'varchar' => 'string',
+            'character varying' => 'string', // PostgreSQL specific
+            'text' => 'string',
+            'json' => 'string',
+            'boolean' => 'bool',
+
             // ... add more mappings as needed
         ];
-
+    
         return $typeMap[strtolower($type)] ?? $type;
     }
-    public function describe(string $dbTable) : array
+    
+
+    public function mapDataTypesArray(string $value)
+{
+    $type = '';
+    if (str_starts_with($value, 'tinyint')) {
+        $type = 'bool';
+    }
+    // And now postgres bool
+    if (str_starts_with($value, 'boolean')) {
+        $type = 'bool';
+    }
+    if (str_starts_with($value, 'int') || str_starts_with($value, 'integer') || str_starts_with($value, 'serial') || str_starts_with($value, 'bigserial')) {
+        $type = 'int';
+    }
+    if (str_starts_with($value, 'decimal') || str_starts_with($value, 'float') || str_starts_with($value, 'double') || str_starts_with($value, 'numeric')) {
+        $type = 'float';
+    }
+    if (str_starts_with($value, 'date') || str_starts_with($value, 'time') || str_starts_with($value, 'year') || str_starts_with($value, 'timestamp')) {
+        $type = 'datetime';
+    }
+    if (str_starts_with($value, 'varchar') || str_starts_with($value, 'character varying') || str_starts_with($value, 'text')) {
+        $type = 'string';
+    }
+    return $type;
+}
+
+    public function describe(string $table): array
     {
         $db = new self();
         $pdo = $db->getConnection();
-        $stmt = $pdo->prepare("DESCRIBE `$dbTable`");
-        $stmt->execute();
 
-        $resultArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        // Now we want to return an array of the column names and their types only
-        $resultArray = array_column($resultArray, 'Type', 'Field');
-        // Now go through the values and convert them to their respective types
-        foreach ($resultArray as $key => $value) {
-            $resultArray[$key] = $db->mapDataTypesArray($value);
+        // Check the database driver to determine the appropriate SQL syntax
+        $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+        switch ($driver) {
+            case 'mysql':
+                $sql = "DESCRIBE $table";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute();
+                $dbTableArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+                // Map MySQL columns to a uniform format
+                $dbColumns = [];
+                foreach ($dbTableArray as $row) {
+                    $dbColumns[$row['Field']] = $row['Type'];
+                }
+                break;
+            case 'pgsql':
+                $sql = "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = ?";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$table]);
+                $dbTableArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+                // Extract column names and data types from the table structure
+                $dbColumns = [];
+                foreach ($dbTableArray as $row) {
+                    $dbColumns[$row['column_name']] = $row['data_type'];
+                }
+                break;
+            default:
+                throw new \Exception("Unsupported database driver: $driver");
         }
-        return $resultArray;
+
+        return $dbColumns;
     }
-    public function mapDataTypesArray(string $value)
-    {
-        $type = '';
-        if (str_starts_with($value, 'tinyint')) {
-            $type = 'bool';
-        }
-        if (str_starts_with($value, 'int')) {
-            $type = 'int';
-        }
-        if (str_starts_with($value, 'decimal') || str_starts_with($value, 'float') || str_starts_with($value, 'double')) {
-            $type = 'float';
-        }
-        if (str_starts_with($value, 'date') || str_starts_with($value, 'time') || str_starts_with($value, 'year')) {
-            $type = 'datetime';
-        }
-        if (str_starts_with($value, 'varchar') || str_starts_with($value, 'text')) {
-            $type = 'string';
-        }
-        return $type;
-    }
+    // public function describe(string $dbTable) : array
+    // {
+    //     $db = new self();
+    //     $pdo = $db->getConnection();
+
+    //     // Check the database driver to determine the appropriate SQL syntax
+    //     $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+    //     switch ($driver) {
+    //         case 'mysql':
+    //             $sql = "DESCRIBE $dbTable";
+    //             $stmt = $pdo->prepare($sql);
+    //             $stmt->execute();
+    //             $resultArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    //             // Map MySQL columns to a uniform format
+    //             $resultArray = array_map(function($row) {
+    //                 return [
+    //                     'column_name' => $row['Field'],
+    //                     'data_type' => $row['Type']
+    //                 ];
+    //             }, $resultArray);
+    //             break;
+    //         case 'pgsql':
+    //             $sql = "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = ?";
+    //             $stmt = $pdo->prepare($sql);
+    //             $stmt->execute([$dbTable]);
+    //             $resultArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    //             break;
+    //         default:
+    //             throw new \Exception("Unsupported database driver: $driver");
+    //     }
+
+    //     return $resultArray;
+    // }
 }

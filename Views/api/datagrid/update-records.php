@@ -23,14 +23,16 @@ foreach ($_POST as $key => &$value) {
     }
 }
 
-$sql = 'UPDATE `' . $_POST['table'] . '` SET ';
+$sql = 'UPDATE ' . $_POST['table'] . ' SET ';
 
 unset($_POST['csrf_token']);
 unset($_POST['table']);
 
+$columns = array_keys($_POST);
+
 $db = new DB();
 
-$db->checkDBColumnsAndTypes($_POST, $table);
+$db->checkDBColumns($columns, $table);
 
 $updates = [];
 
@@ -38,16 +40,16 @@ $updates = [];
 foreach ($_POST as $key => $value) {
     if ($value === '') {
         // Set to NULL or a default value as needed
-        $updates[] = "`$key` = NULL"; // or "`$key` = DEFAULT"
+        $updates[] = "$key = NULL"; // or "$key = DEFAULT"
     } else {
-        $updates[] = "`$key` = ?";
+        $updates[] = "$key = ?";
     }
 }
 // Combine the SET clauses with commas
 $sql .= implode(', ', $updates);
 
 // Add a WHERE clause to specify which organization to update
-$sql .= " WHERE `id` = ?";
+$sql .= " WHERE id = ?";
 
 // Prepare and execute the query using queryPrepared
 $values = array_values($_POST);

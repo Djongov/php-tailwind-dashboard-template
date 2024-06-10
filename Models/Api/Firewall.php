@@ -22,7 +22,7 @@ class Firewall
         $this->mainColumn = $mainColumn;
     }
     /**
-     * Checks if an IP exists in the `firewall` table, accepts an ID or an IP in CIDR notation
+     * Checks if an IP exists in the firewall table, accepts an ID or an IP in CIDR notation
      * @category   Models - Firewall
      * @author     @Djongov <djongov@gamerz-bg.com>
      * @param      string|int $param the id or the ip in CIDR notation
@@ -33,20 +33,20 @@ class Firewall
         $db = new DB();
         // If the parameter is an integer, we assume it's an ID
         if (is_int($param)) {
-            $query = "SELECT `$this->mainColumn` FROM `$this->table` WHERE `id` = ?";
+            $query = "SELECT $this->mainColumn FROM $this->table WHERE id = ?";
         } else {
-            $query = "SELECT `$this->mainColumn` FROM `$this->table` WHERE `$this->mainColumn` = ?";
+            $query = "SELECT $this->mainColumn FROM $this->table WHERE $this->mainColumn = ?";
         }
         $stmt = $db->getConnection()->prepare($query);
         $stmt->execute([$param]);
         return ($stmt->rowCount() > 0) ? true : false;
     }
     /**
-     * Gets an IP from the `firewall` table, accepts an ID or an IP in CIDR notation. If no parameter is provided, returns all IPs
+     * Gets an IP from the firewall table, accepts an ID or an IP in CIDR notation. If no parameter is provided, returns all IPs
      * @category   Models - Firewall
      * @author     @Djongov <djongov@gamerz-bg.com>
      * @param      string|int $param the id or the ip in CIDR notation
-     * @return     array returns the IP data as an associative array and if no parameter is provided, returns `fetch_all`
+     * @return     array returns the IP data as an associative array and if no parameter is provided, returns fetch_all
      * @throws     FirewallException, IPDoesNotExist, InvalidIP from formatIp
      */
     public function get(string|int $param) : array
@@ -55,7 +55,7 @@ class Firewall
         $pdo = $db->getConnection();
         // if the parameter is empty, we assume we want all the IPs
         if (empty($param)) {
-            $stmt = $pdo->query("SELECT * FROM `$this->table`");
+            $stmt = $pdo->query("SELECT * FROM $this->table");
             return $stmt->fetchAll(\PDO::FETCH_ASSOC);
         }
         // If the parameter is an integer, we assume it's an ID
@@ -63,7 +63,7 @@ class Firewall
             if (!$this->exists($param)) {
                 throw (new FirewallException())->ipDoesNotExist();
             }
-            $stmt = $pdo->prepare("SELECT * FROM `$this->table` WHERE `id` = ?");
+            $stmt = $pdo->prepare("SELECT * FROM $this->table WHERE id = ?");
             $stmt->execute([$param]);
             return $stmt->fetch(\PDO::FETCH_ASSOC);
         } else {
@@ -73,18 +73,18 @@ class Firewall
             if (!$this->exists($param)) {
                 throw (new FirewallException())->ipDoesNotExist();
             }
-            $stmt = $pdo->prepare("SELECT * FROM `$this->table` WHERE `$this->mainColumn` = ?");
+            $stmt = $pdo->prepare("SELECT * FROM $this->table WHERE $this->mainColumn = ?");
             $stmt->execute([$param]);
             return $stmt->fetch(\PDO::FETCH_ASSOC);
         }
     }
     /**
-     * Saves an IP to the `firewall` table, accepts an IP in CIDR notation, the user who created the IP and an optional `comment`
+     * Saves an IP to the firewall table, accepts an IP in CIDR notation, the user who created the IP and an optional comment
      * @category   Models - Firewall
      * @author     @Djongov <djongov@gamerz-bg.com>
-     * @param      string $ip the ip in `optional` CIDR notation
+     * @param      string $ip the ip in optional CIDR notation
      * @param      string $createdBy the user who creates the IP
-     * @param      string $comment `optional` comment for the IP
+     * @param      string $comment optional comment for the IP
      * @return     bool
      * @throws     FirewallException ipAlreadyExists, notSaved, InvalidIP from formatIp
      * @system_log       IP added to the firewall table, by who and under which id
@@ -99,7 +99,7 @@ class Firewall
         }
         $db = new DB();
         $pdo = $db->getConnection();
-        $stmt = $pdo->prepare("INSERT INTO `$this->table` (`$this->mainColumn`, `created_by`, `comment`) VALUES (?,?,?)");
+        $stmt = $pdo->prepare("INSERT INTO $this->table ($this->mainColumn, created_by, comment) VALUES (?,?,?)");
         $stmt->execute([$ip, $createdBy, $comment]);
         if ($stmt->rowCount() === 1) {
             SystemLog::write('IP ' . $ip . ' added to the firewall table by ' . $createdBy . ' under the id ' . $pdo->lastInsertId(), 'Firewall');
@@ -109,7 +109,7 @@ class Firewall
         }
     }
     /**
-     * Updates an IP in the `firewall` table, accepts an associative array with the data to update, the id of the IP and the user who updates the IP, if the IP does not exist, throws an exception
+     * Updates an IP in the firewall table, accepts an associative array with the data to update, the id of the IP and the user who updates the IP, if the IP does not exist, throws an exception
      * @category   Models - Firewall
      * @author     @Djongov <djongov@gamerz-bg.com>
      * @param      array $data an associative array with the data to update, needs to comply with the columns in the table
@@ -130,18 +130,18 @@ class Firewall
             throw (new FirewallException())->ipDoesNotExist();
         }
         // Check if data is correct
-        $sql = "UPDATE `$this->table` SET ";
+        $sql = "UPDATE $this->table SET ";
         $updates = [];
         // Check if all keys in $array match the columns
         foreach ($data as $key => $value) {
             // Add the column to be updated to the SET clause
-            $updates[] = "`$key` = ?";
+            $updates[] = "$key = ?";
         }
         // Combine the SET clauses with commas
         $sql .= implode(', ', $updates);
 
         // Add a WHERE clause to specify which organization to update
-        $sql .= " WHERE `id` = ?";
+        $sql .= " WHERE id = ?";
 
         // Prepare and execute the query using queryPrepared
         $values = array_values($data);
@@ -158,7 +158,7 @@ class Firewall
         }
     }
     /**
-     * Deletes an IP in the `firewall` table, accepts the id of the IP and the user who deletes the IP, if the IP does not exist, throws an exception
+     * Deletes an IP in the firewall table, accepts the id of the IP and the user who deletes the IP, if the IP does not exist, throws an exception
      * @category   Models - Firewall
      * @author     @Djongov <djongov@gamerz-bg.com>
      * @param      int $id the id of the IP
@@ -177,7 +177,7 @@ class Firewall
         $ip = $this->get($id)[$this->mainColumn];
         $db = new DB();
         $pdo = $db->getConnection();
-        $stmt = $pdo->prepare("DELETE FROM `$this->table` WHERE `id` = ?");
+        $stmt = $pdo->prepare("DELETE FROM $this->table WHERE id = ?");
         $stmt->execute([$id]);
         if ($stmt->rowCount() === 1) {
             SystemLog::write('IP ' . $ip . ' (id ' . $id . ') deleted by ' . $deletedBy, 'Firewall');

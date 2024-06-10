@@ -105,6 +105,24 @@ class General
     {
         return 'rgba(' . rand(0, 255) . ', ' . rand(0, 255) . ', ' . rand(0, 255) . ', ' . $opacity . ')';
     }
+    public static function isValidDatetime(string $datetime) : bool
+    {
+        $formats = [
+            'Y-m-d H:i:s',
+            'Y-m-d H:i:s.u', // format used by PostgreSQL
+            'Y-m-d\TH:i:s',  // format for 'datetime-local' input type
+            'Y-m-d\TH:i',    // format for 'datetime-local' input type without seconds
+        ];
+
+        foreach ($formats as $format) {
+            $d = \DateTime::createFromFormat($format, $datetime);
+            if ($d && $d->format($format) === $datetime) {
+                return true;
+            }
+        }
+
+        return false;
+    }
     // Convert any date to UTC
     public static function convertToUTC(string $date, string $format = 'Y-m-d H:i'): string
     {

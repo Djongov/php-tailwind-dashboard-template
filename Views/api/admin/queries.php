@@ -47,6 +47,7 @@ try {
 }
 
 $data = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+$db->__destruct();
 
 if (str_starts_with($query, 'SELECT')) {
     if (empty($data)) {

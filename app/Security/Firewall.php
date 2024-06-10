@@ -32,7 +32,7 @@ class Firewall
         }
         $db = new DB();
         $pdo = $db->getConnection();
-        $stmt = $pdo->prepare("SELECT * FROM `firewall`");
+        $stmt = $pdo->prepare("SELECT * FROM firewall");
         $stmt->execute();
         $firewall_array = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         $allow_list = [];

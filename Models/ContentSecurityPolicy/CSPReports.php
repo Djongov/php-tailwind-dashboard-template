@@ -33,7 +33,7 @@ class CSPReports
         $domain = parse_url($data['csp-report']['document-uri'], PHP_URL_HOST);
         $db = new DB();
         $pdo = $db->getConnection();
-        $stmt = $pdo->prepare("INSERT INTO `csp_reports` (`data`, `domain`, `url`, `referrer`, `violated_directive`, `effective_directive`, `original_policy`, `disposition`, `blocked_uri`, `line_number`, `column_number`, `source_file`, `status_code`, `script_sample`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        $stmt = $pdo->prepare("INSERT INTO csp_reports (data, domain, url, referrer, violated_directive, effective_directive, original_policy, disposition, blocked_uri, line_number, column_number, source_file, status_code, script_sample) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
         try {
             $stmt->execute([$jsonData, $domain, $url, $referrer, $violatedDirective, $effectiveDirective, $originalPolicy, $disposition, $blockedUri, $lineNumber, $columnNumber, $sourceFile, $statusCode, $scriptSample]);
         } catch (\PDOException $e) {

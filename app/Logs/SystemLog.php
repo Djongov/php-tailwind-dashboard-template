@@ -27,7 +27,7 @@ class SystemLog
         $fullUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
         $db = new DB();
         $pdo = $db->getConnection();
-        $stmt = $pdo->prepare("INSERT INTO `system_log` (`text`, `client_ip`, `user-agent`, `created_by`, `category`, `uri`, `method`) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO system_log (text, client_ip, user_agent, created_by, category, uri, method) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([$message, $clientIp, $_SERVER['HTTP_USER_AGENT'], $username, $category, $fullUrl, $_SERVER['REQUEST_METHOD']]);
     }
 }

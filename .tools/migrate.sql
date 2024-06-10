@@ -1,90 +1,91 @@
-CREATE TABLE `users` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `username` varchar(255) DEFAULT NULL,
-  `password` varchar(255) DEFAULT NULL,
-  `email` varchar(512) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `last_ips` text,
-  `origin_country` varchar(25) DEFAULT NULL,
-  `role` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `date_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `last_updated` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `last_login` datetime,
-  `theme` varchar(20) DEFAULT NULL,
-  `picture` varchar(255) DEFAULT NULL,
-  `provider` varchar(255) DEFAULT NULL,
-  `enabled` tinyint(1) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+-- Create users table
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(255) DEFAULT NULL,
+    password VARCHAR(255) DEFAULT NULL,
+    email VARCHAR(512) DEFAULT NULL,
+    name VARCHAR(255) DEFAULT NULL,
+    last_ips TEXT,
+    origin_country VARCHAR(25) DEFAULT NULL,
+    role VARCHAR(255) DEFAULT NULL,
+    date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_login TIMESTAMP,
+    theme VARCHAR(20) DEFAULT NULL,
+    picture VARCHAR(255) DEFAULT NULL,
+    provider VARCHAR(255) DEFAULT NULL,
+    enabled BOOLEAN DEFAULT NULL
+);
 
-CREATE TABLE `cache` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `value` varchar(5000) COLLATE utf8mb4_general_ci NOT NULL,
-  `date_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `expiration` datetime NOT NULL,
-  `last_updated` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `type` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `unique_property` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+-- Create cache table
+CREATE TABLE IF NOT EXISTS cache (
+    id SERIAL PRIMARY KEY,
+    value VARCHAR(5000) NOT NULL,
+    date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expiration TIMESTAMP NOT NULL,
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    type VARCHAR(255) NOT NULL,
+    unique_property VARCHAR(255) NOT NULL
+);
 
-CREATE TABLE `firewall` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `ip_cidr` varchar(256) NOT NULL,
-  `created_by` varchar(1000) DEFAULT NULL,
-  `date_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `last_updated` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `comment` varchar(1000) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+-- Create firewall table
+CREATE TABLE IF NOT EXISTS firewall (
+    id SERIAL PRIMARY KEY,
+    ip_cidr VARCHAR(256) NOT NULL,
+    created_by VARCHAR(1000) DEFAULT NULL,
+    date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    comment VARCHAR(1000) DEFAULT NULL
+);
 
-INSERT INTO `firewall`(`ip_cidr`, `created_by`, `comment`)
+-- Insert firewall rules
+INSERT INTO firewall (ip_cidr, created_by, comment)
 VALUES 
     ('127.0.0.1/32', 'System', 'private range'),
     ('10.0.0.0/8', 'System', 'private range'),
     ('172.16.0.0/12', 'System', 'private range'),
     ('192.168.0.0/16', 'System', 'private range');
 
-CREATE TABLE `csp_reports` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `date_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `last_updated` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `data` json NOT NULL,
-  `domain` varchar(60) DEFAULT NULL,
-  `url` varchar(2500) DEFAULT NULL,
-  `referrer` varchar(2500) DEFAULT NULL,
-  `violated_directive` text,
-  `effective_directive` varchar(2500) DEFAULT NULL,
-  `original_policy` varchar(5000) DEFAULT NULL,
-  `disposition` varchar(60) DEFAULT NULL,
-  `blocked_uri` text,
-  `line_number` int DEFAULT NULL,
-  `column_number` int DEFAULT NULL,
-  `source_file` varchar(1500) DEFAULT NULL,
-  `status_code` int DEFAULT NULL,
-  `script_sample` varchar(1500) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+-- Create csp_reports table
+CREATE TABLE IF NOT EXISTS csp_reports (
+    id SERIAL PRIMARY KEY,
+    date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    data JSON NOT NULL,
+    domain VARCHAR(60) DEFAULT NULL,
+    url VARCHAR(2500) DEFAULT NULL,
+    referrer VARCHAR(2500) DEFAULT NULL,
+    violated_directive TEXT,
+    effective_directive VARCHAR(2500) DEFAULT NULL,
+    original_policy VARCHAR(5000) DEFAULT NULL,
+    disposition VARCHAR(60) DEFAULT NULL,
+    blocked_uri TEXT,
+    line_number INT DEFAULT NULL,
+    column_number INT DEFAULT NULL,
+    source_file VARCHAR(1500) DEFAULT NULL,
+    status_code INT DEFAULT NULL,
+    script_sample VARCHAR(1500) DEFAULT NULL
+);
 
-CREATE TABLE `csp_approved_domains` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `domain` varchar(255) NOT NULL,
-  `created_by` varchar(60) DEFAULT NULL,
-  `date_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `last_updated` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+-- Create csp_approved_domains table
+CREATE TABLE IF NOT EXISTS csp_approved_domains (
+    id SERIAL PRIMARY KEY,
+    domain VARCHAR(255) NOT NULL,
+    created_by VARCHAR(60) DEFAULT NULL,
+    date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-CREATE TABLE `system_log` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `text` text NOT NULL,
-  `client_ip` varchar(256) NOT NULL,
-  `user-agent` text NOT NULL,
-  `date_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `last_updated` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `created_by` varchar(255) NOT NULL,
-  `category` varchar(255) NOT NULL,
-  `uri` text NOT NULL,
-  `method` varchar(20) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+-- Create system_log table
+CREATE TABLE IF NOT EXISTS system_log (
+    id SERIAL PRIMARY KEY,
+    text TEXT NOT NULL,
+    client_ip VARCHAR(256) NOT NULL,
+    user_agent TEXT NOT NULL,
+    date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(255) NOT NULL,
+    category VARCHAR(255) NOT NULL,
+    uri TEXT NOT NULL,
+    method VARCHAR(20) NOT NULL
+);

@@ -11,7 +11,7 @@ class X5CHandler
 {
     public static function load(string $appId, string $tenant, string $kid, string $provider) : bool|string
     {
-        $providerValues = ['azure', 'google'];
+        $providerValues = ['azure', 'mslive', 'google'];
         if (!in_array($provider, $providerValues)) {
             return null;
         }

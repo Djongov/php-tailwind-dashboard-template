@@ -1,11 +1,12 @@
 <?php
+// Define the start time of the request, it can be used to calculate the time it took to process the request later
 define("START_TIME", microtime(true));
-// autoloader
+
+// Path to the composer autoload file
 $path = dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 
 if (file_exists($path)) {
     require_once $path;
-    // Additional code that depends on the autoload.php file
 } else {
     die('<b>' . $path . '</b> file not found. You need to run <b>composer update</b>');
 }
@@ -24,6 +25,4 @@ use App\App;
 $app = new App();
 
 // Run the app
-//if ($_SERVER['REQUEST_URI'] !== '/create-env') {
-    $app->init();
-//}
+$app->init();

@@ -12,7 +12,7 @@ echo HTML::p('DataGrid is a special class that can be used to display data in a 
 
 echo HTML::h2('Example 1: Displaying data from a MySQL table');
 
-echo HTML::p('This example will display the data from the `users` table in the database. There are switches for Editing or Deleting the data. This is only available for database related DataGrids. The table is filterable and paginated.');
+echo HTML::p('This example will display the data from the users table in the database. There are switches for Editing or Deleting the data. This is only available for database related DataGrids. The table is filterable and paginated.');
 
 echo DataGrid::fromDBTable('users', 'Users', $theme);
 
@@ -22,7 +22,7 @@ echo HTML::horizontalLine();
 
 echo HTML::h2('Example 2: Displaying data from a MySQL query');
 
-$query = "SELECT `id`, `theme` FROM `users`";
+$query = "SELECT id, theme FROM users";
 
 echo HTML::p('This example will render data from a custom query - ' . $query . '.');
 
@@ -70,7 +70,7 @@ $db = new DB();
 
 $pdo = $db->getConnection();
 
-$usersData = $pdo->query('SELECT * FROM `csp_approved_domains`');
+$usersData = $pdo->query('SELECT * FROM csp_approved_domains');
 
 // PDO fetch now
 $usersArray = $usersData->fetchAll(\PDO::FETCH_ASSOC);
@@ -94,3 +94,5 @@ foreach ($autoloadArray as $array) {
 }
 
 echo '<div id="dataGridDataLoader" class="mx-2 my-12 flex flex-wrap flex-row justify-center items-center"></div>';
+
+$db->__destruct();

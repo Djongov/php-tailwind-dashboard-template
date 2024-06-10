@@ -111,7 +111,6 @@ class RequireLogin
                     exit();
                 }
             }
-
         } else {
             // Redirect to /login but preserve the destination if auth_cookie is missing
             /*

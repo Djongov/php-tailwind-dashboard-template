@@ -3,36 +3,55 @@
 use Controllers\Api\Output;
 use App\Install;
 use Components\Alerts;
+try {
+    if (DB_DRIVER === 'mysql') {
+        $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8';
+        $options = [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+        ];
 
-// If we need to instrall
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-$conn = mysqli_init();
-if (defined("DB_SSL") && DB_SSL) {
-    mysqli_ssl_set($conn, NULL, NULL, CA_CERT, NULL, NULL);
-    try {
-        $conn->real_connect('p:' . DB_HOST, DB_USER, DB_PASS, DB_NAME, 3306, MYSQLI_CLIENT_SSL);
-        echo Alerts::info('Successfully connected to the database. Nothing to do here.');
-    } catch (\mysqli_sql_exception $e) {
-        $error = $e->getMessage();
-        if (str_contains($error, "Unknown database") !== false) {
-            $install = new Install();
-            echo $install->start($conn);
-        } else {
-            Output::error($error, 400);
+        if (defined("DB_SSL") && DB_SSL) {
+            $options[PDO::MYSQL_ATTR_SSL_CA] = CA_CERT;
         }
+    } elseif (DB_DRIVER === 'pgsql') {
+        $dsn = 'pgsql:host=' . DB_HOST . ';dbname=' . DB_NAME;
+        
+        if (defined("DB_SSL") && DB_SSL) {
+            $dsn .= ';sslmode=require;sslrootcert=' . CA_CERT;
+        }
+
+        $options = [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+        ];
+    } else {
+        throw new Exception('Unsupported DB_DRIVER: ' . DB_DRIVER);
     }
-} else {
-    try {
-        $conn->real_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-        echo Alerts::info('Successfully connected to the database. Nothing to do here.');
-    } catch (\mysqli_sql_exception $e) {
-        $error = $e->getMessage();
-        // Let's check if the Database exists
-        if (str_contains($error, "Unknown database") !== false) {
-            $install = new Install();
-            echo $install->start($conn);
-        } else {
-            Output::error($error, 400);
+
+    $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+    echo Alerts::info('Successfully connected to the database. Nothing to do here.');
+} catch (PDOException $e) {
+    $error = $e->getMessage();
+    if (DB_DRIVER === 'mysql' && strpos($error, "Unknown database") !== false) {
+        $dsn_without_db = 'mysql:host=' . DB_HOST . ';charset=utf8';
+    } elseif (DB_DRIVER === 'pgsql' && strpos($error, "does not exist") !== false) {
+        $dsn_without_db = 'pgsql:host=' . DB_HOST;
+        if (defined("DB_SSL") && DB_SSL) {
+            $dsn_without_db .= ';sslmode=require;sslrootcert=' . CA_CERT;
         }
+    } else {
+        Output::error($error, 400);
+        exit;
+    }
+
+    try {
+        $pdo = new PDO($dsn_without_db, DB_USER, DB_PASS, $options);
+        $install = new Install();
+        echo $install->start($pdo);
+    } catch (PDOException $e) {
+        Output::error($e->getMessage(), 400);
     }
 }

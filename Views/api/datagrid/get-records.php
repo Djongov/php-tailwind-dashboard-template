@@ -1,11 +1,11 @@
 <?php
 
 use App\Database\DB;
+use App\Utilities\General;
 use Controllers\Api\Output;
 use Controllers\Api\Checks;
-use App\Logs\SystemLog;
 use Components\Html;
-use App\Database\CSRF;
+use Google\Service\AdExchangeBuyerII\Date;
 
 $checks = new Checks($vars, $_POST);
 
@@ -14,28 +14,34 @@ $checks->checkParams(['table', 'id', 'columns'], $_POST);
 // We need the most strict checks for this endpoint
 $checks->apiChecks();
 
-$theme = $loginInfoArray['usernameArray']['theme'];
+$theme = $loginInfoArray['usernameArray']['theme']; // This comes from the router
 
-// We will only fetch the columns that we are passed in the request
+// We will only fetch the columns that are passed in the request
 
 $selectColumnsArray = explode(',', $_POST['columns']);
 
-// Now let's implode them so that we can use them in the query ``, ``, ``
-$selectColumnsString = '`' . implode('`, `', $selectColumnsArray) . '`';
+// Now let's implode them so that we can use them in the query
+$selectColumnsString = '' . implode(', ', $selectColumnsArray) . '';
 
 $db = new DB();
 
 // Check if the columns exist in the database
-$db->checkDBColumnsAndTypes($selectColumnsArray, $_POST['table']);
+$db->checkDBColumns($selectColumnsArray, $_POST['table']);
 
 $pdo = $db->getConnection();
 
-$stmt = $pdo->prepare("SELECT $selectColumnsString FROM `" . $_POST['table'] . "` WHERE `id`=?");
+$query = "SELECT $selectColumnsString FROM " . $_POST['table'] . " WHERE id=?";
+
+$stmt = $pdo->prepare($query);
 
 $stmt->execute([$_POST['id']]);
 
-
 $dataTypes = $db->describe($_POST['table']);
+
+// Normalize the datatypes
+foreach ($dataTypes as $key => $value) {
+    $dataTypes[$key] = $db->mapDataTypesArray($value);
+}
 
 if ($stmt->rowCount() > 0) {
     $data_array = $stmt->fetch(\PDO::FETCH_ASSOC);
@@ -67,7 +73,24 @@ if ($stmt->rowCount() > 0) {
                     $html .= HTML::input('default', 'number', uniqid(), $key, $key, $value, '', '', $key, $theme, false, true, ($readonly) ? true : false);
                 }
                 if ($dataTypes[$key] === 'datetime') {
-                    $html .= HTML::input('default', 'datetime-local', uniqid(), $key, $key, $value, '', '', $key, $theme, false, true, ($readonly) ? true : false);
+                    // Check the database driver to handle datetime values accordingly
+                    switch (DB_DRIVER) {
+                        case 'mysql':
+                            // For MySQL, no need to modify the datetime value
+                            $formattedDatetime = $value;
+                            break;
+                        case 'pgsql':
+                            // For PostgreSQL, convert to a format that the datetime-local input field can understand
+                            $formattedDatetime = new DateTime($value);
+                            $formattedDatetime = $formattedDatetime->format('Y-m-d\TH:i');
+                            break;
+                        default:
+                            // Handle unsupported database drivers
+                            throw new \Exception("Unsupported database driver: $driver");
+                    }
+                
+                    // Generate the input field with the formatted datetime value
+                    $html .= HTML::input('default', 'datetime-local', uniqid(), $key, $key, $formattedDatetime, '', '', $key, $theme, false, true, ($readonly) ? true : false);
                 }
                 if ($dataTypes[$key] === 'string') {
                     if ($key === 'password') {

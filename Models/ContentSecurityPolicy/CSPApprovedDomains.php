@@ -12,7 +12,7 @@ class CSPApprovedDomains
     {
         $db = new DB();
         $pdo = $db->getConnection();
-        $stmt = $pdo->prepare("SELECT * FROM `csp_approved_domains` WHERE `domain`=?");
+        $stmt = $pdo->prepare("SELECT * FROM csp_approved_domains WHERE domain=?");
         try {
             $stmt->execute([$domain]);
             $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);

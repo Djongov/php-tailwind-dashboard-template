@@ -4,8 +4,8 @@ namespace App;
 
 use App\RequireLogin;
 use App\Page;
-use Controllers\Api\Output;
 use App\Core\Session;
+use Controllers\Api\Output;
 
 class App
 {

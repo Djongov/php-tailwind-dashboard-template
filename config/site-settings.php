@@ -1,7 +1,7 @@
 <?php
 // set the display errors to 1
 ini_set('display_errors', 1);
-
+define('ERROR_VERBOSE', (ini_get('display_errors') == 1) ? true : false);
 /*
 
 Branding & SEO Settings
@@ -31,17 +31,17 @@ define("OG_LOGO", 'https://' . $_SERVER['HTTP_HOST'] . '/assets/images/logo.jpg'
 define("COLOR_SCHEME", "amber");
 
 // This is the text while in the light mode
-define("TEXT_COLOR_SCHEME", "text-gray-900");
+define("TEXT_COLOR_SCHEME", "text-gray-900"); // text-gray-900 is nice
 // This is the text while in the dark mode
-define("TEXT_DARK_COLOR_SCHEME", "dark:text-gray-100");
+define("TEXT_DARK_COLOR_SCHEME", "dark:text-gray-100"); // dark:text-gray-100 is nice
 // This is the background color while in the light mode
-define("LIGHT_COLOR_SCHEME_CLASS", "bg-purple-300");
+define("LIGHT_COLOR_SCHEME_CLASS", "bg-gray-100"); // bg-purple-300 is nice
 // This is the background color while in the dark mode
-define("DARK_COLOR_SCHEME_CLASS", "dark:bg-purple-900");
+define("DARK_COLOR_SCHEME_CLASS", "dark:bg-gray-900"); // dark:bg-purple-900 is nice
 // This is the background color for the body while in the light mode
-define("BODY_COLOR_SCHEME_CLASS", "bg-purple-200");
+define("BODY_COLOR_SCHEME_CLASS", "bg-gray-50"); // bg-purple-200 is nice
 // This is the background color for the body while in the dark mode
-define("BODY_DARK_COLOR_SCHEME_CLASS", "dark:bg-purple-800");
+define("BODY_DARK_COLOR_SCHEME_CLASS", "dark:bg-gray-800"); // dark:bg-purple-800 is nice
 
 // Data grid color schemes
 
@@ -169,6 +169,7 @@ Authentication Settings
 define('AUTH_HANDLER', 'session'); // cookie/session
 define('JWT_TOKEN_EXPIRY', 3600);
 define('AUTH_COOKIE_EXPIRY', 86400); // In case cookie is used for handler, make the duration 1 day. Even if Azure tokens cannot exceed 1 hour, if cookie is present it will redirect on its own to refresh the token, so for best user experience it's good to have a longer duration than the token itself
+define('SUPPORTED_AUTH_PROVIDERS', ['azure', 'mslive', 'google', 'local']);
 
 if (AUTH_HANDLER === 'cookie') {
     define('AUTH_COOKIE_NAME', 'auth_cookie');
@@ -209,37 +210,37 @@ if (GOOGLE_LOGIN) {
     include_once dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'google-auth-config.php';
 }
 
-/* App checks */
-$missing_extensions = [];
+// /* App checks */
+// $missing_extensions = [];
 
-$required_extensions = [
-    'curl',
-    'openssl',
-    'intl'
-];
+// $required_extensions = [
+//     'curl',
+//     'openssl',
+//     'intl'
+// ];
 
-if (DB_DRIVER === 'pgsql') {
-    $required_extensions[] = 'pdo_pgsql';
-}
+// if (DB_DRIVER === 'pgsql') {
+//     $required_extensions[] = 'pdo_pgsql';
+// }
 
-if (DB_DRIVER === 'sqlsrv') {
-    $required_extensions[] = 'pdo_sqlsrv';
-}
+// if (DB_DRIVER === 'sqlsrv') {
+//     $required_extensions[] = 'pdo_sqlsrv';
+// }
 
-if (DB_DRIVER === 'sqlite') {
-    $required_extensions[] = 'pdo_sqlite';
-}
+// if (DB_DRIVER === 'sqlite') {
+//     $required_extensions[] = 'pdo_sqlite';
+// }
 
-if (DB_DRIVER === 'mysql') {
-    $required_extensions[] = 'pdo_mysql';
-}
+// if (DB_DRIVER === 'mysql') {
+//     $required_extensions[] = 'pdo_mysql';
+// }
 
-foreach ($required_extensions as $extension) {
-    if (!extension_loaded($extension)) {
-        $missing_extensions[] = $extension;
-    }
-}
+// foreach ($required_extensions as $extension) {
+//     if (!extension_loaded($extension)) {
+//         $missing_extensions[] = $extension;
+//     }
+// }
 
-if (!empty($missing_extensions)) {
-    die('The following extensions are missing: ' . implode(', ', $missing_extensions));
-}
+// if (!empty($missing_extensions)) {
+//     die('The following extensions are missing: ' . implode(', ', $missing_extensions));
+// }

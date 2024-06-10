@@ -8,11 +8,11 @@ use App\Authentication\Azure\AzureAD;
 use Controllers\Api\User;
 use Models\Api\User as UserModel;
 use App\Authentication\AuthToken;
-use Google\Service\ServiceControl\Auth;
 
 if (isset($_POST['error'], $_POST['error_description'])) {
     Output::error("Azure Error: " . $_POST['error'] . " with Description: " . $_POST['error_description'], 400);
 }
+
 
 if (isset($_POST['id_token'], $_POST['state'])) {
     // If someone comes directly from /login, we need to set the state to /
@@ -48,6 +48,7 @@ if (isset($_POST['id_token'], $_POST['state'])) {
         if ($userDetailsArray['provider'] !== 'azure' && $userDetailsArray['provider'] !== 'mslive') {
             Output::error('User exists but is not an Entra ID or MS Live account', 400);
         }
+        $userModel->update(['last_login' => date('Y-m-d H:i', time())], $userDetailsArray['id']);
         $user->updateLastLogin($idTokenArray['preferred_username']);
     } else {
         // User does not exist, let's create it (this will also update the last login)

@@ -87,7 +87,7 @@ return function (RouteCollector $router) {
     $router->addRoute('POST', '/api/tools/php-info-parser', [$viewsFolder . '/api/tools/php-info-parser.php']);
 
     /* API Routes */
-    $router->addRoute(['GET','PUT','DELETE','POST'], '/api/user[/{id:\d+}]', [$viewsFolder . '/api/user.php']);
+    $router->addRoute(['GET','PUT','DELETE','POST'], '/api/user[/{id:[^/]+}]', [$viewsFolder . '/api/user.php']);
     $router->addRoute(['GET','PUT','DELETE','POST'], '/api/firewall[/{id:\d+}]', [$viewsFolder . '/api/firewall.php']);
     $router->addRoute('POST', '/api/mail/send', [$viewsFolder . '/api/mail/send.php']);
 

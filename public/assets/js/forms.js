@@ -34,7 +34,7 @@ const handleFormFetch = (form, currentEvent, resultType) => {
         resultDiv.remove();
     }
     let newResultDiv = document.createElement('div');
-    newResultDiv.classList.add('ml-4', 'my-4', 'text-gray-900', 'dark:text-gray-300', 'generic-form-submit-div', 'break-words');
+    newResultDiv.classList.add('ml-4', 'my-4', 'text-gray-900', 'dark:text-gray-300', 'generic-form-submit-div', 'break-all');
     form.parentNode.insertBefore(newResultDiv, form.nextSibling);
     //const initialClasses = currentEvent.submitter.className;
     const initialSubmitName = currentEvent.submitter.innerText;

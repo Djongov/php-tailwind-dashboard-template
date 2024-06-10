@@ -7,7 +7,46 @@ use App\Utilities\IP;
 use App\Authentication\JWT;
 use App\Authentication\AuthToken;
 
-// This is the API endpoint controller for the user actions
+// GET /api/user
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+
+    $checks = new Checks($vars, []);
+    $checks->apiChecksNoCSRF();
+
+    $user = new User();
+
+    if (!$routeInfo[2]) {
+        $allUsers = $user->get(null);
+        if ($allUsers) {
+            echo Output::success($allUsers, 200);
+        } else {
+            Output::error('No users found', 404);
+        }
+        return;
+    }
+
+    // This endpoint is for fetching a user's data
+    if (!isset($routeInfo[2]['id'])) {
+        Output::error('Missing user id', 400);
+        exit();
+    }
+
+    // If the user is integer, then we will assume it's an id, otherwise we'll assume it's a username
+    $userId = $routeInfo[2]['id'];
+    if (!is_numeric($userId)) {
+        $userId = (string) $userId;
+    } else {
+        $userId = (int) $userId;
+    }
+
+    $userInfoArray = $user->get($userId);
+
+    if ($userInfoArray) {
+        echo Output::success($userInfoArray, 200);
+    } else {
+        Output::error('User not found', 404);
+    }
+}
 
 // POST /api/user
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -26,9 +65,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     unset($data['csrf_token']);
 
+    $requiredFields = ['username', 'password', 'confirm_password', 'email'];
+
+    foreach ($requiredFields as $field) {
+        if (!isset($data[$field])) {
+            Output::error('Missing ' . $field, 400);
+            exit();
+        }
+        if (empty($data[$field])) {
+            Output::error('Empty ' . $field, 400);
+            exit();
+        }
+    }
+
     $data['last_ips'] = IP::currentIP();
 
-    $data['origin_country'] = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+    $data['origin_country'] = isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2) : 'EN';
 
     $data['role'] = 'user';
 
@@ -63,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
     // Get the user data based on the ID
     $user = new User();
 
-    // Make sure that the user submitting this is the same as the user being updated. The only secure way of doing this is by checking the JWT token. This will prevent user from updating another user's data by changing the `username` paramter's value in the request
+    // Make sure that the user submitting this is the same as the user being updated. The only secure way of doing this is by checking the JWT token. This will prevent user from updating another user's data by changing the username paramter's value in the request
     if (isset($data['username']) && JWT::extractUserName(AuthToken::get()) !== $data['username']) {
         Output::error('You are not allowed to update this user', 409);
         exit();

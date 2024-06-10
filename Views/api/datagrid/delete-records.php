@@ -20,12 +20,12 @@ $pdo = $db->getConnection();
 
 // If a single delete somes from the button
 if (isset($_POST['table'], $_POST['id'])) {
-    $stmt = $pdo->prepare("SELECT * FROM `" . $_POST['table'] . "` WHERE `id`=?");
+    $stmt = $pdo->prepare("SELECT * FROM " . $_POST['table'] . " WHERE id=?");
     $stmt->execute([$_POST['id']]);
     if ($stmt->rowCount() === 0) {
         Output::error('No records were deleted', 400);
     }
-    $stmt = $pdo->prepare("DELETE FROM `" . $_POST['table'] . "` WHERE `id`=?");
+    $stmt = $pdo->prepare("DELETE FROM " . $_POST['table'] . " WHERE id=?");
     $stmt->execute([$_POST['id']]);
     if ($stmt->rowCount() > 0) {
         SystemLog::write('Record id ' . $_POST['id'] . ' deleted from ' . $_POST['table'], 'DataGrid Delete');
@@ -41,7 +41,7 @@ if (isset($_POST['table'], $_POST['id'])) {
             $ids .= ',?';
         }
     }
-    $sql = "DELETE FROM `" . $_POST['deleteRecords'] . "` WHERE `id` IN ($ids)";
+    $sql = "DELETE FROM " . $_POST['deleteRecords'] . " WHERE id IN ($ids)";
 
     $stmt = $pdo->prepare($sql);
 

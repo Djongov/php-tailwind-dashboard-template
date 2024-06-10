@@ -4,26 +4,27 @@ namespace Models\Core;
 
 use App\Database\DB;
 use App\Logs\SystemLog;
+use Controllers\Api\Output;
 
 class DBCache implements DBCacheInterface
 {
     private static string $table = 'cache';
     private static string $errorCategory = 'DBCache Error';
 
-    public static function get(string $type, string $uniqueProperty) : bool|array
+    public static function get(string $type, string $uniqueProperty) : array
     {
         $db = new DB();
         $pdo = $db->getConnection();
-        $query = "SELECT * FROM `" . self::$table . "` WHERE `type` = ? AND `unique_property` = ?";
 
+        $stmt = $pdo->prepare("SELECT * FROM " . self::$table . " WHERE type=? AND unique_property=?");
+        
         try {
-            $stmt = $pdo->prepare($query);
             $stmt->execute([$type, $uniqueProperty]);
-            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
-            return $result !== false ? $result : false;
+            return $stmt->fetch(\PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
+            error_log("DBCache get error: " . $e->getMessage());
             SystemLog::write('DBCache get error: ' . $e->getMessage(), self::$errorCategory);
-            return false;
+            return [];
         }
     }
     public static function create(mixed $value, string $expiration, string $type, string $uniqueProperty) : int
@@ -31,7 +32,7 @@ class DBCache implements DBCacheInterface
         $db = new DB();
         $pdo = $db->getConnection();
 
-        $stmt = $pdo->prepare("INSERT INTO `" . self::$table . "` (`value`, `expiration`, `type`, `unique_property`) VALUES (?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO " . self::$table . " (value, expiration, type, unique_property) VALUES (?,?,?,?)");
 
         try {
             $stmt->execute([$value, $expiration, $type, $uniqueProperty]);
@@ -46,14 +47,13 @@ class DBCache implements DBCacheInterface
         $db = new DB();
         $pdo = $db->getConnection();
 
-        $stmt = $pdo->prepare("UPDATE `" . self::$table . "` SET `value`=?, `expiration`=? WHERE `type`=? AND `unique_property`=?");
+        $stmt = $pdo->prepare("UPDATE " . self::$table . " SET value=?, expiration=? WHERE type=? AND unique_property=?");
 
         try {
             $stmt->execute([$value, $expiration, $type, $uniqueProperty]);
             return $stmt->rowCount();
         } catch (\PDOException $e) {
             SystemLog::write('DBCache update error: ' . $e->getMessage(), self::$errorCategory);
-            return 0;
         }
     }
     public static function delete(string $type, string $uniqueProperty) : int
@@ -61,14 +61,13 @@ class DBCache implements DBCacheInterface
         $db = new DB();
         $pdo = $db->getConnection();
 
-        $stmt = $pdo->prepare("DELETE FROM `" . self::$table . "` WHERE `type`=? AND `unique_property`=?");
+        $stmt = $pdo->prepare("DELETE FROM " . self::$table . " WHERE type=? AND unique_property=?");
 
         try {
             $stmt->execute([$type, $uniqueProperty]);
             return $stmt->rowCount();
         } catch (\PDOException $e) {
             SystemLog::write('DBCache delete error: ' . $e->getMessage(), self::$errorCategory);
-            return 0;
         }
     }
 }

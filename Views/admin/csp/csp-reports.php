@@ -18,7 +18,7 @@ $db = new DB();
 
 $pdo = $db->getConnection();
 
-$stmt = $pdo->prepare('SELECT `id`,`domain`,`url`,`referrer`,`violated_directive`,`effective_directive`,`disposition`,`blocked_uri`,`line_number`,`column_number`,`source_file`,`status_code`,`script_sample` FROM `csp_reports` ORDER BY `id` DESC');
+$stmt = $pdo->prepare('SELECT id,domain,url,referrer,violated_directive,effective_directive,disposition,blocked_uri,line_number,column_number,source_file,status_code,script_sample FROM csp_reports ORDER BY id DESC');
 
 $stmt->execute();
 
@@ -109,7 +109,7 @@ echo '<div class="flex justify-center">';
     echo DataGrid::fromData('blocked_uri', $indexedArray, $theme);
 echo '</div>';
 
-$cspReportsQuery = 'SELECT `id`,`domain`,`url`,`referrer`,`violated_directive`,`effective_directive`,`disposition`,`blocked_uri`,`line_number`,`column_number`,`source_file`,`script_sample` FROM `csp_reports`';
+$cspReportsQuery = 'SELECT id,domain,url,referrer,violated_directive,effective_directive,disposition,blocked_uri,line_number,column_number,source_file,script_sample FROM csp_reports';
 
 echo DataGrid::fromQuery('csp_reports', $cspReportsQuery, 'CSP Reports', $theme, true, true, [
     'filters' => true,
@@ -123,3 +123,5 @@ echo DataGrid::fromQuery('csp_reports', $cspReportsQuery, 'CSP Reports', $theme,
 //     'paging' => true,
 //     'lengthMenu' => [[10, 50, 100], [10, 50, 100]],
 // ]);
+
+$db->__destruct();

@@ -19,11 +19,20 @@ class Install
 
         // Connect to the database server without specifying the database
         try {
-            $dsn = sprintf("%s:host=%s;port=%d;charset=utf8mb4", DB_DRIVER, DB_HOST, DB_PORT);
-            $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
-
-            if (defined("DB_SSL") && DB_SSL && DB_DRIVER === 'mysql') {
-                $options[PDO::MYSQL_ATTR_SSL_CA] = CA_CERT;
+            if (DB_DRIVER === 'mysql') {
+                $dsn = sprintf("mysql:host=%s;port=%d;charset=utf8mb4", DB_HOST, DB_PORT);
+                $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
+                if (defined("DB_SSL") && DB_SSL) {
+                    $options[PDO::MYSQL_ATTR_SSL_CA] = CA_CERT;
+                }
+            } elseif (DB_DRIVER === 'pgsql') {
+                $dsn = sprintf("pgsql:host=%s;port=%d", DB_HOST, DB_PORT);
+                if (defined("DB_SSL") && DB_SSL) {
+                    $dsn .= sprintf(";sslmode=require;sslrootcert=%s", CA_CERT);
+                }
+                $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
+            } else {
+                throw new \Exception('Unsupported DB_DRIVER: ' . DB_DRIVER);
             }
 
             $conn = new PDO($dsn, DB_USER, DB_PASS, $options);
@@ -34,7 +43,11 @@ class Install
 
         // Create the database if it doesn't exist
         try {
-            $conn->exec("CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
+            if (DB_DRIVER === 'mysql') {
+                $conn->exec("CREATE DATABASE IF NOT EXISTS " . DB_NAME . " CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
+            } elseif (DB_DRIVER === 'pgsql') {
+                $conn->exec("CREATE DATABASE " . DB_NAME);
+            }
         } catch (PDOException $e) {
             Output::error('Database creation error: ' . $e->getMessage(), 400);
             return $html;
@@ -42,7 +55,14 @@ class Install
 
         // Reconnect to the newly created database
         try {
-            $dsnWithDb = $dsn . ";dbname=" . DB_NAME;
+            if (DB_DRIVER === 'mysql') {
+                $dsnWithDb = sprintf("mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4", DB_HOST, DB_PORT, DB_NAME);
+            } elseif (DB_DRIVER === 'pgsql') {
+                $dsnWithDb = sprintf("pgsql:host=%s;port=%d;dbname=%s", DB_HOST, DB_PORT, DB_NAME);
+                if (defined("DB_SSL") && DB_SSL) {
+                    $dsnWithDb .= sprintf(";sslmode=require;sslrootcert=%s", CA_CERT);
+                }
+            }
             $conn = new PDO($dsnWithDb, DB_USER, DB_PASS, $options);
         } catch (PDOException $e) {
             Output::error('Database selection error: ' . $e->getMessage(), 400);
@@ -65,7 +85,7 @@ class Install
 
         // Now you can execute additional queries
         try {
-            $stmt = $conn->prepare("INSERT INTO `csp_approved_domains` (`domain`, `created_by`) VALUES (?, 'System')");
+            $stmt = $conn->prepare("INSERT INTO csp_approved_domains (domain, created_by) VALUES (?, 'System')");
             $stmt->execute([$_SERVER['HTTP_HOST']]);
         } catch (PDOException $e) {
             Output::error('Inserting csp_approved_domains rule for host ' . $_SERVER['HTTP_HOST'] . ' error: ' . $e->getMessage(), 400);
@@ -73,7 +93,7 @@ class Install
         }
 
         try {
-            $stmt = $conn->prepare("INSERT INTO `firewall` (`ip_cidr`, `created_by`, `comment`) VALUES (?, 'System', 'Initial Admin IP')");
+            $stmt = $conn->prepare("INSERT INTO firewall (ip_cidr, created_by, comment) VALUES (?, 'System', 'Initial Admin IP')");
             $stmt->execute([$ip . '/32']);
         } catch (PDOException $e) {
             Output::error('Inserting firewall rule for IP ' . $ip . ' error: ' . $e->getMessage(), 400);
@@ -94,8 +114,8 @@ class Install
             }
 
             try {
-                $stmt = $conn->prepare("INSERT INTO `users`(`username`, `password`, `email`, `name`, `last_ips`, `origin_country`, `role`, `last_login`, `theme`, `provider`, `enabled`) VALUES ('admin', ?, 'admin', 'admin', ?, ?, 'administrator', NOW(), ?, 'local', 1)");
-                $stmt->execute([$hashedPassword, $ip, $countryCode, COLOR_SCHEME]);
+                $stmt = $conn->prepare("INSERT INTO users (username, password, email, name, last_ips, origin_country, role, last_login, theme, provider, enabled) VALUES ('admin', ?, 'admin', 'admin', ?, ?, 'administrator', NOW(), ?, 'local', CAST(? AS BOOLEAN));");
+                $stmt->execute([$hashedPassword, $ip, $countryCode, COLOR_SCHEME, 1]);
             } catch (PDOException $e) {
                 Output::error('Inserting admin user error: ' . $e->getMessage(), 400);
                 return $html;

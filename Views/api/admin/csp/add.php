@@ -30,7 +30,7 @@ $db = new DB();
 
 $pdo = $db->getConnection();
 
-$stmt = $pdo->prepare('SELECT `id` FROM `csp_approved_domains` WHERE `domain` = ?');
+$stmt = $pdo->prepare('SELECT id FROM csp_approved_domains WHERE domain = ?');
 
 $stmt->execute([$_POST['domain']]);
 
@@ -39,7 +39,7 @@ if ($stmt->rowCount() > 0) {
     return;
 }
 
-$stmt = $pdo->prepare('INSERT INTO `csp_approved_domains` (`domain`, `created_by`) VALUES (?,?)');
+$stmt = $pdo->prepare('INSERT INTO csp_approved_domains (domain, created_by) VALUES (?,?)');
 
 $stmt->execute([$_POST['domain'], $vars['usernameArray']['username']]);
 

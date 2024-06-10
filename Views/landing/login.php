@@ -65,7 +65,7 @@ echo '<div class="flex items-center justify-center mx-4">';
         // Local login
         if (LOCAL_USER_LOGIN) {
             if (AZURE_AD_LOGIN || GOOGLE_LOGIN || MICROSOFT_LIVE_LOGIN) {
-                echo HTML::p('or login with your local account', ['text-center', 'text-gray-500', 'mb-4']);
+                echo HTML::p('or login with your local account', ['text-center', 'mb-4']);
             }
             $localLoginForm = [
                 'inputs' => [
