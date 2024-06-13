@@ -28,16 +28,10 @@ class DB
 
         $this->connect($config);
     }
-
     private function connect(array $config)
     {
         $dsn = $this->buildDsn($config);
         $options = $this->getPDOOptions();
-
-        // Logging for debugging
-        error_log("DB: Attempting to connect with DSN: $dsn");
-        error_log("DB: PDO options: " . json_encode($options));
-        error_log("DB: Config: " . json_encode($config));
 
         try {
             $this->pdo = new \PDO($dsn, $config['username'], $config['password'], $options);
@@ -60,7 +54,6 @@ class DB
             throw $e;
         }
     }
-
     public function getConnection(): \PDO
     {
         if ($this->pdo instanceof \PDO) {
@@ -69,7 +62,6 @@ class DB
             throw new \PDOException("DB: Database connection has not been established.");
         }
     }
-
     private function buildDsn(array $config): string
     {
         $dsn = "{$config['driver']}:";
@@ -83,19 +75,19 @@ class DB
         if (defined("DB_SSL") && DB_SSL) {
             $dsn .= "sslmode=require;";
             // Add CA certificate path
-            $dsn .= "sslrootcert=" . constant('CA_CERT') . ";";
+            $dsn .= "sslrootcert=" . constant('DB_CA_CERT') . ";";
         }
 
         return $dsn;
     }
-
     private function getPDOOptions(): array
     {
         // You can add any default PDO options here if needed
         $options = [];
         if (defined("DB_SSL") && DB_SSL) {
-            $options[\PDO::MYSQL_ATTR_SSL_CA] = constant('CA_CERT');
+            $options[\PDO::MYSQL_ATTR_SSL_CA] = constant('DB_CA_CERT');
         }
+        $options[\PDO::ATTR_EMULATE_PREPARES] = false;
         return $options;
     }
     public function executeQuery(\PDO $pdo, string $sql, array $params = [])

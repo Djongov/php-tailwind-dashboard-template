@@ -13,13 +13,13 @@ try {
         ];
 
         if (defined("DB_SSL") && DB_SSL) {
-            $options[PDO::MYSQL_ATTR_SSL_CA] = CA_CERT;
+            $options[PDO::MYSQL_ATTR_SSL_CA] = DB_CA_CERT;
         }
     } elseif (DB_DRIVER === 'pgsql') {
         $dsn = 'pgsql:host=' . DB_HOST . ';dbname=' . DB_NAME;
         
         if (defined("DB_SSL") && DB_SSL) {
-            $dsn .= ';sslmode=require;sslrootcert=' . CA_CERT;
+            $dsn .= ';sslmode=require;sslrootcert=' . DB_CA_CERT;
         }
 
         $options = [
@@ -40,7 +40,7 @@ try {
     } elseif (DB_DRIVER === 'pgsql' && strpos($error, "does not exist") !== false) {
         $dsn_without_db = 'pgsql:host=' . DB_HOST;
         if (defined("DB_SSL") && DB_SSL) {
-            $dsn_without_db .= ';sslmode=require;sslrootcert=' . CA_CERT;
+            $dsn_without_db .= ';sslmode=require;sslrootcert=' . DB_CA_CERT;
         }
     } else {
         Output::error($error, 400);

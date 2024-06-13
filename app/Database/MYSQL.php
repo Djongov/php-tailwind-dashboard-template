@@ -13,7 +13,7 @@ class MYSQL
         $conn = mysqli_init();
 
         if (defined("DB_SSL") && DB_SSL) {
-            mysqli_ssl_set($conn, null, null, CA_CERT, null, null);
+            mysqli_ssl_set($conn, null, null, DB_CA_CERT, null, null);
             try {
                 $conn->real_connect('p:' . DB_HOST, DB_USER, DB_PASS, DB_NAME, 3306, MYSQLI_CLIENT_SSL);
             } catch (\mysqli_sql_exception $e) {

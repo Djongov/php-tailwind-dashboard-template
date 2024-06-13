@@ -35,7 +35,6 @@ if (is_file($file)) {
             echo Alerts::danger('File (' . $file . ') is empty');
             return;
         }
-        echo HTML::h3(realpath($file));
         $errorFileArray = [];
         $f = file($file);
         $f = implode(PHP_EOL, $f);
@@ -48,7 +47,7 @@ if (is_file($file)) {
             array_push($errorFileArray, $line);
         }
         $errorFileArray = General::assocToIndexed($errorFileArray);
-        echo DataGrid::fromData('error-file (' . $file . ')', $errorFileArray, $theme);
+        echo DataGrid::fromData($file, $errorFileArray, $theme);
     } else {
          echo Alerts::danger('File (' . $file . ') not readable');
     }

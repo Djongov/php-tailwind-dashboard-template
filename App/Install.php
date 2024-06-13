@@ -23,12 +23,12 @@ class Install
                 $dsn = sprintf("mysql:host=%s;port=%d;charset=utf8mb4", DB_HOST, DB_PORT);
                 $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
                 if (defined("DB_SSL") && DB_SSL) {
-                    $options[PDO::MYSQL_ATTR_SSL_CA] = CA_CERT;
+                    $options[PDO::MYSQL_ATTR_SSL_CA] = DB_CA_CERT;
                 }
             } elseif (DB_DRIVER === 'pgsql') {
                 $dsn = sprintf("pgsql:host=%s;port=%d", DB_HOST, DB_PORT);
                 if (defined("DB_SSL") && DB_SSL) {
-                    $dsn .= sprintf(";sslmode=require;sslrootcert=%s", CA_CERT);
+                    $dsn .= sprintf(";sslmode=require;sslrootcert=%s", DB_CA_CERT);
                 }
                 $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
             } else {
@@ -60,7 +60,7 @@ class Install
             } elseif (DB_DRIVER === 'pgsql') {
                 $dsnWithDb = sprintf("pgsql:host=%s;port=%d;dbname=%s", DB_HOST, DB_PORT, DB_NAME);
                 if (defined("DB_SSL") && DB_SSL) {
-                    $dsnWithDb .= sprintf(";sslmode=require;sslrootcert=%s", CA_CERT);
+                    $dsnWithDb .= sprintf(";sslmode=require;sslrootcert=%s", DB_CA_CERT);
                 }
             }
             $conn = new PDO($dsnWithDb, DB_USER, DB_PASS, $options);
