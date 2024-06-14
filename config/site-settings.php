@@ -211,36 +211,36 @@ if (GOOGLE_LOGIN) {
 }
 
 // /* App checks */
-// $missing_extensions = [];
+$missing_extensions = [];
 
-// $required_extensions = [
-//     'curl',
-//     'openssl',
-//     'intl'
-// ];
+$required_extensions = [
+    'curl',
+    'openssl',
+    'intl'
+];
 
-// if (DB_DRIVER === 'pgsql') {
-//     $required_extensions[] = 'pdo_pgsql';
-// }
+if (DB_DRIVER === 'pgsql') {
+    $required_extensions[] = 'pdo_pgsql';
+}
 
-// if (DB_DRIVER === 'sqlsrv') {
-//     $required_extensions[] = 'pdo_sqlsrv';
-// }
+if (DB_DRIVER === 'sqlsrv') {
+    $required_extensions[] = 'pdo_sqlsrv';
+}
 
-// if (DB_DRIVER === 'sqlite') {
-//     $required_extensions[] = 'pdo_sqlite';
-// }
+if (DB_DRIVER === 'sqlite') {
+    $required_extensions[] = 'pdo_sqlite';
+}
 
-// if (DB_DRIVER === 'mysql') {
-//     $required_extensions[] = 'pdo_mysql';
-// }
+if (DB_DRIVER === 'mysql') {
+    $required_extensions[] = 'pdo_mysql';
+}
 
-// foreach ($required_extensions as $extension) {
-//     if (!extension_loaded($extension)) {
-//         $missing_extensions[] = $extension;
-//     }
-// }
+foreach ($required_extensions as $extension) {
+    if (!extension_loaded($extension)) {
+        $missing_extensions[] = $extension;
+    }
+}
 
-// if (!empty($missing_extensions)) {
-//     die('The following extensions are missing: ' . implode(', ', $missing_extensions));
-// }
+if (!empty($missing_extensions)) {
+    die('The following extensions are missing: ' . implode(', ', $missing_extensions));
+}
