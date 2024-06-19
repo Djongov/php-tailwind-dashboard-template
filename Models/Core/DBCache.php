@@ -20,7 +20,12 @@ class DBCache implements DBCacheInterface
         
         try {
             $stmt->execute([$type, $uniqueProperty]);
-            return $stmt->fetch(\PDO::FETCH_ASSOC);
+            $array = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if (!$array) {
+                return [];
+            } else {
+                return $array;
+            }
         } catch (\PDOException $e) {
             error_log("DBCache get error: " . $e->getMessage());
             SystemLog::write('DBCache get error: ' . $e->getMessage(), self::$errorCategory);
