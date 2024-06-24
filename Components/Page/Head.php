@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Components\Page;
 
 class Head
 {
-    public static function render(string $title, string $description, array $keywords, string $thumbimage, array $scriptsArray, array $cssArray)
+    public static function render(string $title, string $description, array $keywords, string $thumbimage, array $scriptsArray, array $cssArray) : string
     {
         $html = '';
         $html .= '<!DOCTYPE html>' . PHP_EOL;
@@ -62,7 +62,7 @@ class Head
         $html .= '<meta name="twitter:image:alt" content="' . SITE_TITLE . ' logo" >' . PHP_EOL;
         return $html;
     }
-    public static function scriptLoad(array $scriptArray)
+    public static function scriptLoad(array $scriptArray) : string
     {
         $html = '';
         foreach ($scriptArray as $link => $value) {
@@ -80,7 +80,7 @@ class Head
         }
         return $html;
     }
-    public static function cssLoad(array $cssArray)
+    public static function cssLoad(array $cssArray) : string
     {
         $html = '';
         foreach ($cssArray as $link) {

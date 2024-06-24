@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Core;
 
 class Session
 {
-    public static function start()
+    public static function start() : void
     {
         $secure = (str_contains($_SERVER['HTTP_HOST'], 'localhost') || str_contains($_SERVER['HTTP_HOST'], '[::1]')) ? false : true;
         $sesstionName = $secure ? '__Secure-SSID' : 'SSID';
@@ -21,7 +21,7 @@ class Session
         session_start();
     }
     // Reset the session
-    public static function reset()
+    public static function reset() : void
     {
         session_unset();
         session_destroy();

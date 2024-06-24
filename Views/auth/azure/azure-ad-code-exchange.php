@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use Controllers\Api\Output;
 use App\Authentication\JWT;

@@ -1,5 +1,4 @@
-<?php
-
+<?php declare(strict_types=1);
 use Controllers\Api\Output;
 use Controllers\Api\Checks;
 use Controllers\Api\User;
@@ -135,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
     unset($data['confirm_password']);
     unset($data['csrf_token']);
 
-    $user->update($data, $userId);
+    $user->update($data, (int) $userId);
 }
 if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 
@@ -151,7 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
         exit();
     }
 
-    $userId = $routeInfo[2]['id'];
+    $userId = (int) $routeInfo[2]['id'];
 
     $checks = new Checks($vars, []);
     $checks->apiChecksDelete($_GET['csrf_token']);

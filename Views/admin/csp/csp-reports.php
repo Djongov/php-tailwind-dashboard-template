@@ -1,5 +1,4 @@
-<?php
-
+<?php declare(strict_types=1);
 use App\Security\Firewall;
 use Controllers\Api\Output;
 use App\Database\DB;
@@ -105,7 +104,7 @@ $blockedUri = array_column($cspArray, 'blocked_uri');
 // Let's calculate the total number of blocked_uri based on the occurrence of each key in the $blockedUri array
 $indexedArray = array_count_values($blockedUri);
 
-echo '<div class="flex justify-center">';
+echo '<div class="mx-4 max-w-full overflow-auto flex justify-center">';
     echo DataGrid::fromData('blocked_uri', $indexedArray, $theme);
 echo '</div>';
 

@@ -1,5 +1,4 @@
-<?php
-
+<?php declare(strict_types=1);
 use App\Database\DB;
 use Components\Alerts;
 use Components\DataGrid;

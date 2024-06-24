@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use App\Authentication\Azure\AzureAD;
 use App\Authentication\JWT;
@@ -8,6 +8,9 @@ use Components\Forms;
 use Components\Alerts;
 
 $destinationUrl = $_GET['destination'] ?? '/';
+if ($destinationUrl === '/logout') {
+    $destinationUrl = '/';
+}
 
 if (AuthToken::get() !== null) {
     $idToken = JWT::parseTokenPayLoad(AuthToken::get());

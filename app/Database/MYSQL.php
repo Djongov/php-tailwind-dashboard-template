@@ -1,4 +1,7 @@
-<?php
+<?php declare(strict_types=1);
+/* Not supposed to be used */
+
+declare(strict_types=1);
 
 namespace App\Database;
 

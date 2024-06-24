@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 // set the display errors to 1
 ini_set('display_errors', 1);
 define('ERROR_VERBOSE', (ini_get('display_errors') == 1) ? true : false);
@@ -105,7 +106,7 @@ define("DB_HOST", $_ENV['DB_HOST']);
 define("DB_USER", $_ENV['DB_USER']);
 define("DB_PASS", $_ENV['DB_PASS']);
 define("DB_NAME", $_ENV['DB_NAME']);
-define("DB_PORT", $_ENV['DB_PORT']);
+define("DB_PORT", (int) $_ENV['DB_PORT']);
 
 // This is the DigiCertGlobalRootCA.crt.pem file that is used to verify the SSL connection to the DB. It's located in the .tools folder
 define("DB_CA_CERT", dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '.tools' . DIRECTORY_SEPARATOR . 'DigiCertGlobalRootCA.crt.pem');

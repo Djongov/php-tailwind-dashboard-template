@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace CSP;
 
@@ -64,7 +64,7 @@ class Model
         $stmt->execute([$domain]);
         return ($stmt->rowCount() > 0) ? true : false;
     }
-    public function deleteApprovedDomain($id)
+    public function deleteApprovedDomain($id) : bool
     {
         // Delete a domain from the approved list
         $db = new DB();

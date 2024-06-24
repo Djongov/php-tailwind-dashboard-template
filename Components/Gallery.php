@@ -1,10 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Components;
 
 class Gallery {
 
-    public static function fromFolder($folder, $title, $caption = false, $links = false, $width = '100%',$height = 'auto') {
+    public static function fromFolder($folder, $title, $caption = false, $links = false, $width = '100%',$height = 'auto') : string
+    {
 
         $image_array = array_diff(scandir($folder), ['..', '.']);
 

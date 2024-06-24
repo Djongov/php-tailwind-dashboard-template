@@ -1,5 +1,4 @@
-<?php
-
+<?php declare(strict_types=1);
 use Controllers\Api\Output;
 
 if (isset($_POST['error'], $_POST['error_description'])) {

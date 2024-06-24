@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App;
 
@@ -13,7 +13,7 @@ use App\Authentication\AuthToken;
 
 class RequireLogin
 {
-    public static function check(bool $apiRoute)
+    public static function check(bool $apiRoute) : array
     {
         $loginExempt = [
             '/',
@@ -31,7 +31,8 @@ class RequireLogin
             '/charts',
             '/forms',
             '/datagrid',
-            '/blablabla' // to showcase the 404 page
+            '/blablabla', // to showcase the 404 page,
+            '/logout',
         ];
         
         $loggedIn = false;
@@ -144,7 +145,7 @@ class RequireLogin
                 $idTokenInfoArray[$dbClaimName] = isset($authCookieArray[$JWTClaimName]) ? $authCookieArray[$JWTClaimName] : null;
             }
             // Now the special ones
-            $idTokenInfoArray["token_expiry"] = isset($authCookieArray['exp']) ? date("Y-m-d H:i:s", substr($authCookieArray['exp'], 0, 10)) : null;
+            $idTokenInfoArray["token_expiry"] = isset($authCookieArray['exp']) ? date("Y-m-d H:i:s", (int)substr((string)$authCookieArray['exp'], 0, 10)) : null;
             // If roles is not set, we set it to user, otherwise we set it to the roles array
             $idTokenInfoArray["roles"] = (isset($authCookieArray['roles'])) ? $authCookieArray['roles'] : ['user'];
             // Now we search for the administrator role as role is an array of roles
@@ -173,7 +174,7 @@ class RequireLogin
                 $idTokenInfoArray[$dbClaimName] = isset($authCookieArray[$JWTClaimName]) ? $authCookieArray[$JWTClaimName] : null;
             }
             // Now the special ones
-            $idTokenInfoArray["token_expiry"] = isset($authCookieArray['exp']) ? date("Y-m-d H:i:s", substr($authCookieArray['exp'], 0, 10)) : null;
+            $idTokenInfoArray["token_expiry"] = isset($authCookieArray['exp']) ? date("Y-m-d H:i:s", (int)substr((string)$authCookieArray['exp'], 0, 10)) : null;
             // If roles is not set, we set it to user, otherwise we set it to the roles array
             $idTokenInfoArray["roles"] = (isset($authCookieArray['roles'])) ? $authCookieArray['roles'] : ['user'];
             // Now we search for the administrator role as role is an array of roles
@@ -193,7 +194,7 @@ class RequireLogin
                 $idTokenInfoArray[$dbClaimName] = isset($authCookieArray[$JWTClaimName]) ? $authCookieArray[$JWTClaimName] : null;
             }
             // Now the special ones
-            $idTokenInfoArray["token_expiry"] = isset($authCookieArray['exp']) ? date("Y-m-d H:i:s", substr($authCookieArray['exp'], 0, 10)) : null;
+            $idTokenInfoArray["token_expiry"] = isset($authCookieArray['exp']) ? date("Y-m-d H:i:s", (int)substr((string)$authCookieArray['exp'], 0, 10)) : null;
             // If roles is not set, we set it to user, otherwise we set it to the roles array
             $idTokenInfoArray["roles"] = ['user'];
             // Now we search for the administrator role as role is an array of roles
@@ -204,7 +205,13 @@ class RequireLogin
         // If we are logged in and we have an established username, we need to either fetch user data from the DB or create a new user in the DB
         if ($username !== null) {
             $user = new User();
-            $usernameArray = $user->get($username);
+            try {
+                $usernameArray = $user->get($username);
+            } catch (\Exception $e) {
+                JWT::handleValidationFailure();
+                    header('Location: /logout');
+                    exit();
+            }
             if ($usernameArray) {
                 // Let's check if the last_ip is different from what we have in the DB, and update it
                 if ($usernameArray['last_ips'] !== $idTokenInfoArray["last_ip"]) {
@@ -240,10 +247,12 @@ class RequireLogin
         }
 
         // Kill disabled users early
-        if (isset($usernameArray["enabled"]) && $usernameArray["enabled"] === 0) {
-            echo 'Your user has been disabled';
-            JWT::handleValidationFailure();
-            exit();
+        if (isset($usernameArray["enabled"])) {
+                if ($usernameArray["enabled"] === 0 || $usernameArray["enabled"] === false) {
+                echo 'Your user has been disabled';
+                JWT::handleValidationFailure();
+                exit();
+            }
         }
 
         // If this gets executed on /login, we need to keep logged in users away from the login page

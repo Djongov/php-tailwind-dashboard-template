@@ -1,10 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Models\Core;
 
 use App\Database\DB;
 use App\Logs\SystemLog;
-use Controllers\Api\Output;
 
 class DBCache implements DBCacheInterface
 {
@@ -32,7 +31,7 @@ class DBCache implements DBCacheInterface
             return [];
         }
     }
-    public static function create(mixed $value, string $expiration, string $type, string $uniqueProperty) : int
+    public static function create(mixed $value, string $expiration, string $type, string $uniqueProperty) : string
     {
         $db = new DB();
         $pdo = $db->getConnection();

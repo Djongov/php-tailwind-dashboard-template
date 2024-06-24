@@ -1,5 +1,4 @@
-<?php
-use Controllers\Api\Checks;
+<?php declare(strict_types=1);use Controllers\Api\Checks;
 
 $checks = new Checks($vars, $_POST);
 
@@ -23,7 +22,7 @@ if (isset($_POST['type'])) {
 // Took this genius method from https://stackoverflow.com/questions/51497618/replace-value-in-multidimensional-php-array
 foreach ($data as &$set) {
     foreach ($set as &$subset) {
-        $subset = ($subset !== null) ? preg_replace('/\s+/', '', $subset) : null;
+        $subset = ($subset !== null) ? preg_replace('/\s+/', '', (string) $subset) : null;
     }
 }
 unset($set, $subset); // avoid future variable interferences

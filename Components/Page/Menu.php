@@ -1,13 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Components\Page;
 
-use Components\Html;
 use Components\ThemeSwitcher;
-
 class Menu
 {
-    public static function render(array $array, array $usernameArray, bool $isAdmin, string $theme)
+    public static function render(array $array, array $usernameArray, bool $isAdmin, string $theme) : string
     {
         // Start the nav
         $html = '<nav class="px-2 ' . LIGHT_COLOR_SCHEME_CLASS . ' border-gray-200 dark:border-gray-700 ' . DARK_COLOR_SCHEME_CLASS . '">';
@@ -100,7 +98,7 @@ class Menu
         $html .= '</nav>';
         return $html;
     }
-    public static function dropDownUserMenu(string $name, string $theme, bool $isAdmin, ?string $picture)
+    public static function dropDownUserMenu(string $name, string $theme, bool $isAdmin, ?string $picture) : string
     {
         $html = '<div class="flex md:order-2">';
         $html .= '<div class="flex items-center justify-between ml-2">';

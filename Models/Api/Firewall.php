@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 // Path: Models/Api/Firewall.php
 
@@ -17,7 +17,8 @@ class Firewall
     private $table = 'firewall';
     private $mainColumn = 'ip_cidr';
     
-    public function setter($table, $mainColumn) {
+    public function setter($table, $mainColumn) : void
+    {
         $this->table = $table;
         $this->mainColumn = $mainColumn;
     }

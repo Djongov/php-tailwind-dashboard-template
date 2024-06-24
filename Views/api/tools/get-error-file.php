@@ -1,5 +1,4 @@
-<?php
-
+<?php declare(strict_types=1);
 use Components\Html;
 use Components\Alerts;
 use Controllers\Api\Output;

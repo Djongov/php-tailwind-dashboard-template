@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') :
 
@@ -65,8 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') :
 
 <script src="/assets/js/create-env.js?<?=time()?>"></script>
 
-<?php
-endif;
+<?php declare(strict_types=1);endif;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 

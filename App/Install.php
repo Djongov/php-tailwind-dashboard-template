@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App;
 
@@ -12,12 +12,12 @@ use PDOException;
 
 class Install
 {
-    public function start()
+    public function start() : string
     {
         $html = '';
         $html .= HTML::h2('Database does not exist, attempting to create it', true);
 
-        // Connect to the database server without specifying the database
+        //Connect to the database server without specifying the database
         try {
             if (DB_DRIVER === 'mysql') {
                 $dsn = sprintf("mysql:host=%s;port=%d;charset=utf8mb4", DB_HOST, DB_PORT);

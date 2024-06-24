@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Logs;
 
@@ -8,7 +8,7 @@ use App\Authentication\AuthToken;
 
 class SystemLog
 {
-    public static function write($message, $category)
+    public static function write($message, $category) : void
     {
         if (AuthToken::get() !== null) {
             $username = JWT::extractUserName(AuthToken::get());

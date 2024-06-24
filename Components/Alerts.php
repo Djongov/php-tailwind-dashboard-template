@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Components;
 
 class Alerts
 {
-    public static function info($message)
+    public static function info($message) : string
     {
         return '
         <div class="w-fit mx-auto flex items-center p-4 my-4 text-sm text-blue-800 border border-blue-300 rounded-lg bg-blue-50 ' . DARK_COLOR_SCHEME_CLASS . ' dark:text-blue-400 dark:border-blue-800" role="alert">
@@ -16,7 +16,7 @@ class Alerts
         </div>
         ';
     }
-    public static function danger($message)
+    public static function danger($message) : string
     {
         return '
         <div class="w-fit mx-auto flex items-center p-4 my-4 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 ' . DARK_COLOR_SCHEME_CLASS . ' dark:text-red-400 dark:border-red-800" role="alert">
@@ -28,7 +28,7 @@ class Alerts
         </div>
         ';
     }
-    public static function success($message)
+    public static function success($message) : string
     {
         return '
         <div class="w-fit mx-auto flex items-center p-4 my-4 text-sm text-green-800 border border-green-300 rounded-lg bg-green-50 ' . DARK_COLOR_SCHEME_CLASS . ' dark:text-green-400 dark:border-green-800" role="alert">

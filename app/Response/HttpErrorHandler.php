@@ -1,15 +1,12 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Response;
 
 class HttpErrorHandler
 {
-    private int $code;
-    private string $title;
-    private string $message;
-    private string $theme;
 
-    public static function render($code, $title, $message, $theme) {
+    public static function render($code, $title, $message, $theme) : string
+    {
         $html = '';
         $html .= '<div class="text-black dark:text-white container px-4 mx-auto mb-12">';
             $html .= '<div class="md:max-w-4xl mb-8 mx-auto text-center">';

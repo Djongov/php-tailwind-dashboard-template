@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Components;
 
@@ -6,7 +6,7 @@ use Components\Html;
 
 class DocsMenu
 {
-    public static function render($base, $tree)
+    public static function render($base, $tree) : string
     {
         // First let's sort the $tree array so that if there is a index key, it is first
         $indexKey = array_search('index', $tree);

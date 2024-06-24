@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App;
 
@@ -9,7 +9,7 @@ use Controllers\Api\Output;
 
 class App
 {
-    public function init()
+    public function init() : void
     {
         // Start session
         Session::start();

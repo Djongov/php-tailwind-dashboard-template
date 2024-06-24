@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Request;
 
@@ -22,7 +22,7 @@ class HttpClient
         ]);
     }
 
-    public function call($method, $path, $data = [], $bearer_token = null, $sendJson = false, $headers = [], $expectJson = true)
+    public function call($method, $path, $data = [], $bearer_token = null, $sendJson = false, $headers = [], $expectJson = true) : string|array
     {
         $method = strtoupper($method);
 
@@ -93,7 +93,7 @@ class HttpClient
                     return $response = json_decode($response, true);
                 } else {
                     return $response;
-                }                    
+                }
             }
         } catch (ConnectException $e) {
             // Handle the connection exception

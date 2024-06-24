@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Database;
 
@@ -28,7 +28,7 @@ class DB
 
         $this->connect($config);
     }
-    private function connect(array $config)
+    private function connect(array $config) : void
     {
         $dsn = $this->buildDsn($config);
         $options = $this->getPDOOptions();
@@ -90,7 +90,7 @@ class DB
         $options[\PDO::ATTR_EMULATE_PREPARES] = false;
         return $options;
     }
-    public function executeQuery(\PDO $pdo, string $sql, array $params = [])
+    public function executeQuery(\PDO $pdo, string $sql, array $params = []) : \PDOStatement
     {
         try {
             $stmt = $pdo->prepare($sql);
@@ -115,7 +115,7 @@ class DB
         $this->pdo = null;
     }
 
-    public function multiQuery(array $queryArray)
+    public function multiQuery(array $queryArray) : void
     {
         try {
             $pdo = $this->getConnection();
@@ -134,7 +134,7 @@ class DB
             throw new \PDOException("Error executing multiple queries: " . $e->getMessage());
         }
     }
-    public function checkDBColumns(array $columns, string $table)
+    public function checkDBColumns(array $columns, string $table) : void
     {
         $dbTableArray = $this->describe($table);
     
@@ -151,7 +151,7 @@ class DB
             }
         }
     }
-    public function checkDBColumnsAndTypes(array $array, string $table)
+    public function checkDBColumnsAndTypes(array $array, string $table) : void
     {
         $dbTableArray = $this->describe($table);
         
@@ -183,7 +183,7 @@ class DB
             }
         }
     }
-    private static function normalizeDataType($type)
+    private static function normalizeDataType($type) : string
     {
         if (str_starts_with($type, 'varchar(')) {
             return 'string';
@@ -224,7 +224,7 @@ class DB
     }
     
 
-    public function mapDataTypesArray(string $value)
+    public function mapDataTypesArray(string $value) : string
 {
     $type = '';
     if (str_starts_with($value, 'tinyint')) {

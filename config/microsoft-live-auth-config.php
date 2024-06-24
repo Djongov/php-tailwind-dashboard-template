@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 if (MICROSOFT_LIVE_LOGIN) {
     // Azure App registration tenant id

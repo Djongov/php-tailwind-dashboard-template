@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use App\Utilities\General;
 use Components\Forms;
@@ -10,7 +10,6 @@ use App\Request\HttpClient;
 use App\Authentication\AuthToken;
 
 $user = new User();
-
 /* Profile picture update logic */
 $token = JWT::parseTokenPayLoad(AuthToken::get());
 // This is mostly Google
@@ -31,14 +30,18 @@ if (!empty($usernameArray['picture']) && isset($token['picture'])) {
             echo $e->getMessage();
         }
     }
-} elseif ($usernameArray['picture'] === null) {
+} elseif ($usernameArray['picture'] === null || empty($usernameArray['picture'])) {
     // If Azure
     if ($usernameArray['provider'] === 'azure' || $usernameArray['provider'] === 'mslive') {
         $accessToken = App\Authentication\Azure\GetAccessToken::get();
         $client = new HttpClient('https://graph.microsoft.com/v1.0/me/photo/$value');
-        $response = $client->call('GET', '', [], $accessToken, false, ['Accept: image/jpeg'], false);
+        $response = $client->call('GET', '', [], $accessToken, false, ['Accept: image/jpeg'], false, false);
         $userController = new Controllers\Api\User();
-        $userController->saveAzureProfilePicture($usernameArray['username'], $response);
+        if (is_string($response)) {
+            $userController->saveAzureProfilePicture($usernameArray['username'], $response);
+        } else {
+            echo 'Error fetching picture : ' . json_encode($response);
+        }
     // If Local account
     } else {
         // If no picture is set, use the ui-avatars.com service to generate a picture
@@ -63,15 +66,45 @@ $fmt = new IntlDateFormatter($locale, IntlDateFormatter::LONG, IntlDateFormatter
 echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
     echo '<div class="p-4 m-4 max-w-lg ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700">';
         echo Html::h2('User settings');
-        echo '<img src="' . $usernameArray['picture'] . '" class="rounded-full w-32 h-32" alt="Profile Picture">';
+        // Now let's put inside the image, a delete button
+        echo '<div class="relative inline-block">';
+            echo '<img src="' . $usernameArray['picture'] . '" class="rounded-full w-32 h-32" alt="Profile Picture">';
+            $deleteProfilePictureForm = [
+                'inputs' => [
+                    'hidden' => [
+                        [
+                            'name' => 'picture',
+                            'value' => ''
+                        ],
+                        [
+                            'name' => 'username',
+                            'value' => $usernameArray['username']
+                        ]
+                    ],
+                ],
+                'theme' => $theme, // Optional, defaults to COLOR_SCHEME
+                'method' => 'PUT',
+                'action' => '/api/user/' . $usernameArray['id'],
+                'confirm' => true,
+                'confirmText' => 'Are you sure you want to delete your profile picture? This will immediately attempt to update your profile picture with a new one',
+                'reloadOnSubmit' => true,
+                'submitButton' => [
+                    'text' => 'Update',
+                    'size' => 'medium',
+                    'style' => '&#10060;',
+                    'title' => 'Delete Profile Picture'
+                ],
+            ];
+            echo '<div class="absolute bottom-0 right-0 p-1 text-xs font-bold">' . Forms::render($deleteProfilePictureForm) . '</div>';
+        echo '</div>';
         echo '<table class="w-auto">';
         foreach ($usernameArray as $name => $setting) {
             echo '<tr>';
             if ($name === 'id' || $name === 'password' || $name === 'picture') {
                 continue;
             }
-            // Check if date
-            if ($setting !== null && strtotime($setting)) {
+            // Check if date and format it
+            if ($setting !== null && is_string($setting) && General::isValidDatetime($setting)) {
                 echo ' <td class="w-full"><strong>' . $name . '</strong> : ' . $fmt->format(strtotime($setting)) . '  </td>';
                 continue;
             }
@@ -118,15 +151,19 @@ echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
                 echo '</div></td>';
                 continue;
             }
-            // Only show copy to clipboard on non-null items
-            echo ' <td class="w-full"><strong>' . $name . '</strong> : <span class="break-all">' . $setting . '</span>  </td>';
+            if (is_bool($setting)) {
+                echo ' <td class="w-full"><strong>' . $name . '</strong> : ' . (($setting) ? 'true' : 'false') . '  </td>';
+                continue;
+            } else {
+                echo ' <td class="w-full"><strong>' . $name . '</strong> : <span class="break-all">' . $setting . '</span>  </td>';
+            }
             echo '</tr>';
         }
         echo '</table>';
         echo '</div>';
         echo '<div class="p-4 m-4 max-w-lg ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700">';
             echo Html::h2('Session Info');
-            echo '<p><strong>Token expiry: </strong>' . $fmt->format(strtotime(date("Y-m-d H:i:s", substr(JWT::parseTokenPayLoad(AuthToken::get())['exp'], 0, 10)))) . '</p>';
+            echo '<p><strong>Token expiry: </strong>' . $fmt->format(strtotime(date("Y-m-d H:i:s", (int)substr((string) JWT::parseTokenPayLoad(AuthToken::get())['exp'], 0, 10)))) . '</p>';
             echo '<p><strong>Token: </strong></p><p class="break-all c0py">' . AuthToken::get() . '</p>';
             $token = JWT::parseTokenPayLoad(AuthToken::get());
             // echo '<ul>';

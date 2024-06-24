@@ -1,8 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
-use Controllers\Api\Output;
 use App\Install;
 use Components\Alerts;
+
 try {
     if (DB_DRIVER === 'mysql') {
         $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8';
@@ -43,15 +43,14 @@ try {
             $dsn_without_db .= ';sslmode=require;sslrootcert=' . DB_CA_CERT;
         }
     } else {
-        Output::error($error, 400);
+        echo Alerts::danger($e->getMessage());
         exit;
     }
-
     try {
-        $pdo = new PDO($dsn_without_db, DB_USER, DB_PASS, $options);
+        //$pdo = new PDO($dsn_without_db, DB_USER, DB_PASS, $options);
         $install = new Install();
-        echo $install->start($pdo);
+        echo $install->start();
     } catch (PDOException $e) {
-        Output::error($e->getMessage(), 400);
+        echo Alerts::danger($e->getMessage());
     }
 }

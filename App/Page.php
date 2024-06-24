@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App;
 
@@ -9,7 +9,7 @@ use Components\Page\Footer;
 
 class Page
 {
-    public function head(string $title, string $description, array $keywords, string $thumbimage)
+    public function head(string $title, string $description, array $keywords, string $thumbimage) : string
     {
         // Load these scripts
         $scriptsArray = [
@@ -50,7 +50,7 @@ class Page
         ];
         return Head::render($title, $description, $keywords, $thumbimage, $scriptsArray, $cssArray);
     }
-    public function header($usernameArray, $menuArray, $isAdmin, $theme)
+    public function header($usernameArray, $menuArray, $isAdmin, $theme) : string
     {
         $html = '';
         $html .= '<header>';
@@ -58,16 +58,16 @@ class Page
         $html .= '</header>';
         return $html;
     }
-    public function menu($array, $theme, $usernameArray, $isAdmin)
+    public function menu($array, $theme, $usernameArray, $isAdmin) : string
     {
         // If the array is empty, don't render the menu
         return (!empty($array)) ? Menu::render($array, $usernameArray, $isAdmin, $theme) : '';
     }
-    public function footer($theme)
+    public function footer($theme) : string
     {
         return Footer::render($theme);
     }
-    public function build(string $title, string $description, array $keywords, string $thumbimage, string $theme, array $menuArray, array $usernameArray, string $controlerPath, bool $isAdmin)
+    public function build(string $title, string $description, array $keywords, string $thumbimage, string $theme, array $menuArray, array $usernameArray, string $controlerPath, bool $isAdmin) : string
     {
         $html = '';
         $html .= $this->head($title, $description, $keywords, $thumbimage, $theme);

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Components;
 
@@ -16,7 +16,7 @@ class DataGrid
         'paging' => true,
         'lengthMenu' => [[25, 50, 100, -1], [25, 50, 100, "All"]],
     ];
-    private static function getDeleteLoader($id, $theme)
+    private static function getDeleteLoader($id, $theme) : string
     {
         return '
         <div id="' . $id . '-delete-loading-screen" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-28 bg-slate-50 dark:bg-slate-600 hidden border border-black dark:border-slate-200">
@@ -31,7 +31,7 @@ class DataGrid
             </div>
         </div>';
     }
-    private static function constructThead($delete, $edit, $theme, $filters, $totalColumns)
+    private static function constructThead($delete, $edit, $theme, $filters, $totalColumns) : string
     {
         $html = '';
         $html .= '<thead class="' . DATAGRID_THEAD_COLOR_SCHEME . ' ' . DATAGRID_THEAD_DARK_COLOR_SCHEME . ' ' . DATAGRID_TEXT_COLOR_SCHEME . ' ' . DATAGRID_TEXT_DARK_COLOR_SCHEME . ' font-bold sticky top-0 border-collapse">';
@@ -187,7 +187,10 @@ class DataGrid
                             if ($column === 'id') {
                                 $html .= '<td class="' . $tdClass . '" data-row-id="' . $value . '">' . $value . '</td>';
                             } else {
-                                $html .= '<td class="' . $tdClass . '">' . htmlentities($value) . '</td>';
+                                if (is_string($value)) {
+                                    $value = htmlentities($value);
+                                }
+                                $html .= '<td class="' . $tdClass . '">' . $value . '</td>';
                             }
                         }
                         if ($delete || $edit) {

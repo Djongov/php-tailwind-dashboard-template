@@ -1,10 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Utilities;
 
 class Parsers
 {
-    public static function yaml($yaml_string) {
+    public static function yaml($yaml_string) : array
+    {
         $yaml_data = [];
         $lines = explode("\n", $yaml_string);
         foreach ($lines as $line) {

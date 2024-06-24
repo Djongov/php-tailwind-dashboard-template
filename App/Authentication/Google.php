@@ -1,11 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Authentication;
 
 use App\Request\HttpClient;
 use App\Authentication\JWT;
 use Controllers\Api\Output;
-use App\Utilities\General;
 use Google\Client;
 use App\Authentication\IdTokenCache;
 use App\Logs\SystemLog;

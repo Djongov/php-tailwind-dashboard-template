@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Models\Api;
 
@@ -28,7 +28,7 @@ class User
         $db = new DB();
         $pdo = $db->getConnection();
         if ($param === null) {
-            // Let's pull all the api keys
+            // Let's pull all
             try {
                 $result = $pdo->query("SELECT * FROM users");
                 $array = $result->fetchAll(\PDO::FETCH_ASSOC);

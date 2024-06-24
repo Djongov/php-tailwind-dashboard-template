@@ -1,5 +1,4 @@
-<?php
-
+<?php declare(strict_types=1);
 use Controllers\Api\Output;
 use Controllers\Api\Checks;
 use Controllers\Api\Firewall;

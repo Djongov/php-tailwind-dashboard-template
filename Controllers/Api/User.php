@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 // This is the model of the User Api
 namespace Controllers\Api;
 
@@ -16,9 +17,9 @@ class User
         try {
             return $user->get($username);
         } catch (UserExceptions $e) {
-            $this->handleUserErrorsApiResponse($e, 'user controller: UserExceptions getting user', 'unable to get username');
+            $this->handleUserErrorsApiResponse($e, 'user controller: UserExceptions getting user', 'Invalid username or password');
         } catch (\Exception $e) {
-            $this->handleUserErrorsApiResponse($e, 'user controller: Exception getting user', 'unable to get username');
+            $this->handleUserErrorsApiResponse($e, 'user controller: Exception getting user', 'Invalid username or password');
         }
     }
     public function create(array $data, string $provider) : void
@@ -73,7 +74,7 @@ class User
             $this->handleUserErrorsApiResponse($e, 'user controller: Exception creating azure provider user', 'unable to create user');
         }
     }
-    public function createMsLiveUser(array $data)
+    public function createMsLiveUser(array $data) : void
     {
         // $data is the contents of the JWT token, so we need to do some transformations before we can use it
         $insertData = [];
@@ -110,7 +111,7 @@ class User
             $this->handleUserErrorsApiResponse($e, 'user controller: Exception creating mslive provider user', 'unable to create user');
         }
     }
-    public function createGoogleUser(array $data)
+    public function createGoogleUser(array $data) : void
     {
         // $data is the contents of the JWT token, so we need to do some transformations before we can use it
         $insertData = [];

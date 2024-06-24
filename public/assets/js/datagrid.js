@@ -365,21 +365,14 @@ const drawDataGrid = (id, options = {
     paging: true,
     lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "All"]]
 }) => {
-    const tableWrapper = $('<div class="overflow-auto max-h-[44rem]"></div>'); // Create a wrapper div for the table
+    const tableWrapper = $('<div class="overflow-auto" style="max-height: 80vh;"></div>'); // Create a wrapper div for the table
     const table = $(`#${id}`).DataTable({
-        ordering: options.ordering, // Need to make it work so it orders from the 1st row not the 2nd where the filters are
-        order: [[0, 'asc']],
-        // Make sure that the ordering is done on the 1st row not the 2nd where the filters are
+        ordering: options.ordering,
+        order: [[0, 'desc']],
         orderCellsTop: true,
-        /*
-        scrollY: 600,
-        scrollX: 600,
-        */
-        //scrollCollapse: false,
         paging: options.paging,
         pagingType: 'full_numbers',
         lengthMenu: options.lengthMenu,
-        //stateSave: true,
         createdRow: function (row, data, dataIndex) {
             $(row).attr('tabindex', dataIndex)
             $(row).addClass('focus:outline-none focus:bg-gray-300 focus:text-gray-900 dark:focus:bg-gray-700 dark:focus:text-amber-500');

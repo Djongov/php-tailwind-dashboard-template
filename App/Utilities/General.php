@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Utilities;
 
@@ -35,7 +35,8 @@ class General
 
         return false; // No match found
     }
-    public static function isAssocArray(array $array) {
+    public static function isAssocArray(array $array) : bool
+    {
         // If the array is empty, treat it as not associative
         if (empty($array)) {
             return false;
@@ -52,7 +53,8 @@ class General
         // If the keys are sequential numeric keys starting from 0
         return array_keys($array) !== range(0, count($array) - 1);
     }
-    public static function isMultiDimensionalArray(array $array) {
+    public static function isMultiDimensionalArray(array $array) : bool
+    {
         foreach ($array as $element) {
             if (is_array($element)) {
                 return true; // If any element is an array, it's multidimensional
@@ -101,7 +103,7 @@ class General
         }, array_keys($array), $array);
     }
     // Random RGBA
-    public static function randomRGBA($opacity = 1)
+    public static function randomRGBA($opacity = 1) : string
     {
         return 'rgba(' . rand(0, 255) . ', ' . rand(0, 255) . ', ' . rand(0, 255) . ', ' . $opacity . ')';
     }
@@ -124,7 +126,7 @@ class General
         return false;
     }
     // Convert any date to UTC
-    public static function convertToUTC(string $date, string $format = 'Y-m-d H:i'): string
+    public static function convertToUTC(string $date, string $format = 'Y-m-d H:i') : string
     {
         // get the current timezone
         $timezone = date_default_timezone_get();
@@ -139,7 +141,7 @@ class General
         $dateTime = \DateTime::createFromFormat('Y-m-d H:i:s', $dateString);
         return $dateTime && $dateTime->format('Y-m-d H:i:s') === $dateString;
     }
-    public static function base64url_encode(string $input, int $nopad = 1, int $wrap = 0)
+    public static function base64url_encode(string $input, int $nopad = 1, int $wrap = 0) : string
     {
         $data  = base64_encode($input);
 
@@ -162,17 +164,18 @@ class General
         }
     }
 
-    public static function base64url_decode($input)
+    public static function base64url_decode($input) : string
     {
         return base64_decode(strtr($input, '-_,', '+/='));
     }
-    public static function decodeUnicodeString($str)
+    public static function decodeUnicodeString($str) : string
     {
         return preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {
             return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UCS-2BE');
         }, $str);
     }
-    public static function countryCodeToLocale($countryCode) {
+    public static function countryCodeToLocale($countryCode) : string
+    {
         $countryCodeToLocale = [
             'AF' => 'fa_AF',
             'AL' => 'sq_AL',

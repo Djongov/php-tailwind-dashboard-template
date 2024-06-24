@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use Components\Forms;
 use Components\Html;
@@ -17,10 +17,19 @@ if (LOCAL_USER_LOGIN) {
                         [
                             'label' => 'Username',
                             'type' => 'text',
-                            'placeholder' => 'John.Doe@example.com',
+                            'placeholder' => 'John84',
                             'name' => 'username',
                             'required' => true,
-                            'description' => 'Provide a valid username (email)',
+                            'description' => 'Provide a username',
+                            'id' => uniqid(),
+                        ],
+                        [
+                            'label' => 'Email',
+                            'type' => 'email',
+                            'placeholder' => 'John.Doe@example.com',
+                            'name' => 'email',
+                            'required' => true,
+                            'description' => 'Provide a valid email',
                             'id' => uniqid(),
                         ],
                         // Password

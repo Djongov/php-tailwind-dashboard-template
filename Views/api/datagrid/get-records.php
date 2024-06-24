@@ -1,5 +1,4 @@
-<?php
-
+<?php declare(strict_types=1);
 use App\Database\DB;
 use App\Utilities\General;
 use Controllers\Api\Output;
@@ -51,7 +50,7 @@ if ($stmt->rowCount() > 0) {
         foreach ($data_array as $key => $value) {
             $html .= '<div class="ml-4 my-2">';
                 // First sanitize the value
-                if ($value !== null) {
+                if ($value !== null && is_string($value)) {
                     $value = htmlentities($value);
                 }
                 // Decide whether a field is disabled or not
@@ -64,7 +63,12 @@ if ($stmt->rowCount() > 0) {
 
                 // Now let's map the data types to the input types
                 if ($dataTypes[$key] === 'bool') {
-                    $html .= HTML::toggleCheckBox(uniqid(), $key, $value, $key, ($value === 1 || $value === "1") ? true : false, $theme, $readonly);
+                    if ($value === 1 || $value === "1" || $value === true) {
+                        $value = 1;
+                    } else {
+                        $value = 0;
+                    }
+                    $html .= HTML::toggleCheckBox(uniqid(), $key, $value, $key, ($value === 1 || $value === "1" || $value === true) ? true : false, $theme, $readonly);
                 }
                 if ($dataTypes[$key] === 'int') {
                     $html .= HTML::input('default', 'number', uniqid(), $key, $key, $value, '', '', $key, $theme, false, true, ($readonly) ? true : false);
@@ -74,7 +78,7 @@ if ($stmt->rowCount() > 0) {
                 }
                 if ($dataTypes[$key] === 'datetime') {
                     // Check the database driver to handle datetime values accordingly
-                    switch (DB_DRIVER) {
+                    switch (\DB_DRIVER) {
                         case 'mysql':
                             // For MySQL, no need to modify the datetime value
                             $formattedDatetime = $value;
