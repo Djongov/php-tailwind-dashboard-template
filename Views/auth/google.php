@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $user->updateLastLogin($idTokenArray['email']);
     } else {
         // User does not exist, let's create it (this will also update the last login)
-        $user->create($idTokenArray, 'google');
+        $user->create($idTokenArray, 'google', false);
     }
 
     AuthToken::set($idToken);

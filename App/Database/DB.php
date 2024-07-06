@@ -28,11 +28,20 @@ class DB
 
         $this->connect($config);
     }
-    private function connect(array $config) : void
+
+    private function connect(array $config): void
     {
+        if ($config['driver'] === 'sqlite') {
+            $dbFilePath = dirname($_SERVER['DOCUMENT_ROOT']) . '/.tools/' . $config['dbname'] . '.db';
+            if (!file_exists($dbFilePath)) {
+                error_log("DB: SQLite database file does not exist: " . $config['dbname']);
+                throw new \PDOException("DB: SQLite database file does not exist: " . $config['dbname']);
+            }
+        }
+    
         $dsn = $this->buildDsn($config);
         $options = $this->getPDOOptions();
-
+    
         try {
             $this->pdo = new \PDO($dsn, $config['username'], $config['password'], $options);
             $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
@@ -54,6 +63,10 @@ class DB
             throw $e;
         }
     }
+    
+
+
+
     public function getConnection(): \PDO
     {
         if ($this->pdo instanceof \PDO) {
@@ -62,24 +75,32 @@ class DB
             throw new \PDOException("DB: Database connection has not been established.");
         }
     }
+
     private function buildDsn(array $config): string
     {
         $dsn = "{$config['driver']}:";
+        $driver = $config['driver'];
         unset($config['driver'], $config['username'], $config['password']);
 
-        foreach ($config as $key => $value) {
-            $dsn .= "$key=$value;";
-        }
+        if ($driver === 'sqlite') {
+            $dsn .= dirname($_SERVER['DOCUMENT_ROOT']) . '/.tools/' . $config['dbname'] . '.db';
+        } else {
+            foreach ($config as $key => $value) {
+                $dsn .= "$key=$value;";
+            }
 
-        // Add SSL options if enabled
-        if (defined("DB_SSL") && DB_SSL) {
-            $dsn .= "sslmode=require;";
-            // Add CA certificate path
-            $dsn .= "sslrootcert=" . constant('DB_CA_CERT') . ";";
+            // Add SSL options if enabled
+            if (defined("DB_SSL") && DB_SSL) {
+                $dsn .= "sslmode=require;";
+                // Add CA certificate path
+                $dsn .= "sslrootcert=" . constant('DB_CA_CERT') . ";";
+            }
         }
 
         return $dsn;
     }
+
+
     private function getPDOOptions(): array
     {
         // You can add any default PDO options here if needed
@@ -90,6 +111,7 @@ class DB
         $options[\PDO::ATTR_EMULATE_PREPARES] = false;
         return $options;
     }
+
     public function executeQuery(\PDO $pdo, string $sql, array $params = []) : \PDOStatement
     {
         try {
@@ -110,6 +132,7 @@ class DB
             }
         }
     }
+
     public function __destruct()
     {
         $this->pdo = null;
@@ -134,6 +157,7 @@ class DB
             throw new \PDOException("Error executing multiple queries: " . $e->getMessage());
         }
     }
+
     public function checkDBColumns(array $columns, string $table) : void
     {
         $dbTableArray = $this->describe($table);
@@ -151,6 +175,7 @@ class DB
             }
         }
     }
+
     public function checkDBColumnsAndTypes(array $array, string $table) : void
     {
         $dbTableArray = $this->describe($table);
@@ -183,15 +208,9 @@ class DB
             }
         }
     }
+
     private static function normalizeDataType($type) : string
     {
-        if (str_starts_with($type, 'varchar(')) {
-            return 'string';
-        }
-        if (str_starts_with($type, 'tinyint(')) {
-            return 'bool';
-        }
-        // Adjust this based on your specific requirements
         // Convert common MySQL/PostgreSQL data types to PHP types
         $typeMap = [
             'tinyint' => 'int',
@@ -217,37 +236,56 @@ class DB
             'json' => 'string',
             'boolean' => 'bool',
 
-            // ... add more mappings as needed
-        ];
-    
-        return $typeMap[strtolower($type)] ?? $type;
-    }
-    
+            // SQLite specific
+            'boolean' => 'bool', // SQLite uses 'boolean' for bool type
 
+            // Adjust this based on SQLite specific types
+            'tinyint(' => 'int', // Adjusted to match SQLite's int type handling
+
+            // Add more mappings as needed
+        ];
+
+        // Normalize data type based on the provided $type
+        foreach ($typeMap as $dbType => $phpType) {
+            if (str_starts_with(strtolower($type), $dbType)) {
+                return $phpType;
+            }
+        }
+
+        return $type; // Return original type if no match found
+    }
+
+    
     public function mapDataTypesArray(string $value) : string
-{
-    $type = '';
-    if (str_starts_with($value, 'tinyint')) {
-        $type = 'bool';
+    {
+        $type = '';
+        $value = strtolower($value);
+
+        // SQLite data type mappings
+        if (str_starts_with($value, 'integer') || str_starts_with($value, 'int')) {
+            $type = 'int';
+        }
+        if (str_starts_with($value, 'real') || str_starts_with($value, 'float') || str_starts_with($value, 'double') || str_starts_with($value, 'numeric') || str_starts_with($value, 'decimal')) {
+            $type = 'float';
+        }
+        if (str_starts_with($value, 'text') || str_starts_with($value, 'char') || str_starts_with($value, 'varchar')) {
+            $type = 'string';
+        }
+        if (str_starts_with($value, 'blob')) {
+            $type = 'blob'; // BLOB type in SQLite
+        }
+        if (str_starts_with($value, 'date') || str_starts_with($value, 'time') || str_starts_with($value, 'timestamp')) {
+            $type = 'datetime'; // SQLite stores date/time as text or numeric
+        }
+        if (str_starts_with($value, 'boolean') || str_starts_with($value, 'bool')) {
+            $type = 'bool'; // BOOLEAN type
+        }
+
+        // Additional considerations specific to your application or SQLite usage
+
+        return $type;
     }
-    // And now postgres bool
-    if (str_starts_with($value, 'boolean')) {
-        $type = 'bool';
-    }
-    if (str_starts_with($value, 'int') || str_starts_with($value, 'integer') || str_starts_with($value, 'serial') || str_starts_with($value, 'bigserial')) {
-        $type = 'int';
-    }
-    if (str_starts_with($value, 'decimal') || str_starts_with($value, 'float') || str_starts_with($value, 'double') || str_starts_with($value, 'numeric')) {
-        $type = 'float';
-    }
-    if (str_starts_with($value, 'date') || str_starts_with($value, 'time') || str_starts_with($value, 'year') || str_starts_with($value, 'timestamp')) {
-        $type = 'datetime';
-    }
-    if (str_starts_with($value, 'varchar') || str_starts_with($value, 'character varying') || str_starts_with($value, 'text')) {
-        $type = 'string';
-    }
-    return $type;
-}
+
 
     public function describe(string $table): array
     {
@@ -279,43 +317,21 @@ class DB
                     $dbColumns[$row['column_name']] = $row['data_type'];
                 }
                 break;
+            case 'sqlite':
+                $sql = "PRAGMA table_info($table)";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute();
+                $dbTableArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+                // Extract column names and data types from the table structure
+                $dbColumns = [];
+                foreach ($dbTableArray as $row) {
+                    $dbColumns[$row['name']] = $row['type'];
+                }
+                break;
             default:
                 throw new \Exception("Unsupported database driver: $driver");
         }
 
         return $dbColumns;
     }
-    // public function describe(string $dbTable) : array
-    // {
-    //     $db = new self();
-    //     $pdo = $db->getConnection();
-
-    //     // Check the database driver to determine the appropriate SQL syntax
-    //     $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
-    //     switch ($driver) {
-    //         case 'mysql':
-    //             $sql = "DESCRIBE $dbTable";
-    //             $stmt = $pdo->prepare($sql);
-    //             $stmt->execute();
-    //             $resultArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-    //             // Map MySQL columns to a uniform format
-    //             $resultArray = array_map(function($row) {
-    //                 return [
-    //                     'column_name' => $row['Field'],
-    //                     'data_type' => $row['Type']
-    //                 ];
-    //             }, $resultArray);
-    //             break;
-    //         case 'pgsql':
-    //             $sql = "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = ?";
-    //             $stmt = $pdo->prepare($sql);
-    //             $stmt->execute([$dbTable]);
-    //             $resultArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-    //             break;
-    //         default:
-    //             throw new \Exception("Unsupported database driver: $driver");
-    //     }
-
-    //     return $resultArray;
-    // }
 }

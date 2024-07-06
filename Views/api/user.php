@@ -5,6 +5,7 @@ use Controllers\Api\User;
 use App\Utilities\IP;
 use App\Authentication\JWT;
 use App\Authentication\AuthToken;
+use App\Logs\SystemLog;
 
 // GET /api/user
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -106,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
         exit();
     }
 
-    $userId = $routeInfo[2]['id'];
+    $userId = (int) $routeInfo[2]['id'];
 
     $checks = new Checks($vars, $data);
     $checks->apiChecks();
@@ -133,6 +134,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
 
     unset($data['confirm_password']);
     unset($data['csrf_token']);
+
+    // If we are deleting the picutre, we need to remove it from the filesystem
+    if (isset($data['picture'])) {
+        if ($data['picture'] === '' || $data['picture'] === 'null' || $data['picture'] === null) {
+            // Now let's find the current picture name
+            $currentPicture = $user->get($userId)['picture'];
+            $profilePicturePath = dirname($_SERVER['DOCUMENT_ROOT']) . '/public' . $currentPicture;
+            // Now delete the file
+            if (file_exists($profilePicturePath)) {
+                unlink($profilePicturePath);
+            } else {
+                SystemLog::write('Could not delete the picture: ' . $profilePicturePath . '. Full payload was ' . json_encode($data), 'error');
+            }
+        }
+    }
 
     $user->update($data, (int) $userId);
 }

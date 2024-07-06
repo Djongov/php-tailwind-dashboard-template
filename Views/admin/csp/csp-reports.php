@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 use App\Security\Firewall;
 use Controllers\Api\Output;
 use App\Database\DB;
@@ -21,13 +22,12 @@ $stmt = $pdo->prepare('SELECT id,domain,url,referrer,violated_directive,effectiv
 
 $stmt->execute();
 
+$cspArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-if ($stmt->rowCount() === 0) {
+if (!$cspArray) {
     echo Alerts::danger('No CSP reports data found');
     return;
 }
-
-$cspArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
 // Let's build some autoload charts
 

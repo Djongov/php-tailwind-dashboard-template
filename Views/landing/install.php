@@ -27,6 +27,14 @@ try {
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES   => false,
         ];
+    } elseif (DB_DRIVER === 'sqlite') {
+        $dsn = 'sqlite: ' . dirname($_SERVER['DOCUMENT_ROOT']) . '/.tools/' . DB_NAME . '.db';
+
+        $options = [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+        ];
     } else {
         throw new Exception('Unsupported DB_DRIVER: ' . DB_DRIVER);
     }
@@ -35,17 +43,19 @@ try {
     echo Alerts::info('Successfully connected to the database. Nothing to do here.');
 } catch (PDOException $e) {
     $error = $e->getMessage();
-    if (DB_DRIVER === 'mysql' && strpos($error, "Unknown database") !== false) {
-        $dsn_without_db = 'mysql:host=' . DB_HOST . ';charset=utf8';
-    } elseif (DB_DRIVER === 'pgsql' && strpos($error, "does not exist") !== false) {
-        $dsn_without_db = 'pgsql:host=' . DB_HOST;
-        if (defined("DB_SSL") && DB_SSL) {
-            $dsn_without_db .= ';sslmode=require;sslrootcert=' . DB_CA_CERT;
-        }
-    } else {
-        echo Alerts::danger($e->getMessage());
-        exit;
-    }
+    // if (DB_DRIVER === 'mysql' && strpos($error, "Unknown database") !== false) {
+    //     $dsn_without_db = 'mysql:host=' . DB_HOST . ';charset=utf8';
+    // } elseif (DB_DRIVER === 'pgsql' && strpos($error, "does not exist") !== false) {
+    //     $dsn_without_db = 'pgsql:host=' . DB_HOST;
+    //     if (defined("DB_SSL") && DB_SSL) {
+    //         $dsn_without_db .= ';sslmode=require;sslrootcert=' . DB_CA_CERT;
+    //     }
+    // } elseif (DB_DRIVER === 'sqlite' && strpos($error, "unable to open database file") !== false) {
+    //     $dsn_without_db = 'sqlite:host=' . dirname($_SERVER['DOCUMENT_ROOT']) . '/.tools/' . DB_NAME . '.db';
+    // } else {
+    //     echo Alerts::danger($e->getMessage());
+    //     exit;
+    // }
     try {
         //$pdo = new PDO($dsn_without_db, DB_USER, DB_PASS, $options);
         $install = new Install();

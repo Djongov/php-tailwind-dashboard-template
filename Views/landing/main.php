@@ -7,6 +7,8 @@ try {
     $pdo = $db->getConnection(); // Retrieve the PDO connection object
 } catch (\PDOException $e) {
     $errorMessage = $e->getMessage();
+    error_log("Caught PDOException: " . $errorMessage);
+
     // MySQL error code 1049 is for unknown database
     if (str_contains($errorMessage, 'Unknown database')) {
         // Pick up the database name from the error
@@ -22,6 +24,7 @@ try {
     return;
 }
 
+
 echo Alerts::success('Successfully connected to the database');
 
 // Now let's check if all the system tables are present
@@ -34,7 +37,7 @@ $systemTables = [
     'system_log'
 ];
 
-// Now let's check if these tables exist
+//Now let's check if these tables exist
 // foreach ($systemTables as $table) {
 //     $query = "SHOW TABLES LIKE $table";
 //     $stmt = $pdo->prepare($query);

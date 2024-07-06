@@ -190,6 +190,9 @@ class DataGrid
                                 if (is_string($value)) {
                                     $value = htmlentities($value);
                                 }
+                                if (is_array($value)) {
+                                    $value = json_encode($value);
+                                }
                                 $html .= '<td class="' . $tdClass . '">' . $value . '</td>';
                             }
                         }

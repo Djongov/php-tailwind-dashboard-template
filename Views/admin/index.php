@@ -21,12 +21,16 @@ $pdo = $db->getConnection();
 
 // Check the database driver to determine the appropriate SQL syntax
 $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+
 switch ($driver) {
     case 'mysql':
         $sql = "SHOW TABLES";
         break;
     case 'pgsql':
         $sql = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'";
+        break;
+    case 'sqlite':
+        $sql = "SELECT name FROM sqlite_master WHERE type='table'";
         break;
     default:
         throw new \Exception("Unsupported database driver: $driver");
@@ -47,7 +51,15 @@ switch ($driver) {
             $dbTables[] = $row['table_name'];
         }
         break;
+    case 'sqlite':
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $dbTables[] = $row['name'];
+        }
+        break;
+    default:
+        throw new \Exception("Unsupported database driver: $driver");
 }
+
 $db->__destruct();
 
 // $dbTables now contains the table names fetched from the database

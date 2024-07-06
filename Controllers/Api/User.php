@@ -37,7 +37,7 @@ class User
             $this->createLocalUser($data);
         }
     }
-    public function createAzureUser(array $data) : void
+    public function createAzureUser(array $data, bool $returnResult = true) : void
     {
         // $data is the contents of the JWT token, so we need to do some transformations before we can use it
         $insertData = [];
@@ -67,14 +67,16 @@ class User
         try {
             $createUser = new UserModel();
             $createUser->create($insertData);
-            echo Output::success('User created');
+            if ($returnResult) {
+                echo Output::success('User created');
+            }
         } catch (UserExceptions $e) {
             $this->handleUserErrorsApiResponse($e, 'user controller: UserExceptions creating azure provider user', 'unable to create user');
         } catch (\Exception $e) {
             $this->handleUserErrorsApiResponse($e, 'user controller: Exception creating azure provider user', 'unable to create user');
         }
     }
-    public function createMsLiveUser(array $data) : void
+    public function createMsLiveUser(array $data, bool $returnResult = true) : void
     {
         // $data is the contents of the JWT token, so we need to do some transformations before we can use it
         $insertData = [];
@@ -104,14 +106,16 @@ class User
         try {
             $createUser = new UserModel();
             $createUser->create($insertData);
-            echo Output::success('User created');
+            if ($returnResult) {
+                echo Output::success('User created');
+            }
         } catch (UserExceptions $e) {
             $this->handleUserErrorsApiResponse($e, 'user controller: UserExceptions creating mslive provider user', 'unable to create user');
         } catch (\Exception $e) {
             $this->handleUserErrorsApiResponse($e, 'user controller: Exception creating mslive provider user', 'unable to create user');
         }
     }
-    public function createGoogleUser(array $data) : void
+    public function createGoogleUser(array $data, bool $returnResult = true) : void
     {
         // $data is the contents of the JWT token, so we need to do some transformations before we can use it
         $insertData = [];
@@ -142,14 +146,16 @@ class User
         try {
             $createUser = new UserModel();
             $createUser->create($insertData);
-            echo Output::success('User created');
+            if ($returnResult) {
+                echo Output::success('User created');
+            }
         } catch (UserExceptions $e) {
             $this->handleUserErrorsApiResponse($e, 'user controller: UserExceptions creating google provider user', 'unable to create user');
         } catch (\Exception $e) {
             $this->handleUserErrorsApiResponse($e, 'user controller: Exception creating google provider user', 'unable to create user');
         }
     }
-    public function createLocalUser(array $data) : void
+    public function createLocalUser(array $data, bool $returnResult = true) : void
     {
         if (!isset($data['email'])) {
             $data['email'] = $data['username'];
@@ -174,13 +180,16 @@ class User
         try {
             $createUser = new UserModel();
             $createUser->create($data);
-            echo Output::success('User created');
+            if ($returnResult) {
+                echo Output::success('User created');
+            }
         } catch (UserExceptions $e) {
             $this->handleUserErrorsApiResponse($e, 'user controller: UserExceptions creating local provider user', $e->getMessage());
         } catch (\Exception $e) {
             $this->handleUserErrorsApiResponse($e, 'user controller: Exception creating local provider user', $e->getMessage());
         }
     }
+
     public function update(array $data, int $id) : void
     {
         $user = new UserModel();

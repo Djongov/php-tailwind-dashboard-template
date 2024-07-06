@@ -33,7 +33,7 @@ $query = "SELECT $selectColumnsString FROM " . $_POST['table'] . " WHERE id=?";
 
 $stmt = $pdo->prepare($query);
 
-$stmt->execute([$_POST['id']]);
+$stmt->execute([ (int) $_POST['id']]);
 
 $dataTypes = $db->describe($_POST['table']);
 
@@ -42,8 +42,9 @@ foreach ($dataTypes as $key => $value) {
     $dataTypes[$key] = $db->mapDataTypesArray($value);
 }
 
-if ($stmt->rowCount() > 0) {
-    $data_array = $stmt->fetch(\PDO::FETCH_ASSOC);
+$data_array = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+if ($data_array) {
     unset($data_array['last_updated']); // Hide and do not interact with last_updated so it can be updated automatically even from calling it from this endpoint
     $html = '';
     $html .= '<div class="mb-6">';
@@ -60,7 +61,6 @@ if ($stmt->rowCount() > 0) {
                 } else {
                     $readonly = false;
                 }
-
                 // Now let's map the data types to the input types
                 if ($dataTypes[$key] === 'bool') {
                     if ($value === 1 || $value === "1" || $value === true) {
@@ -77,6 +77,10 @@ if ($stmt->rowCount() > 0) {
                     $html .= HTML::input('default', 'number', uniqid(), $key, $key, $value, '', '', $key, $theme, false, true, ($readonly) ? true : false);
                 }
                 if ($dataTypes[$key] === 'datetime') {
+                    // We first need to handle null datetime values, which might be true for new records, but we also don't want to add default values
+                    if ($value === null) {
+                        continue;
+                    }
                     // Check the database driver to handle datetime values accordingly
                     switch (\DB_DRIVER) {
                         case 'mysql':
@@ -88,14 +92,20 @@ if ($stmt->rowCount() > 0) {
                             $formattedDatetime = new DateTime($value);
                             $formattedDatetime = $formattedDatetime->format('Y-m-d\TH:i');
                             break;
+                        case 'sqlite':
+                            // For SQLite, handle datetime conversion if needed (example assumes ISO format)
+                            // SQLite stores datetime as text or numeric
+                            $formattedDatetime = date('Y-m-d\TH:i', strtotime($value));
+                            break;
                         default:
                             // Handle unsupported database drivers
-                            throw new \Exception("Unsupported database driver: $driver");
+                            throw new \Exception("Unsupported database driver: " . DB_DRIVER);
                     }
                 
                     // Generate the input field with the formatted datetime value
                     $html .= HTML::input('default', 'datetime-local', uniqid(), $key, $key, $formattedDatetime, '', '', $key, $theme, false, true, ($readonly) ? true : false);
                 }
+                
                 if ($dataTypes[$key] === 'string') {
                     if ($key === 'password') {
                         $html .= HTML::input('default', 'password', uniqid(), $key, $key, $value, '', 'This is most likely a hashed value of the password', $key, $theme, false, true, ($readonly) ? true : false);

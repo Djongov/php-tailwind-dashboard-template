@@ -80,13 +80,9 @@ DB Settings
 $_ENV is taking values from the .env file in the root of the project. If you are not using .env, hardcode them or pass them as env variables in your server
 
 */
-$requiredDBConstants = [
-    'DB_SSL',
-    'DB_DRIVER',
-    'DB_HOST',
-    'DB_USER',
-    'DB_PASS',
+$requiredEnvConstants = [
     'DB_NAME',
+    'DB_DRIVER',
     'LocalLoginEnabled',
     'GoogleLoginEnabled',
     'MicrosoftLiveLoginEnabled',
@@ -94,19 +90,43 @@ $requiredDBConstants = [
     'SENDGRID_ENABLED'
 ];
 
-foreach ($requiredDBConstants as $constant) {
+foreach ($requiredEnvConstants as $constant) {
     if (!isset($_ENV[$constant])) {
         die($constant . ' must be set in the .env file');
     }
 }
 
-define("DB_SSL", filter_var($_ENV['DB_SSL'], FILTER_VALIDATE_BOOLEAN));
-define("DB_DRIVER", $_ENV['DB_DRIVER']);
-define("DB_HOST", $_ENV['DB_HOST']);
-define("DB_USER", $_ENV['DB_USER']);
-define("DB_PASS", $_ENV['DB_PASS']);
 define("DB_NAME", $_ENV['DB_NAME']);
-define("DB_PORT", (int) $_ENV['DB_PORT']);
+define("DB_DRIVER", $_ENV['DB_DRIVER']);
+
+if (DB_DRIVER !== 'sqlite') {
+    $dbRelatedConstants = [
+        'DB_SSL',
+        'DB_HOST',
+        'DB_USER',
+        'DB_PASS',
+        'DB_PORT',
+    ];
+    $dbRelatedConstants[] = 'DB_PORT';
+    foreach ($dbRelatedConstants as $constant) {
+        if (!isset($_ENV[$constant])) {
+            die($constant . ' must be set in the .env file');
+        }
+    }
+    define("DB_SSL", filter_var($_ENV['DB_SSL'], FILTER_VALIDATE_BOOLEAN));
+    define("DB_HOST", $_ENV['DB_HOST']);
+    define("DB_USER", $_ENV['DB_USER']);
+    define("DB_PASS", $_ENV['DB_PASS']);
+    define("DB_PORT", (int) $_ENV['DB_PORT']);
+} else {
+    // For sqlite, we only need DB_NAME and DB_DRIVER so the rest will be empty
+    define("DB_SSL", false);
+    define("DB_HOST", '');
+    define("DB_USER", '');
+    define("DB_PASS", '');
+    define("DB_PORT", 0);
+}
+
 
 // This is the DigiCertGlobalRootCA.crt.pem file that is used to verify the SSL connection to the DB. It's located in the .tools folder
 define("DB_CA_CERT", dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '.tools' . DIRECTORY_SEPARATOR . 'DigiCertGlobalRootCA.crt.pem');

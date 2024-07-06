@@ -47,13 +47,13 @@ if (isset($_POST['id_token'], $_POST['state'])) {
             Output::error('User exists but is not an Entra ID or MS Live account', 400);
         }
         $userModel->update(['last_login' => date('Y-m-d H:i', time())], $userDetailsArray['id']);
-        $user->updateLastLogin($idTokenArray['preferred_username']);
+        //$user->updateLastLogin($idTokenArray['preferred_username']);
     } else {
         // User does not exist, let's create it (this will also update the last login)
         if ($idTokenArray['iss'] === 'https://login.live.com') {
-            $user->create($idTokenArray, 'mslive');
+            $user->create($idTokenArray, 'mslive', false);
         } else {
-            $user->create($idTokenArray, 'azure');
+            $user->create($idTokenArray, 'azure', false);
         }
     }
 

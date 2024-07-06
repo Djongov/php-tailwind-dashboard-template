@@ -6,6 +6,7 @@ use App\Logs\SystemLog;
 use App\Security\Firewall;
 use Controllers\Api\Output;
 use Components\DataGrid;
+use Components\Alerts;
 
 // First firewall check
 Firewall::activate();
@@ -20,48 +21,58 @@ if (!$isAdmin) {
     Output::error('You are not authorized to view this page', 401);
 }
 
-echo HTML::h2('PHP Errors');
-$loadErrorFileArray = [
-    'inputs' => [
-        'hidden' => [
-            [
-                'name' => 'api-action',
-                'value' => 'get-error-file'
-            ]
-        ]
-    ],
-    'theme' => $theme,
-    'action' => '/api/tools/get-error-file',
-    'resultType' => 'html',
-    'reloadOnSubmit' => false,
-    'submitButton' => [
-        'text' => 'Load Error File',
-        'size' => 'medium',
-    ],
-];
+// First check if error_log is there
+$errorLog = ini_get('error_log');
 
-$clearErrorFileformArray = [
-    'inputs' => [
-        'hidden' => [
-            [
-                'name' => 'api-action',
-                'value' => 'clear-error-file'
+if (empty($errorLog)) {
+    echo HTML::h2('Error Log', true);
+    echo Alerts::danger('No error log file is set in php.ini');
+} else {
+    echo HTML::h2('PHP Errors');
+    $loadErrorFileArray = [
+        'inputs' => [
+            'hidden' => [
+                [
+                    'name' => 'api-action',
+                    'value' => 'get-error-file'
+                ]
             ]
-        ]
-    ],
-    'theme' => $theme,
-    'action' => '/api/tools/clear-error-file',
-    'resultType' => 'html',
-    'reloadOnSubmit' => false,
-    'submitButton' => [
-        'text' => 'Clear Error File',
-        'size' => 'medium',
-    ],
-];
-echo '<div class="flex">';
-    echo Forms::render($loadErrorFileArray);
-    echo Forms::render($clearErrorFileformArray);
-echo '</div>';
+        ],
+        'theme' => $theme,
+        'action' => '/api/tools/get-error-file',
+        'resultType' => 'html',
+        'reloadOnSubmit' => false,
+        'submitButton' => [
+            'text' => 'Load Error File',
+            'size' => 'medium',
+        ],
+    ];
+
+    $clearErrorFileformArray = [
+        'inputs' => [
+            'hidden' => [
+                [
+                    'name' => 'api-action',
+                    'value' => 'clear-error-file'
+                ]
+            ]
+        ],
+        'theme' => $theme,
+        'action' => '/api/tools/clear-error-file',
+        'resultType' => 'html',
+        'reloadOnSubmit' => false,
+        'submitButton' => [
+            'text' => 'Clear Error File',
+            'size' => 'medium',
+        ],
+    ];
+    echo '<div class="flex">';
+        echo Forms::render($loadErrorFileArray);
+        echo Forms::render($clearErrorFileformArray);
+    echo '</div>';
+
+}
+
 
 echo DataGrid::fromData('Server Info', $_SERVER, $theme);
 

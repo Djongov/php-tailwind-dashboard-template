@@ -19,41 +19,33 @@ $pdo = $db->getConnection();
 
 // If a single delete somes from the button
 if (isset($_POST['table'], $_POST['id'])) {
-    $stmt = $pdo->prepare("SELECT * FROM " . $_POST['table'] . " WHERE id=?");
-    $stmt->execute([$_POST['id']]);
-    if ($stmt->rowCount() === 0) {
-        Output::error('No records were deleted', 400);
+
+    // Step 2: Delete the record
+    $stmt = $pdo->prepare("DELETE FROM " . $_POST['table'] . " WHERE id = ?");
+    try {
+        $stmt->execute([$_POST['id']]);
+        SystemLog::write('Record with id ' . $_POST['id'] . ' deleted from ' . $_POST['table'], 'DataGrid Delete');
+        echo Output::success('Successfully deleted the record with id ' . $_POST['id'] . ' from ' . $_POST['table']);
+    } catch (\PDOException $e) {
+        Output::error('Failed to delete the record', 400);
     }
-    $stmt = $pdo->prepare("DELETE FROM " . $_POST['table'] . " WHERE id=?");
-    $stmt->execute([$_POST['id']]);
-    if ($stmt->rowCount() > 0) {
-        SystemLog::write('Record id ' . $_POST['id'] . ' deleted from ' . $_POST['table'], 'DataGrid Delete');
-        echo Output::success('successfully deleted ' . $stmt->rowCount() . ' records');
-    }
-// Or mass delete from the Delete selected button
 } elseif (isset($_POST['deleteRecords'], $_POST['row'])) {
-    $ids = '';
-    foreach ($_POST['row'] as $index => $id) {
-        if ($index === 0) {
-            $ids .= '?';
-        } else {
-            $ids .= ',?';
-        }
-    }
+
+    $ids = implode(',', array_fill(0, count($_POST['row']), '?'));
+
+    // Construct the DELETE statement
     $sql = "DELETE FROM " . $_POST['deleteRecords'] . " WHERE id IN ($ids)";
 
     $stmt = $pdo->prepare($sql);
 
-    $stmt->execute([...$_POST['row']]);
-    
-    
-    if ($stmt->rowCount() === 0) {
-        Output::error('No records were deleted', 400);
+    try {
+        $stmt->execute($_POST['row']);
+        SystemLog::write('Records with ids ' . implode(',', $_POST['row']) . ' deleted from ' . $_POST['deleteRecords'], 'DataGrid Delete');
+        echo Output::success('Successfully deleted the records');
+    } catch (\PDOException $e) {
+        Output::error('Failed to delete the records', 400);
     }
-    if ($stmt->rowCount() > 0) {
-        SystemLog::write($stmt->rowCount() . ' records deleted from ' . $_POST['deleteRecords'], 'DataGrid Delete');
-        echo Output::success('successfully deleted ' . $stmt->rowCount() . ' records');
-    }
+       
 } else {
     Output::error('Incorrect arguments', 400);
 }
