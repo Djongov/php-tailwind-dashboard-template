@@ -10,3 +10,4 @@ composer.lock
 
 # Profile picutres
 /public/assets/images/profile/*
+.tools/*.db
