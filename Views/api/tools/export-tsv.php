@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);use Controllers\Api\Checks;
+<?php declare(strict_types=1);
+
+use Controllers\Api\Checks;
 
 $checks = new Checks($vars, $_POST);
 
@@ -9,7 +11,7 @@ if (isset($_POST['data'])) {
 } else {
     $data = '';
 }
-//var_dump($_POST['data']);
+
 $data = unserialize($data);
 
 if (isset($_POST['type'])) {
@@ -18,40 +20,33 @@ if (isset($_POST['type'])) {
     $type = '';
 }
 
-// Now, Sentinel returns JSON in a weird format where [ { has space between the two and we need to clean them, otherwise CSV breaks if there is JSON - }]
-// Took this genius method from https://stackoverflow.com/questions/51497618/replace-value-in-multidimensional-php-array
-foreach ($data as &$set) {
-    foreach ($set as &$subset) {
-        $subset = ($subset !== null) ? preg_replace('/\s+/', '', (string) $subset) : null;
-    }
-}
-unset($set, $subset); // avoid future variable interferences
-
-//$data[0]["details_matches_s"] = preg_replace('/\s+/', '',$data[0]["details_matches_s"]);
-
 // file name for download
 $fileName = $type . "-logs-data-" . date('Y-m-d-H-i-s') . ".tsv";
 
-$unique_heads = '';
 $excelData = '';
-// Let's map what the head of the CSV will be
-foreach ($data as $data_id => $heads) {
-    $unique_heads = array_unique(array_keys($heads));
+$unique_heads = [];
+
+// Let's map what the head of the TSV will be
+if (!empty($data)) {
+    $unique_heads = array_keys(reset($data));
 }
 
 // Display column names as first row 
-$excelData = implode("\t", array_values($unique_heads)) . "\n";
-
+$excelData = implode("\t", $unique_heads) . "\n";
 
 // And the actual data under the columns
 foreach ($data as $value) {
-    $excelData .= implode("\t", array_values($value)) . PHP_EOL;
+    $row = [];
+    foreach ($unique_heads as $key) {
+        $row[] = $value[$key] ?? '';
+    }
+    $excelData .= implode("\t", $row) . "\n";
 }
 
 // Headers for download
 header("Content-Type: text/tab-separated-values");
-//header("Content-Type: application/vnd.ms-excel");
 header("Content-Disposition: attachment; filename=\"$fileName\"");
 
 // Render excel data
 echo $excelData;
+exit;
