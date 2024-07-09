@@ -26,25 +26,3 @@ try {
 
 
 echo Alerts::success('Successfully connected to the database');
-
-// Now let's check if all the system tables are present
-$systemTables = [
-    'users',
-    'cache',
-    'firewall',
-    'csp_reports',
-    'csp_approved_domains',
-    'system_log'
-];
-
-//Now let's check if these tables exist
-// foreach ($systemTables as $table) {
-//     $query = "SHOW TABLES LIKE $table";
-//     $stmt = $pdo->prepare($query);
-//     $stmt->execute();
-//     $result = $stmt->fetch();
-//     if (!$result) {
-//         echo Alerts::danger('System table <b>' . $table . '</b> not found. Please make sure that you have ran the database migrations if you haven\'t used the /install method to deploy the app. The other options is that you probably pointed DB_NAME in the .env file to an existing database that has different tables than expected.');
-//         return;
-//     }
-// }

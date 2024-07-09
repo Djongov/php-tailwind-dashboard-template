@@ -31,7 +31,7 @@ if (!empty($data)) {
     $unique_heads = array_keys(reset($data));
 }
 
-// Display column names as first row 
+// Display column names as first row
 $excelData = implode("\t", $unique_heads) . "\n";
 
 // And the actual data under the columns

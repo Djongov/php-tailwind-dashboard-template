@@ -9,3 +9,5 @@ keywords: markdown, metadata, tutorial
 # This is a Markdown Page
 
 Here is a markdown page example
+
+If you want to add copy to clipboard functionality to your markdown, for example for code blocks, go to vendor/erusev/Parsedown.php and find `$class = 'language-'.$language` line 446 and replace it with this line ``` php $class = 'language-'.$language . ' c0py'; ```. You can repeat for other tags too.

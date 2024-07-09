@@ -110,44 +110,55 @@ echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
             }
             if ($name === 'theme') {
                 echo '<td class="w-full"><div class="flex my-2 flex-row"><strong>' . $name . '</strong> : ';
-                $themeOptions = [];
-                $currentTheme = '';
+                echo '<form class="select-submitter" method="PUT" action="/api/user/' . $usernameArray['id'] . '">';
+                echo '<select name="theme" class="' . HTML::selectInputClasses($theme) . '">';
                 foreach ($allowed_themes as $color) {
-                    $themeOptions[$color] = $color;
-                    if ($theme === $color) {
-                        $currentTheme = $color;
-                    }
+                    echo '<option value="' . $color . '" ' . (($setting === $color) ? 'selected' : '') . '>' . $color . '</option>';
                 }
-                $updateThemeOptioms = [
-                    'inputs' => [
-                        'select' => [
-                            'select' => [
-                                'label' => '',
-                                'name' => 'theme',
-                                'options' => $themeOptions,
-                                'selected_option' => $currentTheme,
-                                'searchable' => true
-                            ]
-                        ],
-                        'hidden' => [
-                            [
-                                'name' => 'username',
-                                'value' => $usernameArray['username']
-                            ]
-                        ],
+                echo '</select>';
+                    echo '<input type="hidden" name="username" value="' . $usernameArray['username'] . '">';
+                echo '</form>';
 
-                    ],
-                    'theme' => $theme, // Optional, defaults to COLOR_SCHEME
-                    'method' => 'PUT',
-                    'action' => '/api/user/' . $usernameArray['id'],
-                    'reloadOnSubmit' => true,
-                    'submitButton' => [
-                        'text' => 'Update',
-                        'size' => 'medium',
-                        //'style' => '&#10060;'
-                    ],
-                ];
-                echo Forms::render($updateThemeOptioms);
+                // $themeOptions = [];
+                // $currentTheme = '';
+                // foreach ($allowed_themes as $color) {
+                //     // Fill the themeOptions array with text and value $color
+                //     $themeOptions[] = ['text' => $color, 'value' => $color];
+                //     if ($setting === $color) {
+                //         $currentTheme = $color;
+                //     }
+                // }
+                // $updateThemeOptions = [
+                //     'inputs' => [
+                //         'select' => [
+                //             [
+                //                 'label' => '',
+                //                 'name' => 'theme',
+                //                 'title' => 'theme',
+                //                 'options' => $themeOptions,
+                //                 'selected' => $currentTheme,
+                //             ]
+                //         ],
+                //         'hidden' => [
+                //             [
+                //                 'name' => 'username',
+                //                 'value' => $usernameArray['username']
+                //             ]
+                //         ],
+
+                //     ],
+                //     'theme' => $theme, // Optional, defaults to COLOR_SCHEME
+                //     'method' => 'PUT',
+                //     'action' => '/api/user/' . $usernameArray['id'],
+                //     'reloadOnSubmit' => true,
+                //     'submitButton' => [
+                //         'text' => 'Update',
+                //         'size' => 'small',
+                //         //'style' => '&#10060;'
+                //     ],
+                // ];
+                // echo Forms::render($updateThemeOptions);
+
                 echo '</div></td>';
                 continue;
             }

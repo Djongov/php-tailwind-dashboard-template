@@ -38,11 +38,6 @@ class Forms
             }
 
             foreach ($options['inputs'] as $inputType => $inputArray) {
-                
-                // If checkbox group is there, let's add a unique class to it
-                if ($inputType === 'checkboxGroup') {
-                    $checboxGroupClass = 'checkbox-group-' . uniqid();
-                }
                 foreach ($inputArray as $inputOptionsArray) {
                     // Now let's conditionally set the optional input options
                     $value = (isset($inputOptionsArray['value'])) ? $inputOptionsArray['value'] : '';
@@ -110,53 +105,61 @@ class Forms
                     }
                     // Inputs such as checkbox
                     if ($inputType === 'checkbox') {
-                        $html .= HTML::checkbox($id, $inputOptionsArray['name'], $value, $label, $description, $checked, $disabled, $readonly, $theme,$extraClasses, $dataAttributes);
+                        $html .= HTML::checkbox($id, $inputOptionsArray['name'], $value, $label, $description, $required, $checked, $disabled, $readonly, $theme,$extraClasses, $dataAttributes);
                     }
                     // Inputs checbox group
                     if ($inputType === 'checkboxGroup') {
-                        array_push($extraClasses, $checboxGroupClass);
-                        $html .= HTML::checkbox($id, $inputOptionsArray['name'], $value, $label, $description, $checked, $disabled, $readonly, $theme,$extraClasses, $dataAttributes);
+                        $checboxGroupClass = 'checkbox-group-' . uniqid();
+                        $html .= '<div class="border border-gray-200 dark:border-gray-700 p-4 rounded-lg my-4">';
+                            $html .= HTML::label($id ?? uniqid(), $label);
+                            array_push($extraClasses, $checboxGroupClass);
+                            $name = $inputOptionsArray['name'];
+                            // Loop through the checkbox groups
+                            foreach ($inputOptionsArray['checkboxes'] as $checkbox) {
+                                $readonly = (isset($checkbox['readonly']) && $checkbox['readonly']) ? true : false;
+                                $disabled = (isset($checkbox['disabled']) && $checkbox['disabled']) ? true : false;
+                                $html .= HTML::checkbox($id, $name, $checkbox['value'], $checkbox['label'], $checkbox['description'], false, $checkbox['checked'], $disabled, $readonly, $theme, $extraClasses, $dataAttributes);
+                            }
+                            $html .= '<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">' . $inputOptionsArray['description'] . '</p>';
+                        $html .= '</div>';
                     }
                     if ($inputType === 'toggle') {
                         $html .= '<div class="my-2">';
-                            $html .= HTML::toggleCheckBox(uniqid(), $inputOptionsArray['name'], $value, $inputOptionsArray['description'], $checked, $theme, $disabled);
+                            $html .= HTML::toggleCheckBox($id, $inputOptionsArray['name'], $inputOptionsArray['description'], $checked, $theme, $disabled);
                         $html .= '</div>';
                     }
                     if ($inputType === 'select') {
                         $html .= '<div class="mb-6">';
-                        $html .= '<div class="my-2">';
-                        $title = (isset($inputOptionsArray['title'])) ? 'title="' . $inputOptionsArray['title'] . '"' : '';
-                        // Add a search input if searchable is set to true
-                        if (isset($inputOptionsArray['searchable']) && $inputOptionsArray['searchable']) {
-                            $html .= HTML::searchInput($theme);
-                        }
-                        $disabled = (isset($inputOptionsArray['disabled']) && $inputOptionsArray['disabled']) ? 'disabled' : '';
-                        $html .= '<label for="' . $inputOptionsArray['name'] . '" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">' . $inputOptionsArray['label'] . '</label>';
-                        $selectDivFlex = (isset($inputOptionsArray['searchFlex'])) ? $inputOptionsArray['searchFlex'] : 'flex-row';
-                        $html .= '<div class="w-fit flex ' . $selectDivFlex . ' flex-wrap">';
-                        if (isset($inputOptionsArray['search']) && $inputOptionsArray['search']) {
-                            $html .= HTML::searchInput($theme);
-                        }
-                        $html .= '<select name="' . $inputOptionsArray['name'] . '" class="' . Html::selectInputClasses($theme) . '" ' . $disabled . $title . '>';
-                        $html .= (isset($inputOptionsArray['description'])) ? '<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">' . $inputOptionsArray['description'] . '</p>' : null;
-                        $selectedOption = $inputOptionsArray['selected_option'] ?? null;
-                        // let's first find out if $inputOptionsArray['options'] is an indexed array, if it is, we will attempt to flatten it
-                        if (array_keys($inputOptionsArray['options']) === range(0, count($inputOptionsArray['options']) - 1)) {
-                            $inputOptionsArray['options'] = array_combine($inputOptionsArray['options'], $inputOptionsArray['options']);
-                        }
-                        foreach ($inputOptionsArray['options'] as $name => $value) {
-                            if ($selectedOption !== null && $selectedOption === $name) {
-                                $html .= '<option value="' . $value . '" selected>' . $name . '</option>';
-                            } else {
-                                $html .= '<option value="' . $value . '">' . $name . '</option>';
-                            }
-                        }
-                        $html .= '</select>';
-                        $html .= '</div>';
-                        if (isset($inputOptionsArray['description'])) {
-                            $html .= HTML::p($inputOptionsArray['description'], ['mt-2', 'ml-2', 'text-sm', 'text-gray-500', 'dark:text-gray-400']);
-                        }
-                        $html .= '</div>';
+                            $html .= '<div class="my-2">';
+                                $title = (isset($inputOptionsArray['title'])) ? 'title="' . $inputOptionsArray['title'] . '"' : '';
+                                // Add a search input if searchable is set to true
+                                if (isset($inputOptionsArray['searchable']) && $inputOptionsArray['searchable']) {
+                                    $html .= HTML::searchInput($theme);
+                                }
+                                $disabled = (isset($inputOptionsArray['disabled']) && $inputOptionsArray['disabled']) ? 'disabled' : '';
+                                $html .= '<label for="' . $inputOptionsArray['name'] . '" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">' . $inputOptionsArray['label'] . '</label>';
+                                $selectDivFlex = (isset($inputOptionsArray['searchFlex'])) ? $inputOptionsArray['searchFlex'] : 'flex-row';
+                                $html .= '<div class="w-fit flex ' . $selectDivFlex . ' flex-wrap">';
+                                    if (isset($inputOptionsArray['search']) && $inputOptionsArray['search']) {
+                                        $html .= HTML::searchInput($theme);
+                                    }
+                                    $html .= '<select name="' . $inputOptionsArray['name'] . '" class="' . Html::selectInputClasses($theme) . '" ' . $disabled . $title . '>';
+                                    $html .= (isset($inputOptionsArray['description'])) ? '<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">' . $inputOptionsArray['description'] . '</p>' : null;
+                                    $selectedOption = $inputOptionsArray['selected_option'] ?? null;
+
+                                    foreach ($inputOptionsArray['options'] as $array) {
+                                        if ($selectedOption !== null && $selectedOption === $array['value']) {
+                                            $html .= '<option value="' . $array['value'] . '" selected>' . $array['text'] . '</option>';
+                                        } else {
+                                            $html .= '<option value="' . $array['value'] . '">' . $array['text'] . '</option>';
+                                        }
+                                    }
+                                    $html .= '</select>';
+                                $html .= '</div>';
+                                if (isset($inputOptionsArray['description'])) {
+                                    $html .= HTML::p($inputOptionsArray['description'], ['mt-2', 'ml-2', 'text-sm', 'text-gray-500', 'dark:text-gray-400']);
+                                }
+                            $html .= '</div>';
                         $html .= '</div>';
                     }
                     // Hidden inputs
@@ -213,19 +216,21 @@ class Forms
             }
             if (isset($options['submitButton']['style'])) {
                 $html .= '<div class="my-2"><button ' . $buttonTitle . ' class="' . $additionalButtonClasses . ' cursor-pointer" ' . $buttonDisabled . '>' . $options['submitButton']['style'] . '</button></div>';
-            } else {
+            } elseif (isset($options['submitButton']['text'])) {
                 $html .= '
                         <div class="mt-4">
                             <button ' . $buttonId . ' ' . $buttonTitle . ' ' . $buttonType . ' ' . $buttonName . ' class="' . $additionalButtonClasses . ' ml-2 my-2 mb-2 inline-flex items-center justify-center text-md leading-7 text-' . $theme . '-50 bg-' . $theme . '-500 hover:bg-' . $theme . '-600 font-medium focus:ring-2 focus:ring-' . $theme . '-500 focus:ring-opacity-50 border border-transparent rounded-md shadow-sm" ' . $buttonDisabled . '>
                                 ' . $options['submitButton']['text'] . '
                             </button>
                         </div>';
+            } else {
+                throw new \Exception('submitButton text or style is a required form option');
             }
             $html .= '</form>';
         $html .= '</div>';
         return $html;
     }
-    public static function formAttributes(array $options)
+    public static function formAttributes(array $options) : string
     {
         // Now let's create an array that will hold the form data-attributes
         $formAttributesArray = [];

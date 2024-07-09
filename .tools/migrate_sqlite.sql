@@ -1,4 +1,3 @@
--- Create users table
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username VARCHAR(255) DEFAULT NULL,
@@ -17,7 +16,6 @@ CREATE TABLE IF NOT EXISTS users (
     enabled BOOLEAN DEFAULT NULL
 );
 
--- Create cache table
 CREATE TABLE IF NOT EXISTS cache (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     value VARCHAR(5000) NOT NULL,
@@ -28,7 +26,6 @@ CREATE TABLE IF NOT EXISTS cache (
     unique_property VARCHAR(255) NOT NULL
 );
 
--- Create firewall table
 CREATE TABLE IF NOT EXISTS firewall (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     ip_cidr VARCHAR(256) NOT NULL,
@@ -38,7 +35,6 @@ CREATE TABLE IF NOT EXISTS firewall (
     comment VARCHAR(1000) DEFAULT NULL
 );
 
--- Insert firewall rules
 INSERT INTO firewall (ip_cidr, created_by, comment)
 VALUES 
     ('127.0.0.1/32', 'System', 'private range'),
@@ -46,7 +42,6 @@ VALUES
     ('172.16.0.0/12', 'System', 'private range'),
     ('192.168.0.0/16', 'System', 'private range');
 
--- Create csp_reports table
 CREATE TABLE IF NOT EXISTS csp_reports (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -67,7 +62,6 @@ CREATE TABLE IF NOT EXISTS csp_reports (
     script_sample VARCHAR(1500) DEFAULT NULL
 );
 
--- Create csp_approved_domains table
 CREATE TABLE IF NOT EXISTS csp_approved_domains (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     domain VARCHAR(255) NOT NULL,
@@ -76,7 +70,6 @@ CREATE TABLE IF NOT EXISTS csp_approved_domains (
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create system_log table
 CREATE TABLE IF NOT EXISTS system_log (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     text TEXT NOT NULL,

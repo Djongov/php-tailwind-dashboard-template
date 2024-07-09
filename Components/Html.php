@@ -82,6 +82,14 @@ class Html
             return '<p class="mx-2 my-2 text-red-500 font-semibold ' . implode(' ', $extraClasses) . '">' . $text . '</p>';
         }
     }
+    public static function divBox($content, $extraClasses = []) : string
+    {
+        if (!$extraClasses) {
+            return '<div class="p-4 m-4 max-w-lg ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700">' . $content . '</div>';
+        } else {
+            return '<div class="p-4 m-4 max-w-lg ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700 ' . implode(' ', $extraClasses) . '">' . $content . '</div>';
+        }
+    }
     /* Form elements */
     public static function input(string $size, string $type, ?string $id, string $name, string $title, mixed $value, string $placeholder, string $description, string $label_name, string $theme, bool $disabled, bool $required, bool $readOnly, bool $encased = true, ?int $min = null, ?int $max = null, ?int $step = null, $pattern = '', $extraClasses = [], $dataAttributes = []) : string
     {
@@ -90,7 +98,7 @@ class Html
             array_push($extraClasses, 'cursor-not-allowed', 'border-red-500', 'dark:border-red-600');
         }
         // Check allowed types
-        $allowedTypes = ['text', 'number', 'email', 'password', 'search', 'datetime-local'];
+        $allowedTypes = ['text', 'number', 'email', 'password', 'search', 'datetime-local', 'tel'];
         if (!in_array($type, $allowedTypes)) {
             throw new \Exception('Invalid type for input. Needs to be one of: ' . implode(', ', $allowedTypes) . '.');
         }
@@ -215,7 +223,7 @@ class Html
 
         return $html;
     }
-    public static function checkbox(?string $id, string $name, string $value, string $label, ?string $description, bool $checked, bool $disabled, bool $readOnly, string $theme, array $extraClasses = []) : string
+    public static function checkbox(?string $id, string $name, string $value, string $label, ?string $description, bool $required, bool $checked, bool $disabled, bool $readOnly, string $theme, array $extraClasses = []) : string
     {
         if ($id === null || $id === '') {
             $id = uniqid() . $name;
@@ -239,9 +247,11 @@ class Html
         $disabled = $disabled ? 'disabled' : '';
         $readOnly = $readOnly ? 'readonly' : '';
         $checked = $checked ? 'checked' : '';
+        $required = $required ? 'required' : '';
         $html = '<div class="mt-2">';
             $html .= '<div class="flex items-center mb-4">';
-                $html .= '<input id="' . $id . '" name="' . $name . '" type="checkbox" value="' . $value . '" class="w-4 h-4 text-' . $theme . '-600 bg-gray-100 rounded border-gray-300 focus:ring-' . $theme . '-500 dark:focus:ring-' . $theme . '-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 ' . $extraClasses . '" ' . $checked . ' ' . $disabled . ' ' . $readOnly . '/>';
+                $html .= '<input id="' . $id . '" name="' . $name . '" type="checkbox" value="' . $value . '" class="w-4 h-4 text-' . $theme . '-600 bg-gray-100 rounded border-gray-300 focus:ring-' . $theme . '-500 dark:focus:ring-' . $theme . '-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 ' . $extraClasses . '" ' . $checked . ' ' . $disabled . ' ' . $readOnly . $required
+                 . '/>';
                 $html .= '<label for="' . $id . '" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">' . $label . '';
                     $html .= $description;
                 $html .= '</label>';
@@ -251,7 +261,7 @@ class Html
     }
     public static function label(string $name, string $label_name) : string
     {
-        return '<label for="' . $name . '" class="block mb-2 text-sm font-medium ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . '">' . $label_name . '</label>';
+        return '<label for="' . $name . '" class="block my-2 text-sm font-medium ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . '">' . $label_name . '</label>';
     }
     public static function code($text, $codeTitle = '', $classes = []) : string
     {
@@ -358,7 +368,7 @@ class Html
     {
         return '<button id="' . $id . '" type="button" class="w-16 h-10 bg-' . $theme . '-500 hover:bg-' . $theme . '-600 focus:ring-' . $theme . '-500 focus:ring-offset-' . $theme . '-200 text-white transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-lg">' . $text . '</button>';
     }
-    public static function toggleCheckBox($id, $name, $value, $text, $checked, $theme, $disabled = false) : string
+    public static function toggleCheckBox($id, $name, $text, $checked, $theme, $disabled = false) : string
     {
         if ($checked) {
             $checked = 'checked';
@@ -373,7 +383,7 @@ class Html
         $html = '';
         $html = '<div class="flex items-center justify-start">';
         $html .= '<label class="my-2 mx-2 relative inline-flex items-center cursor-pointer">';
-        $html .= '<input type="checkbox" id="' . $id . '" name="' . $name . '" class="sr-only peer awm-toggle" value="' . $value . '" ' . $checked . ' ' . $disabled . ' />';
+        $html .= '<input type="checkbox" id="' . $id . '" name="' . $name . '" class="sr-only peer awm-toggle" ' . $checked . ' ' . $disabled . ' />';
         $html .= '<div class="w-11 h-6 bg-gray-300 rounded-full peer peer-focus:ring-4 peer-focus:ring--300 dark:peer-focus:ring-' . $theme . '-800 dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[\'\'] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-' . $theme . '-600"></div>';
         $html .= '</label>';
         $html .= '<span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">' . $text . '</span>';

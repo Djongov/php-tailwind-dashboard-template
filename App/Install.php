@@ -2,7 +2,6 @@
 
 namespace App;
 
-use App\Database\DB;
 use Components\Alerts;
 use Components\Html;
 use Controllers\Api\Output;
@@ -18,38 +17,31 @@ class Install
         $html = '';
         $html .= HTML::h2('Database does not exist, attempting to create it', true);
 
-        //Connect to the database server without specifying the database
+        // Connect to the database server without specifying the database
         try {
+            $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
             if (DB_DRIVER === 'mysql') {
                 $dsn = sprintf("mysql:host=%s;port=%d;charset=utf8mb4", DB_HOST, DB_PORT);
-                $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
                 if (defined("DB_SSL") && DB_SSL) {
                     $options[PDO::MYSQL_ATTR_SSL_CA] = DB_CA_CERT;
                 }
             } elseif (DB_DRIVER === 'pgsql') {
-                $dsn = sprintf("pgsql:host=%s;port=%d", DB_HOST, DB_PORT);
+                // Connect to a common default database, like 'postgres'
+                $dsn = sprintf("pgsql:host=%s;port=%d;dbname=postgres", DB_HOST, DB_PORT);
                 if (defined("DB_SSL") && DB_SSL) {
                     $dsn .= sprintf(";sslmode=require;sslrootcert=%s", DB_CA_CERT);
                 }
-                $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
             } elseif (DB_DRIVER === 'sqlite') {
-                // $dsn = 'sqlite: ' . dirname($_SERVER['DOCUMENT_ROOT']) . '/.tools/' . DB_NAME . '.db';
-
-                // $options = [
-                //     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-                //     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                //     PDO::ATTR_EMULATE_PREPARES   => false,
-                // ];
-                $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
+                // Nothing to do, except pass the unsupported driver
             } else {
                 throw new \Exception('Unsupported DB_DRIVER: ' . DB_DRIVER);
             }
+
             if (DB_DRIVER !== 'sqlite') {
                 $conn = new PDO($dsn, DB_USER, DB_PASS, $options);
             }
         } catch (PDOException $e) {
-            Output::error('Connection error: ' . $e->getMessage(), 400);
-            return $html;
+            Output::error('Database connection error: ' . $e->getMessage(), 400);
         }
 
         // Create the database if it doesn't exist
@@ -57,25 +49,28 @@ class Install
             if (DB_DRIVER === 'mysql') {
                 $conn->exec("CREATE DATABASE IF NOT EXISTS " . DB_NAME . " CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
             } elseif (DB_DRIVER === 'pgsql') {
-                $conn->exec("CREATE DATABASE " . DB_NAME);
+                // PostgreSQL does not support the 'IF NOT EXISTS' clause for CREATE DATABASE
+                $query = $conn->query("SELECT 1 FROM pg_database WHERE datname = '" . DB_NAME . "'");
+                if (!$query->fetch()) {
+                    $conn->exec("CREATE DATABASE " . DB_NAME);
+                }
             } elseif (DB_DRIVER === 'sqlite') {
                 // For sqlite we need to create the database file
-                $dbFile = dirname($_SERVER['DOCUMENT_ROOT']) . '/.tools/' . DB_NAME . '.db';
                 $dbDir = dirname($_SERVER['DOCUMENT_ROOT']) . '/.tools';
                 $dbFile = '/' . DB_NAME . '.db';
                 $dbFullPath = $dbDir . $dbFile;
+
                 if (!is_writable($dbDir)) {
                     Output::error("Error: directory $dbDir is not writable.");
                 }
+
                 if (!file_exists($dbFullPath)) {
                     $conn = new PDO('sqlite:' . $dbFullPath);
                 }
             }
         } catch (PDOException $e) {
             Output::error('Database creation error: ' . $e->getMessage(), 400);
-            return $html;
         }
-
         // Reconnect to the newly created database
         try {
             if (DB_DRIVER === 'mysql') {
@@ -93,11 +88,10 @@ class Install
             
         } catch (PDOException $e) {
             Output::error('Database selection error: ' . $e->getMessage(), 400);
-            return $html;
         }
 
-        // Read and execute queries from the SQL file to create tables
-        $migrateFile = dirname($_SERVER['DOCUMENT_ROOT']) . '/.tools/migrate.sql';
+        // Read and execute queries from the SQL file to create tables. We have a different migrate file for different database drivers
+        $migrateFile = dirname($_SERVER['DOCUMENT_ROOT']) . '/.tools/migrate_' . DB_DRIVER . '.sql';
         $migrate = file_get_contents($migrateFile);
 
         try {
@@ -105,27 +99,15 @@ class Install
             $conn->exec($migrate);
         } catch (PDOException $e) {
             Output::error('Error in migrate file: ' . $e->getMessage(), 400);
-            return $html;
         }
 
         $ip = IP::currentIP();
 
-        // Now you can execute additional queries
-        try {
-            $stmt = $conn->prepare("INSERT INTO csp_approved_domains (domain, created_by) VALUES (?, 'System')");
-            $stmt->execute([$_SERVER['HTTP_HOST']]);
-        } catch (PDOException $e) {
-            Output::error('Inserting csp_approved_domains rule for host ' . $_SERVER['HTTP_HOST'] . ' error: ' . $e->getMessage(), 400);
-            return $html;
-        }
+        // Insert CSP approved domain for the current host
+        $this->createCSPApprovedDomain($conn, $_SERVER['HTTP_HOST']);
 
-        try {
-            $stmt = $conn->prepare("INSERT INTO firewall (ip_cidr, created_by, comment) VALUES (?, 'System', 'Initial Admin IP')");
-            $stmt->execute([$ip . '/32']);
-        } catch (PDOException $e) {
-            Output::error('Inserting firewall rule for IP ' . $ip . ' error: ' . $e->getMessage(), 400);
-            return $html;
-        }
+        // Insert firewall rule for the current IP
+        $this->createFirewallRule($conn, $ip);
 
         // Insert administrator for first time login but only if local login is used
         if (LOCAL_USER_LOGIN) {
@@ -140,14 +122,8 @@ class Install
                 }
             }
 
-            try {
-                $stmt = $conn->prepare("INSERT INTO users (username, password, email, name, last_ips, origin_country, role, last_login, theme, provider, enabled) VALUES ('admin', ?, 'admin', 'admin', ?, ?, 'administrator', ?, ?, 'local', CAST(? AS BOOLEAN));");
-                $now = (DB_DRIVER === 'sqlite') ? 'CURRENT_TIMESTAMP' : 'NOW()';
-                $stmt->execute([$hashedPassword, $ip, $countryCode, $now, COLOR_SCHEME, 1]);
-            } catch (PDOException $e) {
-                Output::error('Inserting admin user error: ' . $e->getMessage(), 400);
-                return $html;
-            }
+            $this->createAdminUser($conn, $hashedPassword, $ip, $countryCode);
+
             // Print the credentials to the screen
             $html .= Alerts::success('Database "' . DB_NAME . '" and system tables created successfully. Please go to <a class="underline" href="/login">Login</a> page. Use "admin" as username. Do not refresh the page until you have copied the password below.');
             $html .= HTML::p('<span class="c0py">' . $password . '</span>');
@@ -157,4 +133,40 @@ class Install
 
         return $html;
     }
+    public function createAdminUser($conn, $hashedPassword, $ip, $countryCode)
+    {
+        try {
+            $now = (DB_DRIVER === 'sqlite') ? 'CURRENT_TIMESTAMP' : 'NOW()';
+            $enabled = (DB_DRIVER === 'mysql') ? 1 : 'TRUE';
+
+            if (DB_DRIVER === 'mysql') {
+                $stmt = $conn->prepare("INSERT INTO users (username, password, email, name, last_ips, origin_country, role, last_login, theme, provider, enabled) VALUES ('admin', ?, 'admin', 'admin', ?, ?, 'administrator', $now, ?, 'local', ?);");
+                $stmt->execute([$hashedPassword, $ip, $countryCode, COLOR_SCHEME, $enabled]);
+            } elseif (DB_DRIVER === 'pgsql' || DB_DRIVER === 'sqlite') {
+                $stmt = $conn->prepare("INSERT INTO users (username, password, email, name, last_ips, origin_country, role, last_login, theme, provider, enabled) VALUES ('admin', ?, 'admin', 'admin', ?, ?, 'administrator', $now, ?, 'local', CAST(? AS BOOLEAN));");
+                $stmt->execute([$hashedPassword, $ip, $countryCode, COLOR_SCHEME, 1]);
+            }
+        } catch (PDOException $e) {
+            Output::error('Inserting admin user error: ' . $e->getMessage(), 400);
+        }
+    }
+    public function createFirewallRule($conn, $ip)
+    {
+        try {
+            $stmt = $conn->prepare("INSERT INTO firewall (ip_cidr, created_by, comment) VALUES (?, 'System', 'Initial Admin IP')");
+            $stmt->execute([$ip . '/32']);
+        } catch (PDOException $e) {
+            Output::error('Inserting firewall rule for IP ' . $ip . ' error: ' . $e->getMessage(), 400);
+        }
+    }
+    public function createCSPApprovedDomain($conn, $domain)
+    {
+        try {
+            $stmt = $conn->prepare("INSERT INTO csp_approved_domains (domain, created_by) VALUES (?, 'System')");
+            $stmt->execute([$domain]);
+        } catch (PDOException $e) {
+            Output::error('Inserting csp_approved_domains rule for domain ' . $domain . ' error: ' . $e->getMessage(), 400);
+        }
+    }
+
 }

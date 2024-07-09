@@ -60,6 +60,24 @@ const handleFormFetch = (form, currentEvent, resultType) => {
             console.log(`Setting ${checkbox.name} to ${checkboxValue}`);
         });
     }
+    // Let's deal with groupped checkboxes now on submittion time
+    const checkboxesInGroups = form.querySelectorAll('[class*="checkbox-group-"]');
+    checkboxesInGroups.forEach(checkbox => {
+        const groupName = checkbox.classList[checkbox.classList.length - 1];
+        const checkboxesPerGroup = form.querySelectorAll(`.${groupName}`);
+        checkboxesPerGroup.forEach(groupCheckbox => {
+            if (groupCheckbox.checked) {
+                formData.set(groupCheckbox.name, groupCheckbox.value);
+            }
+        });
+        // Let's handle if none of the checkboxes in the group is checked
+        const checkedCheckboxes = form.querySelectorAll(`.${groupName}:checked`);
+        if (checkedCheckboxes.length === 0) {
+            // unset the value of the name
+            formData.delete(checkboxesInGroups[0].name);
+        }
+    });
+    // Encode the form data
     const data = new URLSearchParams(formData);
 
     const formMethod = form.getAttribute('data-method');
@@ -116,6 +134,7 @@ const handleFormFetch = (form, currentEvent, resultType) => {
                 }
                 return response.json();
             }
+            console.log(resultType);
             // Hanle after the response comes
         }).then(response => {
             currentEvent.submitter.innerText = initialSubmitName;
@@ -126,7 +145,11 @@ const handleFormFetch = (form, currentEvent, resultType) => {
             }
             // If the response is of type text()
             if (typeof response === 'string') {
-                newResultDiv.innerHTML = `${response}`;
+                if (resultType === 'html') {
+                    newResultDiv.innerHTML = `${response}`;
+                } else {
+                    newResultDiv.innerText = response;
+                }
                 // Let's search the response for table and if we find a table, get the table id
                 const tablesArray = newResultDiv.querySelectorAll('table');
                 // If there are any tables in the result, there is a good chance that they are datagrids and will need initialization
@@ -142,6 +165,21 @@ const handleFormFetch = (form, currentEvent, resultType) => {
                             buildDataGridFilters(dataTable, tableId, []);
                         });
                     })
+                }
+                if (form.getAttribute("data-reload") === "true") {
+                    location.reload();
+                    // Otherwise display the returned data
+                } else if (form.getAttribute("data-redirect")) {
+                    location.href = form.getAttribute("data-redirect");
+                    // If data-delete-current-row, delete the current <tr> element
+                } else if (form.getAttribute("data-delete-current-row")) {
+                    // Now find the closest tr and delete it
+                    currentEvent.target.closest("tr").remove();
+                    /*
+                    let td = currentEvent.target.parentNode.parentNode;
+                    let tr = td.parentNode;
+                    tr.parentNode.removeChild(tr);
+                    */
                 }
                 // If there were copy buttons in the response, let's initiate them
                 copyToClipboard();
@@ -311,14 +349,11 @@ const initiateGenericForms = () => {
         genericForms.forEach(form => {
             // Let's search for checkbox groups in the form. They all start with checkbox-group- followed by a random string. Let's try to catch each group
             const checkboxesInGroups = form.querySelectorAll('[class*="checkbox-group-"]');
-            console.log(`Found ${checkboxesInGroups.length} checkboxes in groups in form`);
 
             checkboxesInGroups.forEach(checkbox => {
                 const groupName = checkbox.classList[checkbox.classList.length - 1];
-                console.log(`Group name is ${groupName}`);
 
                 const checkboxesPerGroup = form.querySelectorAll(`.${groupName}`);
-                console.log(`Found ${checkboxesPerGroup.length} checkboxes in group ${groupName}`);
 
                 checkboxesPerGroup.forEach(groupCheckbox => {
                     groupCheckbox.addEventListener('change', () => {
@@ -336,8 +371,10 @@ const initiateGenericForms = () => {
             if (!form.hasAttribute('data-submit-listener')) {
                 // Attach submit event
                 form.addEventListener('submit', (event) => {
-                    // Prevent normal submitting
-                    event.preventDefault();
+                    // Prevent normal submitting only if target is not _blank
+                    if (form.getAttribute('target') !== '_blank') {
+                        event.preventDefault();
+                    }
                     // Check the result type (text or html) if declared in the form
                     let resultType = form.getAttribute('data-result');
                     // Remember the initial button text
@@ -366,24 +403,10 @@ const changeForms = document.querySelectorAll('form.select-submitter');
 if (changeForms.length > 0) {
     changeForms.forEach(form => {
         const currentSelectionIndex = form.firstChild.selectedIndex;
-        const formData = new FormData(form);
-        const apiAction = formData.get('api-action');
-        const organization = formData.get('organization');
-        const username = formData.get('username');
         form.addEventListener('change', (event) => {
             const currentSelectedOption = form.firstChild.options[form.firstChild.selectedIndex].value;
             event.preventDefault();
-            let modalText = 'Are you sure?';
-            // Let's find out if we deal with update membership
-            if (apiAction) {
-                if (apiAction === 'update-membership') {
-                    if (currentSelectedOption === 'Owner') {
-                        modalText = `You are choosing to make ${username} an Owner of ${organization} organization. This will convert your role to Contributor and ${username}\'s to Owner. Are you sure you want to proceed?`;
-                    } else {
-                        modalText = `You are changing the role of ${username} to ${currentSelectedOption} in ${organization}. Are you sure you want to proceed?`;
-                    }
-                }
-            }
+            let modalText = (form.hasAttribute('data-modal-text') ? form.getAttribute('data-modal-text') : 'Are you sure?');
             const randomId = generateUniqueId(4);
             // Generate the modal
             const modal = generateModal(modalText, randomId);
@@ -397,6 +420,7 @@ if (changeForms.length > 0) {
             const cancelButtonsArray = [cancelButton, xCancelButton];
             // Hide the modal
             modal.classList.remove('hidden');
+            
             // So on Yes click on the modal, remove the modal and start the fetch function
             confirmButton.addEventListener('click', () => {
                 modal.remove();
@@ -413,18 +437,44 @@ if (changeForms.length > 0) {
                 form.parentNode.insertBefore(loadingDiv, form.nextSibling);
                 modal.remove();
 
+                let responseStatus = 0;
+                let contentType = '';
+
                 fetch(form.action, {
-                    method: form.method,
+                    method: 'PUT',
                     body: new URLSearchParams(new FormData(form)),
                     redirect: 'manual'
-                }).then(response => response.json()
-                ).then(json => {
-                    console.log(json);
-                    if (json.error) {
-                        alert(json.error);
+                }).then(response => {
+                    contentType = response.headers.get("content-type");
+                    responseStatus = response.status;
+                    // If response is redirect (0) or 403 return by the server, usually token expired, reload the page
+                    if (responseStatus === 0 || responseStatus === 403) {
+                        if (response.type === 'opaqueredirect') {
+                            // redirect to the desired page response.url
+                            location.reload(response.url);
+                        } else {
+                            // Handle fetch interruption
+                            location.reload();
+                        }
+                    } else if (responseStatus === 405) {
+                        return response.text();
                     } else {
+                        if (contentType && contentType.indexOf("application/json") === -1) {
+                            return response.text();
+                        }
+                        return response.json();
+                    }
+                    // Hanle after the response comes
+                }).then(json => {
+                    if (responseStatus === 200 && contentType.indexOf("application/json") > -1) {
+                        // If response is not JSON at all, return the response text as alert
                         loadingDiv.classList.add('text-green-500', 'font-semibold', 'text-xl');
                         loadingDiv.innerHTML = '&#x2713;';
+                    } else {
+                        loadingDiv.remove();
+                        // Restore currentSelection option to what it was
+                        form.firstChild.selectedIndex = currentSelectionIndex;
+                        alert(json);
                     }
                 })
             });

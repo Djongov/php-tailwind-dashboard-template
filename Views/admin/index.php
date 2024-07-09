@@ -75,9 +75,3 @@ echo '<div class="p-4 m-4 max-w-md ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg b
     echo HTML::p('Total tables: ' . count($dbTables));
     echo \Components\Table::auto($dbTables);
 echo '</div>';
-
-echo '<div class="max-w-md">';
-    echo Gallery::fromFolder($_SERVER['DOCUMENT_ROOT'] . '/assets/images', 'Public Images', false, false, '160', 'auto');
-echo '</div>';
-
-echo Components\Image::display('/assets/images/msft.png', 'Microsoft Logo', 'Microsoft Logo', '150', 'auto', true, 'qweqweqwe');
