@@ -44,7 +44,7 @@ class Html
             array_push($extraClasses, 'text-center');
         }
         if (!$extraClasses) {
-            return '<h4 class="mx-2 my-2 text-md font-bold ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' break-words' . $extraClasses . '">' . $text . '</h4>';
+            return '<h4 class="mx-2 my-2 text-md font-bold ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' break-words">' . $text . '</h4>';
         } else {
             return '<h4 class="mx-2 my-2 text-md font-bold ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' break-words ' . implode(' ', $extraClasses) . '">' . $text . '</h4>';
         }

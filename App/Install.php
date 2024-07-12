@@ -47,7 +47,7 @@ class Install
         // Create the database if it doesn't exist
         try {
             if (DB_DRIVER === 'mysql') {
-                $conn->exec("CREATE DATABASE IF NOT EXISTS " . DB_NAME . " CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
+                $conn->exec("CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
             } elseif (DB_DRIVER === 'pgsql') {
                 // PostgreSQL does not support the 'IF NOT EXISTS' clause for CREATE DATABASE
                 $query = $conn->query("SELECT 1 FROM pg_database WHERE datname = '" . DB_NAME . "'");

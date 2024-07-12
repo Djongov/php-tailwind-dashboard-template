@@ -179,34 +179,53 @@ class DB
     public function checkDBColumnsAndTypes(array $array, string $table) : void
     {
         $dbTableArray = $this->describe($table);
-        
+
         // First check if all columns exist in the database
-        foreach ($array as $column=>$data) {
+        foreach ($array as $column => $data) {
             if (!array_key_exists($column, $dbTableArray)) {
                 throw new \Exception("Column '$column' does not exist in table '$table'");
             }
+
             // Now let's check the data types
             $expectedType = $dbTableArray[$column];
             $expectedType = self::normalizeDataType($expectedType);
-            // Let's do the data type now
+
+            // Determine the actual data type
             if (is_string($data)) {
                 if (General::isDateOrDatetime($data)) {
                     $dataType = 'datetime';
                 } else {
                     $dataType = 'string';
                 }
-            } elseif (in_array($data, ['0', '1', 'true', 'false', 1, 0])) {
-                $dataType = 'bool';
+            } elseif (in_array($data, ['0', '1', 'true', 'false', true, false, 1, 0], true)) {
+                // Determine if the column should be treated as boolean
+                if ($this->isBooleanColumn($expectedType)) {
+                    $dataType = 'bool';
+                } else {
+                    $dataType = 'int';
+                }
             } elseif (is_numeric($data)) {
                 $dataType = 'int';
             } else {
                 $dataType = gettype($data);
             }
+
             // Compare the data types
             if ($dataType !== $expectedType) {
                 throw new \Exception("Data type mismatch for column '$column'. Expected '$expectedType', got '$dataType'");
             }
         }
+    }
+
+    private function isBooleanColumn(string $expectedType): bool
+    {
+        if (DB_DRIVER === 'mysql' && $expectedType === 'tinyint(1)') {
+            return true;
+        }
+        if ((DB_DRIVER === 'pgsql' || DB_DRIVER === 'sqlite') && $expectedType === 'boolean') {
+            return true;
+        }
+        return false;
     }
 
     private static function normalizeDataType($type) : string

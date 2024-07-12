@@ -440,9 +440,22 @@ if (changeForms.length > 0) {
                 let responseStatus = 0;
                 let contentType = '';
 
+                const formData = new FormData(form);
+
+                // Convert FormData to JSON object
+                const jsonObject = {};
+                formData.forEach((value, key) => {
+                    jsonObject[key] = value;
+                });
+
                 fetch(form.action, {
                     method: 'PUT',
-                    body: new URLSearchParams(new FormData(form)),
+                    headers: {
+                        'Content-Type': 'application/json', // Set content type to JSON
+                        'x-csrf-token': form.querySelector('input[name="csrf_token"]').value,
+                        'secretheader': 'badass'
+                    },
+                    body: JSON.stringify(jsonObject), // Convert JSON object to string
                     redirect: 'manual'
                 }).then(response => {
                     contentType = response.headers.get("content-type");
@@ -474,7 +487,7 @@ if (changeForms.length > 0) {
                         loadingDiv.remove();
                         // Restore currentSelection option to what it was
                         form.firstChild.selectedIndex = currentSelectionIndex;
-                        alert(json);
+                        alert(JSON.stringify(json));
                     }
                 })
             });

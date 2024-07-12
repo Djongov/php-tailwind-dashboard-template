@@ -6,6 +6,8 @@ A template for quickly deploying apps (best suited for dashboard apps) that will
 
 Dependencies you can see in the `composer.json` file. Make sure to run `composer update` on fresh pulls.
 
+Create a directory called `profile` in /public/assets/images
+
 ## To Do
 
 - Find a way to secure /login?destination=https://bad-domain.com. Logic to rewrite the "state" paramter is there but JS does something to prevent it from functioning well

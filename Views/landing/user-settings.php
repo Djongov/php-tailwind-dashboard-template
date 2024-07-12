@@ -111,12 +111,13 @@ echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
             if ($name === 'theme') {
                 echo '<td class="w-full"><div class="flex my-2 flex-row"><strong>' . $name . '</strong> : ';
                 echo '<form class="select-submitter" method="PUT" action="/api/user/' . $usernameArray['id'] . '">';
-                echo '<select name="theme" class="' . HTML::selectInputClasses($theme) . '">';
-                foreach ($allowed_themes as $color) {
-                    echo '<option value="' . $color . '" ' . (($setting === $color) ? 'selected' : '') . '>' . $color . '</option>';
-                }
-                echo '</select>';
-                    echo '<input type="hidden" name="username" value="' . $usernameArray['username'] . '">';
+                    echo '<select name="theme" class="' . HTML::selectInputClasses($theme) . '">';
+                    foreach ($allowed_themes as $color) {
+                        echo '<option value="' . $color . '" ' . (($setting === $color) ? 'selected' : '') . '>' . $color . '</option>';
+                    }
+                    echo '</select>';
+                        echo '<input type="hidden" name="username" value="' . $usernameArray['username'] . '">';
+                        echo App\Security\CSRF::createTag();
                 echo '</form>';
 
                 // $themeOptions = [];
