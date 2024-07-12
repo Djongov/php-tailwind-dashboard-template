@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') :
 
 <script src="/assets/js/create-env.js?<?=time()?>"></script>
 
-<?php declare(strict_types=1);endif;
+<?php endif;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
