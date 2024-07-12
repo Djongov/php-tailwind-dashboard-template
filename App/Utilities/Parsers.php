@@ -8,6 +8,10 @@ class Parsers
     {
         $yaml_data = [];
         $lines = explode("\n", $yaml_string);
+        // if the first line is not a yaml start, return empty array
+        if (!$lines[0] || !str_starts_with($lines[0], '---')) {
+            return $yaml_data;
+        }
         foreach ($lines as $line) {
             $line = trim($line);
             if (empty($line) || $line[0] === '#') {

@@ -20,7 +20,7 @@ $checks->checkParams($allowedParams, $_POST);
 
 $query = $_POST['query'];
 
-if (str_starts_with($query, 'DROP') || str_starts_with($query, 'TRUNCATE')) {
+if (str_contains($query, 'DROP') || str_contains($query, 'TRUNCATE')) {
     echo Alerts::danger('You cannot execute DROP or TRUNCATE queries');
     return;
 }
@@ -35,7 +35,12 @@ $db = new DB();
 
 $pdo = $db->getConnection();
 
-$stmt = $pdo->prepare($query);
+try {
+    $stmt = $pdo->prepare($query);
+} catch (\PDOException $e) {
+    echo Alerts::danger('Error preparing query: ' . $e->getMessage());
+    return;
+}
 
 // In this particular situation we will be catching the exception because we want to display the error message
 try {

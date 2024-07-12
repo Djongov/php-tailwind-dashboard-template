@@ -35,6 +35,7 @@ ORDER BY Count DESC;',
         ]
     ],
     'action' => '/api/admin/queries',
+    'resultType' => 'html',
     'submitButton' => [
         'text' => 'Submit',
         'size' => 'small',

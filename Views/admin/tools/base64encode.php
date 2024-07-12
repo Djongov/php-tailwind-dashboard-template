@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 use Components\Forms;
 
 $formOptions = [
@@ -14,6 +15,7 @@ $formOptions = [
         ]
     ],
     "action" => "/api/tools/base64encode",
+    "resultType" => "html",
     "submitButton" => [
         "text" => "Encode",
         "size" => "medium",
