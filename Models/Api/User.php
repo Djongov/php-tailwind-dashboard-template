@@ -81,6 +81,7 @@ class User
         if ($this->exists($data['username'])) {
             throw (new UserExceptions)->userAlreadyExists();
         }
+
         $db = new DB();
 
         // Now let's check if the structure of the data matches the table

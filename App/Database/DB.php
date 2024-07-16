@@ -225,6 +225,10 @@ class DB
         if ((DB_DRIVER === 'pgsql' || DB_DRIVER === 'sqlite') && $expectedType === 'boolean') {
             return true;
         }
+        // and bool
+        if ($expectedType === 'bool') {
+            return true;
+        }
         return false;
     }
 

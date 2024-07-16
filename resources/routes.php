@@ -41,6 +41,10 @@ return function (RouteCollector $router) {
     $router->addRoute('GET', '/register', [$viewsFolder . '/landing/register.php', $genericMetaDataArray]);
     // User settings page
     $router->addRoute('GET', '/user-settings', [$viewsFolder . '/landing/user-settings.php', $genericMetaDataArray]);
+    // Terms of service
+    $router->addRoute('GET', '/terms-of-service', [$viewsFolder . '/landing/terms-of-service.php', $genericMetaDataArray]);
+    // Privacy policy
+    $router->addRoute('GET', '/privacy-policy', [$viewsFolder . '/landing/privacy-policy.php', $genericMetaDataArray]);
 
     // Example
     $router->addRoute('GET', '/charts', [$viewsFolder . '/example/charts.php', $genericMetaDataArray]);

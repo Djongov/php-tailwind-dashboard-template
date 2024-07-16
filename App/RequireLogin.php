@@ -33,6 +33,8 @@ class RequireLogin
             '/datagrid',
             '/blablabla', // to showcase the 404 page,
             '/logout',
+            '/terms-of-service',
+            '/privacy-policy',
         ];
         
         $loggedIn = false;

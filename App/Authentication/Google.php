@@ -116,11 +116,11 @@ class Google
             //echo 'Pulling token';
             $cachedToken = IdTokenCache::get(JWT::parseTokenPayLoad($idToken)['email']);
             // Let's check if the expiration time of the token is different from the cached one, if not we need to update it, however the expiration in the cached token needs to eb converted to timestamp
-            $dbExpirationDatetime = new \DateTime($cachedToken['expiration'], new \DateTimeZone('UTC'));
-            $cachedTokenExpiration = $dbExpirationDatetime->getTimestamp();
+            $cachedTokenExpiration = strtotime($cachedToken['expiration']);
             // Check if the Token's expiration is different from the cached one
             $tokenExpiration = JWT::parseTokenPayLoad($idToken)['exp'];
             if ($tokenExpiration !== $cachedTokenExpiration) {
+
                 // Replace the token with the current one but verify it first
                 $client = new Client(['client_id' => GOOGLE_CLIENT_ID]);
                 $client->setHttpClient(new \GuzzleHttp\Client(['verify' => CURL_CERT, 'timeout' => 60, 'http_errors' => false]));
