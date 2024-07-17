@@ -24,9 +24,9 @@ const createPieChart = (name, parentNodeId, canvasId, containerHeight, container
         theme = 'light';
     }
 
-    const titleColor = (theme === 'dark') ? '#9ca3af' : '#111827';
+    const titleColor = (theme === 'dark') ? 'white' : 'black';
 
-    const labelColor = (theme === 'dark') ? '#9ca3af' : '#111827';
+    const labelColor = (theme === 'dark') ? 'white' : 'black';
 
     let backgroundColorArray = [];
     /*
@@ -217,6 +217,13 @@ const createLineChart = (title, parentDiv, width, height, labels, data) => {
         'rgba(255, 0, 255, 1)', // magenta
         'rgba(128, 128, 128, 1)' // grey
     ]; // Array of colors
+
+    // Find out the theme - dark or light
+    let theme = getCurrentTheme();
+
+    const textColor = (theme === 'dark') ? 'white' : 'black';
+    const gridColor = (theme === 'dark') ? 'rgba(128, 128, 128, 0.65)' : 'rgba(128, 128, 128, 0.4)';
+
     
     data.forEach((array, index) => {
         let calculatedTarget = Object.entries(array)[0][1];
@@ -230,11 +237,11 @@ const createLineChart = (title, parentDiv, width, height, labels, data) => {
             borderColor: color,
             backgroundColor: color,
             fill: false,
-            tension: 0.1,
+            tension: 0.1
         });
     });
 
-    new Chart(canvas, {
+    const lineChart = new Chart(canvas, {
         type: 'line',
         data: {
             datasets: lineDataSets,
@@ -246,15 +253,43 @@ const createLineChart = (title, parentDiv, width, height, labels, data) => {
             plugins: {
                 legend: {
                     position: 'top',
+                    display: true,
+                    labels: {
+                        padding: 20,
+                        color: textColor,
+                        fontSize: 12,
+                        borderWidth: 1,
+                    }
                 },
                 title: {
                     display: true,
                     text: title,
+                    color: textColor,
+                },
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: textColor, // Color for x-axis labels
+                        margin: 10,
+                    },
+                    grid: {
+                        color: gridColor, // Color for y-axis grid lines
+                    },
+                },
+                y: {
+                    ticks: {
+                        color: textColor, // Color for y-axis labels
+                        margin: 10,
+                    },
+                    grid: {
+                        color: gridColor, // Color for y-axis grid lines
+                    },
                 },
             },
         }
     });
-
+    lineChart.update();
 }
 
 const doughnutChart = (name, parentNodeId, height, width, labels, data) => {
@@ -269,16 +304,7 @@ const doughnutChart = (name, parentNodeId, height, width, labels, data) => {
     containerDiv.appendChild(canvas);
 
     // Find out the theme - dark or light
-    let theme = '';
-    if (localStorage.getItem('color-theme')) {
-        if (localStorage.getItem('color-theme') === 'dark') {
-            theme = 'dark';
-        } else {
-            theme = 'light';
-        }
-    } else {
-        theme = 'light';
-    }
+    let theme = getCurrentTheme();
 
     const titleColor = (theme === 'dark') ? '#9ca3af' : '#111827';
 
@@ -373,50 +399,6 @@ const doughnutChart = (name, parentNodeId, height, width, labels, data) => {
     });
     return chart;
 }
-class Stopwatch {
-    constructor(timerId) {
-        this.timer = document.getElementById(timerId);
-        this.offset = 0;
-        this.clock = 0;
-        this.interval = null;
-        this.timer.innerHTML = '0s';
-    }
-
-    start() {
-        if (!this.interval) {
-            this.offset = Date.now();
-            this.interval = setInterval(() => this.update(), 0.1);
-        }
-    }
-
-    stop() {
-        if (this.interval) {
-            clearInterval(this.interval);
-            this.interval = null;
-        }
-    }
-
-    reset() {
-        this.clock = 0;
-        this.render();
-    }
-
-    update() {
-        this.clock += this.delta();
-        this.render();
-    }
-
-    render() {
-        this.timer.innerHTML = (this.clock / 1000).toFixed(3) + 's';
-    }
-
-    delta() {
-        const now = Date.now();
-        const d = now - this.offset;
-        this.offset = now;
-        return d;
-    }
-}
 
 // Gauge
 const createGauge = (parentDiv, title, width, height, currentValue, maxValue) => {
@@ -478,20 +460,9 @@ const gauge = (title, parentNodeId, width, height, labels, deita) => {
     canvas.width = width;
 
     // Find out the theme - dark or light
-    let theme = '';
-    if (localStorage.getItem('color-theme')) {
-        if (localStorage.getItem('color-theme') === 'dark') {
-            theme = 'dark';
-        } else {
-            theme = 'light';
-        }
-    } else {
-        theme = 'light';
-    }
+    let theme = getCurrentTheme();
 
-    const titleColor = (theme === 'dark') ? '#9ca3af' : '#111827';
-
-    const labelColor = (theme === 'dark') ? '#9ca3af' : '#111827';
+    const titleColor = (theme === 'dark') ? 'white' : 'black';
 
     // data for the gauge chart
     // you can supply your own values here
@@ -573,7 +544,7 @@ const gauge = (title, parentNodeId, width, height, labels, deita) => {
                                 weight: 'bold'
                             },
                             backgroundColor: 'green',
-                            color: '#777'
+                            color: titleColor
                         }
                     ]
                 },
@@ -612,13 +583,18 @@ const createBarChart = (title, parentDiv, width, height, labels, data) => {
         'rgba(128, 128, 128, 1)' // grey
     ];
 
+    // Find the current theme
+    let theme = getCurrentTheme();
+
+    const textColor = (theme === 'dark') ? 'white' : 'black';
+
     let ctx = canvas.getContext('2d');
     let myChart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: labels,
             datasets: [{
-                label: 'Players in this rating range',
+                label: title,
                 data: data,
                 backgroundColor: colors.slice(0, data.length),
                 borderColor: colors.slice(0, data.length),
@@ -632,10 +608,17 @@ const createBarChart = (title, parentDiv, width, height, labels, data) => {
                 legend: {
                     position: 'top',
                     display: false,
+                    labels: {
+                        padding: 20,
+                        color: textColor,
+                        fontSize: 12,
+                        borderWidth: 1,
+                    }
                 },
                 title: {
                     display: true,
                     text: title,
+                    color: textColor,
                 },
             },
             scales: {
@@ -645,4 +628,6 @@ const createBarChart = (title, parentDiv, width, height, labels, data) => {
             }
         }
     });
+
+    myChart.update();
 };

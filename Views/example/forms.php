@@ -20,6 +20,7 @@ $formOptions = [
         ],
     ],
     'action' => '/api/example',
+    'stopwatch' => 'example',
     'submitButton' => [
         'text' => 'Submit',
         'size' => 'large',
@@ -39,6 +40,7 @@ $formOptions = [
         ],
     ],
     "action" => "/api/example",
+    "stopwatch" => "example",
     "submitButton" => [
         "text" => "Submit",
         "size" => "large",
@@ -260,6 +262,7 @@ $formOptions = [
     'resultType' => 'html', // html or text, optional defaults to text
     //'doubleConfirm' => true,
     //'doubleConfirmKeyWord' => 'delete',
+    "stopwatch" => "userform",
     'submitButton' => [
         'text' => 'Submit',
         'id' => uniqid(),

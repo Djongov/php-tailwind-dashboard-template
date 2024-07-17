@@ -1,3 +1,49 @@
+
+class Stopwatch {
+    constructor(timerElement) {
+        this.timer = timerElement;
+        this.offset = 0;
+        this.clock = 0;
+        this.interval = null;
+        this.timer.innerHTML = '0s';
+    }
+
+    start() {
+        if (!this.interval) {
+            this.offset = Date.now();
+            this.interval = setInterval(() => this.update(), 100);
+        }
+    }
+
+    stop() {
+        if (this.interval) {
+            clearInterval(this.interval);
+            this.interval = null;
+        }
+    }
+
+    reset() {
+        this.clock = 0;
+        this.render();
+    }
+
+    update() {
+        this.clock += this.delta();
+        this.render();
+    }
+
+    render() {
+        this.timer.innerHTML = (this.clock / 1000).toFixed(2) + 's';
+    }
+
+    delta() {
+        const now = Date.now();
+        const d = now - this.offset;
+        this.offset = now;
+        return d;
+    }
+}
+
 // This is the fucntion that will create the modal for the form submission if confirm class on the form exists
 const generateModal = (text, id) => {
     // Create the html element div
@@ -46,6 +92,50 @@ const handleFormFetch = (form, currentEvent, resultType) => {
         </svg>
     </div>
     `;
+    let stopwatch;
+
+    // Initialize the stopwatch if data-stopwatch is set
+    if (form.hasAttribute('data-stopwatch')) {
+        // Remove any existing stopwatch div
+        const existingStopwatchDiv = form.querySelector(`#${form.getAttribute('data-stopwatch')}-stopwatch`);
+        if (existingStopwatchDiv) {
+            existingStopwatchDiv.remove();
+        }
+
+        // Create a new div for the stopwatch
+        const stopwatchDiv = document.createElement('div');
+        stopwatchDiv.id = `${form.getAttribute('data-stopwatch')}-stopwatch`;
+        stopwatchDiv.classList.add('flex', 'items-center', 'text-md', 'text-gray-700', 'dark:text-gray-200', 'font-semibold', 'm-2');
+
+        // Clock SVG
+        const clockSvg = `
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 stroke-gray-900 dark:stroke-gray-200">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>`;
+
+        // Span for '0s' text
+        const timeSpan = document.createElement('span');
+        timeSpan.classList.add('ml-1');
+        timeSpan.textContent = '0s';
+
+        // Append SVG and span to stopwatchDiv
+        stopwatchDiv.innerHTML = clockSvg;
+        stopwatchDiv.appendChild(timeSpan);
+
+        // Append stopwatchDiv to form
+        form.appendChild(stopwatchDiv);
+
+        // Initialize Stopwatch class with the span element
+        stopwatch = new Stopwatch(timeSpan);
+
+        // Reset the stopwatch
+        stopwatch.reset();
+
+        // Start the stopwatch
+        stopwatch.start();
+    }
+
+
     // Disable the submit button to prevent multiple submissions
     currentEvent.submitter.disabled = true;
     // Pick up the data from the form and urlencode is for POST
@@ -113,6 +203,11 @@ const handleFormFetch = (form, currentEvent, resultType) => {
     fetch(form.action, fetchOptions)
         // Handle response
         .then(response => {
+            // We need to stop the stopwatch
+            if (stopwatch) {
+                stopwatch.stop();
+            }
+            
             currentEvent.submitter.disabled = false;
             const contentType = response.headers.get("content-type");
             // If response is redirect (0) or 403 return by the server, usually token expired, reload the page
@@ -366,6 +461,7 @@ const initiateGenericForms = () => {
                     });
                 });
             });
+                
 
             // Check if the event listener is already attached
             if (!form.hasAttribute('data-submit-listener')) {
@@ -501,3 +597,4 @@ if (changeForms.length > 0) {
         })
     })
 }
+

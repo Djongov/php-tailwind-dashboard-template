@@ -3,6 +3,11 @@ const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
 const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
 const themeToggleBtn = document.getElementById('theme-toggle');
 
+// Function to get the current theme from localStorage
+function getCurrentTheme() {
+    return localStorage.getItem('color-theme') ? localStorage.getItem('color-theme') : null;
+}
+
 // Function to set theme based on localStorage
 function setThemeFromLocalStorage() {
     if (localStorage.getItem('color-theme') === 'dark') {
@@ -407,4 +412,5 @@ const toggleBlur = (excludeElement) => {
         }
     }
 }
+
 

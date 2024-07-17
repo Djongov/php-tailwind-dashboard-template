@@ -227,6 +227,7 @@ $formOptions = [
     'resultType' => 'html', // html or text, optional defaults to text
     //'doubleConfirm' => true,
     //'doubleConfirmKeyWord' => 'delete',
+    "stopwatch" => "example",
     'submitButton' => [
         'text' => 'Submit',
         'id' => uniqid(),
@@ -260,6 +261,7 @@ These form options are presneted into the options array
 | theme  | string   | No       | COLOR_SCHEME      | This sets the theme color for the form. You could set it to the current user theme by giving it value of ```$theme```|
 | target  | string   | No       | _self      | We leave the option to have target ```_blank``` if needed|
 | id  | string   | No      | ''       | value for the id="" attr|
+| stopwatch  | string   | No      | ''       | whether to apply a stopwatch for the form submission under the submit button|
 | method  | string     | No      | POST  | ```GET```, ```POST```, ```PUT```, ```DELETE```|
 | action  | string     | Yes      | -  | Fetch URI |
 | additionalClasses  | string     | No      | -  | String comprised of additional classes to be added to the ```<form>```. Syntax is comma-separated classes such as ``` 'customClass, customClass2' ``` |

@@ -2,6 +2,8 @@
 
 use Controllers\Api\Output;
 
+sleep(1);
+
 // Run htmlspecialchars on $_POST with array_map intead of array_filter to avoid removing empty values
 $_POST = array_map(function ($value) {
     return htmlspecialchars($value);

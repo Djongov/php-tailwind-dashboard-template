@@ -314,6 +314,11 @@ class Forms
             }
         }
 
+        // Stopwatch
+        if (isset($options['stopwatch'])) {
+            $formAttributes .= 'data-stopwatch="' . $options['stopwatch'] . '" ';
+        }
+
         return $formAttributes;
     }
     public static function formClasses(array $options) : string
