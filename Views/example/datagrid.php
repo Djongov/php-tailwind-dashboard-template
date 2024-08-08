@@ -4,35 +4,35 @@ use App\Database\DB;
 use Components\Html;
 use Components\DataGrid;
 
-echo HTML::h1('DataGrid', true);
+echo Html::h1('DataGrid', true);
 
-echo HTML::p('DataGrid is a special class that can be used to display data in a table format with a filterable and paginated table (datagrid) with just a few lines of code. It is a very powerful tool that can be used to display data from the database, from an API, or a PHP array. Provides a edit/delete buttons and export to csv and tsv.');
+echo Html::p('DataGrid is a special class that can be used to display data in a table format with a filterable and paginated table (datagrid) with just a few lines of code. It is a very powerful tool that can be used to display data from the database, from an API, or a PHP array. Provides a edit/delete buttons and export to csv and tsv.');
 
 // Exampple 1: From DB Table
 
-echo HTML::h2('Example 1: Displaying data from a MySQL table');
+echo Html::h2('Example 1: Displaying data from a MySQL table');
 
-echo HTML::p('This example will display the data from the users table in the database. There are switches for Editing or Deleting the data. This is only available for database related DataGrids. The table is filterable and paginated.');
+echo Html::p('This example will display the data from the users table in the database. There are switches for Editing or Deleting the data. This is only available for database related DataGrids. The table is filterable and paginated.');
 
 echo DataGrid::fromDBTable('users', 'Users', $theme);
 
-echo HTML::horizontalLine();
+echo Html::horizontalLine();
 
 // Example 2: From Query
 
-echo HTML::h2('Example 2: Displaying data from a MySQL query');
+echo Html::h2('Example 2: Displaying data from a MySQL query');
 
 $query = "SELECT id, theme FROM users";
 
-echo HTML::p('This example will render data from a custom query - ' . $query . '.');
+echo Html::p('This example will render data from a custom query - ' . $query . '.');
 
 echo DataGrid::fromQuery('users', $query, 'Custom query', $theme);
 
-echo HTML::horizontalLine();
+echo Html::horizontalLine();
 
 // Example 3: From Data
 
-echo HTML::h2('Example 3: Displaying data from a PHP array');
+echo Html::h2('Example 3: Displaying data from a PHP array');
 
 $users = [
     [
@@ -58,13 +58,13 @@ echo DataGrid::fromData('From PHP Array', $users, $theme, [
     'lengthMenu' => [[10, 50, 100], [10, 50, 100]],
 ]);
 
-echo HTML::horizontalLine();
+echo Html::horizontalLine();
 
 // Example 4 : Autoloading the DataGrid from Javascript, using the autoloader
 
-echo HTML::h2('Example 4: Autoloading the DataGrid from Javascript, using the autoloader');
+echo Html::h2('Example 4: Autoloading the DataGrid from Javascript, using the autoloader');
 
-echo HTML::p('This example will autoload the DataGrid from Javascript, using the autoloader. The data is fetched from the database and then passed to the autoloader. Check source code to see how it is done.');
+echo Html::p('This example will autoload the DataGrid from Javascript, using the autoloader. The data is fetched from the database and then passed to the autoloader. Check source code to see how it is done.');
 
 $db = new DB();
 

@@ -13,9 +13,9 @@ if (!$isAdmin) {
     Output::error('You are not an admin', 403);
 }
 
-echo HTML::h1('Queries', true);
+echo Html::h1('Queries', true);
 
-echo HTML::p('This is a custom query endpoint. You can use this to execute (almost) any query you want.');
+echo Html::p('This is a custom query endpoint. You can use this to execute (almost) any query you want.');
 
 $formOptions = [
     'inputs' => [

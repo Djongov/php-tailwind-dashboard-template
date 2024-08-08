@@ -71,8 +71,8 @@ if (LOCAL_USER_LOGIN) {
                     //'style' => '&#10060;'
                 ],
             ];
-            echo HTML::h2('Register', true);
-            echo HTML::small('Register a new local user account.');
+            echo Html::h2('Register', true);
+            echo Html::small('Register a new local user account.');
             echo Forms::render($registrationForm);
         echo '</div>';
     echo '</div>';

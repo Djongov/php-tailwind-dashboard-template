@@ -20,8 +20,8 @@ class DocsMenu
         // Now let's build the menu
         $html = '<aside id="default-sidebar" class="min-w-fit md:mx-2 mx-auto my-4 z-40 w-64 h-fit" aria-label="Sidebar">';
             $html .= '<div class="h-full mx-2 px-3 py-4 overflow-y-auto ' . LIGHT_COLOR_SCHEME_CLASS . ' ' . DARK_COLOR_SCHEME_CLASS . ' ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . '">';
-                $html .= HTML::h2(ucfirst(str_replace('/', '', $base)), true);
-                $html .= HTML::horizontalLine();
+                $html .= Html::h2(ucfirst(str_replace('/', '', $base)), true);
+                $html .= Html::horizontalLine();
                 $html .= '<ul class="space-y-2 font-medium">';
                     foreach ($tree as $link) {
                         $title = str_replace('-', ' ', $link);

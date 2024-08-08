@@ -111,7 +111,7 @@ echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
             if ($name === 'theme') {
                 echo '<td class="w-full"><div class="flex my-2 flex-row"><strong>' . $name . '</strong> : ';
                 echo '<form class="select-submitter" method="PUT" action="/api/user/' . $usernameArray['id'] . '">';
-                    echo '<select name="theme" class="' . HTML::selectInputClasses($theme) . '">';
+                    echo '<select name="theme" class="' . Html::selectInputClasses($theme) . '">';
                     foreach ($allowed_themes as $color) {
                         echo '<option value="' . $color . '" ' . (($setting === $color) ? 'selected' : '') . '>' . $color . '</option>';
                     }
@@ -204,7 +204,7 @@ echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
                     </svg>';
         echo Html::h2('Missing Email');
         echo '</div>';
-        echo HTML::p('We noticed that we haven\'t got your email address from your token claims. We will try to email you on your username which is <strong>' . $usernameArray['username'] . '</strong> but in case you think you can\'t be receiving emails on your username address, here you can give an aleternative. Don\'t worry, we will only be sending important notifications. Signups for newsletters and others are separate');
+        echo Html::p('We noticed that we haven\'t got your email address from your token claims. We will try to email you on your username which is <strong>' . $usernameArray['username'] . '</strong> but in case you think you can\'t be receiving emails on your username address, here you can give an aleternative. Don\'t worry, we will only be sending important notifications. Signups for newsletters and others are separate');
 
         $updateEmailFormOptions = [
             'inputs' => [
@@ -285,7 +285,7 @@ echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
                 ],
             ];
             echo Forms::render($changePasswordForm);
-            echo HTML::small('Successfully changing the password will log you out of the app. You will need to login again with your new password.');
+            echo Html::small('Successfully changing the password will log you out of the app. You will need to login again with your new password.');
         echo '</div>';
     }
     echo '<div class="p-4 m-4 max-w-fit ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700">';

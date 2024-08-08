@@ -68,13 +68,13 @@ if ($data_array) {
                     } else {
                         $value = 0;
                     }
-                    $html .= HTML::toggleCheckBox(uniqid(), $key, $value, $key, ($value === 1 || $value === "1" || $value === true) ? true : false, $theme, $readonly);
+                    $html .= Html::toggleCheckBox(uniqid(), $key, $value, $key, ($value === 1 || $value === "1" || $value === true) ? true : false, $theme, $readonly);
                 }
                 if ($dataTypes[$key] === 'int') {
-                    $html .= HTML::input('default', 'number', uniqid(), $key, $key, $value, '', '', $key, $theme, false, true, ($readonly) ? true : false);
+                    $html .= Html::input('default', 'number', uniqid(), $key, $key, $value, '', '', $key, $theme, false, true, ($readonly) ? true : false);
                 }
                 if ($dataTypes[$key] === 'float') {
-                    $html .= HTML::input('default', 'number', uniqid(), $key, $key, $value, '', '', $key, $theme, false, true, ($readonly) ? true : false);
+                    $html .= Html::input('default', 'number', uniqid(), $key, $key, $value, '', '', $key, $theme, false, true, ($readonly) ? true : false);
                 }
                 if ($dataTypes[$key] === 'datetime') {
                     // We first need to handle null datetime values, which might be true for new records, but we also don't want to add default values
@@ -103,16 +103,16 @@ if ($data_array) {
                     }
                 
                     // Generate the input field with the formatted datetime value
-                    $html .= HTML::input('default', 'datetime-local', uniqid(), $key, $key, $formattedDatetime, '', '', $key, $theme, false, true, ($readonly) ? true : false);
+                    $html .= Html::input('default', 'datetime-local', uniqid(), $key, $key, $formattedDatetime, '', '', $key, $theme, false, true, ($readonly) ? true : false);
                 }
                 
                 if ($dataTypes[$key] === 'string') {
                     if ($key === 'password') {
-                        $html .= HTML::input('default', 'password', uniqid(), $key, $key, $value, '', 'This is most likely a hashed value of the password', $key, $theme, false, true, ($readonly) ? true : false);
+                        $html .= Html::input('default', 'password', uniqid(), $key, $key, $value, '', 'This is most likely a hashed value of the password', $key, $theme, false, true, ($readonly) ? true : false);
                     } elseif ($value !== null && strlen($value) > 255) {
-                        $html .= HTML::textArea(null, $key, $value, '', $key, '', '', $theme, false, false, false, 10, 50);
+                        $html .= Html::textArea(null, $key, $value, '', $key, '', '', $theme, false, false, false, 10, 50);
                     } else {
-                        $html .= HTML::input('default', 'text', uniqid(), $key, $key, $value, '', '', $key, $theme, false, true, ($readonly) ? true : false);
+                        $html .= Html::input('default', 'text', uniqid(), $key, $key, $value, '', '', $key, $theme, false, true, ($readonly) ? true : false);
                     }
                 }
             $html .= '</div>';

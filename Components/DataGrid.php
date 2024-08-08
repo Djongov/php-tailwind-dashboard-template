@@ -150,7 +150,7 @@ class DataGrid
         // All encompassing div
         $html .= '<div class="my-4">';
         $html .= '<div class="ml-2 mt-4 ' . DATAGRID_TEXT_COLOR_SCHEME . ' ' . DATAGRID_TEXT_DARK_COLOR_SCHEME . '">';
-        $html .= HTML::h2($title, true);
+        $html .= Html::h2($title, true);
         $html .= '<p>Results: <span id="' . $id . '-total">' . $totalCount . '</span></p>';
         if ($delete || $edit) {
             $html .= '<p>Filtered: <span id="' . $id . '-filtered">' . $totalCount . '</span></p>';

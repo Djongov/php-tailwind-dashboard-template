@@ -15,7 +15,7 @@ class Install
     public function start() : string
     {
         $html = '';
-        $html .= HTML::h2('Database does not exist, attempting to create it', true);
+        $html .= Html::h2('Database does not exist, attempting to create it', true);
 
         // Connect to the database server without specifying the database
         try {
@@ -126,7 +126,7 @@ class Install
 
             // Print the credentials to the screen
             $html .= Alerts::success('Database "' . DB_NAME . '" and system tables created successfully. Please go to <a class="underline" href="/login">Login</a> page. Use "admin" as username. Do not refresh the page until you have copied the password below.');
-            $html .= HTML::p('<span class="c0py">' . $password . '</span>');
+            $html .= Html::p('<span class="c0py">' . $password . '</span>');
         } else {
             $html .= Alerts::success('Database "' . DB_NAME . '" and system tables created successfully. Please go to <a class="underline" href="/login">Login</a> page. Because no local login is enabled you need to control admin accounts through the provider claims.');
         }

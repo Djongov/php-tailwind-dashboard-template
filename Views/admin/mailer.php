@@ -48,8 +48,8 @@ $formOptions = [
 
 // Let's wrap it
 echo '<div class="container mx-auto">';
-    echo HTML::h2('Mailer', true);
-    echo HTML::p('Send an email to via SendGrid and TinyMCE as editor.', ['text-center']);
+    echo Html::h2('Mailer', true);
+    echo Html::p('Send an email to via SendGrid and TinyMCE as editor.', ['text-center']);
     echo Forms::render($formOptions);
 echo '</div>';
 

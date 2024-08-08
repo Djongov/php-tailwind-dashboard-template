@@ -7,11 +7,11 @@ echo Html::h1('Charts', true);
 
 echo Html::p('This is a chart page. Here is how we can use the charting abilities built into the system.', ['text-center']);
 
-echo HTML::h2('Image charts (Quickchart.io)');
+echo Html::h2('Image charts (Quickchart.io)');
 
-echo HTML::p('We can control which quickchart host we use by setting the QUICKCHART_HOST environment variable. Default is quickchart.io but you can host your own.');
+echo Html::p('We can control which quickchart host we use by setting the QUICKCHART_HOST environment variable. Default is quickchart.io but you can host your own.');
 
-echo HTML::p('shortUrls are used to shorten the URLs for the images so they can be used in emails for example. Also shortURLs are higher quality and are also only available at quickchart.io. ' . HTML::a("Read more", "https://quickchart.io/documentation/usage/short-urls-and-templates/#:~:text=To%20generate%20a%20short%20URL,.io%2Fchart%2Fcreate%20.&text=Go%20to%20the%20URL%20in,URLs%20to%20become%20active%20globally.", $theme, '_blank'));
+echo Html::p('shortUrls are used to shorten the URLs for the images so they can be used in emails for example. Also shortURLs are higher quality and are also only available at quickchart.io. ' . Html::a("Read more", "https://quickchart.io/documentation/usage/short-urls-and-templates/#:~:text=To%20generate%20a%20short%20URL,.io%2Fchart%2Fcreate%20.&text=Go%20to%20the%20URL%20in,URLs%20to%20become%20active%20globally.", $theme, '_blank'));
 
 // Let's use this general data for all the charts
 $chartData = [
@@ -27,9 +27,9 @@ echo '<div class="my-12 flex flex-wrap flex-row justify-center items-center">';
     // Pie chart
     echo '<div class="w-full md:w-1/2 lg:w-1/3 p-2">';
 
-        echo HTML::h3('Pie chart');
+        echo Html::h3('Pie chart');
 
-        echo HTML::p('This is a pie chart.');
+        echo Html::p('This is a pie chart.');
 
         echo Charts::doughnutOrPieChart('pie', 'Pie chart', array_keys($chartData), array_values($chartData));
 
@@ -37,9 +37,9 @@ echo '<div class="my-12 flex flex-wrap flex-row justify-center items-center">';
     // Doughnut chart
     echo '<div class="w-full md:w-1/2 lg:w-1/3 p-2">';
 
-        echo HTML::h3('Doughnut chart');
+        echo Html::h3('Doughnut chart');
 
-        echo HTML::p('This is a doughnut chart.');
+        echo Html::p('This is a doughnut chart.');
 
         echo Charts::doughnutOrPieChart('doughnut', 'Doughnut chart',array_keys($chartData), array_values($chartData));
 
@@ -47,9 +47,9 @@ echo '<div class="my-12 flex flex-wrap flex-row justify-center items-center">';
     // Radial gauge
     echo '<div class="w-full md:w-1/2 lg:w-1/3 p-2">';
 
-        echo HTML::h3('Radial gauge');
+        echo Html::h3('Radial gauge');
 
-        echo HTML::p('This is a Radial gauge.');
+        echo Html::p('This is a Radial gauge.');
 
         $min = 0;
 
@@ -63,9 +63,9 @@ echo '<div class="my-12 flex flex-wrap flex-row justify-center items-center">';
     // Line chart
     echo '<div class="w-full md:w-1/2 lg:w-1/3 p-2">';
 
-        echo HTML::h3('Line chart');
+        echo Html::h3('Line chart');
 
-        echo HTML::p('This is a line chart.');
+        echo Html::p('This is a line chart.');
 
         $lineChartData = [
             'labels' => array_keys($chartData),
@@ -87,9 +87,9 @@ echo '<div class="my-12 flex flex-wrap flex-row justify-center items-center">';
     echo '</div>';
 echo '</div>';
 
-echo HTML::h2('Interactive charts (Chart.js)');
+echo Html::h2('Interactive charts (Chart.js)');
 
-echo HTML::p('We can spawn interactive charts using Chart.js. This is a JavaScript library that allows us to create charts and graphs. We are passing the data to the JavaScript by using hidden inputs with the name "autoload".');
+echo Html::p('We can spawn interactive charts using Chart.js. This is a JavaScript library that allows us to create charts and graphs. We are passing the data to the JavaScript by using hidden inputs with the name "autoload".');
 
 echo '<div id="doughnut-limits-holder" class="my-12 flex flex-wrap flex-row justify-center items-center">';
     // initiate an array that will pass the following data into hidden inputs so Javascript can have access to this data on page load and draw the charts

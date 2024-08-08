@@ -25,10 +25,10 @@ if (!$isAdmin) {
 $errorLog = ini_get('error_log');
 
 if (empty($errorLog)) {
-    echo HTML::h2('Error Log', true);
+    echo Html::h2('Error Log', true);
     echo Alerts::danger('No error log file is set in php.ini');
 } else {
-    echo HTML::h2('PHP Errors');
+    echo Html::h2('PHP Errors');
     $loadErrorFileArray = [
         'inputs' => [
             'hidden' => [
@@ -76,7 +76,7 @@ if (empty($errorLog)) {
 
 echo DataGrid::fromData('Server Info', $_SERVER, $theme);
 
-echo HTML::h2('PHP Info', true);
+echo Html::h2('PHP Info', true);
 
 $phpInfoFormOptions = [
     'inputs' => [

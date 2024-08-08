@@ -8,7 +8,7 @@ echo Html::p('This is a forms page. Here is how we can use the form abilities bu
 
 echo Html::h2('Form example');
 
-echo HTML::p('This is a sample form array to render a form with the least amount of options. It only produces a button and a hidden input field, suitable for button click actions.');
+echo Html::p('This is a sample form array to render a form with the least amount of options. It only produces a button and a hidden input field, suitable for button click actions.');
 
 $formOptions = [
     'inputs' => [
@@ -29,7 +29,7 @@ $formOptions = [
 
 echo Forms::render($formOptions, $theme);
 
-echo HTML::code('
+echo Html::code('
 $formOptions = [
     "inputs" => [
         "hidden" => [
@@ -50,7 +50,7 @@ $formOptions = [
 
 echo Html::h2('Complex form example');
 
-echo HTML::p('This is a more complex form example which showcases all the powers of the Form component.');
+echo Html::p('This is a more complex form example which showcases all the powers of the Form component.');
 
 $formOptions = [
     // If you need input fields, open an 'inputs' key
@@ -277,9 +277,9 @@ $formOptions = [
 
 echo Components\Html::divBox(Forms::render($formOptions));
 
-echo HTML::p('And here is the code for this form:');
+echo Html::p('And here is the code for this form:');
 
-echo HTML::code('
+echo Html::code('
 $formOptions = [
     // If you need input fields, open an \'inputs\' key
     \'inputs\' => [

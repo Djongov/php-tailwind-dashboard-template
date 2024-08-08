@@ -12,4 +12,4 @@ if (!isset($_POST['data'])) {
 }
 
 //echo Output::success(base64_encode($_POST['data']));
-echo '<div class="container break-words">' . HTML::code(base64_encode($_POST['data'])) . '</div>';
+echo '<div class="container break-words">' . Html::code(base64_encode($_POST['data'])) . '</div>';

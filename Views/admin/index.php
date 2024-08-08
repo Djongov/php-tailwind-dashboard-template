@@ -66,12 +66,12 @@ $db->__destruct();
 
 
 echo '<div class="p-4 m-4 max-w-md ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700 overflow-auto">';
-    echo HTML::h2('Database Tables', true);
-    echo HTML::p('Connected to DB: ' . DB_NAME);
-    echo HTML::p('DB Host: ' . DB_HOST);
-    echo HTML::p('DB User: ' . DB_USER);
-    echo HTML::p('DB Driver: ' . $driver);
-    echo HTML::p('Using SSL: ' . (DB_SSL ? 'Yes' : 'No'));
-    echo HTML::p('Total tables: ' . count($dbTables));
+    echo Html::h2('Database Tables', true);
+    echo Html::p('Connected to DB: ' . DB_NAME);
+    echo Html::p('DB Host: ' . DB_HOST);
+    echo Html::p('DB User: ' . DB_USER);
+    echo Html::p('DB Driver: ' . $driver);
+    echo Html::p('Using SSL: ' . (DB_SSL ? 'Yes' : 'No'));
+    echo Html::p('Total tables: ' . count($dbTables));
     echo \Components\Table::auto($dbTables);
 echo '</div>';
