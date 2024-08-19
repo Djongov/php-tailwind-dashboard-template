@@ -26,19 +26,16 @@ class AccessTokenCache
 
         // If the username doesn't have an access token
         if (!self::exist($username)) {
-            // if (isset($parsedToken['email'])) {
-            //     $claimTokenUsername = $parsedToken['email'];
-            // }
-            // if (isset($parsedToken['username'])) {
-            //     $claimTokenUsername = $parsedToken['username'];
-            // }
-            // if (isset($parsedToken['upn'])) {
-            //     $claimTokenUsername = $parsedToken['upn'];
-            // }
             DBCache::create($token, $expiration, 'access_token', $username);
         } else {
-            // Check if expired
-            self::update($token, $username);
+            // Let's check if the audience is the same
+            $tokenInCache = self::get($username);
+            $parsedTokenInCache = JWT::parseTokenPayLoad($tokenInCache['value']);
+            if ($parsedToken['aud'] === $parsedTokenInCache['aud']) {
+                DBCache::update($token, $expiration, 'access_token', $username);
+            } else {
+                DBCache::create($token, $expiration, 'access_token', $username);
+            }
         }
     }
     public static function update(string $token, string $username) : void

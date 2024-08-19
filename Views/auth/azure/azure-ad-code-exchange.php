@@ -2,6 +2,7 @@
 
 use Controllers\Api\Output;
 use App\Authentication\JWT;
+use App\Authentication\AccessTokenCache;
 
 if (isset($_POST['error'], $_POST['error_description'])) {
     if (str_contains($_POST['error'], 'consent_required')) {
@@ -64,14 +65,20 @@ if (isset($_POST['code'], $_POST['state'], $_POST['session_state'])) {
     } elseif (isset($request['access_token'])) {
         // Find out the username in the token
         $username = JWT::parseTokenPayLoad($request['access_token'])['upn'];
-        App\Authentication\AccessTokenCache::save($request['access_token'], $username);
+        
+        try {
+            AccessTokenCache::save($request['access_token'], $username);
+        } catch (Exception $e) {
+            Output::error($e->getMessage(), 400);
+        }
+        
         // Remove the username query string from state
         if (isset($_POST['state'])) {
             $split = explode("&", $_POST['state']);
             $state = $_POST['state'] ?? '/';
             $state = $split[0];
         } else {
-            $state = '/';
+            $state = '/forms';
         }
         header('Location: ' . $state);
         exit();
@@ -82,6 +89,7 @@ if (isset($_POST['code'], $_POST['state'], $_POST['session_state'])) {
     if (isset($response['error_description'])) {
         // AADSTS70008: The provided authorization code or refresh token has expired due to inactivity. Send a new interactive authorization request for this user and resource
         if (str_contains($response['error_description'], 'AADSTS70008') || str_contains($response['error_description'], 'AADSTS54005')) {
+            dd($response);
 
             $data = [
                 'client_id' => AZURE_AD_CLIENT_ID,
@@ -107,7 +115,11 @@ if (isset($_POST['code'], $_POST['state'], $_POST['session_state'])) {
 if (isset($_POST['access_token'], $_POST['token_type'], $_POST['expires_in'], $_POST['scope'], $_POST['state'], $_POST['session_state'])) {
     // Find out the username in the token
     $username = JWT::parseTokenPayLoad($_POST['access_token'])['upn'];
-    App\Authentication\AccessTokenCache::save($_POST['access_token'], $username);
+    try {
+        AccessTokenCache::save($_POST['access_token'], $username);
+    } catch (Exception $e) {
+        Output::error($e->getMessage(), 400);
+    }
     // Remove the username query string from state
     $split = explode("&", $_POST['state']);
     $state = $_POST['state'] ?? '/';

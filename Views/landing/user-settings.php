@@ -3,6 +3,7 @@
 use App\Utilities\General;
 use Components\Forms;
 use Components\Html;
+use Components\Alerts;
 use App\Authentication\JWT;
 use Models\Api\User;
 use App\Exceptions\UserExceptions;
@@ -40,7 +41,19 @@ if (!empty($usernameArray['picture']) && isset($token['picture'])) {
         if (is_string($response)) {
             $userController->saveAzureProfilePicture($usernameArray['username'], $response);
         } else {
-            echo 'Error fetching picture : ' . json_encode($response);
+            echo Alerts::danger('Failed to get profile picture from Azure: ' . json_encode($response));
+            // If no picture is set, use the ui-avatars.com service to generate a picture
+            $picture = 'https://ui-avatars.com/api/?name=' . $usernameArray['name'] . '&background=0D8ABC&color=fff';
+            // Save the picture to the user
+            try {
+                $user->update(['picture' => $picture], $usernameArray['id']);
+            } catch (UserExceptions $e) {
+                // Handle user-specific exceptions
+                echo $e->getMessage();
+            } catch (\Exception $e) {
+                // Handle other exceptions
+                echo $e->getMessage();
+            }
         }
     // If Local account
     } else {

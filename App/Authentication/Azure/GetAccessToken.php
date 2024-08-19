@@ -22,32 +22,64 @@ class GetAccessToken
             DBCache::create($token, $expiration, 'access_token', $username);
         }
     }
-    public static function fetch() : void
+    public static function fetch($scope) : void
     {
         // This will go to a special endpoint where the user will be asked to consent and get an access token after which it will be saved to the DB
-        //header('Location: /auth/azure-ad-access-token?username=' . JWT::extractUserName(AuthToken::get()));
-        header('Location: /auth/azure/request-access-token?state=' . $_SERVER['REQUEST_URI'] . '&username=' . JWT::extractUserName(AuthToken::get()));
+        $data = [
+            'state' => $_SERVER['REQUEST_URI'],
+            'username' => JWT::extractUserName(AuthToken::get()),
+        ];
+        if ($scope !== 'https://graph.microsoft.com/user.read') {
+            $data['scope'] = $scope;
+        }
+        header('Location: /auth/azure/request-access-token?' . http_build_query($data));
         exit();
     }
-    public static function get() : string
+    public static function get($scope = 'https://graph.microsoft.com/user.read') : string
     {
+        // Find the username from the token
         $username = JWT::extractUserName(AuthToken::get());
+        // Check the DB cache table for an entry with the username
         $cachedToken = self::dbGet($username);
-        // Let's find out if the token is expired
+        // If there is an entry, it will be in the value field
         if (isset($cachedToken['value'])) {
+            // Let's parse the token payload
             $parsedToken = JWT::parseTokenPayLoad($cachedToken['value']);
+            // Get the expiration date
             $expiration = $parsedToken['exp'] ?? $cachedToken['expiration']; // I need this because MS live tokens will not be decoded and we need to get the expiration from the DB
+            // If the expiration is a string, convert it to a timestamp
             if (is_string($expiration)) {
                 $expiration = strtotime($expiration);
             }
-            // If the token is expired we need to fetch a new one
+            // Now compare the expiration with the current time
             if ($expiration < time()) {
-                self::fetch();
+                // If expired, fetch a new token
+                self::fetch($scope);
             } else {
+                // If not expired, find out the scope of the token
+                $tokenScope = self::getScope($cachedToken['value']);
+                // so getScope returns the aud claim from the token but this function accepts the resource URL so we might have to extract the only up to path but excluding it
+                $lastSlashPosition = strrpos($scope, '/');
+                $resource = substr($scope, 0, $lastSlashPosition);
+                // Now compare the scopes
+                if ($tokenScope === $resource) {
+                    // If the scopes match, return the token
+                    return $cachedToken['value'];
+                } else {
+                    // First delete the existing token
+                    DBCache::delete('access_token', $username);
+                    // If the scopes don't match, fetch a new token
+                    self::fetch($scope);
+                }
                 return $cachedToken['value'];
             }
         } else {
-            self::fetch();
+            self::fetch($scope);
         }
+    }
+    private static function getScope($token) : string
+    {
+        $parsedToken = JWT::parseTokenPayLoad($token);
+        return $parsedToken['aud'] ?? '';
     }
 }

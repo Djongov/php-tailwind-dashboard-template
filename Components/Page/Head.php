@@ -70,7 +70,11 @@ class Head
                 $defaultValue = false;
                 $defer = $value['defer'] ?? $defaultValue;
                 $async = $value['async'] ?? $defaultValue;
-                $cache = '?=' . time() ?? '';
+                if (isset($value['cache']) && $value['cache']) {
+                    $cache = '';
+                } else {
+                    $cache = '?=' . time();
+                }
                 $integrity = $value['integrity'] ?? $defaultValue;
                 $crossorigin = $value['crossorigin'] ?? $defaultValue;
                 $html .= '<script src="' . $link . $cache . '" ' . ($defer ? 'defer' : '') . ' ' . ($async ? 'async' : '') . ' ' . ($integrity ? 'integrity="' . $integrity . '"' : '') . ' ' . ($crossorigin ? 'crossorigin="' . $crossorigin . '"' : '') . '></script>' . PHP_EOL;

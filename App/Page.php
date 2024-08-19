@@ -17,13 +17,15 @@ class Page
             'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
             'https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js',
             '/assets/js/dataTables.js' => [
-                'defer' => 'true'
+                'defer' => 'true',
+                'cache' => true
             ],
             '/assets/js/datagrid.js' => [
                 'defer' => 'true'
             ],
             '/assets/js/c0py.js' => [
-                'defer' => 'true'
+                'defer' => 'true',
+                'cache' => true
             ],
             '/assets/js/forms.js' => [
                 'defer' => 'true'
@@ -33,6 +35,7 @@ class Page
             ],
             '/assets/js/main.js' => [
                 'defer' => 'true'
+
             ],
             '/assets/js/flowbite.js',
             'https://cdn.tailwindcss.com?plugins=typography'
@@ -41,7 +44,7 @@ class Page
         if (SHOW_LOADING_SCREEN) {
             $scriptsArray['/assets/js/loading-screen.js'] = [
                 'defer' => 'true',
-                //'cache' => 'true'
+                'cache' => true
             ];
         }
         // Load these styles
@@ -90,7 +93,10 @@ class Page
                         $html .= Alerts::danger('The file ' . $controlerPath . ' does not exist');
                     }
                 $html .= '</main>';
-                $html .= $this->footer($theme);
+                // Do not show the footer on the login page
+                if (!str_starts_with($_SERVER['REQUEST_URI'], '/login')) {
+                    $html .= $this->footer($theme);
+                }
             $html .= '</div>';
             // Scroll to top button
             $html .= '<button type="button" data-mdb-ripple="true" data-mdb-ripple-color="light" class="inline-block p-3 bg-' . $theme . '-600 text-white font-medium text-xs leading-tight uppercase rounded-full shadow-md hover:bg-' . $theme . '-700 hover:shadow-lg focus:bg-' . $theme . '-700 focus:shadow-lg focus:outline-none focus:ring-2 active:bg-' . $theme . '-800 active:shadow-lg transition duration-150 ease-in-out bottom-5 right-5 fixed hidden" id="btn-back-to-top">';
