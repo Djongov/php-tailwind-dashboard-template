@@ -18,7 +18,7 @@ class MYSQL
         if (defined("DB_SSL") && DB_SSL) {
             mysqli_ssl_set($conn, null, null, DB_CA_CERT, null, null);
             try {
-                $conn->real_connect('p:' . DB_HOST, DB_USER, DB_PASS, DB_NAME, 3306, MYSQLI_CLIENT_SSL);
+                $conn->real_connect('p:' . DB_HOST, DB_USER, DB_PASS, DB_NAME, 3306, DB_SSL);
             } catch (\mysqli_sql_exception $e) {
                 if (str_contains($e->getMessage(), "Unknown database") !== false) {
                     Output::error('Database "' . DB_NAME . '" does not exist, you need to go through the /install endpoint' . $_SERVER['REQUEST_URI'], 400);
