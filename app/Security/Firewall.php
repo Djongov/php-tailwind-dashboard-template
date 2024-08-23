@@ -4,6 +4,7 @@ namespace App\Security;
 use App\Database\DB;
 use Controllers\Api\Output;
 use App\Logs\SystemLog;
+use App\Utilities\IP;
 
 class Firewall
 {
@@ -21,14 +22,7 @@ class Firewall
 
     public static function activate() {
         // Find out the real client IP
-        if (isset($_SERVER["HTTP_CF_CONNECTING_IP"])) {
-            $client_ip = $_SERVER["HTTP_CF_CONNECTING_IP"];
-        } elseif (isset($_SERVER['HTTP_CLIENT_IP'])) {
-            $client_ip = str_replace(strstr($_SERVER['HTTP_CLIENT_IP'], ':'), '', $_SERVER['HTTP_CLIENT_IP']);
-        } else {
-            // or just use the normal remote addr
-            $client_ip = $_SERVER['REMOTE_ADDR'];
-        }
+        $client_ip = IP::currentIP();
         $db = new DB();
         $pdo = $db->getConnection();
         $stmt = $pdo->prepare("SELECT * FROM firewall");

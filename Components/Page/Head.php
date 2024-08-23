@@ -15,6 +15,7 @@ class Head
         $html .= '<link rel="icon" type="image/x-icon" href="' . LOGO . '" >' . PHP_EOL;
         // General Meta tags
         $html .= '<meta name="viewport" content="width=device-width, initial-scale=1">' . PHP_EOL;
+        $html .= '<meta charset="utf-8">' . PHP_EOL;
         $html .= '<meta name="robots" content="index, follow" >' . PHP_EOL;
         $html .= '<meta name="author" content="Dimitar Dzhongov" >' . PHP_EOL;
         $html .= '<meta name="keywords" content="' . implode(",", $keywords) . '" >' . PHP_EOL;
@@ -88,8 +89,8 @@ class Head
     {
         $html = '';
         foreach ($cssArray as $link) {
-            $cache = '?=' . time() ?? '';
-            $html .= '<link rel="stylesheet" href="' . $link . $cache . '">' . PHP_EOL;
+            //$cache = '?=' . time() ?? '';
+            $html .= '<link rel="stylesheet" href="' . $link . '">' . PHP_EOL;
         }
         return $html;
     }

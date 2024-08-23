@@ -3,12 +3,13 @@
 use App\Utilities\General;
 use Components\Forms;
 use Components\Html;
-use Components\Alerts;
 use App\Authentication\JWT;
 use Models\Api\User;
 use App\Exceptions\UserExceptions;
 use App\Request\HttpClient;
 use App\Authentication\AuthToken;
+use Components\Alerts;
+use App\Authentication\AccessToken;
 
 $user = new User();
 /* Profile picture update logic */
@@ -34,15 +35,15 @@ if (!empty($usernameArray['picture']) && isset($token['picture'])) {
 } elseif ($usernameArray['picture'] === null || empty($usernameArray['picture'])) {
     // If Azure
     if ($usernameArray['provider'] === 'azure' || $usernameArray['provider'] === 'mslive') {
-        $accessToken = App\Authentication\Azure\GetAccessToken::get();
+        $accessToken = AccessToken::get($usernameArray['username'], 'https://graph.microsoft.com');
         $client = new HttpClient('https://graph.microsoft.com/v1.0/me/photo/$value');
         $response = $client->call('GET', '', [], $accessToken, false, ['Accept: image/jpeg'], false, false);
         $userController = new Controllers\Api\User();
         if (is_string($response)) {
             $userController->saveAzureProfilePicture($usernameArray['username'], $response);
         } else {
-            echo Alerts::danger('Failed to get profile picture from Azure: ' . json_encode($response));
             // If no picture is set, use the ui-avatars.com service to generate a picture
+            echo Alerts::danger('Failed to get profile picture from Azure: ' . json_encode($response));
             $picture = 'https://ui-avatars.com/api/?name=' . $usernameArray['name'] . '&background=0D8ABC&color=fff';
             // Save the picture to the user
             try {
@@ -76,7 +77,7 @@ $allowed_themes = ['amber', 'green', 'stone', 'rose', 'lime', 'teal', 'sky', 'pu
 
 $locale = (isset($usernameArray['origin_country'])) ? General::countryCodeToLocale($usernameArray['origin_country']) : 'en_US';
 $fmt = new IntlDateFormatter($locale, IntlDateFormatter::LONG, IntlDateFormatter::GREGORIAN);
-echo '<div class="flex flex-row flex-wrap items-center mb-4 justify-center">';
+echo '<div class="flex flex-row flex-wrap items-start mb-4 justify-center">';
     echo '<div class="p-4 m-4 max-w-lg ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700">';
         echo Html::h2('User settings');
         // Now let's put inside the image, a delete button

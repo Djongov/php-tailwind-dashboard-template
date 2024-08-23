@@ -1,7 +1,9 @@
 <?php declare(strict_types=1);
-use App\Security\Firewall;
+
 use Controllers\Api\Output;
 use Components\DataGrid;
+use App\Security\Firewall;
+use Components\Alerts;
 
 // First firewall check
 Firewall::activate();

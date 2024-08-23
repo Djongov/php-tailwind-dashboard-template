@@ -13,9 +13,15 @@ class Page
     {
         // Load these scripts
         $scriptsArray = [
-            'https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js',
-            'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
-            'https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js',
+            'https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js' => [
+                'cache' => true,
+            ],
+            'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js' => [
+                'cache' => true,
+            ],
+            'https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js' => [
+                'cache' => true,
+            ],
             '/assets/js/dataTables.js' => [
                 'defer' => 'true',
                 'cache' => true
@@ -33,12 +39,13 @@ class Page
             '/assets/js/charts.js' => [
                 'defer' => 'true'
             ],
+            '/assets/js/flowbite.js',
+            'https://cdn.tailwindcss.com?plugins=typography' => [
+                'cache' => true
+            ],
             '/assets/js/main.js' => [
                 'defer' => 'true'
-
             ],
-            '/assets/js/flowbite.js',
-            'https://cdn.tailwindcss.com?plugins=typography'
         ];
         // If loading screen is enabled, add the loading screen js with defer and cache
         if (SHOW_LOADING_SCREEN) {

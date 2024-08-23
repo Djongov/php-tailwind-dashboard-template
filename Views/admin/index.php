@@ -4,7 +4,6 @@ use Components\Html;
 use App\Database\DB;
 use App\Security\Firewall;
 use Controllers\Api\Output;
-use Components\Gallery;
 
 // First firewall check
 Firewall::activate();

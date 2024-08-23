@@ -9,9 +9,15 @@ use App\Authentication\JWT;
 use App\Authentication\AuthToken;
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+
+    if (isset($_GET['error'], $_GET['state'])) {
+        Output::error('Google Error: ' . $_GET['error'], 200);
+    }
+
     if (!isset($_GET['code'])) {
         Output::error('Invalid request', 400);
     }
+    
     $state = $_GET['state'];
     //$nonce = $_GET['nonce'];
     $code = $_GET['code'];

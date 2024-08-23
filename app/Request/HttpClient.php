@@ -15,19 +15,20 @@ class HttpClient
     {
         $this->client = new Client([
             'base_uri' => $url,
-            'timeout'  => 10,
+            'timeout'  => 600,
             'http_errors' => false,
             'verify' => CURL_CERT,
-            'debug' => false
+            'debug' => false,
+            'allow_redirects' => false
         ]);
     }
 
-    public function call($method, $path, $data = [], $bearer_token = null, $sendJson = false, $headers = [], $expectJson = true) : string|array
+    public function call($method, $path, $data = [], $bearer_token = null, $sendJson = false, $headers = [], $expectJson = true) : mixed
     {
         $method = strtoupper($method);
 
 
-        $headers['User-Agent'] = 'dashboardTemplate/1.0';
+        $headers['User-Agent'] = 'UEFA-CSP-DEVOPS/1.0';
 
         if ($method === 'POST' && $sendJson) {
             $headers['Content-Type'] = 'application/json';
@@ -79,33 +80,48 @@ class HttpClient
             // Let's extract the headers
             $headers = $response->getHeaders();
             // Let's extract the response
-            $response = $response->getBody()->getContents();
+            $responseParsed = $response->getBody()->getContents();
             // Let's return the response
             if ($statusCode >= 400) {
-                if (empty($response)) {
-                    return ['response' => null, 'statusCode' => $statusCode];
+                if (empty($responseParsed)) {
+                    return ['error' => null, 'statusCode' => $statusCode];
                     //return ['response' => 'Empty response from ' . $path . ' (' .$statusCode . ':' . $reasonPhrase . ')', 'statusCode' => $statusCode];
                 } else {
-                    return ['response' => $response, 'statusCode' => $statusCode];
+                    return ['error' => $responseParsed, 'statusCode' => $statusCode];
                 }
             } else {
                 if ($expectJson) {
-                    return $response = json_decode($response, true);
+                    return $responseParsed = json_decode($responseParsed, true);
                 } else {
-                    return $response;
+                    return $responseParsed;
                 }
             }
         } catch (ConnectException $e) {
             // Handle the connection exception
-            $errorMessage = $e->getMessage();
             Output::error('HttpClient ConnectException: ' . $e->getHandlerContext()['error'], 500);
         } catch (\UnexpectedValueException $e) {
             // Handle UnexpectedValueException here
-            $errorMessage = $e->getMessage();
-            Output::error('HttpClient UnexpectedValueException: ' . $errorMessage, 400);
+            Output::error('HttpClient UnexpectedValueException: ' . $e->getMessage(), 400);
         } catch (\Exception $e) {
             // Handle other exceptions
             Output::error('HttpClient Exceptiion: ' . $e->getMessage(), 400);
+        }
+    }
+    // This method will fetch only the headers of the constructor url
+    public function fetchHeaders() : array
+    {
+        try {
+            $response = $this->client->request('HEAD');
+            return $response->getHeaders();
+        } catch (RequestException $e) {
+            // Handle the RequestException
+            Output::error('HttpClient RequestException: ' . $e->getMessage(), 400);
+        } catch (ConnectException $e) {
+            // Handle other exceptions
+            Output::error('ConnectException Exceptiion: ' . $e->getMessage(), 400);
+        } catch (\Exception $e) {
+            // Handle other exceptions
+            Output::error('Exceptiion: ' . $e->getMessage(), 400);
         }
     }
 }

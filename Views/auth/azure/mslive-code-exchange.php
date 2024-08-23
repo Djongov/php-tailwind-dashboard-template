@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
+
 use Controllers\Api\Output;
+use App\Authentication\AccessToken;
 
 if (isset($_POST['error'], $_POST['error_description'])) {
     if (str_contains($_POST['error'], 'consent_required')) {
@@ -47,6 +49,12 @@ if (isset($_POST['error'], $_POST['error_description'])) {
         // header('Location: ' . AZURE_AD_OAUTH_URL . http_build_query($data));
         // exit();
         Output::error("App Registration Error: " . $_POST['error'] . " with Description: " . $_POST['error_description']);
+    }
+
+    // If the user just refuses to give consent we end up here:
+    if (isset($_POST['error'], $_POST['error_description'], $_POST['state']) && str_contains($_POST['error'], 'access_denied') && str_contains($_POST['error_description'], 'The user has denied access')) {
+        header('Location: /');
+        exit();
     }
 
     Output::error("Azure Error: " . $_POST['error'] . " with Description: " . $_POST['error_description']);
@@ -136,11 +144,17 @@ if (isset($_POST['code'], $_POST['state'])) {
             $state = '/';
         }
         $username = str_replace('username=', '', $split[1]);
-        App\Authentication\AccessTokenCache::save($request['access_token'], $username);
+
+        try {
+            $save = AccessToken::save($request['access_token'], $username);
+        } catch (Exception $e) {
+            Output::error($e->getMessage(), 400);
+        }
+
         header('Location: ' . $state);
         exit();
     } else {
-        Output::error($request, 400);
+        Output::error(json_encode($request), 400);
     }
 
     if (isset($response['error'], $response['error_description'])) {
@@ -154,7 +168,7 @@ if (isset($_POST['access_token'], $_POST['token_type'], $_POST['state'], $_POST[
     $state = $split[0];
     $username = str_replace('username=', '', $split[1]);
 
-    App\Authentication\AccessTokenCache::save($_POST['access_token'], $username);
+    AccessToken::save($_POST['access_token'], $username);
 
     header('Location: ' . $state);
 }
