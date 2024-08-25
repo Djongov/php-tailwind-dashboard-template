@@ -24,8 +24,6 @@ class Head
         $html .= self::ogTags($title, $description, $thumbimage);
         // Twitter tags
         $html .= self::twitterTags($title, $description, $thumbimage, '@Djongov', '@Djongov');
-        // CSS files
-        $html .= self::cssLoad($cssArray);
         // Scripts
         $html .= self::scriptLoad($scriptsArray);
         // Inline scripts
@@ -35,6 +33,8 @@ class Head
                     $tailwindConfig
                 </script>
                 InlineScript . PHP_EOL;
+        // CSS files
+        $html .= self::cssLoad($cssArray);
         $html .= '</head>' . PHP_EOL;
         return $html;
     }
