@@ -28,7 +28,7 @@ class HttpClient
         $method = strtoupper($method);
 
 
-        $headers['User-Agent'] = 'UEFA-CSP-DEVOPS/1.0';
+        $headers['User-Agent'] = SYSTEM_USER_AGENT;
 
         if ($method === 'POST' && $sendJson) {
             $headers['Content-Type'] = 'application/json';

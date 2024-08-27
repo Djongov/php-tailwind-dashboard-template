@@ -46,7 +46,7 @@ class User
         // Prepare the email, if it's not present in the JWT token, use the username
         $insertData['email'] = $data['email'] ?? $insertData['username'];
         // Name comes as name in the JWT token
-        $insertData['name'] = $data['name'] ?? Output::error('Missing name in token', 400);
+        $insertData['name'] = $data['name'] ?? $insertData['username'];
         // Last IPs comes as ipaddr in the JWT token, if it's not present, use the current IP
         $insertData['last_ips'] = $data['ipaddr'] ?? IP::currentIP();
         // If JWT has a claim called 'ctry' take it, otherwise take the browser language
@@ -85,7 +85,7 @@ class User
         // Prepare the email, if it's not present in the JWT token, use the username
         $insertData['email'] = $data['email'] ?? $insertData['username'];
         // Name comes as name in the JWT token
-        $insertData['name'] = $data['name'] ?? Output::error('Missing name in token', 400);
+        $insertData['name'] = $data['name'] ?? $insertData['email'];
         // Last IPs comes as ipaddr in the JWT token, if it's not present, use the current IP
         $insertData['last_ips'] = IP::currentIP();
         // If JWT has a claim called 'ctry' take it, otherwise take the browser language
@@ -124,7 +124,7 @@ class User
         // Prepare the email, if it's not present in the JWT token, use the username
         $insertData['email'] = $data['email'];
         // Name comes as name in the JWT token
-        $insertData['name'] = $data['name'] ?? Output::error('Missing name in token', 400);
+        $insertData['name'] = $data['name'] ?? $data['email'];
         // Last IPs comes as ipaddr in the JWT token, if it's not present, use the current IP
         $insertData['last_ips'] = IP::currentIP();
         // If JWT has a claim called 'ctry' take it, otherwise take the browser language

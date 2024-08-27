@@ -16,7 +16,7 @@ class Google
         // Fetch the x5c from Google
         $client = new HttpClient('https://www.googleapis.com/oauth2/v3/certs');
 
-        $response = $client->call('GET', '', [], null, false, ['User-Agent' => 'dashboardTemplate/1.0']);
+        $response = $client->call('GET', '', [], null, false, ['User-Agent' => SYSTEM_USER_AGENT]);
 
         // We expect the response to have a keys array
 
