@@ -197,11 +197,10 @@ const createLineChart = (title, parentDiv, width, height, labels, data) => {
     let parent = document.getElementById(parentDiv);
     let containerDiv = document.createElement('div');
     parent.appendChild(containerDiv);
-    containerDiv.classList.add('w-80');
-    containerDiv.style.height = height;
-    containerDiv.style.width = width;
     let canvas = document.createElement('canvas');
     containerDiv.appendChild(canvas);
+    containerDiv.style.height = `${height}px`;
+    containerDiv.style.width = `${width}px`;
 
     let lineDataSets = [];
 
