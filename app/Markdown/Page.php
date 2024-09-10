@@ -25,7 +25,7 @@ class Page
             $markdown = $fileContents;
         }
         // Now let's render the markdown
-        $html = '<article class="mx-6 my-4 max-w-full p-6 ' . LIGHT_COLOR_SCHEME_CLASS . ' ' . DARK_COLOR_SCHEME_CLASS . ' ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' prose prose-md prose-' . $theme . ' dark:prose-invert">';
+        $html = '<article class="mx-6 my-4 max-w-full p-6 ' . LIGHT_COLOR_SCHEME_CLASS . ' ' . DARK_COLOR_SCHEME_CLASS . ' ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' prose prose-md prose-' . $theme . ' dark:prose-invert overflow-auto">';
             $html .= Parsedown::instance()->text($markdown);
         $html .= '</article>';
         return $html;

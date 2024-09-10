@@ -49,6 +49,17 @@ class Html
             return '<h4 class="mx-2 my-2 text-md font-bold ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' break-words ' . implode(' ', $extraClasses) . '">' . $text . '</h4>';
         }
     }
+    public static function h5($text, $center = false, $extraClasses = []) : string
+    {
+        if ($center) {
+            array_push($extraClasses, 'text-center');
+        }
+        if (!$extraClasses) {
+            return '<h5 class="mx-2 my-2 text-sm font-bold ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' break-words">' . $text . '</h5>';
+        } else {
+            return '<h5 class="mx-2 my-2 text-sm font-bold ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' break-words ' . implode(' ', $extraClasses) . '">' . $text . '</h5>';
+        }
+    }
     // Anchor
     public static function a($text, $href, $theme, $target = '_self', $extraClasses = []) : string
     {
@@ -134,8 +145,8 @@ class Html
             }
         }
 
-        if ($id !== null) {
-            $id = ' id="' . $id . '" ';
+        if ($id == null) {
+            $id = uniqid();
         }
 
         // Classes based on size
@@ -169,12 +180,12 @@ class Html
                 $dataAttributesString .= 'data-' . $key . '="' . $v . '" ';
             }
         }
-        $inputHtml = '<input ' . $id . ' type="' . $type . '" name="' . $name . '" class="' . $inputClasses . ' ' . $extraClasses . '" ' . $placeholder . ' ' . $required . ' ' . $disabled . ' ' . $readOnly . ' ' . $value . $pattern . ' ' . $title . $minMaxString . $stepString . $dataAttributesString . ' />';
+        $inputHtml = '<input id="' . $id . '" type="' . $type . '" name="' . $name . '" class="' . $inputClasses . ' ' . $extraClasses . '" ' . $placeholder . ' ' . $required . ' ' . $disabled . ' ' . $readOnly . ' ' . $value . $pattern . ' ' . $title . $minMaxString . $stepString . $dataAttributesString . ' autocomplete="on" />';
 
         $html = '';
         if ($encased) {
             $html .= '<div class="my-4">';
-                $html .= ($label_name !== '') ? self::label($name, $label_name) : '';
+                $html .= ($label_name !== '') ? self::label($id, $label_name) : '';
                 $html .= $inputHtml;
                 $html .= ($description !== '') ? '<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">' . $description . '</p>' : '';
             $html .= '</div>';
@@ -194,7 +205,9 @@ class Html
         $required = $required ? 'required' : '';
         $readonly = $readonly ? 'readonly' : '';
         $value = ($value == '') ? '' : $value;
-        $id = ($id === '' || $id === null) ? '' : 'id="' . $id . '"';
+        if ($id == null) {
+            $id = uniqid();
+        }
         // Title
         if ($title === '') {
             $title = ($label_name !== '') ? 'title="' . $label_name . '"' : 'title="' . $name . '"';
@@ -212,11 +225,11 @@ class Html
             }
         }
 
-        $inputHtml = '<textarea ' . $id . ' name="' . $name . '" class="' . $inputClasses . ' ' . $extraClasses . '" rows="' . $rows . '" cols="' . $cols . '"  ' . $placeholder . $required . ' ' . $disabled . ' ' . $readonly . ' ' . $title . ' ' . $dataAttributesString . '>' . $value . '</textarea>';
+        $inputHtml = '<textarea id="' . $id . '" name="' . $name . '" class="' . $inputClasses . ' ' . $extraClasses . '" rows="' . $rows . '" cols="' . $cols . '"  ' . $placeholder . $required . ' ' . $disabled . ' ' . $readonly . ' ' . $title . ' ' . $dataAttributesString . '>' . $value . '</textarea>';
 
         $html = '';
         $html .= '<div class="my-4">';
-            $html .= ($label_name !== '') ? self::label($name, $label_name) : '';
+            $html .= ($label_name !== '') ? self::label($id, $label_name) : '';
             $html .= $inputHtml;
             $html .= ($description !== '') ? '<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">' . $description . '</p>' : '';
         $html .= '</div>';
@@ -250,7 +263,7 @@ class Html
         $required = $required ? 'required' : '';
         $html = '<div class="mt-2">';
             $html .= '<div class="flex items-center mb-4">';
-                $html .= '<input id="' . $id . '" name="' . $name . '" type="checkbox" value="' . $value . '" class="w-4 h-4 text-' . $theme . '-600 bg-gray-100 rounded border-gray-300 focus:ring-' . $theme . '-500 dark:focus:ring-' . $theme . '-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 ' . $extraClasses . '" ' . $checked . ' ' . $disabled . ' ' . $readOnly . $required
+                $html .= '<input id="' . $id . '" name="' . $name . '" title="' . $name . ' placeholder="" type="checkbox" value="' . $value . '" class="w-4 h-4 text-' . $theme . '-600 bg-gray-100 rounded border-gray-300 focus:ring-' . $theme . '-500 dark:focus:ring-' . $theme . '-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 ' . $extraClasses . '" ' . $checked . ' ' . $disabled . ' ' . $readOnly . $required
                  . '/>';
                 $html .= '<label for="' . $id . '" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">' . $label . '';
                     $html .= $description;
@@ -259,9 +272,9 @@ class Html
         $html .= '</div>';
         return $html;
     }
-    public static function label(string $name, string $label_name) : string
+    public static function label(string $id, string $label_name) : string
     {
-        return '<label for="' . $name . '" class="block my-2 text-sm font-medium ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . '">' . $label_name . '</label>';
+        return '<label for="' . $id . '" class="block my-2 text-sm font-medium ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . '">' . $label_name . '</label>';
     }
     public static function code($text, $codeTitle = '', $classes = []) : string
     {
@@ -383,7 +396,7 @@ class Html
         $html = '';
         $html = '<div class="flex items-center justify-start">';
         $html .= '<label class="my-2 mx-2 relative inline-flex items-center cursor-pointer">';
-        $html .= '<input type="checkbox" id="' . $id . '" name="' . $name . '" class="sr-only peer awm-toggle" ' . $checked . ' ' . $disabled . ' />';
+        $html .= '<input type="checkbox" title="' . $name . ' placeholder="" id="' . $id . '" name="' . $name . '" class="sr-only peer awm-toggle" ' . $checked . ' ' . $disabled . ' />';
         $html .= '<div class="w-11 h-6 bg-gray-300 rounded-full peer peer-focus:ring-4 peer-focus:ring--300 dark:peer-focus:ring-' . $theme . '-800 dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[\'\'] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-' . $theme . '-600"></div>';
         $html .= '</label>';
         $html .= '<span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">' . $text . '</span>';

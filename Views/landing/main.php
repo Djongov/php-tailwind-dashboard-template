@@ -26,3 +26,117 @@ try {
 
 
 echo Alerts::success('Successfully connected to the database');
+
+?>
+
+
+
+<div class="max-w-sm mx-auto md:mx-4 w-full my-6 bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
+  <div id="line-chart"></div>
+</div>
+
+<script nonce="1nL1n3JsRuN1192kwoko2k323WKE">
+    
+    const options = {
+  chart: {
+    height: "150px",
+    maxWidth: "300px",
+    type: "line",
+    fontFamily: "Inter, sans-serif",
+    dropShadow: {
+      enabled: false,
+    },
+    toolbar: {
+      show: true, // Enable the toolbar
+      tools: {
+        download: true, // Show only the download option
+        selection: false, // Disable selection (hand)
+        zoom: false, // Disable zoom
+        zoomin: false, // Disable zoom-in
+        zoomout: false, // Disable zoom-out
+        pan: false, // Disable panning (drag)
+        reset: false // Disable the reset icon
+      },
+      export: {
+        csv: true, // Enable CSV download (for chart data)
+        svg: true, // Enable SVG download
+        png: true, // Enable PNG download
+      }
+    }
+  },
+  tooltip: {
+    enabled: true,
+    x: {
+      show: false,
+    },
+  },
+  dataLabels: {
+    enabled: false,
+  },
+  stroke: {
+    width: 6,
+  },
+  grid: {
+    show: true,
+    strokeDashArray: 4,
+    padding: {
+      left: 2,
+      right: 2,
+      top: -26
+    },
+  },
+  series: [
+    {
+      name: "Clicks",
+      data: [6500, 6418, 6456, 6526, 6356, 6456],
+      color: "#1A56DB",
+    },
+    {
+      name: "CPC",
+      data: [6456, 6356, 6526, 6332, 6418, 6500],
+      color: "#7E3AF2",
+    },
+    {
+        name: "CTR",
+        data: [6418, 6456, 6356, 6418, 6526, 6332],
+        color: "#F472B6",
+    }
+  ],
+  legend: {
+    show: false
+  },
+  stroke: {
+    curve: 'smooth'
+  },
+    title: {
+            text: 'Stock Price Movement',
+            align: 'left'
+        },
+  xaxis: {
+    categories: ['01 Feb', '02 Feb', '03 Feb', '04 Feb', '05 Feb', '06 Feb', '07 Feb'],
+    labels: {
+      show: true,
+      style: {
+        fontFamily: "Inter, sans-serif",
+        cssClass: 'text-xs font-normal fill-gray-500 dark:fill-gray-400'
+      }
+    },
+    axisBorder: {
+      show: false,
+    },
+    axisTicks: {
+      show: false,
+    },
+  },
+  yaxis: {
+    show: false,
+  },
+}
+
+if (document.getElementById("line-chart") && typeof ApexCharts !== 'undefined') {
+  const chart = new ApexCharts(document.getElementById("line-chart"), options);
+  chart.render();
+}
+
+</script>
+

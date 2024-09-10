@@ -29,7 +29,7 @@ class Forms
 
         $html .= '<div class="my-4 w-max-full">';
             // Prepare an id for the form, if passed
-            $id = (isset($options['id'])) ? 'id="' . $options['id'] . '"' : '';
+            $id = (isset($options['id'])) ? 'id="' . $options['id'] . '"' : 'id="' . uniqid() . '"';
             
             $html .= '<form ' . $id . ' class="' . self::formClasses($options) . '" action="' . $options['action'] . '"' . $formAttributes . ' ' . $target . '>';
 
@@ -44,7 +44,7 @@ class Forms
                     $label = (isset($inputOptionsArray['label'])) ? $inputOptionsArray['label'] : '';
                     $description = (isset($inputOptionsArray['description'])) ? $inputOptionsArray['description'] : '';
                     $title = (isset($inputOptionsArray['title'])) ? $inputOptionsArray['title'] : '';
-                    $id = (isset($inputOptionsArray['id'])) ? $inputOptionsArray['id'] : null;
+                    $id = (isset($inputOptionsArray['id'])) ? $inputOptionsArray['id'] : uniqid();
 
                     // Setup the meta such as readonly, disabled, required
                     $disabled = (isset($inputOptionsArray['disabled']) && $inputOptionsArray['disabled']) ? true : false;
@@ -94,12 +94,10 @@ class Forms
                         $html .= '<div class="my-4">';
                             // If id is not passed, let's create a unique id
                             if ($id === null || empty($id)) {
-                                $id = 'id="tinymce-' . uniqid() . '"';
-                            } else {
-                                $id = 'id="' . $id . '"';
+                                $id = 'tinymce-' . uniqid();
                             }
-                            $html .= Html::label($id ?? $inputOptionsArray['name'], $label);
-                            $html .= '<textarea ' . $id . ' class="tinymce" name="' . $inputOptionsArray['name'] . '"></textarea>';
+                            $html .= Html::label($id, $label);
+                            $html .= '<textarea id="' . $id . '" class="tinymce" name="' . $inputOptionsArray['name'] . '"></textarea>';
                             $html .= Html::p($description);
                         $html .= '</div>';
                     }
@@ -110,15 +108,18 @@ class Forms
                     // Inputs checbox group
                     if ($inputType === 'checkboxGroup') {
                         $checboxGroupClass = 'checkbox-group-' . uniqid();
+                        $html .= Html::h5($label);
                         $html .= '<div class="border border-gray-200 dark:border-gray-700 p-4 rounded-lg my-4">';
-                            $html .= Html::label($id ?? uniqid(), $label);
                             array_push($extraClasses, $checboxGroupClass);
                             $name = $inputOptionsArray['name'];
                             // Loop through the checkbox groups
+                            $idConcurrence = 0;
                             foreach ($inputOptionsArray['checkboxes'] as $checkbox) {
+                                $idConcurrence++;
                                 $readonly = (isset($checkbox['readonly']) && $checkbox['readonly']) ? true : false;
                                 $disabled = (isset($checkbox['disabled']) && $checkbox['disabled']) ? true : false;
-                                $html .= Html::checkbox($id, $name, $checkbox['value'], $checkbox['label'], $checkbox['description'], false, $checkbox['checked'], $disabled, $readonly, $theme, $extraClasses, $dataAttributes);
+                                //$html .= Html::label($id . '-' . $idConcurrence, $label);
+                                $html .= Html::checkbox($id . '-' . $idConcurrence, $name, $checkbox['value'], $checkbox['label'], $checkbox['description'], false, $checkbox['checked'], $disabled, $readonly, $theme, $extraClasses, $dataAttributes);
                             }
                             $html .= '<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">' . $inputOptionsArray['description'] . '</p>';
                         $html .= '</div>';
@@ -137,16 +138,14 @@ class Forms
                                     $html .= Html::searchInput($theme);
                                 }
                                 $disabled = (isset($inputOptionsArray['disabled']) && $inputOptionsArray['disabled']) ? 'disabled' : '';
-                                $html .= '<label for="' . $inputOptionsArray['name'] . '" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">' . $inputOptionsArray['label'] . '</label>';
+                                $html .= '<label for="' . $id . '" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">' . $inputOptionsArray['label'] . '</label>';
                                 $selectDivFlex = (isset($inputOptionsArray['searchFlex'])) ? $inputOptionsArray['searchFlex'] : 'flex-row';
                                 $html .= '<div class="w-fit flex ' . $selectDivFlex . ' flex-wrap">';
                                     if (isset($inputOptionsArray['search']) && $inputOptionsArray['search']) {
                                         $html .= Html::searchInput($theme);
                                     }
-                                    $html .= '<select name="' . $inputOptionsArray['name'] . '" class="' . Html::selectInputClasses($theme) . '" ' . $disabled . $title . '>';
-                                    $html .= (isset($inputOptionsArray['description'])) ? '<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">' . $inputOptionsArray['description'] . '</p>' : null;
+                                    $html .= '<select id="' . $id . '" name="' . $inputOptionsArray['name'] . '" class="' . Html::selectInputClasses($theme) . '" ' . $disabled . $title . ' autocomplete="on">';
                                     $selectedOption = $inputOptionsArray['selected_option'] ?? null;
-
                                     foreach ($inputOptionsArray['options'] as $array) {
                                         if ($selectedOption !== null && $selectedOption === $array['value']) {
                                             $html .= '<option value="' . $array['value'] . '" selected>' . $array['text'] . '</option>';
@@ -155,6 +154,7 @@ class Forms
                                         }
                                     }
                                     $html .= '</select>';
+                                    $html .= (isset($inputOptionsArray['description'])) ? '<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">' . $inputOptionsArray['description'] . '</p>' : null;
                                 $html .= '</div>';
                                 if (isset($inputOptionsArray['description'])) {
                                     $html .= Html::p($inputOptionsArray['description'], ['mt-2', 'ml-2', 'text-sm', 'text-gray-500', 'dark:text-gray-400']);

@@ -124,7 +124,7 @@ const isJSONString = (string) => {
 }
 
 const decodeHTMLEntities = (text) => {
-    var element = document.createElement('textarea');
+    let element = document.createElement('textarea');
     element.innerHTML = text;
     return element.value;
 }
@@ -264,17 +264,17 @@ const createLoader = (parentDiv, id, text) => {
     const loader = document.createElement('div');
     loader.role = 'status';
     loaderDiv.appendChild(loader);
-    const svg = document.createElement('svg');
+    const svg = document.createElementNS('svg');
     svg.setAttribute('aria-hidden', 'true');
     svg.classList.add('inline', 'mr-2', 'w-8', 'h-8', 'text-gray-200', 'dark:text-white', 'animate-spin', 'fill-blue-500', 'dark:fill-amber-500');
     svg.setAttribute('viewBox', '0 0 100 101');
     svg.setAttribute('fill', 'none');
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-    const path = document.createElement('path');
+    const path = document.createElementNS('path');
     path.setAttribute('d', 'M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"');
     svg.appendChild(path);
     loader.appendChild(svg);
-    const span = document.createElement('span');
+    const span = document.createElementNS('span');
     span.textContent = text;
     loader.appendChild(span);
     parentDiv.appendChild(loaderDiv);
