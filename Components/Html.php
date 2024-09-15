@@ -10,9 +10,9 @@ class Html
             array_push($extraClasses, 'text-center');
         }
         if (!$extraClasses) {
-            return '<h1 class="mx-2 my-2 text-3xl md:text-4xl lg:text-5xl font-bold leading-none tracking-tight ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . '">' . $text . '</h1>';
+            return '<h1 class="mx-2 my-2 text-2xl md:text-3xl lg:text-4xl font-bold leading-none tracking-tight ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . '">' . $text . '</h1>';
         } else {
-            return '<h1 class="mx-2 my-2 text-3xl md:text-4xl lg:text-5xl font-bold leading-none tracking-tight ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' ' . implode(' ', $extraClasses) . '">' . $text . '</h1>';
+            return '<h1 class="mx-2 my-2 text-2xl md:text-3xl lg:text-4xl font-bold leading-none tracking-tight ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' ' . implode(' ', $extraClasses) . '">' . $text . '</h1>';
         }
     }
     public static function h2($text, $center = false, $extraClasses = []) : string
@@ -22,9 +22,9 @@ class Html
         }
 
         if (!$extraClasses) {
-            return '<h2 class="mx-2 my-2 text-2xl md:text-3xl lg:text-4xl font-bold leading-none tracking-tight ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . '">' . $text . '</h2>';
+            return '<h2 class="mx-2 my-2 text-xl md:text-2xl lg:text-3xl font-bold leading-none tracking-tight ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . '">' . $text . '</h2>';
         } else {
-            return '<h2 class="mx-2 my-2 text-2xl md:text-3xl lg:text-4xl font-bold leading-none tracking-tight ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' ' . implode(' ', $extraClasses) . '">' . $text . '</h2>';
+            return '<h2 class="mx-2 my-2 text-xl md:text-2xl lg:text-3xl font-bold leading-none tracking-tight ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' ' . implode(' ', $extraClasses) . '">' . $text . '</h2>';
         }
     }
     public static function h3($text, $center = false, $extraClasses = []) : string
@@ -33,9 +33,9 @@ class Html
             array_push($extraClasses, 'text-center');
         }
         if (!$extraClasses) {
-            return '<h3 class="mx-2 my-2 text-xl font-bold ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' break-words">' . $text . '</h3>';
+            return '<h3 class="mx-2 my-2 text-md md:text-md lg:text-xl font-bold ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' break-words">' . $text . '</h3>';
         } else {
-            return '<h3 class="mx-2 my-2 text-xl font-bold ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' break-words ' . implode(' ', $extraClasses) . '">' . $text . '</h3>';
+            return '<h3 class="mx-2 my-2 text-md md:text-md lg:text-xl font-bold ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' break-words ' . implode(' ', $extraClasses) . '">' . $text . '</h3>';
         }
     }
     public static function h4($text, $center = false, $extraClasses = []) : string
@@ -102,14 +102,14 @@ class Html
         }
     }
     /* Form elements */
-    public static function input(string $size, string $type, ?string $id, string $name, string $title, mixed $value, string $placeholder, string $description, string $label_name, string $theme, bool $disabled, bool $required, bool $readOnly, bool $encased = true, ?int $min = null, ?int $max = null, ?int $step = null, $pattern = '', $extraClasses = [], $dataAttributes = []) : string
+    public static function input(string $size, string $type, ?string $id, string $name, string $title, mixed $value, string $placeholder, string $description, string $label_name, string $theme, bool $disabled, bool $required, bool $readOnly, bool $encased = true, ?int $min = null, ?int $max = null, float|int $step = null, $pattern = '', $extraClasses = [], $dataAttributes = []) : string
     {
         if ($disabled || $readOnly) {
             $theme = 'red';
             array_push($extraClasses, 'cursor-not-allowed', 'border-red-500', 'dark:border-red-600');
         }
         // Check allowed types
-        $allowedTypes = ['text', 'number', 'email', 'password', 'search', 'datetime-local', 'tel'];
+        $allowedTypes = ['text', 'number', 'email', 'password', 'search', 'datetime-local', 'tel', 'file'];
         if (!in_array($type, $allowedTypes)) {
             throw new \Exception('Invalid type for input. Needs to be one of: ' . implode(', ', $allowedTypes) . '.');
         }
@@ -159,6 +159,7 @@ class Html
         }
         // First get some of the meta data
         $disabled = $disabled ? 'disabled' : '';
+        $requiredOriginal = $required;
         $required = $required ? 'required' : '';
         $readOnly = $readOnly ? 'readonly' : '';
         $value = ($value == '') ? '' : ' value="' . $value . '"';
@@ -180,12 +181,29 @@ class Html
                 $dataAttributesString .= 'data-' . $key . '="' . $v . '" ';
             }
         }
+        // handle file
+
+        if ($type === 'file') {
+            if ($encased) {
+                $html = '';
+                $html .= '<div class="my-4">';
+                    $html .= ($label_name !== '') ? self::label($id, $label_name, $requiredOriginal) : '';
+                    $html .= '<input id="' . $id . '" type="' . $type . '" name="' . $name . '" class="' . $inputClasses . ' ' . $extraClasses . '" ' . $placeholder . ' ' . $required . ' ' . $disabled . ' ' . $readOnly . ' ' . $value . $pattern . ' ' . $title . $minMaxString . $stepString . $dataAttributesString . ' autocomplete="on" />';
+                    $html .= ($description !== '') ? '<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">' . $description . '</p>' : '';
+                $html .= '</div>';
+                return $html;
+            } else {
+                return '<input id="' . $id . '" type="' . $type . '" name="' . $name . '" class="' . $inputClasses . ' ' . $extraClasses . '" ' . $placeholder . ' ' . $required . ' ' . $disabled . ' ' . $readOnly . ' ' . $value . $pattern . ' ' . $title . $minMaxString . $stepString . $dataAttributesString . ' autocomplete="on" />';
+            }
+        }
         $inputHtml = '<input id="' . $id . '" type="' . $type . '" name="' . $name . '" class="' . $inputClasses . ' ' . $extraClasses . '" ' . $placeholder . ' ' . $required . ' ' . $disabled . ' ' . $readOnly . ' ' . $value . $pattern . ' ' . $title . $minMaxString . $stepString . $dataAttributesString . ' autocomplete="on" />';
 
         $html = '';
         if ($encased) {
             $html .= '<div class="my-4">';
-                $html .= ($label_name !== '') ? self::label($id, $label_name) : '';
+                if ($label_name !== '') {
+                    $html .= self::label($id, $label_name, $requiredOriginal);
+                }
                 $html .= $inputHtml;
                 $html .= ($description !== '') ? '<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">' . $description . '</p>' : '';
             $html .= '</div>';
@@ -200,6 +218,7 @@ class Html
     {
         // Classes based on size
         $inputClasses = 'w-full p-2 text-sm ' . BODY_COLOR_SCHEME_CLASS . ' appearance-none border-2 border-gray-100 rounded-lg text-gray-700 leading-tight focus:outline-none focus:' . BODY_COLOR_SCHEME_CLASS. ' focus:border-' . $theme . '-500 ' . BODY_DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500';
+        $requiredOriginal = $required;
         // First get some of the meta data
         $disabled = $disabled ? 'disabled' : '';
         $required = $required ? 'required' : '';
@@ -229,7 +248,7 @@ class Html
 
         $html = '';
         $html .= '<div class="my-4">';
-            $html .= ($label_name !== '') ? self::label($id, $label_name) : '';
+            $html .= ($label_name !== '') ? self::label($id, $label_name, $requiredOriginal) : '';
             $html .= $inputHtml;
             $html .= ($description !== '') ? '<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">' . $description . '</p>' : '';
         $html .= '</div>';
@@ -272,9 +291,13 @@ class Html
         $html .= '</div>';
         return $html;
     }
-    public static function label(string $id, string $label_name) : string
+    public static function label(string $id, string $label_name, bool $required) : string
     {
-        return '<label for="' . $id . '" class="block my-2 text-sm font-medium ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . '">' . $label_name . '</label>';
+        if ($required) {
+            return '<label title="required ' . $label_name . ' field" for="' . $id . '" class="block my-2 text-sm font-medium ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . '">' . $label_name . '<span class="text-red-500"> *</span></label>';
+        } else {
+            return '<label for="' . $id . '" class="block my-2 text-sm font-medium ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . '">' . $label_name . '</label>';
+        }
     }
     public static function code($text, $codeTitle = '', $classes = []) : string
     {

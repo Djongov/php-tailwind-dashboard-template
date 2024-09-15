@@ -204,6 +204,26 @@ class Checks
             Output::error('Invalid required header value');
         }
     }
+    public function checkImage(array $image): void
+    {
+        // Check if the image is set
+        if (!isset($image['name'])) {
+            Output::error('Missing image');
+        }
+        // Check if the image is an image
+        if (!getimagesize($image['tmp_name'])) {
+            Output::error('Invalid image');
+        }
+        // Check if the image is not too big
+        if ($image['size'] > 1000000) {
+            Output::error('Image too big');
+        }
+        // Check if the image is the proper format
+        $imageFileType = strtolower(pathinfo($image['name'], PATHINFO_EXTENSION));
+        if (!in_array($imageFileType, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'affif'])) {
+            Output::error('Invalid image type');
+        }
+    }
     /**
      * A complete set of checks, suitable for api calls
      *

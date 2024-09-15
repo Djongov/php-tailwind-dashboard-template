@@ -138,19 +138,21 @@ const handleFormFetch = (form, currentEvent, resultType) => {
 
     // Disable the submit button to prevent multiple submissions
     currentEvent.submitter.disabled = true;
-    // Pick up the data from the form and urlencode is for POST
+
+    // Pick up the data from the form
     const formData = new FormData(form);
+
     // If you still want to add specific values for checkboxes, you can do it like this
-    const toggleCheckboxes = form.querySelectorAll('input[type="checkbox"]')
+    const toggleCheckboxes = form.querySelectorAll('input[type="checkbox"]');
     if (toggleCheckboxes.length > 0) {
         toggleCheckboxes.forEach(checkbox => {
-            // If the checkbox is checked, set its value to 1, otherwise, set it to 0
             let checkboxValue = checkbox.checked ? 1 : 0;
             formData.set(checkbox.name, checkboxValue);
             console.log(`Setting ${checkbox.name} to ${checkboxValue}`);
         });
     }
-    // Let's deal with groupped checkboxes now on submittion time
+
+    // Let's deal with grouped checkboxes
     const checkboxesInGroups = form.querySelectorAll('[class*="checkbox-group-"]');
     checkboxesInGroups.forEach(checkbox => {
         const groupName = checkbox.classList[checkbox.classList.length - 1];
@@ -160,16 +162,15 @@ const handleFormFetch = (form, currentEvent, resultType) => {
                 formData.set(groupCheckbox.name, groupCheckbox.value);
             }
         });
-        // Let's handle if none of the checkboxes in the group is checked
+
+        // If none of the checkboxes in the group is checked
         const checkedCheckboxes = form.querySelectorAll(`.${groupName}:checked`);
         if (checkedCheckboxes.length === 0) {
-            // unset the value of the name
             formData.delete(checkboxesInGroups[0].name);
         }
     });
-    // Encode the form data
-    const data = new URLSearchParams(formData);
 
+    // Form method and CSRF token
     const formMethod = form.getAttribute('data-method');
     const csrfToken = form.querySelector('input[name="csrf_token"]').value;
 
@@ -182,10 +183,12 @@ const handleFormFetch = (form, currentEvent, resultType) => {
         redirect: 'manual'
     };
 
+    // Adjusting based on method:
     if (formMethod === 'POST') {
-        fetchOptions.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-        fetchOptions.body = data;
+        // For POST, handle with FormData to allow file uploads
+        fetchOptions.body = formData;
     } else if (formMethod === 'PUT') {
+        // For PUT, handle with JSON, but no file uploads (as per your original logic)
         fetchOptions.headers['Content-Type'] = 'application/json';
 
         // Convert form data to a JavaScript object
@@ -195,8 +198,13 @@ const handleFormFetch = (form, currentEvent, resultType) => {
         });
 
         fetchOptions.body = JSON.stringify(formDataObject);
-    } else if (formMethod !== 'GET' && formMethod !== 'DELETE') {
+    } else if (formMethod === 'DELETE' || formMethod === 'GET') {
+        // For DELETE and GET, handle URL-encoded data (no files)
+        const data = new URLSearchParams(formData);
         fetchOptions.body = data;
+    } else {
+        // For other methods (like PATCH), use FormData (including file uploads)
+        fetchOptions.body = formData;
     }
 
     // Fetch function

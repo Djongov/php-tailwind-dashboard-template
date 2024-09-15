@@ -27,7 +27,7 @@ class Forms
 
         $formAttributes = self::formAttributes($options);
 
-        $html .= '<div class="my-4 w-max-full">';
+        $html .= '<div class="w-max-full">';
             // Prepare an id for the form, if passed
             $id = (isset($options['id'])) ? 'id="' . $options['id'] . '"' : 'id="' . uniqid() . '"';
             
@@ -96,7 +96,7 @@ class Forms
                             if ($id === null || empty($id)) {
                                 $id = 'tinymce-' . uniqid();
                             }
-                            $html .= Html::label($id, $label);
+                            $html .= Html::label($id, $label, $required);
                             $html .= '<textarea id="' . $id . '" class="tinymce" name="' . $inputOptionsArray['name'] . '"></textarea>';
                             $html .= Html::p($description);
                         $html .= '</div>';
@@ -138,7 +138,8 @@ class Forms
                                     $html .= Html::searchInput($theme);
                                 }
                                 $disabled = (isset($inputOptionsArray['disabled']) && $inputOptionsArray['disabled']) ? 'disabled' : '';
-                                $html .= '<label for="' . $id . '" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">' . $inputOptionsArray['label'] . '</label>';
+                                $requiredAsterix = (isset($inputOptionsArray['required']) && $inputOptionsArray['required']) ? '<span class="text-red-500"> *</span>' : '';
+                                $html .= '<label for="' . $id . '" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">' . $inputOptionsArray['label'] . $requiredAsterix . '</label>';
                                 $selectDivFlex = (isset($inputOptionsArray['searchFlex'])) ? $inputOptionsArray['searchFlex'] : 'flex-row';
                                 $html .= '<div class="w-fit flex ' . $selectDivFlex . ' flex-wrap">';
                                     if (isset($inputOptionsArray['search']) && $inputOptionsArray['search']) {
@@ -156,9 +157,6 @@ class Forms
                                     $html .= '</select>';
                                     $html .= (isset($inputOptionsArray['description'])) ? '<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">' . $inputOptionsArray['description'] . '</p>' : null;
                                 $html .= '</div>';
-                                if (isset($inputOptionsArray['description'])) {
-                                    $html .= Html::p($inputOptionsArray['description'], ['mt-2', 'ml-2', 'text-sm', 'text-gray-500', 'dark:text-gray-400']);
-                                }
                             $html .= '</div>';
                         $html .= '</div>';
                     }

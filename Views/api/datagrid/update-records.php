@@ -14,14 +14,20 @@ $table = $_POST['table'];
 
 // Because the POST data comes from a fetch request, it serializes the data and everything comes through as a string which could lead to DB query errors. Let's convert the data to the correct types
 foreach ($_POST as $key => &$value) {
+    // Convert numeric strings to floats if they contain a decimal point
     if (is_numeric($value)) {
-        $value = intval($value);
-    // Also, if the value is an empty string, let's convert it to null
+        if (strpos($value, '.') !== false) {
+            // Convert to float if there's a decimal point
+            $value = floatval($value);
+        } else {
+            // Otherwise, convert to integer
+            $value = intval($value);
+        }
+    // Convert empty strings to null
     } elseif ($value === '') {
         $value = null;
     }
 }
-
 
 $sql = 'UPDATE ' . $_POST['table'] . ' SET ';
 

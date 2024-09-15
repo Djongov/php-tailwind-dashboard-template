@@ -170,7 +170,8 @@ $formOptions = [
                 'selected' => 'ca',
                 'searchable' => true,
                 'searchFlex' => 'flex-col',
-                'description' => 'Select your country'
+                'description' => 'Select your country',
+                'required' => true
             ]
         ],
         'textarea' => [
@@ -181,7 +182,8 @@ $formOptions = [
                 'placeholder' => 'Enter your comments here',
                 'rows' => 4,
                 'cols' => 50,
-                'description' => 'Enter your comments here'
+                'description' => 'Enter your comments here',
+                'required' => false
             ]
         ],
         'toggle' => [

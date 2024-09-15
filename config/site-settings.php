@@ -24,10 +24,10 @@ define("GENERIC_DESCRIPTION", "Dashboard Template");
 // Logo that sits on the menu and the footer
 define("LOGO_SVG", '<svg class="w-10 h-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>');
 
-define("LOGO", "/assets/images/dashboard_icon_cairosvg.png");
+define("LOGO", "/assets/images/logo.svg");
 
 // Logo for the SEO OG tags
-define("OG_LOGO", 'https://' . $_SERVER['HTTP_HOST'] . '/assets/images/logo.jpg');
+define("OG_LOGO", 'https://' . $_SERVER['HTTP_HOST'] . '/assets/images/logo.svg');
 
 // MSFT Logo
 define('MS_LOGO', '<svg class="w-10 h-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 23"><path fill="#f3f3f3" d="M0 0h23v23H0z"/><path fill="#f35325" d="M1 1h10v10H1z"/><path fill="#81bc06" d="M12 1h10v10H12z"/><path fill="#05a6f0" d="M1 12h10v10H1z"/><path fill="#ffba08" d="M12 12h10v10H12z"/></svg>');

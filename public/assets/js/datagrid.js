@@ -124,7 +124,15 @@ if (tables.length > 0) {
                         // Loop through all of the modalBody inputs, textarea and select and save them to the formData
                         const modalBodyInputs = modal.querySelectorAll(`input, textarea, select`);
                         modalBodyInputs.forEach(input => {
-                            formData.append(input.name, input.value);
+                            let value = input.value;
+
+                            // Check if the value is a valid number
+                            if (!isNaN(value) && value.includes('.')) {
+                                // Convert to float and format to a specific number of decimal places (e.g., 2)
+                                value = parseFloat(value);
+                            }
+
+                            formData.append(input.name, value);
                         });
                         // Now let's take care of potential checkboxes
                         const modalBodyCheckboxes = modal.querySelectorAll(`input[type=checkbox]`);
