@@ -441,4 +441,8 @@ class Html
         $html .= '</div>';
         return $html;
     }
+    public static function backButton(string $theme) : string
+    {
+        return '<button class="back-button mx-auto py-3 px-5 leading-5 text-white bg-' . $theme . '-500 hover:bg-' . $theme . '-600 font-medium text-center focus:ring-2 focus:ring-' . $theme . '-500 focus:ring-opacity-50 border border-transparent rounded-md shadow-sm">Go Back</button>';
+    }
 }
