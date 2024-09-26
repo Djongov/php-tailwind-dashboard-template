@@ -21,11 +21,9 @@ if (AuthToken::get() !== null) {
             header('Location: ' . $destinationUrl);
         }
     }
-    if ($idToken['iss'] === 'https://login.microsoftonline.com/' . AZURE_AD_TENANT_ID . '/v2.0') {
-        // Check if valid
-        if (AzureAD::check(AuthToken::get())) {
-            header('Location: ' . $destinationUrl);
-        }
+    // Check if valid
+    if ($idToken['iss'] === 'https://login.microsoftonline.com/' . AZURE_AD_TENANT_ID . '/v2.0' && AzureAD::check(AuthToken::get())) {
+        header('Location: ' . $destinationUrl);
     }
 }
 
@@ -84,8 +82,7 @@ echo '<div class="flex items-center justify-center mx-4">';
                             'placeholder' => 'John.Doe@example.com',
                             'name' => 'username',
                             'required' => true,
-                            'description' => 'Provide a valid username (email)',
-                            'id' => uniqid(),
+                            'description' => 'Provide a valid username (email)'
                         ],
                         // Password
                         [
@@ -93,8 +90,7 @@ echo '<div class="flex items-center justify-center mx-4">';
                             'type' => 'password',
                             'name' => 'password',
                             'required' => true,
-                            'description' => 'Provide a valid password',
-                            'id' => uniqid(),
+                            'description' => 'Provide a valid password'
                         ]
                     ],
                     'checkbox' => [
@@ -123,18 +119,22 @@ echo '<div class="flex items-center justify-center mx-4">';
 
             echo Forms::render($localLoginForm);
 
-            echo '<script src="/assets/js/local-login.js?' . time() . '"></script>';
+            echo '<script src="/assets/js/local-login.js"></script>';
         }
+        // If local login is enabled, show the registration link
         if (LOCAL_USER_LOGIN) {
+            // But if only show the link if manual registration is enabled
             if (MANUAL_REGISTRATION) {
                 echo Html::small('If you do not have an account, please <a class="underline" href="/register">sign up</a>');
             } else {
                 echo Html::small('If you do not have an account, please contact your administrator');
             }
         }
+        // If no login methods are enabled, show an alert
         if (!LOCAL_USER_LOGIN && !AZURE_AD_LOGIN && !GOOGLE_LOGIN && !MICROSOFT_LIVE_LOGIN) {
             echo Alerts::danger('No login methods are enabled. Check config');
-}
+        }
+    // Close the login container
     echo '</div>';
-    echo '</div>';
+// Close the flex container
 echo '</div>';

@@ -11,10 +11,11 @@ use App\Database\DB;
 class DataGrid
 {
     public static array $tableOptions = [
+        'searching' => true,
         'filters' => true,
         'ordering' => true,
-        'paging' => true,
-        'lengthMenu' => [[25, 50, 100, -1], [25, 50, 100, "All"]],
+        'order' => [[0, 'desc']],
+        'paging' => true
     ];
     private static function getDeleteLoader($id, $theme) : string
     {
@@ -31,38 +32,29 @@ class DataGrid
             </div>
         </div>';
     }
-    private static function constructThead($delete, $edit, $theme, $filters, $totalColumns) : string
+    private static function constructThead($delete, $edit, $theme, $sorting, $totalColumns) : string
     {
         $html = '';
-        $html .= '<thead class="' . DATAGRID_THEAD_COLOR_SCHEME . ' ' . DATAGRID_THEAD_DARK_COLOR_SCHEME . ' ' . DATAGRID_TEXT_COLOR_SCHEME . ' ' . DATAGRID_TEXT_DARK_COLOR_SCHEME . ' font-bold sticky top-0 border-collapse">';
-            $thClass = "p-2 border border-slate-400 cursor-pointer";
+        $html .= '<thead class="bg-gray-200 dark:bg-gray-700 sticky top-0 border-collapse">';
+            $thClass = "px-4 py-2 text-center text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider cursor-pointer";
             $html .= '<tr>';
                 // If delete is true, have a All th
                 if ($delete) {
-                    $html .= '<th scope="col" class="' . $thClass . '"><input type="checkbox" class="select-all" title="select all visible rows" /></th>';
+                    $html .= '<th scope="col" class="' . $thClass . '"><input type="checkbox" class="select-all" title="select all visible rows" /><br />All</th>';
                 }
                 foreach ($totalColumns as $cols) {
-                    $html .= '<th scope="col" class="' . $thClass . '"><span>' . $cols . '</span> <span class="text-xs text-' . $theme . '-500">&#x25B2;&#x25BC;</span></th>';
+                    if ($sorting) {
+                        $html .= '<th scope="col" class="' . $thClass . '"><span>' . $cols . '</span> <span class="text-xs text-' . $theme . '-500">&#x25B2;&#x25BC;</span></th>';
+                    } else {
+                        $html .= '<th scope="col" class="' . $thClass . '">' . $cols . '</th>';
+                    }
                 }
                 // and one more th for the actions if enabled
                 if ($delete || $edit) {
                     $html .= '<th scope="col" class="' . $thClass . '">Actions</th>';
                 }
             $html .= '</tr>';
-            if ($filters) {
-                // Now for the second thead row where the filters will stay
-                $html .= '<tr>';
-                    foreach ($totalColumns as $col) {
-                        $html .= '<th scope="col" class="' . $thClass . '"></th>';
-                    }
-                    if ($delete) {
-                        $html .= '<th scope="col" class="' . $thClass . '"></th>';
-                        $html .= '<th scope="col" class="' . $thClass . '"></th>';
-                    } elseif ($edit && !$delete) {
-                        $html .= '<th scope="col" class="' . $thClass . '"></th>';
-                    }
-                $html .= '</tr>';
-            }
+            // 2nd row for filters will be created by JS
         $html .= '</thead>';
         return $html;
     }
@@ -94,10 +86,8 @@ class DataGrid
     public static function fromQuery(string $dbTable, string $query, string $title, string $theme, bool $edit = true, bool $delete = true, $tableOptions = null) : string
     {
         // First of all, check if query has SELECT in it and if it does, we need to make sure that id has been passed
-        if ($edit || $delete) {
-            if (stripos($query, 'SELECT') !== false && stripos($query, 'id') === false) {
-                return Alerts::danger('Please include id column in your query, if you have enabled edit or delete options.');
-            }
+        if (($edit || $delete) && (stripos($query, 'SELECT') !== false && stripos($query, 'id') === false)) {
+            return Alerts::danger('Please include id column in your query, if you have enabled edit or delete options.');
         }
         // We pull from query
         $db = new DB();
@@ -115,14 +105,29 @@ class DataGrid
 
         return self::createTable($dbTable, $title, $data, $theme, $edit, $delete, $tableOptions);
     }
-    private static function createTable(string $dbTable, string $title, array $data, string $theme, bool $edit = true, bool $delete = true, $tableOptions = null): string
+    private static function createTable(string $dbTable, ?string $title, array $data, string $theme, bool $edit = true, bool $delete = true, $tableOptions = null): string
     {
         if ($tableOptions === null) {
             $tableOptions = self::$tableOptions;
         }
-        if (!isset($tableOptions['filters'], $tableOptions['ordering'], $tableOptions['paging'], $tableOptions['lengthMenu'])) {
-            return Alerts::danger('Please provide all the necessary table options - ' . implode(', ', array_keys(self::$tableOptions)));
+        $correctTableOptions = ['searching', 'filters', 'ordering', 'order', 'paging', 'lengthMenu', 'info'];
+
+        // We don't want to be restricting that the all of the keys are present, but we want to make sure that the keys are correct
+        foreach ($tableOptions as $key => $value) {
+            if (!in_array($key, $correctTableOptions)) {
+                return Alerts::danger('Invalid table option: ' . $key);
+            }
         }
+
+        // Let's do the info, if info is not set, let's only turn it on if searching is on or paging is on
+        if (!isset($tableOptions['info'])) {
+            if (isset($tableOptions['searching']) && $tableOptions['searching'] || isset($tableOptions['paging']) && $tableOptions['paging']) {
+                $tableOptions['info'] = true;
+            } else {
+                $tableOptions['info'] = false;
+            }
+        }
+
         $html = '';
         foreach ($data as $a => $b) {
             if (!is_array($b)) {
@@ -132,9 +137,34 @@ class DataGrid
         }
         $totalCount = count($data);
         if ($totalCount < 1) {
-            $html .= Alerts::danger('No results for "' . $title . '"');
+            $noResultsText = ($title) ? 'No results for "' . $title . '"' : 'No results found';
+            $html .= Alerts::danger($noResultsText);
             return $html;
         }
+        
+        if (!isset($tableOptions['lengthMenu'])) {
+            // Let's calculate the lengthMenu by the total number of rows
+            $defaultLengthMenu = [[25, 50, 100, -1], [25, 50, 100, "All"]];
+            if ($totalCount >= 1000) {
+                // Push 1000 to the first array
+                array_unshift($defaultLengthMenu[0], 500);
+                array_unshift($defaultLengthMenu[0], 1000);
+                // Push 1000 to the 2nd array but minus last element
+                array_unshift($defaultLengthMenu[1], 500);
+                array_unshift($defaultLengthMenu[1], 1000);
+            }
+            // If more than 10000
+            if ($totalCount >= 10000) {
+                // Push 10000 to the first array
+                array_unshift($defaultLengthMenu[0], 5000);
+                array_unshift($defaultLengthMenu[0], 10000);
+                // Push 10000 to the 2nd array but minus last element
+                array_unshift($defaultLengthMenu[1], 5000);
+                array_unshift($defaultLengthMenu[1], 10000);
+            }
+            $tableOptions['lengthMenu'] = $defaultLengthMenu;
+        }
+
         $originalDBTable = $dbTable;
         if ($dbTable === '' || $dbTable === null) {
             $dbTable = 'table-' . uniqid();
@@ -150,60 +180,71 @@ class DataGrid
         // All encompassing div
         $html .= '<div class="my-4">';
         $html .= '<div class="ml-2 mt-4 ' . DATAGRID_TEXT_COLOR_SCHEME . ' ' . DATAGRID_TEXT_DARK_COLOR_SCHEME . '">';
-        $html .= Html::h2($title, true);
-        $html .= '<p>Results: <span id="' . $id . '-total">' . $totalCount . '</span></p>';
+        $html .= ($title) ? Html::h2($title, true) : null;
+        $html .= '<p class="text-sm">Results: <span id="' . $id . '-total">' . $totalCount . '</span></p>';
         if ($delete || $edit) {
-            $html .= '<p>Filtered: <span id="' . $id . '-filtered">' . $totalCount . '</span></p>';
-            $html .= '<p>Selected: <span id="' . $id . '-selected">0</span></p>';
+            $html .= '<p class="text-sm">Filtered: <span id="' . $id . '-filtered">' . $totalCount . '</span></p>';
+            $html .= '<p class="text-sm">Selected: <span id="' . $id . '-selected">0</span></p>';
         }
         $html .= '</div>';
         // Table
-        $html .= '<div id="' . $id . '-container" class="m-4">';
+        $html .= '<div id="' . $id . '-container" class="m-4 overflow-x-auto">';
         $html .= ($delete) ? '<form class="delete-selected-form">' : null;
         // The table loading div
         $html .= '<div id="' . $id . '-loading-table" class="mt-12 bg-' . $theme . '-500 h-full w-full text-center text-white">Data Loading... Please wait<svg class="inline mx-4 w-8 h-8 text-gray-200 dark:text-white animate-spin fill-blue-600 dark:fill-' . $theme . '-500" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg></div>';
         // Table itself
-        $html .= '<table id="' . $id . '" class="hidden w-full datagrid mt-8 p-8 border-collapse border border-slate-400 text-center">';
+        $html .= '<table id="' . $id . '" class="hidden datagrid mt-4 min-w-full table-auto text-center">';
             // Construct Head
             $totalColumns = self::getColumns($data);
-            $html .= self::constructThead($delete, $edit, $theme, $filters, $totalColumns);
-            $html .= '<tbody class="' . DATAGRID_TBODY_COLOR_SCHEME . ' ' . DATAGRID_TBODY_DARK_COLOR_SCHEME . ' ' . DATAGRID_TEXT_COLOR_SCHEME . ' ' . DATAGRID_TEXT_DARK_COLOR_SCHEME . '">';
+            $html .= self::constructThead($delete, $edit, $theme, $tableOptions['ordering'], $totalColumns);
+            $html .= '<tbody>';
                 $csrfToken = CSRF::create();
                 $counter = 0;
                 // Time to loop through the data array and build the tbody
                 foreach ($data as $indexes => $arrays) {
                     $counter++;
                     $currentId = $arrays['id'] ?? $counter;
-                    $html .= '<tr tabindex="' . $indexes . '" data-row-id="' . $currentId . '" class="focus:bg-' . $theme . '-500 focus:text-slate-900 no-paginate">';
-                        $tdClass = 'max-w-lg p-4 border border-slate-400';
+                    $html .= '<tr tabindex="' . $indexes . '" data-row-id="' . $currentId . '" class="even:bg-gray-200 odd:bg-gray-100 dark:even:bg-gray-700 dark:odd:bg-gray-600 focus:bg-' . $theme . '-500 dark:focus:bg-gray-500">';
+                        $tdClassArray = ['px-4', 'py-2', 'text-sm', 'text-gray-900', 'dark:text-gray-300', 'max-w-xs'];
                         foreach ($arrays as $column => $value) {
                             if ($column === 'id' && $delete) {
-                                $html .= '<td class="' . $tdClass . ' focus:text-white"><input type="checkbox" value="' . $currentId . '" name="row[]"></td>';
+                                $html .= '<td class="' . implode(' ', $tdClassArray) . '"><input type="checkbox" value="' . $currentId . '" name="row[]"></td>';
                             }
                             // Convert nulls or empty strings to (Empty) so it's easier to filter
                             if ($value === null || $value === '') {
                                 $value = '(Empty)';
                             }
                             if ($column === 'id') {
-                                $html .= '<td class="' . $tdClass . '" data-row-id="' . $value . '">' . $value . '</td>';
+                                $html .= '<td class="' . implode(' ', $tdClassArray) . '" data-row-id="' . $value . '">' . $value . '</td>';
                             } else {
+                                $tdTitle = '';
                                 if (is_string($value)) {
+                                    if (strlen($value) > 100) {
+                                        $tdClassArray[] = 'break-words';
+                                        // Also add the full untruncated value as a title
+                                        $tdTitle = ' title="' . $value . '"';
+                                    }
                                     $value = htmlentities($value);
                                 }
                                 if (is_array($value)) {
-                                    $value = json_encode($value);
+                                    $value = json_encode($value, JSON_PRETTY_PRINT);
+                                    if (strlen($value) > 100) {
+                                        $tdClassArray[] = 'break-words';
+                                        // Also add the full untruncated value as a title
+                                        $tdTitle = ' title="' . $value . '"';
+                                    }
                                 }
-                                $html .= '<td class="' . $tdClass . '">' . $value . '</td>';
+                                $html .= '<td class="' . implode(' ', $tdClassArray) . '"' . $tdTitle . '>' . $value . '</td>';
                             }
                         }
                         if ($delete || $edit) {
                             // Whether we have delet or edit, we will do another <td>
-                            $html .= '<td class="' . $tdClass . '">';
+                            $html .= '<td class="' . implode(' ', $tdClassArray) . '">';
                                 if ($delete) {
-                                    $html .= '<button data-table="' . $originalDBTable . '" data-id="' . $currentId . '" type="button" data-csrf="' . $csrfToken . '" class="delete ml-2 my-2 block text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Delete</button>';
+                                    $html .= '<button data-table="' . $originalDBTable . '" data-id="' . $currentId . '" type="button" data-csrf="' . $csrfToken . '" class="delete ml-2 my-2 block text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Delete</button>';
                                 }
                                 if ($edit) {
-                                    $html .= '<button data-table="' . $originalDBTable . '" data-id="' . $currentId . '" data-columns="' . implode(',', $totalColumns) . '" data-csrf="' . $csrfToken . '" type="button" class="edit ml-2 my-2 block text-white dark:text-gray-900 bg-gray-500 hover:bg-gray-600 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-200 dark:hover:bg-gray-300 dark:focus:ring-gray-400">Edit</button>';
+                                    $html .= '<button data-table="' . $originalDBTable . '" data-id="' . $currentId . '" data-columns="' . implode(',', $totalColumns) . '" data-csrf="' . $csrfToken . '" type="button" class="edit ml-2 my-2 block border dark:border-gray-400 text-white dark:text-gray-100 bg-gray-500 hover:bg-gray-600 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-400">Edit</button>';
                                 }
                             $html .= '</td>';
                         }
@@ -215,7 +256,7 @@ class DataGrid
         // Delete all modal starts here
         if ($delete) {
             // Delete selected button
-            $html .= '<button id="' . $id . '-mass-delete-modal-trigger" class="delete-selected block ml-2 my-2 text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800" type="button" data-modal-toggle="' . $id . '-mass-delete-modal">
+            $html .= '<button id="' . $id . '-mass-delete-modal-trigger" class="delete-selected block ml-2 my-2 text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800" type="button" data-modal-target="' . $id . '-mass-delete-modal" data-modal-toggle="' . $id . '-mass-delete-modal">
                 Delete selected
             </button>';
             $html .= '
@@ -264,10 +305,13 @@ class DataGrid
         }
         $html .= PHP_EOL;
         // Here we will build the skip columns array to instruct JS to skip making filters for certain columns. What we want is to skip the first column only when $delete is true, and always skip the last column + 1, the Actions column
-        if ($delete) {
+        if ($delete && !$edit) {
             $skipColumnArray = '[0, ' . (count($totalColumns) + 1) . ']';
-        } elseif ($edit) {
-            $skipColumnArray = '[' . (count($totalColumns) + 1) . ']';
+        } elseif (!$delete && $edit) {
+            // Skip first and last columns
+            $skipColumnArray = '[0, ' . count($totalColumns) . ']';
+        } elseif ($delete && $edit) {
+            $skipColumnArray = '[0, ' . (count($totalColumns) + 1) . ']';
         } else {
             $skipColumnArray = '[]';
         }
@@ -308,5 +352,26 @@ class DataGrid
         }
         // Now lets make the totalColumns unique
         return array_unique($totalColumns);
+    }
+    // generate fake data
+    public static function generateFakeData(int $rows): array
+    {
+        $data = [];
+        for ($i = 0; $i < $rows; $i++) {
+            $data[] = [
+                'id' => $i + 1,
+                'name' => General::randomString(10),
+                'email' => General::randomString(10) . '@example.com',
+                'phone' => General::randomString(10),
+                'address' => General::randomString(10),
+                'city' => General::randomString(10),
+                'state' => General::randomString(10),
+                'zip' => General::randomString(10),
+                'country' => General::randomString(10),
+                'created_at' => General::randomString(10),
+                'updated_at' => General::randomString(10),
+            ];
+        }
+        return $data;
     }
 }

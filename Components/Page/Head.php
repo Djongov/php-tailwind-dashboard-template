@@ -88,9 +88,20 @@ class Head
     public static function cssLoad(array $cssArray) : string
     {
         $html = '';
-        foreach ($cssArray as $link) {
-            //$cache = '?=' . time() ?? '';
-            $html .= '<link rel="stylesheet" href="' . $link . '">' . PHP_EOL;
+        foreach ($cssArray as $link => $value) {
+            if (is_array($value)) {
+                $defaultValue = false;
+                if (isset($value['cache']) && $value['cache']) {
+                    $cache = '';
+                } else {
+                    $cache = '?=' . time();
+                }
+                $integrity = $value['integrity'] ?? $defaultValue;
+                $crossorigin = $value['crossorigin'] ?? $defaultValue;
+                $html .= '<link rel="stylesheet" href="' . $link . $cache . '" ' . ($integrity ? 'integrity="' . $integrity . '"' : '') . ' ' . ($crossorigin ? 'crossorigin="' . $crossorigin . '"' : '') . '>' . PHP_EOL;
+            } else {
+                $html .= '<link rel="stylesheet" href="' . $value . '">' . PHP_EOL;
+            }
         }
         return $html;
     }

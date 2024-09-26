@@ -22,11 +22,17 @@ echo Html::horizontalLine();
 
 echo Html::h2('Example 2: Displaying data from a MySQL query');
 
-$query = "SELECT id, theme FROM users";
+$query = "SELECT id, username, theme FROM users";
 
-echo Html::p('This example will render data from a custom query - ' . $query . '.');
+echo Html::p('This example will render data from a custom query - ' . Html::code($query));
 
-echo DataGrid::fromQuery('users', $query, 'Custom query', $theme);
+echo Html::divBox(DataGrid::fromQuery('users', $query, 'Custom query', $theme, true, false, [
+    'filters' => true,
+    'ordering' => true,
+    'order' => [0, 'desc'],
+    'paging' => true,
+    'lengthMenu' => [[10, 50, 100], [10, 50, 100]],
+]));
 
 echo Html::horizontalLine();
 
@@ -54,7 +60,8 @@ $users = [
 echo DataGrid::fromData('From PHP Array', $users, $theme, [
     'filters' => false,
     'ordering' => true,
-    'paging' => true,
+    'order' => [0, 'asc'],
+    'paging' => false,
     'lengthMenu' => [[10, 50, 100], [10, 50, 100]],
 ]);
 
@@ -80,12 +87,28 @@ $autoloadArray = [
         'type' => 'table',
         'parentDiv' => 'dataGridDataLoader',
         'tableOptions' => [
-            'ordering' => true,
+            'searching' => false,
+            'ordering' => false,
+            'order' => [0, 'desc'],
             'paging' => true,
-            'lengthMenu' => [[10, 50, 100], [10, 50, 100]],
+            //'lengthMenu' => [[25, 50, 100], [25, 50, 100]],
             'filters' => true,
         ],
         'data' => $usersArray
+    ],
+    // Now another table but with fake random data 10000 rows
+    [
+        'type' => 'table',
+        'parentDiv' => 'dataGridDataLoader2',
+        'tableOptions' => [
+            'searching' => true,
+            'ordering' => true,
+            'order' => [0, 'desc'],
+            'paging' => true,
+            //'lengthMenu' => [[10, 50, 100, -1], [10, 50, 100, 'All']],
+            'filters' => false,
+        ],
+        'data' => DataGrid::generateFakeData(10000)
     ]
 ];
 
@@ -94,5 +117,6 @@ foreach ($autoloadArray as $array) {
 }
 
 echo '<div id="dataGridDataLoader" class="mx-2 my-12 flex flex-wrap flex-row justify-center items-center"></div>';
+echo '<div id="dataGridDataLoader2" class="mx-2 my-12 flex flex-wrap flex-row justify-center items-center"></div>';
 
 $db->__destruct();

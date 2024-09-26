@@ -36,6 +36,7 @@ ORDER BY Count DESC;',
     ],
     'action' => '/api/admin/queries',
     'resultType' => 'html',
+    'stopwatch' => 'queries',
     'submitButton' => [
         'text' => 'Submit',
         'size' => 'small',

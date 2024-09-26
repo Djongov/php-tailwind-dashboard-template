@@ -369,44 +369,122 @@ if (tables.length > 0) {
 }
 
 const drawDataGrid = (id, options = {
+    searching: false,
     ordering: true,
+    order: [[0, 'desc']],
+    scrollCollapse: true,
     paging: true,
     lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "All"]]
 }) => {
-    const tableWrapper = $('<div class="overflow-auto" style="max-height: 80vh;"></div>'); // Create a wrapper div for the table
+    // Let's analyze the options passed to the function
+    if (options.searching === undefined) {
+        options.searching = false;
+    }
+    if (options.ordering === undefined) {
+        options.ordering = true;
+    }
+    if (options.order === undefined) {
+        options.order = [[0, 'desc']];
+    }
+    if (options.paging === undefined) {
+        options.paging = true;
+    }
+    if (options.filters === undefined) {
+        options.filters = false;
+    }
+    if (options.lengthMenu === undefined) {
+        // if lenths menu is undefined, we will construct one of our own. First let's see how big the data is. If it's more than 1000 rows, we break it down to 25, 50, 100, 250, 500, 1000, All
+        options.lengthMenu = [[25, 50, 100, -1], [25, 50, 100, "All"]];
+    }
+    // If info is not explicitly passed (undefined), set it to true if paging or searching is enabled
+    if (typeof options.info === 'undefined') {
+        options.info = options.paging || options.searching;
+    }
+
+    // Let's check if the first th contains a checkbox, if it does, we disable sorting for the first column because it doesn't make sense to sort checkboxes
+    const firstThContainsCheckbox = $(`#${id} thead th:first-child input[type="checkbox"]`).length > 0;
+
     const table = $(`#${id}`).DataTable({
         ordering: options.ordering,
-        order: [[0, 'desc']],
-        orderCellsTop: true,
+        order: options.order,
+        searching: options.searching,
+        //scrollY: '60vh',
+        info: options.info,
         paging: options.paging,
-        pagingType: 'full_numbers',
         lengthMenu: options.lengthMenu,
-        createdRow: function (row, data, dataIndex) {
-            $(row).attr('tabindex', dataIndex)
-            $(row).addClass('focus:outline-none focus:bg-gray-300 focus:text-gray-900 dark:focus:bg-gray-700 dark:focus:text-amber-500');
-        },
-        "columnDefs": [{
-            "targets": "_all",
-            "createdCell": function (td, cellData, rowData, row, col) {
-                $(td).addClass('py-4 px-6 border border-slate-400 max-w-md break-words');
-            }
-        }],
+        columnDefs: [
+            { orderable: !firstThContainsCheckbox, targets: 0 }, // Disable sorting for the first column
+        ],
         initComplete: function () {
+            // Remove the loading screen
             $(`#${id}-loading-table`).remove();
+            // Create filter rows outside of header callback
+            const filterRow = $('<tr class="filter-row"></tr>').appendTo(`#${id} thead`);
+            // Get the API instance
+            const api = this.api();
+            // Append an empty <th> for each column in the header
+            api.columns().every(function () {
+                filterRow.append('<th></th>');
+            });
+            // Remove the hidden from the table to show it after the data is loaded
             document.getElementById(`${id}`).classList.remove('hidden');
         },
     });
-    $(`#${id}`).wrap(tableWrapper); // Wrap the table with the wrapper div
     return table;
 }
 
 
 const drawDataGridFromData = (json, skeletonId, options = {
+    searching: false,
     ordering : true,
+    order : [[0, 'desc']],
     paging : true,
     filters: true,
-    lengthMenu : [[25, 50, 100, -1], [25, 50, 100, "All"]]
+    lengthMenu : [[25, 50, 100, -1], [25, 50, 100, "All"]],
 }) => {
+    // Let's analyze the options passed to the function
+    if (options.searching === undefined) {
+        options.searching = false;
+    }
+    if (options.ordering === undefined) {
+        options.ordering = true;
+    }
+    if (options.order === undefined) {
+        options.order = [[0, 'desc']];
+    }
+    if (options.paging === undefined) {
+        options.paging = true;
+    }
+    if (options.filters === undefined) {
+        options.filters = false;
+    }
+    if (options.lengthMenu === undefined) {
+        // if lenths menu is undefined, we will construct one of our own. First let's see how big the data is. If it's more than 1000 rows, we break it down to 25, 50, 100, 250, 500, 1000, All
+        let defaultLengthMenu = [[25, 50, 100, -1], [25, 50, 100, "All"]];
+        if (json.length >= 1000) {
+            defaultLengthMenu[0].push(250);
+            defaultLengthMenu[0].push(500);
+            defaultLengthMenu[1].splice(-1, 0, 250);
+            defaultLengthMenu[1].splice(-1, 0, 500);
+        }
+        if (json.length >= 10000) {
+            defaultLengthMenu[0].push(2500);
+            defaultLengthMenu[0].push(5000);
+            // For the 2nd array, we need to add the same but before the last element
+            defaultLengthMenu[1].splice(-1, 0, 2500);
+            defaultLengthMenu[1].splice(-1, 0, 5000);
+        }
+        options.lengthMenu = defaultLengthMenu;
+    }
+    // If info is not explicitly passed (undefined), set it to true if paging or searching is enabled
+    if (typeof options.info === 'undefined') {
+        options.info = options.paging || options.searching;
+    }
+    // If info is not explicitly passed (undefined), set it to true if paging or searching is enabled
+    if (typeof options.info === 'undefined') {
+        options.info = options.paging || options.searching;
+    }
+
     const tableWrapper = $('<div class="mx-2 overflow-auto max-h-[44rem]"></div>'); // Create a wrapper div for the table
     // Create the loading screen for the table
     const loadingScreen = tableLoadingScreen(skeletonId);
@@ -441,22 +519,25 @@ const drawDataGridFromData = (json, skeletonId, options = {
 
     // Create the table and add data
     const table = $(`#${skeletonId}`).DataTable({
-        ordering: options.ordering,
         data: dataArray,
         columns: tableHeaders,
         paging: options.paging,
-        pagingType: 'full_numbers',
+        info: options.info,
         lengthMenu: options.lengthMenu,
+        sorting: options.sorting,
+        ordering: options.ordering,
+        order: options.order,
+        searching: options.searching,
         createdRow: function (row, data, dataIndex) {
             $(row).attr('tabindex', dataIndex);
-            $(row).addClass('focus:outline-none focus:bg-gray-300 focus:text-gray-900 dark:focus:bg-gray-700 dark:focus:text-amber-500');
+            $(row).addClass(`even:bg-gray-200 odd:bg-gray-100 dark:even:bg-gray-700 dark:odd:bg-gray-600 focus:bg-${theme}-500 dark:focus:bg-gray-500`);
         },
         // now let's apply a common set of classes to all <td>
         "columnDefs": [{
             "targets": "_all",
             "createdCell": function (td, cellData, rowData, row, col) {
                 // Apply the common class names for each table cell
-                $(td).addClass('py-4 px-6 border border-slate-400');
+                $(td).addClass('px-4 py-2 text-sm text-gray-900 dark:text-gray-300 truncate max-w-xs');
                 // Let's deal with long text and truncate it so it doesn't make our table extremely long
                 if (td.innerHTML.length > 60) {
                     $(td).addClass('truncate');
@@ -475,14 +556,20 @@ const drawDataGridFromData = (json, skeletonId, options = {
             document.getElementById(loadingScreen.id).remove();
         }
     });
+    // Example of adding Tailwind CSS classes to style the thead
+    $(`#${skeletonId} thead`).addClass('bg-gray-200 dark:bg-gray-700 sticky top-0 border-collapse');
 
     // Create filter rows outside of header callback
-    // First, get the first row of the thead
-    $(`#${skeletonId} thead tr:first-child th`).append(' <span class="text-xs text-gray-400 cursor-pointer">&#x25B2;&#x25BC;</span>');
+    // if sorting is enabled, add the sorting icons to the thead
+    if (options.sorting === true) {   
+        $(`#${skeletonId} thead tr:first-child th`).append(` <span class="text-xs text-${theme}-400 cursor-pointer">&#x25B2;&#x25BC;</span>`);
+    }
+    // now add those classes to the first row of the thead
+    $(`#${skeletonId} thead tr:first-child th`).addClass('px-4 py-2 text-center text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider cursor-pointer');
     const filtersRow = $('<tr></tr>').insertAfter($(`#${skeletonId} thead tr`));
     if (options.filters) {
         tableHeaders.forEach(header => {
-            filtersRow.append(`<th class="py-4 px-6 border border-gray-400 max-w-md break-words"></th>`);
+            filtersRow.append(`<th></th>`);
         });
     }
     $(`#${skeletonId}`).wrap(tableWrapper); // Wrap the table with the wrapper div
@@ -563,20 +650,13 @@ const buildDataGridFilters = (table, tableId, columnSkipArray = [], enabled = tr
                     $(this).prop('selected', false);
                 }
             });
-
+            // Mark the select as red to be seen as selected more easily
             select.addClass('border-red-500');
             select.addClass('dark:border-red-500');
         }
 
-        //$(`#${tableId} thead`).addClass('bg-gray-300 dark:bg-gray-600 sticky top-0 dark:text-gray-300 border-collapse');
-
-        $(`#${tableId} thead tr:eq(0) th`).addClass('p-2');
-        $(`#${tableId} thead tr:eq(0) th`).addClass('border');
-        $(`#${tableId} thead tr:eq(0) th`).addClass('border-slate-400');
-        
-        $(`#${tableId} thead tr:eq(1) th`).addClass('p-4');
-        $(`#${tableId} thead tr:eq(1) th`).addClass('border');
-        $(`#${tableId} thead tr:eq(1) th`).addClass('border-slate-400');
+        // Target both rows in the thead and add the classes in one go
+        $(`#${tableId} thead tr:eq(0), #${tableId} thead tr:eq(1) th`).addClass('px-4 py-2 text-center text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider');
 
     });
 }
@@ -588,7 +668,7 @@ const createSkeletonTable = () => {
     const table = document.createElement('table');
     table.id = skeletonId;
     // Add some classes to the table
-    table.classList.add('table-auto', 'bg-gray-100', 'dark:bg-gray-900', 'mt-6', 'text-gray-800', 'dark:text-gray-400', 'border-collapse', 'border', 'border-slate-400', 'text-center');
+    table.classList.add('table-auto', 'text-center', 'mt-4', 'min-w-full');
     return table;
 }
 

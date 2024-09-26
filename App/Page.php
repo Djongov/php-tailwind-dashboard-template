@@ -24,10 +24,11 @@ class Page
             ],
             '/assets/js/dataTables.js' => [
                 'defer' => 'true',
-                'cache' => true
+                'cache' => false
             ],
             '/assets/js/datagrid.js' => [
-                'defer' => 'true'
+                'defer' => 'true',
+                'cache' => false
             ],
             '/assets/js/c0py.js' => [
                 'defer' => 'true',
@@ -61,7 +62,9 @@ class Page
         }
         // Load these styles
         $cssArray = [
-            '/assets/css/main.css'
+            '/assets/css/main.css' => [
+                'cache' => false
+            ]
         ];
         return Head::render($title, $description, $keywords, $thumbimage, $scriptsArray, $cssArray);
     }
@@ -106,9 +109,9 @@ class Page
                     }
                 $html .= '</main>';
                 // Do not show the footer on the login page
-                if (!str_starts_with($_SERVER['REQUEST_URI'], '/login')) {
+                //if (!str_starts_with($_SERVER['REQUEST_URI'], '/login')) {
                     $html .= $this->footer($theme);
-                }
+                //}
             $html .= '</div>';
         $html .= '</body>';
         return $html;

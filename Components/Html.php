@@ -149,14 +149,30 @@ class Html
             $id = uniqid();
         }
 
-        // Classes based on size
-        if ($size === 'small') {
-            $inputClasses = $width . ' p-1 text-sm ' . BODY_COLOR_SCHEME_CLASS . ' appearance-none border-2 border-gray-100 rounded-lg text-gray-700 leading-tight focus:outline-none focus:' . BODY_COLOR_SCHEME_CLASS. ' focus:border-' . $theme . '-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500';
-        } else if ($size === 'large') {
-            $inputClasses = $width . ' p-4 text-sm ' . BODY_COLOR_SCHEME_CLASS . ' appearance-none border-2 border-gray-100 rounded-lg text-gray-700 leading-tight focus:outline-none focus:' . BODY_COLOR_SCHEME_CLASS. ' focus:border-' . $theme . '-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500';
-        } else {
-            $inputClasses = $width . ' p-2 text-sm ' . BODY_COLOR_SCHEME_CLASS . ' appearance-none border-2 border-gray-100 rounded-lg text-gray-700 leading-tight focus:outline-none focus:' . BODY_COLOR_SCHEME_CLASS. ' focus:border-' . $theme . '-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500';
-        }
+        $inputClasses = [
+            BODY_COLOR_SCHEME_CLASS,
+            'border',
+            'border-gray-300',
+            'text-gray-900',
+            'text-sm',
+            'rounded-lg',
+            'focus:ring-' . $theme . '-500',
+            'focus:border-' . $theme . '-500',
+            'block',
+            'w-full',
+            'p-2.5',
+            'dark:bg-gray-700',
+            'dark:border-gray-600',
+            'dark:placeholder-gray-400',
+            'dark:text-white',
+            'dark:focus:ring-' . $theme . '-500',
+            'dark:focus:border-' . $theme . '-500',
+            'outline-none',
+        ];
+
+        // Extra classes now
+        $inputClasses = array_merge($inputClasses, $extraClasses);
+        
         // First get some of the meta data
         $disabled = $disabled ? 'disabled' : '';
         $requiredOriginal = $required;
@@ -188,15 +204,15 @@ class Html
                 $html = '';
                 $html .= '<div class="my-4">';
                     $html .= ($label_name !== '') ? self::label($id, $label_name, $requiredOriginal) : '';
-                    $html .= '<input id="' . $id . '" type="' . $type . '" name="' . $name . '" class="' . $inputClasses . ' ' . $extraClasses . '" ' . $placeholder . ' ' . $required . ' ' . $disabled . ' ' . $readOnly . ' ' . $value . $pattern . ' ' . $title . $minMaxString . $stepString . $dataAttributesString . ' autocomplete="on" />';
+                    $html .= '<input id="' . $id . '" type="' . $type . '" name="' . $name . '" class="' . implode(' ', $inputClasses) . '" ' . $placeholder . ' ' . $required . ' ' . $disabled . ' ' . $readOnly . ' ' . $value . $pattern . ' ' . $title . $minMaxString . $stepString . $dataAttributesString . ' autocomplete="on" />';
                     $html .= ($description !== '') ? '<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">' . $description . '</p>' : '';
                 $html .= '</div>';
                 return $html;
             } else {
-                return '<input id="' . $id . '" type="' . $type . '" name="' . $name . '" class="' . $inputClasses . ' ' . $extraClasses . '" ' . $placeholder . ' ' . $required . ' ' . $disabled . ' ' . $readOnly . ' ' . $value . $pattern . ' ' . $title . $minMaxString . $stepString . $dataAttributesString . ' autocomplete="on" />';
+                return '<input id="' . $id . '" type="' . $type . '" name="' . $name . '" class="' . implode(' ', $inputClasses) . '" ' . $placeholder . ' ' . $required . ' ' . $disabled . ' ' . $readOnly . ' ' . $value . $pattern . ' ' . $title . $minMaxString . $stepString . $dataAttributesString . ' autocomplete="on" />';
             }
         }
-        $inputHtml = '<input id="' . $id . '" type="' . $type . '" name="' . $name . '" class="' . $inputClasses . ' ' . $extraClasses . '" ' . $placeholder . ' ' . $required . ' ' . $disabled . ' ' . $readOnly . ' ' . $value . $pattern . ' ' . $title . $minMaxString . $stepString . $dataAttributesString . ' autocomplete="on" />';
+        $inputHtml = '<input id="' . $id . '" type="' . $type . '" name="' . $name . '" class="' . implode(' ', $inputClasses) . '" ' . $placeholder . ' ' . $required . ' ' . $disabled . ' ' . $readOnly . ' ' . $value . $pattern . ' ' . $title . $minMaxString . $stepString . $dataAttributesString . ' autocomplete="on" />';
 
         $html = '';
         if ($encased) {
@@ -444,5 +460,19 @@ class Html
     public static function backButton(string $theme) : string
     {
         return '<button class="back-button mx-auto py-3 px-5 leading-5 text-white bg-' . $theme . '-500 hover:bg-' . $theme . '-600 font-medium text-center focus:ring-2 focus:ring-' . $theme . '-500 focus:ring-opacity-50 border border-transparent rounded-md shadow-sm">Go Back</button>';
+    }
+    public static function blockquote($text, $theme) : string
+    {
+        return '<blockquote class="my-4 p-4 text-lg text-gray-900 bg-' . $theme . '-100 dark:bg-gray-800 dark:text-gray-300 border-l-4 border-' . $theme . '-500 rounded-lg">' . $text . '</blockquote>';
+    }
+    public static function ul(array $items) : string
+    {
+        $html = '';
+        $html .= '<ul class="list-disc list-inside">';
+        foreach ($items as $item) {
+            $html .= '<li class="my-2 text-sm text-gray-900 dark:text-gray-300">' . $item . '</li>';
+        }
+        $html .= '</ul>';
+        return $html;
     }
 }
