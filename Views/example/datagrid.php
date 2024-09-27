@@ -58,7 +58,7 @@ $users = [
 ];
 
 echo DataGrid::fromData('From PHP Array', $users, $theme, [
-    'filters' => false,
+    'filters' => true,
     'ordering' => true,
     'order' => [0, 'asc'],
     'paging' => false,

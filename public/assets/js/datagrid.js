@@ -462,14 +462,14 @@ const drawDataGridFromData = (json, skeletonId, options = {
         // if lenths menu is undefined, we will construct one of our own. First let's see how big the data is. If it's more than 1000 rows, we break it down to 25, 50, 100, 250, 500, 1000, All
         let defaultLengthMenu = [[25, 50, 100, -1], [25, 50, 100, "All"]];
         if (json.length >= 1000) {
-            defaultLengthMenu[0].push(250);
-            defaultLengthMenu[0].push(500);
+            defaultLengthMenu[0].splice(-1, 0, 250);
+            defaultLengthMenu[0].splice(-1, 0, 500);
             defaultLengthMenu[1].splice(-1, 0, 250);
             defaultLengthMenu[1].splice(-1, 0, 500);
         }
         if (json.length >= 10000) {
-            defaultLengthMenu[0].push(2500);
-            defaultLengthMenu[0].push(5000);
+            defaultLengthMenu[0].splice(-1, 0, 2500);
+            defaultLengthMenu[0].splice(-1, 0, 5000)
             // For the 2nd array, we need to add the same but before the last element
             defaultLengthMenu[1].splice(-1, 0, 2500);
             defaultLengthMenu[1].splice(-1, 0, 5000);

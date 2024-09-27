@@ -58,11 +58,11 @@ class DataGrid
         $html .= '</thead>';
         return $html;
     }
-    public static function fromData(string $title, array $data, string $theme, $tableOptions = null) : string
+    public static function fromData(?string $title, array $data, string $theme, $tableOptions = null) : string
     {
         return self::createTable('', $title, $data, $theme, false, false, $tableOptions);
     }
-    public static function fromDBTable(string $dbTable, string $title, string $theme, bool $edit = true, bool $delete = true, $orderBy = 'id', $sortBy = 'desc', $tableOptions = null) : string
+    public static function fromDBTable(string $dbTable, ?string $title, string $theme, bool $edit = true, bool $delete = true, $orderBy = 'id', $sortBy = 'desc', $tableOptions = null) : string
     {
         // We pull from table
         if ($sortBy !== 'asc' && $sortBy !== 'desc') {
@@ -83,7 +83,7 @@ class DataGrid
 
         return self::createTable($dbTable, $title, $data, $theme, $edit, $delete, $tableOptions);
     }
-    public static function fromQuery(string $dbTable, string $query, string $title, string $theme, bool $edit = true, bool $delete = true, $tableOptions = null) : string
+    public static function fromQuery(string $dbTable, string $query, ?string $title, string $theme, bool $edit = true, bool $delete = true, $tableOptions = null) : string
     {
         // First of all, check if query has SELECT in it and if it does, we need to make sure that id has been passed
         if (($edit || $delete) && (stripos($query, 'SELECT') !== false && stripos($query, 'id') === false)) {
