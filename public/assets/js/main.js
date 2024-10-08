@@ -206,9 +206,10 @@ if (autoLoadParams.length > 0) {
             // Add to parentDiv
             document.getElementById(value.parentDiv).appendChild(table);
             // Create the DataGrid table object
-            const dataGridTable = drawDataGridFromData(data, table.id, value.tableOptions);
-            // And the filters
-            if (value.tableOptions.filters) {
+            const dataGridTable = drawDataGridFromData(data, table.id, value.tableOptions || {});
+
+            // Activate filters if tableOptions is null or filters is true
+            if (value.tableOptions === null || value.tableOptions?.filters) {
                 buildDataGridFilters(dataGridTable, table.id);
             }
         }

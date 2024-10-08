@@ -205,7 +205,7 @@ if (tables.length > 0) {
                     updateFilteredResults(tableId, countVisibleRows(tableId));
                     if (massDeleteModalTriggerer && massDeleteModalText) {
                         massDeleteModalText.innerText = 'Are you sure you want to delete ' + allTableCheckedCheckboxes + ' entries?';
-                        massDeleteModalTriggerer.disabled = (allTableCheckedCheckboxes > 0) ? false : true;
+                        massDeleteModalTriggerer.disabled = allTableCheckedCheckboxes <= 0;
                     }
                 }, false);
             })
@@ -368,40 +368,55 @@ if (tables.length > 0) {
     });
 }
 
-const drawDataGrid = (id, options = {
-    searching: false,
-    ordering: true,
-    order: [[0, 'desc']],
-    scrollCollapse: true,
-    paging: true,
-    lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "All"]]
-}) => {
+const constructOptions = (dataLength, options) => {
     // Let's analyze the options passed to the function
-    if (options.searching === undefined) {
-        options.searching = false;
-    }
-    if (options.ordering === undefined) {
-        options.ordering = true;
-    }
-    if (options.order === undefined) {
-        options.order = [[0, 'desc']];
-    }
-    if (options.paging === undefined) {
-        options.paging = true;
-    }
-    if (options.filters === undefined) {
-        options.filters = false;
-    }
-    if (options.lengthMenu === undefined) {
-        // if lenths menu is undefined, we will construct one of our own. First let's see how big the data is. If it's more than 1000 rows, we break it down to 25, 50, 100, 250, 500, 1000, All
-        options.lengthMenu = [[25, 50, 100, -1], [25, 50, 100, "All"]];
-    }
-    // If info is not explicitly passed (undefined), set it to true if paging or searching is enabled
-    if (typeof options.info === 'undefined') {
-        options.info = options.paging || options.searching;
+    if (options === null) {
+        options = {
+            searching: true,
+            ordering : true,
+            order : [[0, 'desc']],
+            paging : true,
+            filters: true, // Default to true when options is null
+            lengthMenu : [[25, 50, 100, -1], [25, 50, 100, "All"]],
+        };
     }
 
-    // Let's check if the first th contains a checkbox, if it does, we disable sorting for the first column because it doesn't make sense to sort checkboxes
+    // Let's analyze the options passed to the function
+    options.searching = options.searching ?? true;
+    options.ordering = options.ordering ?? true;
+    options.order = options.order ?? [[0, 'desc']];
+
+    // Ensure `filters` remains true by default, only set to false if explicitly undefined
+    options.filters = options.filters ?? true;
+
+    // Sort the paging
+    if (dataLength < 6 && options.paging === undefined) {
+        options.paging = false;
+    }
+
+    if (options.lengthMenu === undefined) {
+        let defaultLengthMenu = [[25, 50, 100, -1], [25, 50, 100, "All"]];
+        if (dataLength >= 1000) {
+            defaultLengthMenu[0].splice(-1, 0, 250, 500);
+            defaultLengthMenu[1].splice(-1, 0, 250, 500);
+        }
+        if (dataLength >= 10000) {
+            defaultLengthMenu[0].splice(-1, 0, 2500, 5000);
+            defaultLengthMenu[1].splice(-1, 0, 2500, 5000);
+        }
+        options.lengthMenu = defaultLengthMenu;
+    }
+
+    // Set `info` to true if either paging or searching is enabled
+    options.info = options.info ?? (options.paging || options.searching);
+    return options;
+}
+const drawDataGrid = (id, options = null) => {
+    console.log(`drawDataGrid's options:`, options);
+    // Let's analyze the options passed to the function
+    options = constructOptions(0, options);
+
+    // Let's check if the first th contains a checkbox, if it does, we disable ordering for the first column because it doesn't make sense to sort checkboxes
     const firstThContainsCheckbox = $(`#${id} thead th:first-child input[type="checkbox"]`).length > 0;
 
     const table = $(`#${id}`).DataTable({
@@ -413,7 +428,7 @@ const drawDataGrid = (id, options = {
         paging: options.paging,
         lengthMenu: options.lengthMenu,
         columnDefs: [
-            { orderable: !firstThContainsCheckbox, targets: 0 }, // Disable sorting for the first column
+            { orderable: !firstThContainsCheckbox, targets: 0 }, // Disable ordering for the first column
         ],
         initComplete: function () {
             // Remove the loading screen
@@ -434,56 +449,9 @@ const drawDataGrid = (id, options = {
 }
 
 
-const drawDataGridFromData = (json, skeletonId, options = {
-    searching: false,
-    ordering : true,
-    order : [[0, 'desc']],
-    paging : true,
-    filters: true,
-    lengthMenu : [[25, 50, 100, -1], [25, 50, 100, "All"]],
-}) => {
-    // Let's analyze the options passed to the function
-    if (options.searching === undefined) {
-        options.searching = false;
-    }
-    if (options.ordering === undefined) {
-        options.ordering = true;
-    }
-    if (options.order === undefined) {
-        options.order = [[0, 'desc']];
-    }
-    if (options.paging === undefined) {
-        options.paging = true;
-    }
-    if (options.filters === undefined) {
-        options.filters = false;
-    }
-    if (options.lengthMenu === undefined) {
-        // if lenths menu is undefined, we will construct one of our own. First let's see how big the data is. If it's more than 1000 rows, we break it down to 25, 50, 100, 250, 500, 1000, All
-        let defaultLengthMenu = [[25, 50, 100, -1], [25, 50, 100, "All"]];
-        if (json.length >= 1000) {
-            defaultLengthMenu[0].splice(-1, 0, 250);
-            defaultLengthMenu[0].splice(-1, 0, 500);
-            defaultLengthMenu[1].splice(-1, 0, 250);
-            defaultLengthMenu[1].splice(-1, 0, 500);
-        }
-        if (json.length >= 10000) {
-            defaultLengthMenu[0].splice(-1, 0, 2500);
-            defaultLengthMenu[0].splice(-1, 0, 5000)
-            // For the 2nd array, we need to add the same but before the last element
-            defaultLengthMenu[1].splice(-1, 0, 2500);
-            defaultLengthMenu[1].splice(-1, 0, 5000);
-        }
-        options.lengthMenu = defaultLengthMenu;
-    }
-    // If info is not explicitly passed (undefined), set it to true if paging or searching is enabled
-    if (typeof options.info === 'undefined') {
-        options.info = options.paging || options.searching;
-    }
-    // If info is not explicitly passed (undefined), set it to true if paging or searching is enabled
-    if (typeof options.info === 'undefined') {
-        options.info = options.paging || options.searching;
-    }
+const drawDataGridFromData = (json, skeletonId, options = null) => {
+
+    options = constructOptions(json.length, options);
 
     const tableWrapper = $('<div class="mx-2 overflow-auto max-h-[44rem]"></div>'); // Create a wrapper div for the table
     // Create the loading screen for the table
@@ -524,7 +492,6 @@ const drawDataGridFromData = (json, skeletonId, options = {
         paging: options.paging,
         info: options.info,
         lengthMenu: options.lengthMenu,
-        sorting: options.sorting,
         ordering: options.ordering,
         order: options.order,
         searching: options.searching,
@@ -560,8 +527,8 @@ const drawDataGridFromData = (json, skeletonId, options = {
     $(`#${skeletonId} thead`).addClass('bg-gray-200 dark:bg-gray-700 sticky top-0 border-collapse');
 
     // Create filter rows outside of header callback
-    // if sorting is enabled, add the sorting icons to the thead
-    if (options.sorting === true) {   
+    // if ordering is enabled, add the ordering icons to the thead
+    if (options.ordering === true) {   
         $(`#${skeletonId} thead tr:first-child th`).append(` <span class="text-xs text-${theme}-400 cursor-pointer">&#x25B2;&#x25BC;</span>`);
     }
     // now add those classes to the first row of the thead

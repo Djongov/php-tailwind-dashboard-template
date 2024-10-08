@@ -15,7 +15,9 @@ class DataGrid
         'filters' => true,
         'ordering' => true,
         'order' => [[0, 'desc']],
-        'paging' => true
+        'paging' => true,
+        'lengthMenu' => [[25, 50, 100, -1], [25, 50, 100, "All"]],
+        'info' => true
     ];
     private static function getDeleteLoader($id, $theme) : string
     {
@@ -58,11 +60,36 @@ class DataGrid
         $html .= '</thead>';
         return $html;
     }
-    public static function fromData(?string $title, array $data, string $theme, $tableOptions = null) : string
+    /*
+    * @param ?string optional $title. The title will be a h2 tag above the table
+    * @param array $data The data to be displayed in the table
+    * @param string $theme The color theme of the table, usually enough to pass $theme
+    * @param array $tableOptions The options for the table. They are the following:
+    * - searching: boolean, default true
+    * - filters: boolean, default true
+    * - ordering: boolean, default true
+    * - order: array, default [[0, 'desc']]
+    * - paging: boolean, default true
+    * - lengthMenu: array, default [[25, 50, 100, -1], [25, 50, 100, "All"]]
+    * @return string
+    */
+    public static function fromData(?string $title, array $data, string $theme, ?array $tableOptions = null) : string
     {
         return self::createTable('', $title, $data, $theme, false, false, $tableOptions);
     }
-    public static function fromDBTable(string $dbTable, ?string $title, string $theme, bool $edit = true, bool $delete = true, $orderBy = 'id', $sortBy = 'desc', $tableOptions = null) : string
+    public static function simpleTable(array $data, string $theme) : string
+    {
+        return self::createTable('', null, $data, $theme, false, false, [
+            'searching' => false,
+            'filters' => false,
+            'ordering' => false,
+            'order' => [[0, 'desc']],
+            'paging' => false,
+            'lengthMenu' => [[25, 50, 100, -1], [25, 50, 100, "All"]],
+            'info' => false
+        ]);
+    }
+    public static function fromDBTable(string $dbTable, ?string $title, string $theme, bool $edit = true, bool $delete = true, $orderBy = 'id', $sortBy = 'desc', ?array $tableOptions = null) : string
     {
         // We pull from table
         if ($sortBy !== 'asc' && $sortBy !== 'desc') {
@@ -83,7 +110,7 @@ class DataGrid
 
         return self::createTable($dbTable, $title, $data, $theme, $edit, $delete, $tableOptions);
     }
-    public static function fromQuery(string $dbTable, string $query, ?string $title, string $theme, bool $edit = true, bool $delete = true, $tableOptions = null) : string
+    public static function fromQuery(string $dbTable, string $query, ?string $title, string $theme, bool $edit = true, bool $delete = true, ?array $tableOptions = null) : string
     {
         // First of all, check if query has SELECT in it and if it does, we need to make sure that id has been passed
         if (($edit || $delete) && (stripos($query, 'SELECT') !== false && stripos($query, 'id') === false)) {
@@ -107,9 +134,8 @@ class DataGrid
     }
     private static function createTable(string $dbTable, ?string $title, array $data, string $theme, bool $edit = true, bool $delete = true, $tableOptions = null): string
     {
-        if ($tableOptions === null) {
-            $tableOptions = self::$tableOptions;
-        }
+        $tableOptions = $tableOptions ?? self::$tableOptions;
+
         $correctTableOptions = ['searching', 'filters', 'ordering', 'order', 'paging', 'lengthMenu', 'info'];
 
         // We don't want to be restricting that the all of the keys are present, but we want to make sure that the keys are correct
@@ -165,6 +191,12 @@ class DataGrid
             $tableOptions['lengthMenu'] = $defaultLengthMenu;
         }
 
+        if (count($data) >= 5) {
+            $tableOptions['paging'] = true;
+        } else {
+            $tableOptions['paging'] = false;
+        }
+
         $originalDBTable = $dbTable;
         if ($dbTable === '' || $dbTable === null) {
             $dbTable = 'table-' . uniqid();
@@ -181,7 +213,7 @@ class DataGrid
         $html .= '<div class="my-4">';
         $html .= '<div class="ml-2 mt-4 ' . DATAGRID_TEXT_COLOR_SCHEME . ' ' . DATAGRID_TEXT_DARK_COLOR_SCHEME . '">';
         $html .= ($title) ? Html::h2($title, true) : null;
-        $html .= '<p class="text-sm">Results: <span id="' . $id . '-total">' . $totalCount . '</span></p>';
+        $html .= ($tableOptions['info'] === true) ? '<p class="text-sm">Results: <span id="' . $id . '-total">' . $totalCount . '</span></p>' : null;
         if ($delete || $edit) {
             $html .= '<p class="text-sm">Filtered: <span id="' . $id . '-filtered">' . $totalCount . '</span></p>';
             $html .= '<p class="text-sm">Selected: <span id="' . $id . '-selected">0</span></p>';
@@ -196,6 +228,13 @@ class DataGrid
         $html .= '<table id="' . $id . '" class="hidden datagrid mt-4 min-w-full table-auto text-center">';
             // Construct Head
             $totalColumns = self::getColumns($data);
+            // If the totalColumns is just 0 and 1, then we don't need to show thead at all
+            if (count($totalColumns) === 2 && $totalColumns[0] === 0 && $totalColumns[1] === 1) {
+                $totalColumns = [
+                    'column1',
+                    'column2'
+                ];
+            }
             $html .= self::constructThead($delete, $edit, $theme, $tableOptions['ordering'], $totalColumns);
             $html .= '<tbody>';
                 $csrfToken = CSRF::create();

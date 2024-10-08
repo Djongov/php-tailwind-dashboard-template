@@ -157,7 +157,71 @@ class DB
             throw new \PDOException("Error executing multiple queries: " . $e->getMessage());
         }
     }
+    public function getDriver() : string
+    {
+        $pdo = $this->getConnection();
+        return $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+    }
+    public function getTableNames() : array
+    {
+        $pdo = $this->getConnection();
+        $driver = $this->getDriver();
+        $dbTables = [];
+        try {
+            switch ($driver) {
+                case 'mysql':
+                    $sql = "SHOW TABLES";
+                    break;
+                case 'pgsql':
+                    $sql = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'";
+                    break;
+                case 'sqlite':
+                    $sql = "SELECT name FROM sqlite_master WHERE type='table'";
+                    break;
+                default:
+                    throw new \Exception("Unsupported database driver: $driver");
+            }
 
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute();
+
+            // Fetch table names based on the database driver
+            switch ($driver) {
+                case 'mysql':
+                    while ($row = $stmt->fetch(\PDO::FETCH_NUM)) {
+                        $dbTables[] = $row[0];
+                    }
+                    break;
+                case 'pgsql':
+                    while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                        $dbTables[] = $row['table_name'];
+                    }
+                    break;
+                case 'sqlite':
+                    while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                        $dbTables[] = $row['name'];
+                    }
+                    break;
+                default:
+                    throw new \Exception("Unsupported database driver: $driver");
+            }
+
+            return $dbTables;
+
+        } catch (\PDOException $e) {
+            if (ERROR_VERBOSE) {
+                throw new \PDOException("Error fetching table names: " . $e->getMessage());
+            } else {
+                throw new \PDOException("Error fetching table names");
+            }
+        } catch (\Exception $e) {
+            if (ERROR_VERBOSE) {
+                throw new \PDOException("Error fetching table names: " . $e->getMessage());
+            } else {
+                throw new \PDOException("Error fetching table names");
+            }
+        }
+    }
     public function checkDBColumns(array $columns, string $table) : void
     {
         $dbTableArray = $this->describe($table);
@@ -316,7 +380,7 @@ class DB
         $pdo = $db->getConnection();
 
         // Check the database driver to determine the appropriate SQL syntax
-        $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+        $driver = $db->getDriver();
         switch ($driver) {
             case 'mysql':
                 $sql = "DESCRIBE $table";

@@ -124,11 +124,5 @@ echo DataGrid::fromQuery('csp_reports', $cspReportsQuery, 'CSP Reports', $theme,
     'paging' => true,
     'lengthMenu' => [[10, 50, 100, -1], [10, 50, 100, 'All']],
 ]);
-// echo DataGrid::fromData('CSP Reports', $cspArray, $theme, [
-//     'filters' => true,
-//     'ordering' => true,
-//     'paging' => true,
-//     'lengthMenu' => [[10, 50, 100], [10, 50, 100]],
-// ]);
 
 $db->__destruct();

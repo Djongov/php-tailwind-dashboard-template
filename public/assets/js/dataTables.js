@@ -1005,7 +1005,7 @@
 	const theme = (themeInput.value !== undefined) ? themeInput.value : 'sky';
 	
 	$.extend( DataTable.ext.classes, {
-		container: 'dt-container',
+		container: 'dt-container m-2 max-w-full',
 		empty: {
 			row: 'dt-empty'
 		},
@@ -1023,7 +1023,7 @@
 		},
 		length: {
 			container: 'dt-length text-sm',
-			select: `dt-input ml-2 p-1 text-sm text-gray-900 border border-${theme}-300 rounded bg-gray-50 focus:ring-${theme}-500 focus:border-${theme}-500 dark:bg-gray-700 dark:border-${theme}-600 dark:placeholder-gray-${theme} dark:text-white dark:focus:ring-${theme}-500 dark:focus:border-${theme}-500 outline-none`
+			select: `dt-input ml-2 p-1 text-sm text-gray-900 border border-${theme}-500 rounded bg-gray-50 focus:ring-${theme}-600 focus:border-${theme}-600 dark:bg-gray-700 dark:border-${theme}-600 dark:placeholder-gray-${theme} dark:text-white dark:focus:ring-${theme}-500 dark:focus:border-${theme}-500 outline-none`
 		},
 		order: {
 			canAsc: 'dt-orderable-asc',

@@ -82,30 +82,28 @@ $usersData = $pdo->query('SELECT * FROM csp_approved_domains');
 // PDO fetch now
 $usersArray = $usersData->fetchAll(\PDO::FETCH_ASSOC);
 
+$db->__destruct();
+
 $autoloadArray = [
     [
         'type' => 'table',
         'parentDiv' => 'dataGridDataLoader',
         'tableOptions' => [
             'searching' => false,
-            'ordering' => false,
+            'ordering' => true,
             'order' => [0, 'desc'],
-            'paging' => true,
+            //'paging' => true,
             //'lengthMenu' => [[25, 50, 100], [25, 50, 100]],
             'filters' => true,
+            'info' => false,
         ],
         'data' => $usersArray
     ],
     // Now another table but with fake random data 10000 rows
     [
         'type' => 'table',
-        'parentDiv' => 'dataGridDataLoader2',
+        'parentDiv' => 'dataGridDataLoader',
         'tableOptions' => [
-            'searching' => true,
-            'ordering' => true,
-            'order' => [0, 'desc'],
-            'paging' => true,
-            //'lengthMenu' => [[10, 50, 100, -1], [10, 50, 100, 'All']],
             'filters' => false,
         ],
         'data' => DataGrid::generateFakeData(10000)
@@ -116,7 +114,5 @@ foreach ($autoloadArray as $array) {
     echo '<input type="hidden" name="autoload" value="' . htmlspecialchars(json_encode($array)) . '" />';
 }
 
-echo '<div id="dataGridDataLoader" class="mx-2 my-12 flex flex-wrap flex-row justify-center items-center"></div>';
-echo '<div id="dataGridDataLoader2" class="mx-2 my-12 flex flex-wrap flex-row justify-center items-center"></div>';
+echo '<div id="dataGridDataLoader" class="max-w-full mx-2 my-12 flex flex-wrap flex-row justify-center items-center"></div>';
 
-$db->__destruct();

@@ -1,6 +1,8 @@
 <?php declare(strict_types=1);
 
 use Components\Alerts;
+use Components\Html;
+use Components\DataGrid;
 
 try {
     $db = new App\Database\DB(); // Initialize the DB object
@@ -27,6 +29,51 @@ try {
 
 echo Alerts::success('Successfully connected to the database');
 
+// $data = [
+//     ['name' => 'John Doe', 'email' => 'john.doe@example.com', 'phone' => '123-456-7890'],
+//     ['name' => 'Catherine Jones', 'email' => 'catherine.jones@example.com', 'phone' => '234-567-8901'],
+//     ['name' => 'Michael Johnson', 'email' => 'michael.johnson@example.com', 'phone' => '345-678-9012']
+// ];
+
+// $autoloadArray = [
+//   [
+//     'type' => 'table',
+//     'parentDiv' => 'auto-load',
+//     'tableOptions' => null,
+//     'data' => $data,
+//   ]
+// ];
+
+// echo '<div id="auto-load" class="max-w-full"></div>';
+
+// foreach ($autoloadArray as $array) {
+//   echo '<input type="hidden" name="autoload" value="' . htmlspecialchars(json_encode($array)) . '" />';
+// }
+
+echo Html::h1('Current Issues', true);
+
+$currentIssues = [
+  'DataGrid' => [
+    'filters not activating in javascript autoload sometimes',
+    'export function outside of delete true',
+    'export function for Javascript autoload',
+    'in Javascript, filters do not get red border',
+    'Editing the datagrid, in postgres/sqlite, the booleans are disabled'
+  ],
+  'Charts' => [
+    'ApexCharts not rendering properly in the dark mode',
+    'More diverse chart types needed',
+  ],
+  'Docs' => [
+    'Docs need to be updated for the new features',
+  ]
+];
+
+foreach ($currentIssues as $category => $array) {
+  echo Html::h3($category, true);
+  echo Components\Table::auto($array);
+}
+
 ?>
 
 
@@ -51,11 +98,11 @@ echo Alerts::success('Successfully connected to the database');
       tools: {
         download: true, // Show only the download option
         selection: false, // Disable selection (hand)
-        zoom: false, // Disable zoom
-        zoomin: false, // Disable zoom-in
-        zoomout: false, // Disable zoom-out
-        pan: false, // Disable panning (drag)
-        reset: false // Disable the reset icon
+        zoom: true, // Disable zoom
+        zoomin: true, // Disable zoom-in
+        zoomout: true, // Disable zoom-out
+        pan: true, // Disable panning (drag)
+        reset: true // Disable the reset icon
       },
       export: {
         csv: true, // Enable CSV download (for chart data)
