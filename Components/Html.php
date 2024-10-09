@@ -317,10 +317,10 @@ class Html
     }
     public static function code($text, $codeTitle = '', $classes = []) : string
     {
-        if (empty($classes)) {
+        if (!$classes) {
             return '<pre class="p-4 m-4 max-w-fit overflow-auto ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700 break-words"><p class="font-bold">' . $codeTitle . '</p><code class="c0py">' . $text . '</code></pre>';
         } else {
-            return '<pre class="' . $classes . '"><code class="c0py">' . $text . '</code></pre>';
+            return '<pre class="p-4 m-4 max-w-fit overflow-auto ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700 break-words"><p class="font-bold ' . implode(' ', $classes) . '"><code class="c0py">' . $text . '</code></pre>';
         }
     }
     public static function horizontalLine() : string
