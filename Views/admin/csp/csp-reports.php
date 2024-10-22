@@ -123,6 +123,11 @@ echo DataGrid::fromQuery('csp_reports', $cspReportsQuery, 'CSP Reports', $theme,
     'order' => [0, 'asc'],
     'paging' => true,
     'lengthMenu' => [[10, 50, 100, -1], [10, 50, 100, 'All']],
+    'searching' => true,
+    'info' => true,
+    'export' => [
+        'csv' => true
+    ]
 ]);
 
 $db->__destruct();

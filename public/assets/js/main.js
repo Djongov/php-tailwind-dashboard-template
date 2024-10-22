@@ -414,4 +414,16 @@ const toggleBlur = (excludeElement) => {
     }
 }
 
+function serialize(data) {
+    return Object.keys(data).map(key => 
+        encodeURIComponent(key) + '=' + encodeURIComponent(data[key])
+    ).join('&');
+}
 
+function serializeForBackend(data) {
+    // Convert your data object/array to a serialized format compatible with PHP
+    // This could be a custom serialization function if you want to keep it simple
+    return Object.entries(data).map(([key, value]) => {
+        return `${key}:${typeof value === 'object' ? serializeForBackend(value) : value}`;
+    }).join(';');
+}

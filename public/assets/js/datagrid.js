@@ -378,6 +378,11 @@ const constructOptions = (dataLength, options) => {
             paging : true,
             filters: true, // Default to true when options is null
             lengthMenu : [[25, 50, 100, -1], [25, 50, 100, "All"]],
+            info: true,
+            export: {
+                csv: true,
+                tsv: true
+            }
         };
     }
 
@@ -409,10 +414,17 @@ const constructOptions = (dataLength, options) => {
 
     // Set `info` to true if either paging or searching is enabled
     options.info = options.info ?? (options.paging || options.searching);
+    
+    // Now the export buttons
+    if (options.export === undefined) {
+        options.export = {
+            csv : true,
+            tsv : true
+        };
+    }
     return options;
 }
 const drawDataGrid = (id, options = null) => {
-    console.log(`drawDataGrid's options:`, options);
     // Let's analyze the options passed to the function
     options = constructOptions(0, options);
 
@@ -540,6 +552,105 @@ const drawDataGridFromData = (json, skeletonId, options = null) => {
         });
     }
     $(`#${skeletonId}`).wrap(tableWrapper); // Wrap the table with the wrapper div
+
+    // Now if the export buttons are enabled, let's add them
+    const buttons = [];
+
+    // Check for CSV export option
+    if (options.export.csv === true) {
+        buttons.push({
+            type: 'csv',
+            url: '/api/tools/export-csv'
+        });
+    }
+
+    // Check for TSV export option
+    if (options.export.tsv === true) {
+        buttons.push({
+            type: 'tsv',
+            url: '/api/tools/export-tsv'
+        });
+    }
+
+    // Create a container for the buttons
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'mt-4'; // Add margin-top for spacing
+
+    // Dynamically create and append buttons to the buttonContainer
+    buttons.forEach(button => {
+        // Create a new button element
+        const exportButton = document.createElement('button');
+        exportButton.innerText = `Export ${button.type.toUpperCase()}`;
+        exportButton.className = `p-2 ml-2 mt-2 text-gray-500 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600`;
+
+        // Add a click event listener for exporting data
+        exportButton.addEventListener('click', function () {
+            // Create a FormData object and append the JSON data
+            const form = new FormData();
+            form.append('data', JSON.stringify(json));
+
+            // Now let's append the csrf token, let's take it from the meta tag
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+            form.append('csrf_token', csrfToken);
+
+            // Send POST request to the appropriate export URL (CSV/TSV)
+            fetch(button.url, {
+                method: 'POST',
+                body: form,
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            })
+            .then(response => {
+                // Check if the response is not okay (status not in the range 200-299)
+                if (!response.ok) {
+                    // Handle specific status codes
+                    switch (response.status) {
+                        case 401:
+                            // Handle unauthorized access
+                            alert('Unauthorized access. Please log in.');
+                            break;
+                        case 403:
+                            // Handle forbidden access
+                            alert('You do not have permission to access this resource.');
+                            break;
+                        case 404:
+                            // Handle not found
+                            alert('Requested resource not found.');
+                            break;
+                        case 500:
+                            // Handle server error
+                            alert('Server error. Please try again later.');
+                            break;
+                        default:
+                            alert('An error occurred: ' + response.statusText);
+                    }
+                    throw new Error('Network response was not ok: ' + response.statusText);
+                }
+
+                // If the response is ok, proceed to process the blob
+                return response.blob();
+            })
+            .then(blob => {
+                // Create a temporary download link for the file
+                const link = document.createElement('a');
+                const url = window.URL.createObjectURL(blob);
+                link.href = url;
+                const currentDate = new Date().toISOString().replace(/:/g, '-');
+                link.download = `export-${currentDate}.${button.type}`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            })
+            .catch(error => console.error('Error exporting file:', error));
+        });
+
+        // Append the export button to the button container
+        buttonContainer.appendChild(exportButton);
+    });
+    // Append the button container to the parent of the table's wrapper
+    $(`#${skeletonId}`).parent().after(buttonContainer);
+    
     return table;
 };
 

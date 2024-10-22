@@ -55,8 +55,6 @@ echo Html::h1('Current Issues', true);
 $currentIssues = [
   'DataGrid' => [
     'filters not activating in javascript autoload sometimes',
-    'export function outside of delete true',
-    'export function for Javascript autoload',
     'in Javascript, filters do not get red border',
     'Editing the datagrid, in postgres/sqlite, the booleans are disabled'
   ],

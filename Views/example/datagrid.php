@@ -63,6 +63,12 @@ echo DataGrid::fromData('From PHP Array', $users, $theme, [
     'order' => [0, 'asc'],
     'paging' => false,
     'lengthMenu' => [[10, 50, 100], [10, 50, 100]],
+    'searching' => true,
+    'info' => true,
+    'export' => [
+        'csv' => true,
+        'tsv' => true
+    ]
 ]);
 
 echo Html::horizontalLine();
@@ -96,6 +102,10 @@ $autoloadArray = [
             //'lengthMenu' => [[25, 50, 100], [25, 50, 100]],
             'filters' => true,
             'info' => false,
+            'export' => [
+                'csv' => true,
+                'tsv' => false
+            ]
         ],
         'data' => $usersArray
     ],
@@ -106,7 +116,7 @@ $autoloadArray = [
         'tableOptions' => [
             'filters' => false,
         ],
-        'data' => DataGrid::generateFakeData(10000)
+        'data' => DataGrid::generateFakeData(10)
     ]
 ];
 

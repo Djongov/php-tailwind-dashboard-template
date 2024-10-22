@@ -20,6 +20,9 @@ class Head
         $html .= '<meta name="author" content="Dimitar Dzhongov" >' . PHP_EOL;
         $html .= '<meta name="keywords" content="' . implode(",", $keywords) . '" >' . PHP_EOL;
         $html .= '<meta name="description" content="' . $description . '" >' . PHP_EOL;
+        if (isset($_SESSION['csrf_token'])) {
+            $html .= '<meta name="csrf-token" content="' . $_SESSION['csrf_token'] . '">' . PHP_EOL;
+        }
         // Og tags
         $html .= self::ogTags($title, $description, $thumbimage);
         // Twitter tags

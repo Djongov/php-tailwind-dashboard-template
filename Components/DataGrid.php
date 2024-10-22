@@ -17,7 +17,11 @@ class DataGrid
         'order' => [[0, 'desc']],
         'paging' => true,
         'lengthMenu' => [[25, 50, 100, -1], [25, 50, 100, "All"]],
-        'info' => true
+        'info' => true,
+        'export' => [
+            'csv' => true,
+            'tsv' => true
+        ]
     ];
     private static function getDeleteLoader($id, $theme) : string
     {
@@ -86,7 +90,11 @@ class DataGrid
             'order' => [[0, 'desc']],
             'paging' => false,
             'lengthMenu' => [[25, 50, 100, -1], [25, 50, 100, "All"]],
-            'info' => false
+            'info' => false,
+            'export' => [
+                'csv' => true,
+                'tsv' => false
+            ]
         ]);
     }
     public static function fromDBTable(string $dbTable, ?string $title, string $theme, bool $edit = true, bool $delete = true, $orderBy = 'id', $sortBy = 'desc', ?array $tableOptions = null) : string
@@ -136,7 +144,7 @@ class DataGrid
     {
         $tableOptions = $tableOptions ?? self::$tableOptions;
 
-        $correctTableOptions = ['searching', 'filters', 'ordering', 'order', 'paging', 'lengthMenu', 'info'];
+        $correctTableOptions = ['searching', 'filters', 'ordering', 'order', 'paging', 'lengthMenu', 'info', 'export'];
 
         // We don't want to be restricting that the all of the keys are present, but we want to make sure that the keys are correct
         foreach ($tableOptions as $key => $value) {
@@ -324,22 +332,35 @@ class DataGrid
             $html .= '<input type="hidden" name="csrf_token" value="' . $csrfToken . '" />';
             // Close the mass delete form
             $html .= '</form>';
-            // Export functionality
-            $html .= '<div class="flex">';
-            $exportButtonsArray = [
-                'Export in CSV' => '/api/tools/export-csv',
-                'Export in TSV' => '/api/tools/export-tsv'
-            ];
-            foreach ($exportButtonsArray as $name => $link) {
-                $html .= '<form action="' . $link . '" method="post" target="_blank">';
-                    $html .= '<button type="submit" class="ml-2 mt-2 text-gray-500 ' . LIGHT_COLOR_SCHEME_CLASS . ' hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600" title="' . $name . '">';
-                        $html .= $name;
-                    $html .= '</button>';
-                    $html .= '<input type="hidden" name="data" value="' . htmlentities(serialize($data)) . '" />';
-                    $html .= '<input type="hidden" name="type" value="' . $id . '" />';
-                    $html .= '<input type="hidden" name="csrf_token" value="' . $csrfToken . '" />';
-                $html .= '</form>';
+        }
+        // Export functionality
+        if (isset($tableOptions['export'])) {
+            $exportButtonsArray = [];
+            $allowedExports = ['csv', 'tsv'];
+            foreach ($tableOptions['export'] as $exportType => $exportValue) {
+                if (!in_array($exportType, $allowedExports)) {
+                    throw new \Exception('Invalid export type: ' . $exportType);
+                }
+                // Check if boolean too
+                if (!is_bool($exportValue)) {
+                    throw new \Exception('Export value must be a boolean');
+                }
+                if ($exportValue) {
+                    // Now let's define the export buttons
+                    $exportButtonsArray['Export in ' . strtoupper($exportType)] = '/api/tools/export-' . $exportType;
+                }
             }
+            $html .= '<div class="flex">';
+                foreach ($exportButtonsArray as $name => $link) {
+                    $html .= '<form action="' . $link . '" method="post" target="_blank">';
+                        $html .= '<button type="submit" class="p-2 ml-2 mt-2 text-gray-500 ' . LIGHT_COLOR_SCHEME_CLASS . ' hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600" title="' . $name . '">';
+                            $html .= $name;
+                        $html .= '</button>';
+                        $html .= '<input type="hidden" name="data" value="' . htmlentities(json_encode($data)) . '" />';
+                        $html .= '<input type="hidden" name="type" value="' . $id . '" />';
+                        $html .= '<input type="hidden" name="csrf_token" value="' . $csrfToken . '" />';
+                    $html .= '</form>';
+                }
             $html .= '</div>';
         }
         $html .= PHP_EOL;

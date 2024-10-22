@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 use Controllers\Api\Checks;
+use Controllers\Api\Output;
 
 $checks = new Checks($vars, $_POST);
 
@@ -12,7 +13,17 @@ if (isset($_POST['data'])) {
     $data = '';
 }
 
-$data = unserialize($data);
+$data = json_decode($_POST['data'], true); // Decode JSON string into associative array
+
+if ($data === null) {
+    // Handle JSON decoding error
+    error_log('JSON Decode Error: ' . json_last_error_msg());
+    Output::error('JSON Decode Error: ' . json_last_error_msg());
+}
+
+if (count($data) === 0) {
+    Output::error('No data to export');
+}
 
 if (isset($_POST['type'])) {
     $type = htmlspecialchars($_POST['type']);
@@ -26,10 +37,9 @@ $fileName = $type . "-logs-data-" . date('Y-m-d-H-i-s') . ".tsv";
 $excelData = '';
 $unique_heads = [];
 
-// Let's map what the head of the TSV will be
-if (!empty($data)) {
-    $unique_heads = array_keys(reset($data));
-}
+
+$unique_heads = array_keys(reset($data));
+
 
 // Display column names as first row
 $excelData = implode("\t", $unique_heads) . "\n";
