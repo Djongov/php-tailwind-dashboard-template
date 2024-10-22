@@ -590,7 +590,7 @@ const drawDataGridFromData = (json, skeletonId, options = null) => {
             form.append('data', JSON.stringify(json));
 
             // Now let's append the csrf token, let's take it from the meta tag
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').content || '';
             form.append('csrf_token', csrfToken);
 
             // Send POST request to the appropriate export URL (CSV/TSV)
