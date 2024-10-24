@@ -28,7 +28,7 @@ try {
             PDO::ATTR_EMULATE_PREPARES   => false,
         ];
     } elseif (DB_DRIVER === 'sqlite') {
-        $dsn = 'sqlite: ' . dirname($_SERVER['DOCUMENT_ROOT']) . '/.tools/' . DB_NAME . '.db';
+        $dsn = 'sqlite:' . dirname($_SERVER['DOCUMENT_ROOT']) . '/.tools/' . DB_NAME . '.db';
 
         $options = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
