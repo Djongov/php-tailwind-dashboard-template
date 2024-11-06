@@ -2,7 +2,6 @@
 
 use Components\Alerts;
 use Components\Html;
-use Components\DataGrid;
 
 try {
     $db = new App\Database\DB(); // Initialize the DB object
@@ -56,7 +55,8 @@ $currentIssues = [
   'DataGrid' => [
     'filters not activating in javascript autoload sometimes',
     'in Javascript, filters do not get red border',
-    'Editing the datagrid, in postgres/sqlite, the booleans are disabled'
+    'Editing the datagrid, in postgres/sqlite, the booleans are disabled',
+    'DataGrid filters not working when special characters are in the cell body'
   ],
   'Charts' => [
     'ApexCharts not rendering properly in the dark mode',

@@ -271,7 +271,7 @@ class DataGrid
                                         // Also add the full untruncated value as a title
                                         $tdTitle = ' title="' . $value . '"';
                                     }
-                                    $value = htmlentities($value);
+                                    $value = htmlspecialchars($value);
                                 }
                                 if (is_array($value)) {
                                     $value = json_encode($value, JSON_PRETTY_PRINT);
