@@ -116,7 +116,7 @@ $autoloadArray = [
         'tableOptions' => [
             'filters' => false,
         ],
-        'data' => DataGrid::generateFakeData(10)
+        'data' => DataGrid::generateFakeData(501)
     ]
 ];
 

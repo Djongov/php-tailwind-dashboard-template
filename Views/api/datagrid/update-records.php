@@ -12,6 +12,10 @@ $checks->apiChecks();
 
 $table = $_POST['table'];
 
+$id = $_POST['id'];
+
+unset($_POST['id']);
+
 // Because the POST data comes from a fetch request, it serializes the data and everything comes through as a string which could lead to DB query errors. Let's convert the data to the correct types
 foreach ($_POST as $key => &$value) {
     // Convert numeric strings to floats if they contain a decimal point
@@ -60,7 +64,9 @@ $sql .= " WHERE id = ?";
 // Prepare and execute the query using queryPrepared
 $values = array_values($_POST);
 
-$values[] = $_POST['id']; // Add the 'id' for the WHERE clause
+unset($values['id']);
+
+$values[] = $id; // Add the 'id' for the WHERE clause
 
 $pdo = $db->getConnection();
 
@@ -71,6 +77,6 @@ $stmt->execute($values);
 if ($stmt->rowCount() === 0) {
     Output::error('Nothing updated', 409);
 } else {
-    SystemLog::write('Record id ' . $_POST['id'] . ' edited in ' . $table, 'DataGrid Edit');
+    SystemLog::write('Record id ' . $id . ' edited in ' . $table, 'DataGrid Edit');
     echo Output::success('successfully edited ' . $stmt->rowCount() . ' records in ' . $table . '');
 }

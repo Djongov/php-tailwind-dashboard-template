@@ -300,6 +300,7 @@ const loaderString = () => {
 
 const editModal = (id) => {
     let html = `
+                <form id="${id}-form">
         <!-- Main modal -->
         <div id="${id}-container" class="mx-2 relative w-full bg-gray-50 dark:bg-gray-700 max-w-2xl max-h-full mx-auto border border-gray-700 dark:border-gray-400 shadow overflow-auto">
             <!-- Modal content -->
@@ -318,19 +319,20 @@ const editModal = (id) => {
                 </div>
                 <!-- Modal body -->
                 <div id="${id}-body" class="p-4 md:p-5 space-y-4 break-words">
-                    <p class="text-base leading-relaxed text-gray-700 dark:text-gray-400">
-                        Loading data...
-                    </p>
+                        <p class="text-base leading-relaxed text-gray-700 dark:text-gray-400">
+                            Loading data...
+                        </p>
                 </div>
             </div>
             <!-- Modal Result -->
             <div id="${id}-result" class="m-4"></div>
             <!-- Modal footer -->
             <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
-                <button id="${id}-edit" data-modal-hide="${id}" type="button" class="text-white bg-${theme}-700 hover:bg-${theme}-800 focus:ring-4 focus:outline-none focus:ring-${theme}-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-${theme}-600 dark:hover:bg-${theme}-700 dark:focus:ring-${theme}-800">Edit</button>
+                <button id="${id}-edit" data-modal-hide="${id}" type="submit" class="text-white bg-${theme}-700 hover:bg-${theme}-800 focus:ring-4 focus:outline-none focus:ring-${theme}-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-${theme}-600 dark:hover:bg-${theme}-700 dark:focus:ring-${theme}-800">Edit</button>
                 <button id="${id}-close-button" data-modal-hide="${id}" type="button" class="ms-3 text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-${theme}-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">Cancel</button>
             </div>
         </div>
+        </form>
     `;
     const modal = document.createElement('div');
     modal.id = id;
@@ -426,4 +428,136 @@ function serializeForBackend(data) {
     return Object.entries(data).map(([key, value]) => {
         return `${key}:${typeof value === 'object' ? serializeForBackend(value) : value}`;
     }).join(';');
+}
+
+// Edit button
+
+const editButtons = document.querySelectorAll(`button.edit-button`);
+
+console.log(editButtons);
+
+if (editButtons.length > 0) {
+    editButtons.forEach(button => {
+        button.addEventListener('click', async (event) => {
+            // First fetch the data from /api/datagrid/get-records
+            const uniqueId = generateUniqueId(4);
+            // Generate the modal
+            let modal = editModal(uniqueId);
+            // Insert the modal at the bottom of the first div after the body
+            document.body.insertBefore(modal, document.body.firstChild);
+            // Now show the modal
+            modal.classList.remove('hidden');
+            // Now let's disable scrolling on the rest of the page by adding overflow-hidden to the body
+            document.body.classList.add('overflow-hidden');
+            // Blur the body excluding the modal
+            toggleBlur(modal);
+            // Let's make some bindings
+            const modalResult = document.getElementById(`${uniqueId}-result`);
+            // First, the close button
+            const closeXButton = document.getElementById(`${uniqueId}-x-button`);
+            // The cancel button
+            const cancelButton = document.getElementById(`${uniqueId}-close-button`);
+            // Modal Save button
+            const saveButton = document.getElementById(`${uniqueId}-edit`);
+            const cancelButtonsArray = [closeXButton, cancelButton];
+            cancelButtonsArray.forEach(cancelButton => {
+                cancelButton.addEventListener('click', () => {
+                    // Completely remove the modal
+                    modal.remove();
+                    // Return the overflow of the body
+                    document.body.classList.remove('overflow-hidden');
+                    // Remove the blur by toggling the blur class
+                    toggleBlur(modal);
+                })
+            })
+            let modalBody = document.getElementById(`${uniqueId}-body`);
+            modalBody.innerHTML = loaderString();
+            // Fetch the data
+            const formData = new FormData();
+            formData.append('table', button.dataset.table);
+            formData.append('columns', button.dataset.columns);
+            formData.append('id', button.dataset.id);
+            formData.append('csrf_token', button.dataset.csrf);
+            const data = fetch('/api/datagrid/get-records', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': button.dataset.csrf,
+                    'secretheader': 'badass'
+                },
+                body: formData
+            }).then(response => response.text());
+            modalBody.innerHTML = await data;
+            let initialButtonText = saveButton.innerText;
+            // Now let's make the save button work
+            saveButton.addEventListener('click', async () => {
+                // First, get the form data
+                saveButton.innerHTML = loaderString();
+                // Build the body of the update request. We need to go through all the inputs and get their values
+                const formData = new FormData();
+                // Loop through all of the modalBody inputs, textarea and select and save them to the formData
+                const modalBodyInputs = modal.querySelectorAll(`input, textarea, select`);
+                modalBodyInputs.forEach(input => {
+                    let value = input.value;
+
+                    // Check if the value is a valid number
+                    if (!isNaN(value) && value.includes('.')) {
+                        // Convert to float and format to a specific number of decimal places (e.g., 2)
+                        value = parseFloat(value);
+                    }
+
+                    formData.append(input.name, value);
+                });
+                // Now let's take care of potential checkboxes
+                const modalBodyCheckboxes = modal.querySelectorAll(`input[type=checkbox]`);
+                // Loop through the checkboxes and if they are checked, we transmit the value as 1, else as 0
+                modalBodyCheckboxes.forEach(checkbox => {
+                    formData.append(checkbox.name, checkbox.checked ? 1 : 0);
+                });
+                let responseStatus = 0;
+                formData.append('id', button.dataset.id);
+                const editApi = (button.dataset.editApi) ? button.dataset.editApi : '/api/datagrid/update-records';
+                // Now let's fetch the data
+                fetch(editApi, {
+                    method: 'POST',
+                    headers: {
+                        'secretHeader': 'badass',
+                        'X-CSRF-TOKEN': formData.get('csrf_token')
+                    },
+                    body: formData,
+                    redirect: 'manual'
+                }).then(response => {
+                    responseStatus = response.status;
+                    if (responseStatus === 403 || responseStatus === 401 || responseStatus === 0) {
+                        modalBody.innerHTML = `<p class="text-red-500 font-semibold">Response not ok, refreshing</p>`;
+                        location.reload();
+                    } else {
+                        // Check if the response is JSON or text/HTML
+                        if (response.headers.get('content-type').includes('application/json')) {
+                            return response.json().then(data => ({ data, isJson: true }));
+                        } else {
+                            return response.text().then(data => ({ data, isJson: false }));
+                        }
+                    }
+                }).then(({ data, isJson }) => {
+                    // If the response status is >= 400, handle it as an error
+                    if (responseStatus >= 400) {
+                        saveButton.innerText = 'Retry';
+                        let errorMessage = isJson ? (data.data || JSON.stringify(data)) : data;
+                        modalResult.innerHTML = `<p class="text-red-500 font-semibold">${errorMessage}</p>`;
+                    } else {
+                        saveButton.innerText = initialButtonText;
+                
+                        if (isJson) {
+                            modalResult.innerHTML = `<p class="text-green-500 font-semibold">${data.data}</p>`;
+                            location.reload();
+                        } else {
+                            modalResult.innerHTML = `<p class="text-red-500 font-semibold">${data}</p>`;
+                        }
+                    }
+                }).catch(error => {
+                    console.error('Error during fetch:', error);
+                });                                           
+            })
+        });
+    });
 }

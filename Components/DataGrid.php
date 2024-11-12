@@ -81,6 +81,49 @@ class DataGrid
     {
         return self::createTable('', $title, $data, $theme, false, false, $tableOptions);
     }
+    public static function calculateTableOptionsLengthMenu(array $data) : array
+    {
+        $maxInputVars = ini_get('max_input_vars');
+        $totalRows = count($data);
+        // Starting point is based on total rows
+        if ($totalRows < 25) {
+            return [[5, 10, 25, -1], [5, 10, 25, 'All']];
+        } else {
+            $lengthMenu = [[25], [25]];
+        }
+        if ($totalRows >= 50) {
+            array_push($lengthMenu[0], 50);
+            array_push($lengthMenu[1], 50);
+        }
+        if ($totalRows >= 100) {
+            array_push($lengthMenu[0], 100);
+            array_push($lengthMenu[1], 100);
+        }
+        if ($totalRows >= 250) {
+            array_push($lengthMenu[0], 250);
+            array_push($lengthMenu[1], 250);
+        }
+        if ($totalRows >= 500) {
+            array_push($lengthMenu[0], 500);
+            array_push($lengthMenu[1], 500);
+        }
+        // Add a 1000 if we have more than 1000 rows and max_input_vars is more than 1010
+        if ($totalRows >= 1000 && $maxInputVars >= 1010) {
+            array_push($lengthMenu[0], 1000);
+            array_push($lengthMenu[1], 1000);
+        }
+        // If we have more rows than max_input_vars, then we need to add the total number of max_input_vars - 10, -10 because we have some datagrid specific vars being passed as well
+        if ($totalRows >= $maxInputVars) {
+            array_push($lengthMenu[0], $maxInputVars - 10);
+            array_push($lengthMenu[1], $maxInputVars - 10);
+        }
+
+        // In the end add the -1 and all
+        array_push($lengthMenu[0], -1);
+        array_push($lengthMenu[1], 'All');
+
+        return $lengthMenu;
+    }
     public static function simpleTable(array $data, string $theme) : string
     {
         return self::createTable('', null, $data, $theme, false, false, [
@@ -89,7 +132,7 @@ class DataGrid
             'ordering' => false,
             'order' => [[0, 'desc']],
             'paging' => false,
-            'lengthMenu' => [[25, 50, 100, -1], [25, 50, 100, "All"]],
+            'lengthMenu' => self::calculateTableOptionsLengthMenu($data),
             'info' => false,
             'export' => [
                 'csv' => true,
@@ -161,6 +204,9 @@ class DataGrid
                 $tableOptions['info'] = false;
             }
         }
+
+        // Let's calculate the lengthMenu by the total number of rows
+        $tableOptions['lengthMenu'] = self::calculateTableOptionsLengthMenu($data);
 
         $html = '';
         foreach ($data as $a => $b) {
