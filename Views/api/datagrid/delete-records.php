@@ -24,8 +24,15 @@ if (isset($_POST['table'], $_POST['id'])) {
     $stmt = $pdo->prepare("DELETE FROM " . $_POST['table'] . " WHERE id = ?");
     try {
         $stmt->execute([$_POST['id']]);
-        SystemLog::write('Record with id ' . $_POST['id'] . ' deleted from ' . $_POST['table'], 'DataGrid Delete');
-        echo Output::success('Successfully deleted the record with id ' . $_POST['id'] . ' from ' . $_POST['table']);
+        $rowsAffected = $stmt->rowCount(); // Check how many rows were deleted
+        
+        if ($rowsAffected > 0) {
+            SystemLog::write('Record with id ' . $_POST['id'] . ' deleted from ' . $_POST['table'], 'DataGrid Delete');
+            echo Output::success('Successfully deleted the record with id ' . $_POST['id'] . ' from ' . $_POST['table']);
+        } else {
+            SystemLog::write('No record found with id ' . $_POST['id'] . ' in ' . $_POST['table'], 'DataGrid Delete');
+            echo Output::error('No record was deleted; it might not exist', 404);
+        }
     } catch (\PDOException $e) {
         Output::error('Failed to delete the record', 400);
     }

@@ -243,7 +243,7 @@ if (tables.length > 0) {
                             return;
                         }
                         // Assuming we get here is all good, quickly display the success message and reload the page
-                        deleteLoadingScreenText.innerHTML = `<p class="text-green-500 font-semibold">${json.data}</p>`;
+                        deleteLoadingScreenText.innerHTML = `<p class="text-green-500 font-semibold z-50">${json.data}</p>`;
                         location.reload();
                     });
                 }, false);
@@ -257,7 +257,7 @@ if (tables.length > 0) {
             deleteButtons.forEach(button => {
                 button.addEventListener('click', (event) => {
                     // inser the modal after the table
-                    let modal = deleteModal(tableId, event.target.dataset.id + ' in table ' + event.target.dataset.table);
+                    let modal = deleteModal(tableId, `Delete entry with id <b>${event.target.dataset.id}</b> in table <b>${event.target.dataset.table}</b>?`);
                     // Insert the modal at the bottom of the first div after the body
                     document.body.insertBefore(modal, document.body.firstChild);
                     // Now show the modal

@@ -346,8 +346,7 @@ const editModal = (id) => {
     return modal;
 }
 
-const deleteModal = (id, data) => {
-    const jsonData = JSON.stringify(data);
+const deleteModal = (id, confirmMessage) => {
     let html = `
     <!-- Main modal -->
         <div id="${id}-container" class="relative w-full max-w-2xl max-h-full mx-auto">
@@ -368,7 +367,7 @@ const deleteModal = (id, data) => {
                 <!-- Modal body -->
                 <div id="${id}-body" class="p-4 md:p-5 space-y-4 break-words">
                     <p class="text-base leading-relaxed text-gray-700 dark:text-gray-400">
-                        Are you sure you want to delete entry with id: ${jsonData}?
+                        ${confirmMessage}
                     </p>
                 </div>
                 <!-- Modal Result -->
@@ -557,6 +556,104 @@ if (editButtons.length > 0) {
                 }).catch(error => {
                     console.error('Error during fetch:', error);
                 });                                           
+            })
+        });
+    });
+}
+
+// Delete button
+
+const deleteButtons = document.querySelectorAll(`button.delete-button`);
+
+if (deleteButtons.length > 0) {
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', async (event) => {
+            // First fetch the data from /api/datagrid/get-records
+            const uniqueId = generateUniqueId(4);
+            // Get the confirm message
+            const confirmMessage = button.dataset.confirmMessage || `Are you sure you want to delete entry with id ${button.dataset.id}?`;
+            // Generate the modal
+            let modal = deleteModal(uniqueId, confirmMessage);
+            // Insert the modal at the bottom of the first div after the body
+            document.body.insertBefore(modal, document.body.firstChild);
+            // Now show the modal
+            modal.classList.remove('hidden');
+            // Now let's disable scrolling on the rest of the page by adding overflow-hidden to the body
+            document.body.classList.add('overflow-hidden');
+            // Blur the body excluding the modal
+            toggleBlur(modal);
+            // Let's make some bindings
+            const modalResult = document.getElementById(`${uniqueId}-result`);
+            // First, the close button
+            const closeXButton = document.getElementById(`${uniqueId}-x-button`);
+            // The cancel button
+            const cancelButton = document.getElementById(`${uniqueId}-close-button`);
+            // Modal Save button
+            const saveButton = document.getElementById(`${uniqueId}-delete`);
+            const cancelButtonsArray = [closeXButton, cancelButton];
+            cancelButtonsArray.forEach(cancelButton => {
+                cancelButton.addEventListener('click', () => {
+                    // Completely remove the modal
+                    modal.remove();
+                    // Return the overflow of the body
+                    document.body.classList.remove('overflow-hidden');
+                    // Remove the blur by toggling the blur class
+                    toggleBlur(modal);
+                })
+            })
+            let initialButtonText = saveButton.innerText;
+            // Now let's make the save button work
+            saveButton.addEventListener('click', async () => {
+                // First, get the form data
+                saveButton.innerHTML = loaderString();
+                // Build the body of the update request. We need to go through all the inputs and get their values
+                const formData = new FormData();
+                formData.append('id', button.dataset.id);
+                formData.append('csrf_token', button.dataset.csrf);
+                formData.append('table', button.dataset.table);
+                const deleteApi = (button.dataset.deleteApi) ? button.dataset.deleteApi : '/api/datagrid/delete-records';
+                let responseStatus = 0;
+                // Now let's fetch the data
+                fetch(deleteApi, {
+                    method: 'POST',
+                    headers: {
+                        'secretHeader': 'badass',
+                        'X-CSRF-TOKEN': formData.get('csrf_token')
+                    },
+                    body: formData
+                }).then(response => {
+                    responseStatus = response.status;
+                    if (responseStatus === 403 || responseStatus === 401 || responseStatus === 0) {
+                        modalResult.innerHTML = `<p class="text-red-500 font-semibold">Response not ok, refreshing</p>`;
+                        location.reload();
+                    } else {
+                        // Check if the response is JSON or text/HTML
+                        if (response.headers.get('content-type').includes('application/json')) {
+                            return response.json().then(data => ({ data, isJson: true }));
+                        } else {
+                            return response.text().then(data => ({ data, isJson: false }));
+                        }
+                    }
+                }
+                ).then(({ data, isJson }) => {
+                    // If the response status is >= 400, handle it as an error
+                    if (responseStatus >= 400) {
+                        saveButton.innerText = 'Retry';
+                        let errorMessage = isJson ? (data.data || JSON.stringify(data)) : data;
+                        modalResult.innerHTML = `<p class="text-red-500 font-semibold">${errorMessage}</p>`;
+                    } else {
+                        saveButton.innerText = initialButtonText;
+                
+                        if (isJson) {
+                            modalResult.innerHTML = `<p class="text-green-500-font-semibold">${data.data}</p>`;
+                            location.reload();
+                        } else {
+                            modalResult.innerHTML = `<p class="text-red-500 font-semibold">${data}</p>`;
+                        }
+                    }
+                }).catch(error => {
+                    console.error('Error during fetch:', error);
+                });
             })
         });
     });

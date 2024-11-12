@@ -28,13 +28,6 @@ try {
 
 echo Alerts::success('Successfully connected to the database');
 
-use Components\DBButton;
-
-
-if ($usernameArray) {
-  echo DBButton::editButton('users', ['email', 'name'], $usernameArray['id'], 'Edit User');
-}
-
 // $data = [
 //     ['name' => 'John Doe', 'email' => 'john.doe@example.com', 'phone' => '123-456-7890'],
 //     ['name' => 'Catherine Jones', 'email' => 'catherine.jones@example.com', 'phone' => '234-567-8901'],
