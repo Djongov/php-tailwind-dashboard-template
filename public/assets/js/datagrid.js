@@ -47,7 +47,7 @@ if (tables.length > 0) {
                 button.addEventListener('click', () => {
                     const uniqueId = generateUniqueId(4);
                     // Generate the modal
-                    let modal = editModal(uniqueId);
+                    let modal = editModal(uniqueId, button.dataset.id);
                     // Insert the modal at the bottom of the first div after the body
                     document.body.insertBefore(modal, document.body.firstChild);
                     // Now show the modal
@@ -435,6 +435,7 @@ const drawDataGrid = (id, options = null) => {
         ordering: options.ordering,
         order: options.order,
         searching: options.searching,
+        autoWidth: false,
         //scrollY: '60vh',
         info: options.info,
         paging: options.paging,

@@ -13,7 +13,7 @@ class General
         $length = ($length < 4) ? 4 : $length;
         return bin2hex(random_bytes(($length - ($length % 2)) / 2));
     }
-    public static function currentBrowser()
+    public static function currentBrowser() : ?string
     {
         return $_SERVER['HTTP_USER_AGENT'] ?? null;
     }
