@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 use Controllers\Api\Output;
 use Controllers\Api\Checks;
 use App\Utilities\General;
@@ -23,7 +24,6 @@ if ($_POST['api-action'] !== 'prase-phpinfo') {
 }
 
 $phpInfoArray = General::parsePhpInfo();
-
 echo '<div class="ml-4 dark:text-gray-400">';
-    echo DataGrid::fromData('php-info', $phpInfoArray[""], $theme);
+    echo DataGrid::fromData('php-info', $phpInfoArray["Features "], $theme);
 echo '</div>';

@@ -62,34 +62,37 @@ class General
         }
         return false; // No element is an array, it's not multidimensional
     }
-    public static function parsePhpInfo() : array
+    public static function parsePhpInfo(): array
     {
         ob_start();
         phpinfo(INFO_ALL);
         $phpinfo = ob_get_clean();
 
-        // Find table data
-        preg_match_all('/<tr>(?:.*?<td[^>]*>(.*?)<\/td>.*?<td[^>]*>(.*?)<\/td>)<\/tr>/', $phpinfo, $matches);
+        // Extract table data with improved pattern
+        preg_match_all('/<tr>(.*?)<\/tr>/s', $phpinfo, $rows);
 
-        $result = array();
+        $result = [];
         $currentCategory = '';
-        foreach ($matches[1] as $index => $name) {
-            if (empty($name)) {
-                continue;
-            }
 
-            if (strpos($name, '</') !== false) {
-                // Skip table headers and footers
-                continue;
-            }
+        foreach ($rows[1] as $row) {
+            // Match table data cells
+            preg_match_all('/<td[^>]*>(.*?)<\/td>/s', $row, $cells);
 
-            if (strpos($name, '<') !== false) {
-                // Extract category name
-                $currentCategory = strip_tags($name);
-                $result[$currentCategory] = array();
-            } else {
-                // Add key-value pair to the current category
-                $result[$currentCategory][$name] = strip_tags($matches[2][$index]);
+            if (count($cells[1]) == 1) {
+                // Single cell indicates a new category
+                $currentCategory = strip_tags($cells[1][0]);
+                if (!isset($result[$currentCategory])) {
+                    $result[$currentCategory] = [];
+                }
+            } elseif (count($cells[1]) == 2) {
+                // Key-value pairs
+                $name = strip_tags($cells[1][0]);
+                $value = strip_tags($cells[1][1]);
+
+                // Avoid duplicates by checking existing entries
+                if ($currentCategory && !isset($result[$currentCategory][$name])) {
+                    $result[$currentCategory][$name] = $value;
+                }
             }
         }
 

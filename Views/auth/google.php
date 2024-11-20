@@ -22,10 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     //$nonce = $_GET['nonce'];
     $code = $_GET['code'];
 
-    if (str_contains($state, 'auth-verify') || str_contains($state, 'logout')) {
-        // If the state is /auth-verify or /logout, we need to set the state to /
-        $state = '/';
-    }
     $client = new Client();
 
     $client->setClientId(GOOGLE_CLIENT_ID);
@@ -79,14 +75,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     AuthToken::set($idToken);
 
-    $state = '/';
-
-    if (str_contains($state, 'login') || str_contains($state, 'auth-verify') || str_contains($state, 'logout')) {
+    if (str_contains($state, 'login') || str_contains($state, 'logout')) {
         // Invalid destination or state, set a default state
         $state = '/';
     }
 
-    header("Location: " . filter_var($state, FILTER_SANITIZE_URL));
+    // Parse the URL
+    $parsedState = parse_url($state);
+
+    // Extract the path and query components
+    $path = isset($parsedState['path']) ? $parsedState['path'] : '';
+    $query = isset($parsedState['query']) ? '?' . $parsedState['query'] : '';
+
+    // Combine the path and query string
+    $pathAndQuery = $path . $query;
+
+    header("Location: " . $pathAndQuery);
+
     exit();
 
     /* Instead of using the oauth client, we will get the data from the token */
