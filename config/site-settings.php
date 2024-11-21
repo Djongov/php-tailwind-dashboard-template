@@ -40,6 +40,30 @@ define('GOOGLE_LOGO', '<svg class="w-10 h-10" xmlns="http://www.w3.org/2000/svg"
 
 // This is a default color scheme for small parts such as buttons and links
 define("COLOR_SCHEME", "amber");
+define("THEME_COLORS",
+[
+    'sky',   // Sky Blue
+    'cyan',  // Cyan
+    'emerald', // Emerald Green
+    'teal',  // Teal
+    'blue',  // Blue
+    'indigo', // Indigo
+    'violet', // Violet
+    'purple', // Purple
+    'fuchsia', // Fuchsia
+    'pink',   // Pink
+    'red',    // Red
+    'rose',   // Rose
+    'orange', // Orange
+    'yellow', // Yellow
+    'amber',  // Amber
+    'lime',   // Lime Green
+    'gray',   // Gray
+    'slate',  // Slate
+    'stone',  // Stone
+    'zinc',   // Zinc
+    'neutral' // Neutral
+]);
 
 // This is the text while in the light mode
 define("TEXT_COLOR_SCHEME", "text-gray-900"); // text-gray-900 is nice

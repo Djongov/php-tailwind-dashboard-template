@@ -73,8 +73,6 @@ if (!empty($usernameArray['picture']) && isset($token['picture'])) {
     }
 }
 
-$allowed_themes = ['amber', 'green', 'stone', 'rose', 'lime', 'teal', 'sky', 'purple', 'red', 'fuchsia', 'indigo'];
-
 $locale = (isset($usernameArray['origin_country'])) ? General::countryCodeToLocale($usernameArray['origin_country']) : 'en_US';
 $fmt = new IntlDateFormatter($locale, IntlDateFormatter::LONG, IntlDateFormatter::GREGORIAN);
 echo '<div class="flex flex-row flex-wrap items-start mb-4 justify-center">';
@@ -126,7 +124,7 @@ echo '<div class="flex flex-row flex-wrap items-start mb-4 justify-center">';
                 echo '<td class="w-full"><div class="flex my-2 flex-row"><strong>' . $name . '</strong> : ';
                 echo '<form class="select-submitter" method="PUT" action="/api/user/' . $usernameArray['id'] . '">';
                     echo '<select name="theme" class="' . Html::selectInputClasses($theme) . '">';
-                    foreach ($allowed_themes as $color) {
+                    foreach (THEME_COLORS as $color) {
                         echo '<option value="' . $color . '" ' . (($setting === $color) ? 'selected' : '') . '>' . $color . '</option>';
                     }
                     echo '</select>';

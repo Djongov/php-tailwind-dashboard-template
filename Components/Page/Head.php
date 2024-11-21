@@ -10,6 +10,15 @@ class Head
         $html .= '<!DOCTYPE html>' . PHP_EOL;
         $html .= '<html lang="en" class="h-full">' . PHP_EOL;
         $html .= '<head>' . PHP_EOL;
+        // Make sure that the theme is applied before anything else to prevent FOUC
+        $html .= <<<HTML
+        <script nonce="1nL1n3JsRuN1192kwoko2k323WKE">
+                (function() {
+                    const theme = localStorage.getItem('color-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                    document.documentElement.classList.add(theme);
+                })();
+        </script>
+        HTML;
         $html .=  '<title>' . $title . ' - ' . SITE_TITLE . '</title>' . PHP_EOL;
         // Icon
         $html .= '<link rel="icon" type="image/x-icon" href="' . LOGO . '" >' . PHP_EOL;

@@ -3,22 +3,8 @@ const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
 const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
 const themeToggleBtn = document.getElementById('theme-toggle');
 
-// Function to get the current theme from localStorage
-function getCurrentTheme() {
-    return localStorage.getItem('color-theme') ? localStorage.getItem('color-theme') : null;
-}
-
-// Function to set theme based on localStorage
-function setThemeFromLocalStorage() {
-    if (localStorage.getItem('color-theme') === 'dark') {
-        document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
-    }
-}
-
 // Function to set button state based on localStorage
-function setButtonStateFromLocalStorage() {
+const setButtonStateFromLocalStorage = () => {
     if (localStorage.getItem('color-theme') === 'dark') {
         themeToggleDarkIcon.classList.add('hidden');
         themeToggleLightIcon.classList.remove('hidden');
@@ -26,34 +12,11 @@ function setButtonStateFromLocalStorage() {
         themeToggleDarkIcon.classList.remove('hidden');
         themeToggleLightIcon.classList.add('hidden');
     }
-}
-
-// Check if the user's preferred color scheme is dark
-const preferredColorScheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-// Change the icons inside the button based on previous settings
-if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && preferredColorScheme)) {
-    setButtonStateFromLocalStorage();
-} else {
-    themeToggleDarkIcon.classList.remove('hidden');
-}
-
-// Auto set class and button state based on the local storage theme
-if (localStorage.getItem('color-theme')) {
-    setThemeFromLocalStorage();
-    setButtonStateFromLocalStorage();
-} else {
-    if (preferredColorScheme) {
-        document.documentElement.classList.add('dark');
-        localStorage.setItem('color-theme', 'dark');
-    } else {
-        localStorage.setItem('color-theme', 'light');
-    }
-}
+};
 
 // Event listener for theme toggle button
 if (themeToggleBtn) {
-    themeToggleBtn.addEventListener('click', function () {
+    themeToggleBtn.addEventListener('click', () => {
         // Toggle icons inside button
         themeToggleDarkIcon.classList.toggle('hidden');
         themeToggleLightIcon.classList.toggle('hidden');
@@ -73,12 +36,14 @@ if (themeToggleBtn) {
 }
 
 // Event listener for storage change in other tabs/windows
-window.addEventListener('storage', function (event) {
+window.addEventListener('storage', (event) => {
     if (event.key === 'color-theme') {
-        setThemeFromLocalStorage();
         setButtonStateFromLocalStorage();
     }
 });
+
+// Initially set button state when the page loads
+setButtonStateFromLocalStorage();
 
 // I want to set a constant called 'theme' that will be used across the script, its value needs to be taken from 'input[type="hidden"][name="theme"]' if there such an elememt, if not it needs to be 'sky'
 
