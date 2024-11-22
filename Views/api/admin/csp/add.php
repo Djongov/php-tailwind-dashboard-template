@@ -18,8 +18,12 @@ $allowedParams = ['domain', 'csrf_token'];
 // Check if the required parameters are present
 $checks->checkParams($allowedParams, $_POST);
 
+$domain = htmlspecialchars($_POST['domain']);
+
+$domain = trim($domain);
+
 // Check if domain is valid
-if (!filter_var($_POST['domain'], FILTER_VALIDATE_DOMAIN)) {
+if (!filter_var($domain, FILTER_VALIDATE_DOMAIN)) {
     Output::error('Invalid domain');
 }
 
@@ -32,16 +36,16 @@ $pdo = $db->getConnection();
 
 $stmt = $pdo->prepare('SELECT id FROM csp_approved_domains WHERE domain = ?');
 
-$stmt->execute([$_POST['domain']]);
+$stmt->execute([$domain]);
 
 if ($stmt->rowCount() > 0) {
-    echo Output::error('Domain already in DB');
+    echo Output::error('Domain already exists');
     return;
 }
 
 $stmt = $pdo->prepare('INSERT INTO csp_approved_domains (domain, created_by) VALUES (?,?)');
 
-$stmt->execute([$_POST['domain'], $vars['usernameArray']['username']]);
+$stmt->execute([$domain, $vars['usernameArray']['username']]);
 
 if ($stmt->rowCount() === 1) {
     echo Output::success('Domain added');

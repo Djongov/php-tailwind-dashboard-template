@@ -223,34 +223,83 @@ const fetchData = async (url, method, jsonData) => {
     }
 }
 
-const createLoader = (parentDiv, id, text) => {
+const createLoader = (parentDiv, id, text = null, hidden = false) => {
+    // Create the container div
     const loaderDiv = document.createElement('div');
     loaderDiv.id = id;
-    loaderDiv.classList.add('text-left', 'hidden', 'mt-6');
+    loaderDiv.classList.add('flex', 'flex-col', 'items-center', 'justify-center');
+
+    if (hidden) {
+        loaderDiv.classList.add('hidden');
+    }
+
+    // Create the loader div
     const loader = document.createElement('div');
     loader.role = 'status';
     loaderDiv.appendChild(loader);
-    const svg = document.createElementNS('svg');
+
+    // Add the loading text
+    if (text !== null) {
+        const span = document.createElement('span');
+        span.textContent = text;
+        span.classList.add('text-sm', 'text-gray-900', 'dark:text-gray-100');
+        loaderDiv.appendChild(span);
+    }
+
+    // Create the SVG element
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('aria-hidden', 'true');
-    svg.classList.add('inline', 'mr-2', 'w-8', 'h-8', 'text-gray-200', 'dark:text-white', 'animate-spin', 'fill-blue-500', 'dark:fill-amber-500');
+    svg.classList.add(
+        'text-gray-200',
+        'animate-spin',
+        'dark:text-gray-600',
+        `fill-${theme}-500`
+    );
+    if (text === null) {
+        svg.classList.add('h-5', 'w-5');
+    } else {
+        svg.classList.add('h-8', 'w-8');
+    }
     svg.setAttribute('viewBox', '0 0 100 101');
     svg.setAttribute('fill', 'none');
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-    const path = document.createElementNS('path');
-    path.setAttribute('d', 'M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"');
-    svg.appendChild(path);
-    loader.appendChild(svg);
-    const span = document.createElementNS('span');
-    span.textContent = text;
-    loader.appendChild(span);
-    parentDiv.appendChild(loaderDiv);
-}
 
-const loaderString = () => {
+    // Add the first path
+    const path1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path1.setAttribute(
+        'd',
+        'M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z'
+    );
+    path1.setAttribute('fill', 'currentColor');
+    svg.appendChild(path1);
+
+    // Add the second path
+    const path2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path2.setAttribute(
+        'd',
+        'M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z'
+    );
+    path2.setAttribute('fill', 'currentFill');
+    svg.appendChild(path2);
+
+    // Append the SVG to the loader
+    loader.appendChild(svg);
+
+    // Append the loader to the parent div
+    parentDiv.appendChild(loaderDiv);
+};
+
+const loaderString = (text = null) => {
+    let srOnlyClass = '';
+    let marginTop = 'mt-2 ';
+    if (text === null) {
+        srOnlyClass = 'sr-only ';
+        marginTop = '';
+    }
     return `
-    <div role="status" class="flex items-center justify-center">
-        <span class="sr-only">Loading...</span>
-        <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+    <div role="status" class="flex flex-col items-center justify-center">
+        <span class="${srOnlyClass}text-black dark:text-white">Loading data...</span>
+        <svg class="${marginTop}animate-spin h-5 w-5 text-black dark:text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
                 viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
                     stroke-width="4"></circle>
@@ -284,9 +333,7 @@ const editModal = (id, entryId) => {
             <div class="relative overflow-auto max-h-[44rem] rounded-lg dark:bg-gray-700 ">
                 <!-- Modal body -->
                 <div id="${id}-body" class="p-4 md:p-5 space-y-4 break-words">
-                        <p class="text-base leading-relaxed text-gray-700 dark:text-gray-400">
-                            Loading data...
-                        </p>
+                        <p class="text-base leading-relaxed text-gray-700 dark:text-gray-400"></p>
                 </div>
             </div>
             <!-- Modal Result -->
@@ -398,8 +445,6 @@ function serializeForBackend(data) {
 
 const editButtons = document.querySelectorAll(`button.edit-button`);
 
-console.log(editButtons);
-
 if (editButtons.length > 0) {
     editButtons.forEach(button => {
         button.addEventListener('click', async (event) => {
@@ -435,14 +480,15 @@ if (editButtons.length > 0) {
                 })
             })
             let modalBody = document.getElementById(`${uniqueId}-body`);
-            modalBody.innerHTML = loaderString();
+            createLoader(modalBody, `${uniqueId}-loader`, 'Loading data...');
             // Fetch the data
             const formData = new FormData();
             formData.append('table', button.dataset.table);
             formData.append('columns', button.dataset.columns);
             formData.append('id', button.dataset.id);
             formData.append('csrf_token', button.dataset.csrf);
-            const data = fetch('/api/datagrid/get-records', {
+            const getDataApi = (button.dataset.getApi) ? button.dataset.getApi : '/api/datagrid/get-records';
+            const data = fetch(getDataApi, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': button.dataset.csrf,
@@ -455,20 +501,24 @@ if (editButtons.length > 0) {
             // Now let's make the save button work
             saveButton.addEventListener('click', async () => {
                 // First, get the form data
-                saveButton.innerHTML = loaderString();
+                saveButton.innerHTML = '';
+                createLoader(saveButton, `${uniqueId}-save-button-edit-loader`);
+                // Prevent the form from submitting
+                const modalForm = document.getElementById(`${uniqueId}-form`);
+                modalForm.addEventListener('submit', (event) => {
+                    event.preventDefault();
+                });
                 // Build the body of the update request. We need to go through all the inputs and get their values
                 const formData = new FormData();
                 // Loop through all of the modalBody inputs, textarea and select and save them to the formData
                 const modalBodyInputs = modal.querySelectorAll(`input, textarea, select`);
                 modalBodyInputs.forEach(input => {
                     let value = input.value;
-
                     // Check if the value is a valid number
                     if (!isNaN(value) && value.includes('.')) {
                         // Convert to float and format to a specific number of decimal places (e.g., 2)
                         value = parseFloat(value);
                     }
-
                     formData.append(input.name, value);
                 });
                 // Now let's take care of potential checkboxes
@@ -491,6 +541,7 @@ if (editButtons.length > 0) {
                     redirect: 'manual'
                 }).then(response => {
                     responseStatus = response.status;
+                    console.log(responseStatus);
                     if (responseStatus === 403 || responseStatus === 401 || responseStatus === 0) {
                         modalBody.innerHTML = `<p class="text-red-500 font-semibold">Response not ok, refreshing</p>`;
                         location.reload();
@@ -570,7 +621,8 @@ if (deleteButtons.length > 0) {
             // Now let's make the save button work
             saveButton.addEventListener('click', async () => {
                 // First, get the form data
-                saveButton.innerHTML = loaderString();
+                saveButton.innerHTML = '';
+                createLoader(saveButton, `${uniqueId}-save-button-delete-loader`);
                 // Build the body of the update request. We need to go through all the inputs and get their values
                 const formData = new FormData();
                 formData.append('id', button.dataset.id);

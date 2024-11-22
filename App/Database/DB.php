@@ -364,7 +364,7 @@ class DB
         if (str_starts_with($value, 'date') || str_starts_with($value, 'time') || str_starts_with($value, 'timestamp')) {
             $type = 'datetime'; // SQLite stores date/time as text or numeric
         }
-        if (str_starts_with($value, 'boolean') || str_starts_with($value, 'bool')) {
+        if (str_starts_with($value, 'boolean') || str_starts_with($value, 'bool') || str_starts_with($value, 'tinyint')) {
             $type = 'bool'; // BOOLEAN type
         }
 

@@ -1,4 +1,4 @@
-FROM php:8.3-apache
+FROM php:8.4-apache
 
 # Copy the rest of the application code and configuration files
 COPY . /var/www/html/
