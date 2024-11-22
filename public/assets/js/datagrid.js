@@ -675,7 +675,7 @@ const buildDataGridFilters = (table, tableId, columnSkipArray = [], enabled = tr
         const column = table.column(this, { search: 'applied' }); // Get the DataTable column object
 
         // Create a select element and append it to the appropriate table header cell. (1) in this case is the 2nd thead so it doesn't do it on the first where the column names are
-        const select = $(`<select class="text-center m-1 p-1 text-sm text-gray-900 border border-${theme}-300 rounded bg-gray-50 focus:ring-${theme}-500 focus:border-${theme}-500 dark:bg-gray-700 dark:border-${theme}-600 dark:placeholder-gray-400 dark:text-white outline-none dark:focus:ring-${theme}-500 dark:focus:border-${theme}-500"><option value="">No filter</option></select>`)
+        const select = $(`<select class="text-center m-1 p-1 text-gray-900 border border-${theme}-300 rounded bg-gray-50 focus:ring-${theme}-500 focus:border-${theme}-500 dark:bg-gray-700 dark:border-${theme}-600 dark:placeholder-gray-400 dark:text-white outline-none dark:focus:ring-${theme}-500 dark:focus:border-${theme}-500"><option value="">No filter</option></select>`)
             .appendTo($(`#${tableId} thead tr:eq(1) th`).eq(column.index()).empty())
             .on('change', function () {
                 const val = $.fn.dataTable.util.escapeRegex(
