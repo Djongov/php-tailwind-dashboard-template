@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 // set the display errors to 1
-#ini_set('display_errors', 1);
+ini_set('display_errors', 1);
 define('ERROR_VERBOSE', (ini_get('display_errors') == 1) ? true : false);
 
 define('SYSTEM_USER_AGENT', 'dashboardTemplate/1.0');
@@ -42,27 +42,27 @@ define('GOOGLE_LOGO', '<svg class="w-10 h-10" xmlns="http://www.w3.org/2000/svg"
 define("COLOR_SCHEME", "amber");
 define("THEME_COLORS",
 [
-    'sky',   // Sky Blue
-    'cyan',  // Cyan
-    'emerald', // Emerald Green
-    'teal',  // Teal
-    'blue',  // Blue
-    'indigo', // Indigo
-    'violet', // Violet
-    'purple', // Purple
-    'fuchsia', // Fuchsia
-    'pink',   // Pink
-    'red',    // Red
-    'rose',   // Rose
-    'orange', // Orange
-    'yellow', // Yellow
-    'amber',  // Amber
-    'lime',   // Lime Green
-    'gray',   // Gray
-    'slate',  // Slate
-    'stone',  // Stone
-    'zinc',   // Zinc
-    'neutral' // Neutral
+    'sky',
+    'cyan',
+    'emerald',
+    'teal',
+    'blue',
+    'indigo',
+    'violet',
+    'purple',
+    'fuchsia',
+    'pink',
+    'red',
+    'rose',
+    'orange',
+    'yellow',
+    'amber',
+    'lime',
+    'gray',
+    'slate',
+    'stone',
+    'zinc',
+    'neutral'
 ]);
 
 // This is the text while in the light mode
