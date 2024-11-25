@@ -14,6 +14,7 @@ class Checks
      */
     private array $userVars;
     private array $data;
+    public int $defaultStatusCode = 401;
     /**
      * Checks constructor.
      *
@@ -66,13 +67,13 @@ class Checks
     public function adminCheck(): void
     {
         if (!isset($this->userVars['isAdmin'])) {
-            Response::output('Administator status not set');
+            Response::output('Administator status not set', $this->defaultStatusCode);
         }
         if (!$this->isAdmin()) {
-            Response::output('This action requires admin privileges');
+            Response::output('This action requires admin privileges', $this->defaultStatusCode);
         }
         if (!$this->isAdminJWT()) {
-            Response::output('This action requires admin privileges coming from JWT token');
+            Response::output('This action requires admin privileges coming from JWT token', $this->defaultStatusCode);
         }
     }
     /**
@@ -83,16 +84,16 @@ class Checks
     public function checkJWT(): void
     {
         if (AuthToken::get() === null) {
-            Response::output('Missing token', 401);
+            Response::output('Missing token', $this->defaultStatusCode);
         }
         if (!isset($this->userVars['usernameArray']['provider'])) {
             Response::output('Missing provider in user');
         }
         if ($this->userVars['usernameArray']['provider'] === 'local' && !JWT::checkToken(AuthToken::get())) {
-            Response::output('Invalid local token', 401);
+            Response::output('Invalid local token', $this->defaultStatusCode);
         }
         if ($this->userVars['usernameArray']['provider'] === 'azure' && !AzureAD::check(AuthToken::get())) {
-            Response::output('Invalid Azure token', 401);
+            Response::output('Invalid Azure token', $this->defaultStatusCode);
         }
     }
     /**
@@ -104,14 +105,14 @@ class Checks
     public function checkUsernameIntegrity(): void
     {
         if (AuthToken::get() === null) {
-            Response::output('Missing auth token');
+            Response::output('Missing auth token', $this->defaultStatusCode);
         }
         if (!isset($this->userVars['usernameArray']['username'])) {
-            Response::output('Missing username');
+            Response::output('Missing username', $this->defaultStatusCode);
         }
         if ($this->userVars['usernameArray']['username'] !== JWT::extractUserName(AuthToken::get())) {
             JWT::handleValidationFailure();
-            Response::output('Username anomaly');
+            Response::output('Username anomaly', $this->defaultStatusCode);
         }
     }
     /**
@@ -122,14 +123,14 @@ class Checks
     public function checkCSRF(): void
     {
         if (!isset($_SESSION['csrf_token'])) {
-            Response::output('Missing Session CSRF Token');
+            Response::output('Missing Session CSRF Token', $this->defaultStatusCode);
         }
         if (!isset($this->data['csrf_token'])) {
-            Response::output('Missing POST CSRF Token');
+            Response::output('Missing POST CSRF Token', $this->defaultStatusCode);
         }
         // Compare the postToken to the $_SESSION['csrf_token']
         if ($this->data['csrf_token'] !== $_SESSION['csrf_token']) {
-            Response::output('Invalid CSRF Token');
+            Response::output('Invalid CSRF Token', $this->defaultStatusCode);
         }
     }
     /**
@@ -143,23 +144,23 @@ class Checks
         $headers = getallheaders();
         $lowercaseHeaders = array_change_key_case($headers, CASE_LOWER);
         if (!isset($lowercaseHeaders['x-csrf-token'])) {
-            Response::output('Missing CSRF Token header');
+            Response::output('Missing CSRF Token header', $this->defaultStatusCode);
         }
         if (!isset($this->data['csrf_token'])) {
-            Response::output('Missing POST CSRF Token');
+            Response::output('Missing POST CSRF Token', $this->defaultStatusCode);
         }
         if ($this->data['csrf_token'] !== $lowercaseHeaders['x-csrf-token']) {
-            Response::output('Invalid CSRF Token');
+            Response::output('Invalid CSRF Token', $this->defaultStatusCode);
         }
     }
     public function checkCSRFDelete(string $csrf): void
     {
         // $csrf should come from the URL
         if (!isset($_SESSION['csrf_token'])) {
-            Response::output('Missing Session CSRF Token');
+            Response::output('Missing Session CSRF Token', $this->defaultStatusCode);
         }
         if ($csrf !== $_SESSION['csrf_token']) {
-            Response::output('Invalid CSRF Token');
+            Response::output('Invalid CSRF Token', $this->defaultStatusCode);
         }
     }
     /**
@@ -171,23 +172,23 @@ class Checks
     {
         // Check if $vars['loggedIn'] is set
         if (!isset($this->userVars['loggedIn'])) {
-            Response::output('You are not logged in (loggedIn not set)');
+            Response::output('You are not logged in (loggedIn not set)', $this->defaultStatusCode);
         }
         // Check if $vars['loggedIn'] is true
         if (!$this->userVars['loggedIn']) {
-            Response::output('You are not logged in (loggedIn false)');
+            Response::output('You are not logged in (loggedIn false)', $this->defaultStatusCode);
         }
         // Now check if the usernameArray is set
         if (!isset($this->userVars['usernameArray'])) {
-            Response::output('You are not logged in (usernameArray not set)');
+            Response::output('You are not logged in (usernameArray not set)', $this->defaultStatusCode);
         }
         // Now check if the usernameArray is an array
         if (!is_array($this->userVars['usernameArray'])) {
-            Response::output('You are not logged in (usernameArray not an array)');
+            Response::output('You are not logged in (usernameArray not an array)', $this->defaultStatusCode);
         }
         // Now check if the usernameArray is not empty
         if (empty($this->userVars['usernameArray'])) {
-            Response::output('You are not logged in (usernameArray empty)');
+            Response::output('You are not logged in (usernameArray empty)', $this->defaultStatusCode);
         }
     }
     public function checkSecretHeader(): void
@@ -197,31 +198,31 @@ class Checks
         $lowercaseHeaders = array_change_key_case($headers, CASE_LOWER);
         // Check if the secret header is set
         if (!isset($lowercaseHeaders[SECRET_HEADER])) {
-            Response::output('Missing required header');
+            Response::output('Missing required header', $this->defaultStatusCode);
         }
         // Check if the secret header is correct
         if ($lowercaseHeaders[SECRET_HEADER] !== SECRET_HEADER_VALUE) {
-            Response::output('Invalid required header value');
+            Response::output('Invalid required header value', $this->defaultStatusCode);
         }
     }
     public function checkImage(array $image): void
     {
         // Check if the image is set
         if (!isset($image['name'])) {
-            Response::output('Missing image');
+            Response::output('Missing image', 404);
         }
         // Check if the image is an image
         if (!getimagesize($image['tmp_name'])) {
-            Response::output('Invalid image');
+            Response::output('Invalid image', 400);
         }
         // Check if the image is not too big
         if ($image['size'] > 1000000) {
-            Response::output('Image too big');
+            Response::output('Image too big', 400);
         }
         // Check if the image is the proper format
         $imageFileType = strtolower(pathinfo($image['name'], PATHINFO_EXTENSION));
         if (!in_array($imageFileType, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'affif'])) {
-            Response::output('Invalid image type');
+            Response::output('Invalid image type', 400);
         }
     }
     /**
@@ -231,7 +232,19 @@ class Checks
      */
     public function apiAdminChecks(bool $checkSecretHeader = true): void
     {
-        $this->adminCheck();
+        $this->isAdminJWT();
+        $this->checkJWT();
+        $this->checkUsernameIntegrity();
+        $this->checkCSRF();
+        $this->checkCSRFHeader();
+        $this->loginCheck();
+        if ($checkSecretHeader) {
+            $this->checkSecretHeader();
+        }
+    }
+    public function apiAdminChecksNoJWT(bool $checkSecretHeader = true): void
+    {
+        $this->isAdmin();
         $this->checkJWT();
         $this->checkUsernameIntegrity();
         $this->checkCSRF();

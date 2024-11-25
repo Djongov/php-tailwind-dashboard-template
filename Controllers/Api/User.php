@@ -204,8 +204,11 @@ class User
     public function delete(int $id) : void
     {
         $user = new UserModel();
+        $this->deleteProfilePicture($id);
         try {
-            $user->delete($id);
+            if ($user->delete($id)) {
+                Response::output('User deleted');
+            }
             Response::output('User deleted');
         } catch (UserExceptions $e) {
             $this->handleUserErrorsApiResponse($e, 'user controller: UserExceptions deleting user with id ' . $id, 'unable to delete user');
@@ -251,6 +254,35 @@ class User
             $this->handleUserErrorsApiResponse($e, 'user controller: error saving azure profile picture', 'unable to save profile picture');
         } catch (\Exception $e) {
             $this->handleUserErrorsApiResponse($e, 'user controller: error saving azure profile picture', 'unable to save profile picture');
+        }
+    }
+    public function deleteProfilePicture(int $id) : void
+    {
+        $user = new UserModel();
+
+        try {
+            $usernameConfirmed = $user->get($id);
+        } catch (UserExceptions $e) {
+            $this->handleUserErrorsApiResponse($e, 'user controller: UserExceptions getting user for deleting profile picture', 'unable to get username');
+        } catch (\Exception $e) {
+            $this->handleUserErrorsApiResponse($e, 'user controller: Exception getting user for deleting profile picture', 'unable to get username');
+        }
+
+        $currentPicture = $usernameConfirmed['picture'];
+        $profilePicturePath = dirname($_SERVER['DOCUMENT_ROOT']) . '/public' . $currentPicture;
+
+        if (file_exists($profilePicturePath)) {
+            unlink($profilePicturePath);
+        } else {
+            Response::output('Could not delete the picture: ' . $profilePicturePath, 400);
+        }
+
+        try {
+            $user->update(['picture' => ''], $usernameConfirmed['id']);
+        } catch (UserExceptions $e) {
+            $this->handleUserErrorsApiResponse($e, 'user controller: UserExceptions deleting profile picture', 'unable to delete profile picture');
+        } catch (\Exception $e) {
+            $this->handleUserErrorsApiResponse($e, 'user controller: Exception deleting profile picture', 'unable to delete profile picture');
         }
     }
     private function handleUserErrorsApiResponse(\Exception $e, string $verboseError, string $publicError) : void
