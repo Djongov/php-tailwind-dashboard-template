@@ -2,7 +2,7 @@
 use Components\Forms;
 use Components\Html;
 use App\Security\Firewall;
-use Controllers\Api\Output;
+use App\Api\Response;
 use Components\DataGrid;
 
 // First firewall check
@@ -10,7 +10,7 @@ Firewall::activate();
 
 // Admin check
 if (!$isAdmin) {
-    Output::error('You are not an admin', 403);
+    Response::output('You are not an admin', 403);
 }
 
 echo Html::p('Here you can control the CSP approved domains list. You can add domains to the list. A domain in the list is available to send CSP reports to the CSP reporting endpoint on this app /csp-report - https://' . $_SERVER['HTTP_HOST'] . '/csp-report. If the domain is not in the list, the reporting endpoint will return 401 Domain not allowed error.');

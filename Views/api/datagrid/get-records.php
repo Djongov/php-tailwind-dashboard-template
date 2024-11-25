@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
 use App\Database\DB;
-use Controllers\Api\Output;
-use Controllers\Api\Checks;
+use App\Api\Response;
+use App\Api\Checks;
 use Components\Html;
 
 $checks = new Checks($vars, $_POST);
@@ -44,7 +44,7 @@ foreach ($dataTypes as $key => $value) {
 $dataArray = $stmt->fetch(\PDO::FETCH_ASSOC);
 
 if (!$dataArray) {
-    Output::error('No data found', 400);
+    Response::output('No data found', 400);
 }
 
 unset($dataArray['last_updated']); // Hide and do not interact with last_updated so it can be updated automatically even from calling it from this endpoint

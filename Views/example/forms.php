@@ -23,11 +23,13 @@ $formOptions = [
     'stopwatch' => 'example',
     'submitButton' => [
         'text' => 'Submit',
-        'size' => 'large',
+        'size' => 'small',
     ]
 ];
 
-echo Forms::render($formOptions, $theme);
+echo '<div class="ml-2">';
+    echo Forms::render($formOptions, $theme);
+echo '</div>';
 
 echo Html::code('
 $formOptions = [

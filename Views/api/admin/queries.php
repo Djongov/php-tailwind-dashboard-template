@@ -2,7 +2,7 @@
 use App\Database\DB;
 use Components\Alerts;
 use Components\DataGrid;
-use Controllers\Api\Checks;
+use App\Api\Checks;
 use App\Security\Firewall;
 
 Firewall::activate();

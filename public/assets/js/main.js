@@ -473,16 +473,35 @@ if (editButtons.length > 0) {
             // Modal Save button
             const saveButton = document.getElementById(`${uniqueId}-edit`);
             const cancelButtonsArray = [closeXButton, cancelButton];
+
+            // Function to close the modal
+            const closeModal = () => {
+                // Completely remove the modal
+                modal.remove();
+                // Return the overflow of the body
+                document.body.classList.remove('overflow-hidden');
+                // Remove the blur by toggling the blur class
+                toggleBlur(modal);
+
+                // Remove the Escape key listener once the modal is closed
+                document.removeEventListener('keydown', handleEscapeKey);
+            };
+
+            // Add click listeners to the cancel buttons
             cancelButtonsArray.forEach(cancelButton => {
-                cancelButton.addEventListener('click', () => {
-                    // Completely remove the modal
-                    modal.remove();
-                    // Return the overflow of the body
-                    document.body.classList.remove('overflow-hidden');
-                    // Remove the blur by toggling the blur class
-                    toggleBlur(modal);
-                })
-            })
+                cancelButton.addEventListener('click', closeModal);
+            });
+
+            // Function to handle the Escape key press
+            const handleEscapeKey = (event) => {
+                if (event.key === 'Escape') { // Check if the Escape key was pressed
+                    closeModal();
+                }
+            };
+
+            // Add the Escape key listener when the modal is shown
+            document.addEventListener('keydown', handleEscapeKey);
+            
             let modalBody = document.getElementById(`${uniqueId}-body`);
             createLoader(modalBody, `${uniqueId}-loader`, 'Loading data...');
             // Fetch the data
@@ -502,6 +521,9 @@ if (editButtons.length > 0) {
             }).then(response => response.text());
             modalBody.innerHTML = await data;
             let initialButtonText = saveButton.innerText;
+            // Let's focus the cursor make the focus on the first input
+            const firstInput = modalBody.querySelector('input');
+            firstInput.focus();
             // Now let's make the save button work
             saveButton.addEventListener('click', async () => {
                 // First, get the form data

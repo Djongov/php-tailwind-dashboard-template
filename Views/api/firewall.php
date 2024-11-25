@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
-use Controllers\Api\Output;
-use Controllers\Api\Checks;
+use App\Api\Response;
+use App\Api\Checks;
 use Controllers\Api\Firewall;
 
 // This is the API view for the firewall. It allows to add, update, delete and get IPs from the firewall
@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     // We only allow either an empty GET or a GET with a "cidr" parameter
     if (!empty($_GET) && !isset($_GET['cidr'])) {
-        Output::error('parameters accepted are "cidr" or empty GET', 400);
+        Response::output('parameters accepted are "cidr" or empty GET', 400);
     }
 
     $checks = new Checks($vars, $_GET);
@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
     // Check if content type is json
     if ($_SERVER['CONTENT_TYPE'] !== 'application/json') {
-        Output::error('content type must be application/json', 400);
+        Response::output('content type must be application/json', 400);
         exit();
     }
     // Let's catch php input stream
@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
 
     // Also the router info should bring us the id
     if (!isset($routeInfo[2]['id'])) {
-        Output::error('missing id paramter', 400);
+        Response::output('missing id paramter', 400);
         exit();
     }
 
@@ -74,18 +74,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
 if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
     // Check if body is empty
     if ($_SERVER['CONTENT_LENGTH'] > 0) {
-        Output::error('body must be empty in DELETE requests', 400);
+        Response::output('body must be empty in DELETE requests', 400);
         exit();
     }
     // Let's check if the csrf token is passed as a query string in the DELETE request
     if (!isset($_GET['csrf_token'])) {
-        Output::error('missing csrf token', 401);
+        Response::output('missing csrf token', 401);
         exit();
     }
 
     // Also the router info should bring us the id
     if (!isset($routeInfo[2]['id'])) {
-        Output::error('missing id parameter', 400);
+        Response::output('missing id parameter', 400);
         exit();
     }
 

@@ -2,7 +2,7 @@
 
 namespace App\Mail;
 
-use Controllers\Api\Output;
+use App\Api\Response;
 use Exception;
 use SendGrid\Mail\Mail;
 use SendGrid\Mail\To;
@@ -28,13 +28,13 @@ class Send
     public static function send(array $to, string $subject, string $body, string $from = FROM, string $fromName = FROM_NAME): mixed
     {
         if (!SENDGRID) {
-            return Output::error('Sendgrid is not enabled', 400);
+            Response::output('Sendgrid is not enabled', 400);
         }
         // Check structure of the $to array
         self::validateRecipients($to);
         // Do a FROM check
         if ($fromName !== FROM_NAME) {
-            Output::error('Currently setting a FROM is not allowed', 400);
+            Response::output('Currently setting a FROM is not allowed', 400);
         }
         // Set up FROM
         $from = new From($from, $fromName);
@@ -67,12 +67,12 @@ class Send
         try {
             $response = $sendgrid->send($email);
             if ($response->statusCode() === 202) {
-                return Output::success('email sent successfully');
+                Response::output('email sent successfully');
             } else {
-                return Output::error(['status' => $response->statusCode(), 'error' => $response->body()]);
+                Response::output(['status' => $response->statusCode(), 'error' => $response->body()]);
             }
         } catch (Exception $e) {
-            Output::error('Caught exception: ' .  $e->getMessage() . "\n");
+            Response::output('Caught exception: ' .  $e->getMessage() . "\n");
         }
     }
     
@@ -105,10 +105,10 @@ class Send
         // Let's check the structure of $to and make sure it's ok. $to needs to have arrays of email and name keys
         foreach ($to as $index => $recipient) {
             if (!is_array($recipient)) {
-                return Output::error('each recipient needs to be an array', 400);
+                Response::output('each recipient needs to be an array', 400);
             }
             if (!isset($recipient['email'])) {
-                return Output::error('each recipient needs to have an "email" and optional "name" key', 400);
+                Response::output('each recipient needs to have an "email" and optional "name" key', 400);
             }
         }
         // What we can do to minimize the effort of providing names is first check if name is set and if not set it to the email address
@@ -120,10 +120,10 @@ class Send
         // Now the general check
         foreach ($to as $index => $recipient) {
             if (!isset($recipient['email'], $recipient['name'])) {
-                return Output::error('each recipient needs to have an "email" and "name" key', 400);
+                Response::output('each recipient needs to have an "email" and "name" key', 400);
             }
             if (!filter_var($recipient['email'], FILTER_VALIDATE_EMAIL)) {
-                return Output::error('"' . $recipient['email'] . '" is not a valid email address', 400);
+                Response::output('"' . $recipient['email'] . '" is not a valid email address', 400);
             }
         }
     }

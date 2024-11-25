@@ -3,6 +3,7 @@
 namespace App\Database;
 
 use App\Utilities\General;
+use App\Api\Response;
 
 class DB
 {
@@ -49,7 +50,7 @@ class DB
             if (ERROR_VERBOSE) {
                 throw new \PDOException("DB: PDO connection failed: " . $e->getMessage());
             } else {
-                \Controllers\Api\Output::error('Database connection failed', 500);
+                Response::output('Database connection failed', 500);
             }
             error_log("DB: PDO connection failed: " . $e->getMessage());
             throw $e;
@@ -57,7 +58,7 @@ class DB
             if (ERROR_VERBOSE) {
                 throw new \PDOException("DB: PDO connection failed: " . $e->getMessage());
             } else {
-                \Controllers\Api\Output::error('Database connection failed', 500);
+                Response::output('Database connection failed', 500);
             }
             error_log("DB: PDO connection failed: " . $e->getMessage());
             throw $e;

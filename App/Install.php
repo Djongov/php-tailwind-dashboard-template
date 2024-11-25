@@ -4,7 +4,7 @@ namespace App;
 
 use Components\Alerts;
 use Components\Html;
-use Controllers\Api\Output;
+use App\Api\Response;
 use App\Utilities\IP;
 use App\Utilities\General;
 use PDO;
@@ -41,7 +41,7 @@ class Install
                 $conn = new PDO($dsn, DB_USER, DB_PASS, $options);
             }
         } catch (PDOException $e) {
-            Output::error('Database connection error: ' . $e->getMessage(), 400);
+            Response::output('Database connection error: ' . $e->getMessage(), 400);
         }
 
         // Create the database if it doesn't exist
@@ -61,7 +61,7 @@ class Install
                 $dbFullPath = $dbDir . $dbFile;
 
                 if (!is_writable($dbDir)) {
-                    Output::error("Error: directory $dbDir is not writable.");
+                    Response::output("Error: directory $dbDir is not writable.");
                 }
 
                 if (!file_exists($dbFullPath)) {
@@ -69,7 +69,7 @@ class Install
                 }
             }
         } catch (PDOException $e) {
-            Output::error('Database creation error: ' . $e->getMessage(), 400);
+            Response::output('Database creation error: ' . $e->getMessage(), 400);
         }
         // Reconnect to the newly created database
         try {
@@ -87,7 +87,7 @@ class Install
             $conn = new PDO($dsnWithDb, DB_USER, DB_PASS, $options);
             
         } catch (PDOException $e) {
-            Output::error('Database selection error: ' . $e->getMessage(), 400);
+            Response::output('Database selection error: ' . $e->getMessage(), 400);
         }
 
         // Read and execute queries from the SQL file to create tables. We have a different migrate file for different database drivers
@@ -98,7 +98,7 @@ class Install
             // Execute multiple queries
             $conn->exec($migrate);
         } catch (PDOException $e) {
-            Output::error('Error in migrate file: ' . $e->getMessage(), 400);
+            Response::output('Error in migrate file: ' . $e->getMessage(), 400);
         }
 
         $ip = IP::currentIP();
@@ -147,7 +147,7 @@ class Install
                 $stmt->execute([$hashedPassword, $ip, $countryCode, COLOR_SCHEME, 1]);
             }
         } catch (PDOException $e) {
-            Output::error('Inserting admin user error: ' . $e->getMessage(), 400);
+            Response::output('Inserting admin user error: ' . $e->getMessage(), 400);
         }
     }
     public function createFirewallRule($conn, $ip)
@@ -156,7 +156,7 @@ class Install
             $stmt = $conn->prepare("INSERT INTO firewall (ip_cidr, created_by, comment) VALUES (?, 'System', 'Initial Admin IP')");
             $stmt->execute([$ip . '/32']);
         } catch (PDOException $e) {
-            Output::error('Inserting firewall rule for IP ' . $ip . ' error: ' . $e->getMessage(), 400);
+            Response::output('Inserting firewall rule for IP ' . $ip . ' error: ' . $e->getMessage(), 400);
         }
     }
     public function createCSPApprovedDomain($conn, $domain)
@@ -165,7 +165,7 @@ class Install
             $stmt = $conn->prepare("INSERT INTO csp_approved_domains (domain, created_by) VALUES (?, 'System')");
             $stmt->execute([$domain]);
         } catch (PDOException $e) {
-            Output::error('Inserting csp_approved_domains rule for domain ' . $domain . ' error: ' . $e->getMessage(), 400);
+            Response::output('Inserting csp_approved_domains rule for domain ' . $domain . ' error: ' . $e->getMessage(), 400);
         }
     }
 

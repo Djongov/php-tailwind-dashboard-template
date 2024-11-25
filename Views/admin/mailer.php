@@ -41,15 +41,14 @@ $formOptions = [
     "id" => "tinymce",
     "action" => "/api/mail/send",
     "submitButton" => [
-        "text" => "Send",
-        "size" => "large",
+        "text" => "Send"
     ]
 ];
 
 // Let's wrap it
 echo '<div class="container mx-auto">';
     echo Html::h2('Mailer', true);
-    echo Html::p('Send an email to via SendGrid and TinyMCE as editor.', ['text-center']);
+    echo Html::p('Send an email via SendGrid and TinyMCE as editor.', ['text-center']);
     echo Forms::render($formOptions);
 echo '</div>';
 

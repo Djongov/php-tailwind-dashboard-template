@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-use Controllers\Api\Output;
+use App\Api\Response;
 use App\Authentication\JWT;
 use App\Authentication\Azure\AzureAD;
 use Controllers\Api\User;
@@ -8,7 +8,7 @@ use Models\Api\User as UserModel;
 use App\Authentication\AuthToken;
 
 if (isset($_POST['error'], $_POST['error_description'])) {
-    Output::error("Azure Error: " . $_POST['error'] . " with Description: " . $_POST['error_description'], 400);
+    Response::output("Azure Error: " . $_POST['error'] . " with Description: " . $_POST['error_description'], 400);
 }
 
 
@@ -21,7 +21,7 @@ if (isset($_POST['id_token'], $_POST['state'])) {
     $idTokenArray = JWT::parseTokenPayLoad($idToken);
     
     if (!isset($idTokenArray['preferred_username'], $idTokenArray['name'], $idTokenArray['exp'], $idTokenArray['iss'])) {
-        Output::error('Invalid token claims', 400);
+        Response::output('Invalid token claims', 400);
     }
     
     // If it is an MSLIVE token, then the issueer wil; be https://login.live.com or https://login.microsoftonline.com/9188040d-6c67-4c5b-b112-36a304b66dad/v2.0
@@ -30,7 +30,7 @@ if (isset($_POST['id_token'], $_POST['state'])) {
     } else {
         // Let's call the function to check the JWT token which is returned. We are checking stuff like expiration, issuer, app id. We also do validation of the token signature
         if (!AzureAD::check($idToken)) {
-            Output::error('Invalid token', 400);
+            Response::output('Invalid token', 400);
         }
     }
 
@@ -44,7 +44,7 @@ if (isset($_POST['id_token'], $_POST['state'])) {
         // User exists, let's update the last login
         $userDetailsArray = $userModel->get($idTokenArray['preferred_username']);
         if ($userDetailsArray['provider'] !== 'azure' && $userDetailsArray['provider'] !== 'mslive') {
-            Output::error('User exists but is not an Entra ID or MS Live account', 400);
+            Response::output('User exists but is not an Entra ID or MS Live account', 400);
         }
         $userModel->update(['last_login' => date('Y-m-d H:i', time())], $userDetailsArray['id']);
         //$user->updateLastLogin($idTokenArray['preferred_username']);

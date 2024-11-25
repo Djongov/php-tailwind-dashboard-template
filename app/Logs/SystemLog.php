@@ -6,7 +6,6 @@ use App\Authentication\JWT;
 use App\Database\DB;
 use App\Authentication\AuthToken;
 use App\Utilities\General;
-use App\Utilities\IP;
 
 class SystemLog
 {
@@ -19,7 +18,7 @@ class SystemLog
         $stmt->execute(
             [
                 $message,
-                IP::currentIP(),
+                currentIP(),
                 General::currentBrowser() ?? '',
                 $username,
                 $category,

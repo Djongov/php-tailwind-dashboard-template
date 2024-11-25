@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
-use Controllers\Api\Output;
-use Controllers\Api\Checks;
+use App\Api\Response;
+use App\Api\Checks;
 use App\Utilities\General;
 use App\Security\Firewall;
 use Components\DataGrid;
@@ -20,10 +20,10 @@ $allowedParams = ['api-action', 'csrf_token'];
 $checks->checkParams($allowedParams, $_POST);
 
 if ($_POST['api-action'] !== 'prase-phpinfo') {
-    Output::error('Invalid action');
+    Response::output('Invalid action');
 }
 
 $phpInfoArray = General::parsePhpInfo();
 echo '<div class="ml-4 dark:text-gray-400">';
-    echo DataGrid::fromData('php-info', $phpInfoArray["Features "], $theme);
+    echo DataGrid::fromData('', $phpInfoArray["Features "], $theme);
 echo '</div>';

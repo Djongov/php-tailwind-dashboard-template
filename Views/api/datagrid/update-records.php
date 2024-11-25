@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
 use App\Database\DB;
-use Controllers\Api\Output;
+use App\Api\Response;
 use App\Logs\SystemLog;
-use Controllers\Api\Checks;
+use App\Api\Checks;
 
 $checks = new Checks($vars, $_POST);
 
@@ -76,8 +76,8 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($values);
 
 if ($stmt->rowCount() === 0) {
-    Output::error('Nothing updated', 409);
+    Response::output('Nothing updated', 409);
 } else {
     SystemLog::write('Record id ' . $id . ' edited in ' . $table, 'DataGrid Edit');
-    echo Output::success('successfully edited ' . $stmt->rowCount() . ' records in ' . $table . '');
+    Response::output('successfully edited ' . $stmt->rowCount() . ' records in ' . $table . '');
 }

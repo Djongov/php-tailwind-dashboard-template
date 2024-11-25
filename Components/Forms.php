@@ -172,19 +172,21 @@ class Forms
                 throw new \Exception('submitButton is a required form option');
             }
 
-            $additionalButtonClasses = '';
-            if ($options['submitButton']['size'] === 'big') {
-                $additionalButtonClasses .= 'py-4 px-3';
+            $additionalButtonClasses = [];
+
+            if (!isset($options['submitButton']['size'])) {
+                $options['submitButton']['size'] = 'medium';
+            }
+
+            if ($options['submitButton']['size'] === 'large') {
+                array_push($additionalButtonClasses, 'p-3', 'text-lg');
             } elseif ($options['submitButton']['size'] === 'medium') {
-                $additionalButtonClasses .= 'py-2 px-2';
+                array_push($additionalButtonClasses, 'px-2', 'py-1', 'text-md');
             } elseif ($options['submitButton']['size'] === 'small') {
-                $additionalButtonClasses .= 'py-1 px-1';
-            } else {
-                // default to medium
-                $additionalButtonClasses .= 'py-2 px-2';
+                array_push($additionalButtonClasses, 'p-1', 'text-sm');
             }
             if (isset($options['submitButton']['disabled']) && $options['submitButton']['disabled'] === true) {
-                $additionalButtonClasses .= ' opacity-50 cursor-not-allowed';
+                array_push($additionalButtonClasses, 'opacity-50', 'cursor-not-allowed');
                 $buttonDisabled = 'disabled';
             } else {
                 $buttonDisabled = '';
@@ -213,11 +215,11 @@ class Forms
                 $buttonId = '';
             }
             if (isset($options['submitButton']['style'])) {
-                $html .= '<div class="my-2"><button ' . $buttonTitle . ' class="' . $additionalButtonClasses . ' cursor-pointer" ' . $buttonDisabled . '>' . $options['submitButton']['style'] . '</button></div>';
+                $html .= '<div class="my-2"><button ' . $buttonTitle . ' class="' . implode(' ', $additionalButtonClasses) . ' cursor-pointer" ' . $buttonDisabled . '>' . $options['submitButton']['style'] . '</button></div>';
             } elseif (isset($options['submitButton']['text'])) {
                 $html .= '
                         <div class="mt-4">
-                            <button ' . $buttonId . ' ' . $buttonTitle . ' ' . $buttonType . ' ' . $buttonName . ' class="' . $additionalButtonClasses . ' ml-2 my-2 mb-2 inline-flex items-center justify-center text-md leading-7 text-' . $theme . '-50 bg-' . $theme . '-500 hover:bg-' . $theme . '-600 font-medium focus:ring-2 focus:ring-' . $theme . '-500 focus:ring-opacity-50 border border-transparent rounded-md shadow-sm" ' . $buttonDisabled . '>
+                            <button ' . $buttonId . ' ' . $buttonTitle . ' ' . $buttonType . ' ' . $buttonName . ' class="' . implode(' ', $additionalButtonClasses) . ' my-2 inline-flex items-center justify-center text-md leading-7 text-' . $theme . '-50 bg-' . $theme . '-500 hover:bg-' . $theme . '-600 font-medium focus:ring-2 focus:ring-' . $theme . '-500 focus:ring-opacity-50 border border-transparent rounded-md shadow-sm" ' . $buttonDisabled . '>
                                 ' . $options['submitButton']['text'] . '
                             </button>
                         </div>';

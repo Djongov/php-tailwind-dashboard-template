@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 use App\Security\Firewall;
-use Controllers\Api\Output;
+use App\Api\Response;
 use App\Database\DB;
 use Components\Alerts;
 use Components\DataGrid;
@@ -11,7 +11,7 @@ Firewall::activate();
 
 // Admin check
 if (!$isAdmin) {
-    Output::error('You are not an admin', 403);
+    Response::output('You are not an admin', 403);
 }
 
 $db = new DB();
@@ -115,7 +115,7 @@ echo '<div class="mx-4 max-w-full overflow-auto flex justify-center">';
     ]);
 echo '</div>';
 
-$cspReportsQuery = 'SELECT id,domain,url,referrer,violated_directive,effective_directive,disposition,blocked_uri,line_number,column_number,source_file,script_sample FROM csp_reports';
+$cspReportsQuery = 'SELECT id,date_created,domain,url,referrer,violated_directive,effective_directive,disposition,blocked_uri,line_number,column_number,source_file,script_sample FROM csp_reports';
 
 echo DataGrid::fromQuery('csp_reports', $cspReportsQuery, 'CSP Reports', $theme, true, true, [
     'filters' => true,

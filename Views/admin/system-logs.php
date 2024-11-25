@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 use App\Security\Firewall;
 use Components\DataGrid;
-use Controllers\Api\Output;
+use App\Api\Response;
 
 // First firewall check
 Firewall::activate();
 
 // Admin check
 if (!$isAdmin) {
-    Output::error('You are not an admin', 403);
+    Response::output('You are not an admin', 403);
 }
 
 echo DataGrid::fromDBTable('system_log', 'System Logs', $theme);

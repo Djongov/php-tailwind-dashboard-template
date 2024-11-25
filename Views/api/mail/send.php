@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 use App\Mail\Send;
-use Controllers\Api\Checks;
+use App\Api\Checks;
 
 $checks = new Checks($vars, $_POST);
 

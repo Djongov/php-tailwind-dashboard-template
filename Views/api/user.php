@@ -1,8 +1,7 @@
 <?php declare(strict_types=1);
-use Controllers\Api\Output;
-use Controllers\Api\Checks;
+use App\Api\Response;
+use App\Api\Checks;
 use Controllers\Api\User;
-use App\Utilities\IP;
 use App\Authentication\JWT;
 use App\Authentication\AuthToken;
 use App\Logs\SystemLog;
@@ -18,16 +17,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (!$routeInfo[2]) {
         $allUsers = $user->get(null);
         if ($allUsers) {
-            echo Output::success($allUsers, 200);
+            Response::output($allUsers, 200);
         } else {
-            Output::error('No users found', 404);
+            Response::output('No users found', 404);
         }
         return;
     }
 
     // This endpoint is for fetching a user's data
     if (!isset($routeInfo[2]['id'])) {
-        Output::error('Missing user id', 400);
+        Response::output('Missing user id', 400);
         exit();
     }
 
@@ -42,16 +41,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $userInfoArray = $user->get($userId);
 
     if ($userInfoArray) {
-        echo Output::success($userInfoArray, 200);
+        Response::output($userInfoArray, 200);
     } else {
-        Output::error('User not found', 404);
+        Response::output('User not found', 404);
     }
 }
 
 // POST /api/user
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!MANUAL_REGISTRATION) {
-        Output::error('Manual registration is disabled', 400);
+        Response::output('Manual registration is disabled', 400);
         exit();
     }
     // This endpoint is for creating a new local user.
@@ -69,16 +68,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     foreach ($requiredFields as $field) {
         if (!isset($data[$field])) {
-            Output::error('Missing ' . $field, 400);
+            Response::output('Missing ' . $field, 400);
             exit();
         }
         if (empty($data[$field])) {
-            Output::error('Empty ' . $field, 400);
+            Response::output('Empty ' . $field, 400);
             exit();
         }
     }
 
-    $data['last_ips'] = IP::currentIP();
+    $data['last_ips'] = currentIP();
 
     $data['origin_country'] = isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2) : 'EN';
 
@@ -103,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
 
     // Also the router info should bring us the id
     if (!isset($routeInfo[2]['id'])) {
-        Output::error('Missing user id', 400);
+        Response::output('Missing user id', 400);
         exit();
     }
 
@@ -117,13 +116,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
 
     // Make sure that the user submitting this is the same as the user being updated. The only secure way of doing this is by checking the JWT token. This will prevent user from updating another user's data by changing the username paramter's value in the request
     if (isset($data['username']) && JWT::extractUserName(AuthToken::get()) !== $data['username']) {
-        Output::error('You are not allowed to update this user', 409);
+        Response::output('You are not allowed to update this user', 409);
         exit();
     }
 
     if (isset($data['passwword'], $data['confirm_password'])) {
         if ($data['password'] !== $data['confirm_password']) {
-            Output::error('Passwords do not match', 400);
+            Response::output('Passwords do not match', 400);
             exit();
         }
     }
@@ -156,13 +155,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 
     // Let's check if the csrf token is passed as a query string in the DELETE request
     if (!isset($_GET['csrf_token'])) {
-        Output::error('Missing CSRF Token', 401);
+        Response::output('Missing CSRF Token', 401);
         exit();
     }
 
     // Also the router info should bring us the id
     if (!isset($routeInfo[2]['id'])) {
-        Output::error('Missing user id', 400);
+        Response::output('Missing user id', 400);
         exit();
     }
 

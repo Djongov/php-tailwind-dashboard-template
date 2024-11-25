@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-use Controllers\Api\Output;
+use App\Api\Response;
 
 sleep(1);
 
@@ -10,11 +10,11 @@ $_POST = array_map(function ($value) {
 }, $_POST);
 
 if (isset($_POST['terms']) && $_POST['terms'] === "0") {
-    Output::error('You must agree to the terms and conditions', 409);
+    Response::output('You must agree to the terms and conditions', 409);
 }
 
 if (isset($_POST['return']) && $_POST['return'] === 'json') {
-    echo Output::success(json_encode($_POST));
+    Response::output(json_encode($_POST));
 } else {
     // Let's draw a square div with the color of $_POST['colors'] if set
     if (isset($_POST['colors'])) {

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-use Controllers\Api\Output;
+use App\Api\Response;
 use App\Authentication\AccessToken;
 
 if (isset($_POST['error'], $_POST['error_description'])) {
@@ -48,7 +48,7 @@ if (isset($_POST['error'], $_POST['error_description'])) {
 
         // header('Location: ' . ENTRA_ID_OAUTH_URL . http_build_query($data));
         // exit();
-        Output::error("App Registration Error: " . $_POST['error'] . " with Description: " . $_POST['error_description']);
+        Response::output("App Registration Error: " . $_POST['error'] . " with Description: " . $_POST['error_description']);
     }
 
     // If the user just refuses to give consent we end up here:
@@ -57,7 +57,7 @@ if (isset($_POST['error'], $_POST['error_description'])) {
         exit();
     }
 
-    Output::error("Azure Error: " . $_POST['error'] . " with Description: " . $_POST['error_description']);
+    Response::output("Azure Error: " . $_POST['error'] . " with Description: " . $_POST['error_description']);
 }
 
 if (isset($_POST['code'], $_POST['state'], $_POST['session_state'])) {
@@ -89,7 +89,7 @@ if (isset($_POST['code'], $_POST['state'], $_POST['session_state'])) {
         header('Location: ' . $state);
         exit();
     } else {
-        Output::error('Error: ' . $request['error'], 400);
+        Response::output('Error: ' . $request['error'], 400);
     }
 
     if (isset($response['error_description'])) {
@@ -111,7 +111,7 @@ if (isset($_POST['code'], $_POST['state'], $_POST['session_state'])) {
             header('Location: ' . MS_LIVE_OAUTH_URL . http_build_query($data));
             exit();
         } else {
-            Output::error($response['error_description'], 400);
+            Response::output($response['error_description'], 400);
         }
     }
 }
@@ -148,17 +148,17 @@ if (isset($_POST['code'], $_POST['state'])) {
         try {
             $save = AccessToken::save($request['access_token'], $username);
         } catch (Exception $e) {
-            Output::error($e->getMessage(), 400);
+            Response::output($e->getMessage(), 400);
         }
 
         header('Location: ' . $state);
         exit();
     } else {
-        Output::error(json_encode($request), 400);
+        Response::output(json_encode($request), 400);
     }
 
     if (isset($response['error'], $response['error_description'])) {
-        Output::error($response['error'] . ' error with description: ' . $response['error_description'], 400);
+        Response::output($response['error'] . ' error with description: ' . $response['error_description'], 400);
     }
 }
 

@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
-use Controllers\Api\Output;
-use Controllers\Api\Checks;
+use App\Api\Response;
+use App\Api\Checks;
 use App\Database\DB;
 use App\Security\Firewall;
 
@@ -24,7 +24,7 @@ $domain = trim($domain);
 
 // Check if domain is valid
 if (!filter_var($domain, FILTER_VALIDATE_DOMAIN)) {
-    Output::error('Invalid domain');
+    Response::output('Invalid domain');
 }
 
 // Strip the csrf_token from the POST array and check if we have such a column in the firewall table
@@ -38,17 +38,20 @@ $stmt = $pdo->prepare('SELECT id FROM csp_approved_domains WHERE domain = ?');
 
 $stmt->execute([$domain]);
 
-if ($stmt->rowCount() > 0) {
-    echo Output::error('Domain already exists');
-    return;
+$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$rowCount = count($rows);
+
+if ($rowCount > 0) {
+    echo Response::output('Domain already exists', 409);
 }
 
 $stmt = $pdo->prepare('INSERT INTO csp_approved_domains (domain, created_by) VALUES (?,?)');
 
 $stmt->execute([$domain, $vars['usernameArray']['username']]);
 
-if ($stmt->rowCount() === 1) {
-    echo Output::success('Domain added');
+if ($rowCount === 1) {
+    Response::output('Domain added');
 } else {
-    echo Output::error('Domain not added');
+    Response::output('Domain not added', 500);
 }

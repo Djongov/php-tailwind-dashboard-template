@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 use App\Authentication\JWT;
 use App\Authentication\AuthToken;
-use Controllers\Api\Output;
+use App\Api\Response;
 
 $state = $_GET['state'] ?? '/';
 
 $username = JWT::extractUserName(AuthToken::get()) ?? die('No username found');
 
 // if (!isset($_GET['provider'])) {
-//     Output::error('No provider specified');
+//     Response::output('No provider specified');
 // }
 
 // if ($_GET['provider'] === 'mslive') {
@@ -16,7 +16,7 @@ $username = JWT::extractUserName(AuthToken::get()) ?? die('No username found');
 // } elseif ($_GET['provider'] === 'azure') {
 //     $url = ENTRA_ID_OAUTH_URL;
 // } else {
-//     Output::error('Invalid provider');
+//     Response::output('Invalid provider');
 // }
 
 $data = [
@@ -58,7 +58,7 @@ if ($usernameArray['provider'] === 'azure') {
     ];
     $url = 'https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?';
 } else {
-    Output::error('Invalid provider');
+    Response::output('Invalid provider');
 }
 
 $location = $url . http_build_query($data);

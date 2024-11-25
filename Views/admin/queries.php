@@ -3,14 +3,14 @@
 use Components\Forms;
 use Components\Html;
 use App\Security\Firewall;
-use Controllers\Api\Output;
+use App\Api\Response;
 
 // First firewall check
 Firewall::activate();
 
 // Admin check
 if (!$isAdmin) {
-    Output::error('You are not an admin', 403);
+    Response::output('You are not an admin', 403);
 }
 
 echo Html::h1('Queries', true);

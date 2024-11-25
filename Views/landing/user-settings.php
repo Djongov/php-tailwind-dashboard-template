@@ -120,64 +120,28 @@ echo '<div class="flex flex-row flex-wrap items-start mb-4 justify-center">';
                 echo ' <td class="w-full"><strong>' . $name . '</strong> : ' . $fmt->format(strtotime($setting)) . '  </td>';
                 continue;
             }
+            // Theme changer
             if ($name === 'theme') {
-                echo '<td class="w-full"><div class="flex my-2 flex-row"><strong>' . $name . '</strong> : ';
-                echo '<form class="select-submitter" method="PUT" action="/api/user/' . $usernameArray['id'] . '">';
-                    echo '<select name="theme" class="' . Html::selectInputClasses($theme) . '">';
-                    foreach (THEME_COLORS as $color) {
-                        echo '<option value="' . $color . '" ' . (($setting === $color) ? 'selected' : '') . '>' . $color . '</option>';
-                    }
-                    echo '</select>';
-                        echo '<input type="hidden" name="username" value="' . $usernameArray['username'] . '">';
-                        echo App\Security\CSRF::createTag();
-                echo '</form>';
-
-                // $themeOptions = [];
-                // $currentTheme = '';
-                // foreach ($allowed_themes as $color) {
-                //     // Fill the themeOptions array with text and value $color
-                //     $themeOptions[] = ['text' => $color, 'value' => $color];
-                //     if ($setting === $color) {
-                //         $currentTheme = $color;
-                //     }
-                // }
-                // $updateThemeOptions = [
-                //     'inputs' => [
-                //         'select' => [
-                //             [
-                //                 'label' => '',
-                //                 'name' => 'theme',
-                //                 'title' => 'theme',
-                //                 'options' => $themeOptions,
-                //                 'selected' => $currentTheme,
-                //             ]
-                //         ],
-                //         'hidden' => [
-                //             [
-                //                 'name' => 'username',
-                //                 'value' => $usernameArray['username']
-                //             ]
-                //         ],
-
-                //     ],
-                //     'theme' => $theme, // Optional, defaults to COLOR_SCHEME
-                //     'method' => 'PUT',
-                //     'action' => '/api/user/' . $usernameArray['id'],
-                //     'reloadOnSubmit' => true,
-                //     'submitButton' => [
-                //         'text' => 'Update',
-                //         'size' => 'small',
-                //         //'style' => '&#10060;'
-                //     ],
-                // ];
-                // echo Forms::render($updateThemeOptions);
-
-                echo '</div></td>';
+                echo '<td class="w-full">
+                    <div class="flex my-2 flex-row"><strong>' . $name . '</strong> : ';
+                        echo '<form class="select-submitter" data-reload="true" method="PUT" action="/api/user/' . $usernameArray['id'] . '">';
+                            echo '<select name="theme" class="' . Html::selectInputClasses($theme) . '">';
+                            foreach (THEME_COLORS as $color) {
+                                echo '<option value="' . $color . '" ' . (($setting === $color) ? 'selected' : '') . '>' . $color . '</option>';
+                            }
+                            echo '</select>';
+                            echo '<input type="hidden" name="username" value="' . $usernameArray['username'] . '">';
+                            echo App\Security\CSRF::createTag();
+                        echo '</form>';
+                    echo '</div>
+                </td>';
                 continue;
             }
+            // Boolean
             if (is_bool($setting)) {
                 echo ' <td class="w-full"><strong>' . $name . '</strong> : ' . (($setting) ? 'true' : 'false') . '  </td>';
                 continue;
+            // The rest
             } else {
                 echo ' <td class="w-full"><strong>' . $name . '</strong> : <span class="break-all">' . $setting . '</span>  </td>';
             }
@@ -190,34 +154,20 @@ echo '<div class="flex flex-row flex-wrap items-start mb-4 justify-center">';
             echo '<p><strong>Token expiry: </strong>' . $fmt->format(strtotime(date("Y-m-d H:i:s", (int)substr((string) JWT::parseTokenPayLoad(AuthToken::get())['exp'], 0, 10)))) . '</p>';
             echo '<p><strong>Token: </strong></p><p class="break-all c0py">' . AuthToken::get() . '</p>';
             $token = JWT::parseTokenPayLoad(AuthToken::get());
-            // echo '<ul>';
-            //     foreach ($token as $key => $value) {
-            //         if (!is_array($value)) {
-            //             echo '<li><strong>' . $key . '</strong> : ' . $value . '</li>';
-            //         } else {
-            //             echo '<li><strong>' . $key . '</strong> : ';
-            //             echo '<ul>';
-            //             foreach ($value as $subkey => $subvalue) {
-            //                 echo '<li><strong>' . $subkey . '</strong> : ' . $subvalue . '</li>';
-            //             }
-            //             echo '</ul>';
-            //             echo '</li>';
-            //         }
-            //     }
-            // echo '</ul>';
     echo '</div>';
-
+    // If the user is missing an email, ask for it
     if (empty($usernameArray['email']) || filter_var($usernameArray['email'], FILTER_VALIDATE_EMAIL) === false) {
-        echo '<div class="p-4 m-4 max-w-lg ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700">';
-        echo '<div class="flex flex-row flex-wrap items-center mb-4">';
-        echo '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="inline-block w-6 h-6 fill-amber-500">
-                    <title>Missing Email</title>
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                    </svg>';
-        echo Html::h2('Missing Email');
-        echo '</div>';
-        echo Html::p('We noticed that we haven\'t got your email address from your token claims. We will try to email you on your username which is <strong>' . $usernameArray['username'] . '</strong> but in case you think you can\'t be receiving emails on your username address, here you can give an aleternative. Don\'t worry, we will only be sending important notifications. Signups for newsletters and others are separate');
-
+        $updateEmailHtml = '<div class="flex flex-row flex-wrap items-center mb-4">';
+            // Email svg icon
+            $updateEmailHtml .= '
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="inline-block w-6 h-6 fill-amber-500">
+                <title>Missing Email</title>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>';
+            $updateEmailHtml .= Html::h2('Missing Email');
+        $updateEmailHtml .= '</div>';
+        $updateEmailHtml .= Html::p('We noticed that we haven\'t got your email address from your token claims. We will try to email you on your username which is <strong>' . $usernameArray['username'] . '</strong> but in case you think you can\'t be receiving emails on your username address, here you can give an aleternative. Don\'t worry, we will only be sending important notifications. Signups for newsletters and others are separate');
+        // Update email form
         $updateEmailFormOptions = [
             'inputs' => [
                 'input' => [
@@ -243,68 +193,37 @@ echo '<div class="flex flex-row flex-wrap items-start mb-4 justify-center">';
             'action' => '/api/user/' . $usernameArray['id'],
             'reloadOnSubmit' => true,
             'submitButton' => [
-                'text' => 'Update',
-                'size' => 'medium',
-                //'style' => '&#10060;'
+                'text' => 'Update'
             ],
         ];
 
-        echo Forms::render($updateEmailFormOptions);
-
-        echo '</div>';
+        $updateEmailHtml .= Forms::render($updateEmailFormOptions);
+        echo Html::divBox($updateEmailHtml);
     }
     // Change password for local users
     if ($usernameArray['provider'] === 'local') {
-        echo '<div class="p-4 m-4 max-w-md ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700">';
-            echo Html::h2('Change Password');
-            $changePasswordForm = [
-                'inputs' => [
-                    'input' => [
-                        [
-                            'label' => 'New Password',
-                            'type' => 'password',
-                            'placeholder' => '',
-                            'name' => 'password',
-                            'description' => 'You new password',
-                            'disabled' => false,
-                            'required' => true,
-                        ],
-                        [
-                            'label' => 'Confirm Password',
-                            'type' => 'password',
-                            'placeholder' => '',
-                            'name' => 'confirm_password',
-                            'description' => 'Confirm your new password',
-                            'disabled' => false,
-                            'required' => true,
-                        ]
-                    ],
-                    'hidden' => [
-                        [
-                            'name' => 'username',
-                            'value' => $usernameArray['username']
-                        ]
-                    ],
-                ],
-                'theme' => $theme,
-                'method' => 'PUT',
-                'action' => '/api/user/' . $usernameArray['id'],
-                'redirectOnSubmit' => '/logout',
-                'submitButton' => [
-                    'text' => 'Change Password',
-                    'size' => 'medium',
-                    //'style' => '&#10060;'
-                ],
-            ];
-            echo Forms::render($changePasswordForm);
-            echo Html::small('Successfully changing the password will log you out of the app. You will need to login again with your new password.');
-        echo '</div>';
-    }
-    echo '<div class="p-4 m-4 max-w-fit ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700">';
-        echo Html::h2('Forget About me');
-        echo Html::p('This will delete your account in our database along with any data we have about your account.');
-        $deleteUserFormOptions = [
+        $changePasswordForm = [
             'inputs' => [
+                'input' => [
+                    [
+                        'label' => 'New Password',
+                        'type' => 'password',
+                        'placeholder' => '',
+                        'name' => 'password',
+                        'description' => 'You new password',
+                        'disabled' => false,
+                        'required' => true,
+                    ],
+                    [
+                        'label' => 'Confirm Password',
+                        'type' => 'password',
+                        'placeholder' => '',
+                        'name' => 'confirm_password',
+                        'description' => 'Confirm your new password',
+                        'disabled' => false,
+                        'required' => true,
+                    ]
+                ],
                 'hidden' => [
                     [
                         'name' => 'username',
@@ -312,25 +231,49 @@ echo '<div class="flex flex-row flex-wrap items-start mb-4 justify-center">';
                     ]
                 ],
             ],
-            'theme' => 'red',
-            'method' => 'DELETE',
-            'action' => '/api/user/' . $usernameArray['id'] . '?csrf_token=' . $_SESSION['csrf_token'],
+            'theme' => $theme,
+            'method' => 'PUT',
+            'action' => '/api/user/' . $usernameArray['id'],
             'redirectOnSubmit' => '/logout',
-            'confirm' => true,
-            'confirmText' => 'Are you sure you want to delete your user?
-        This will delete your username from our database. This will also remove you from organization where you are a member. This will NOT remove any logs that have your name in it. Your user will be re-created if you login again to the app.',
-            'doubleConfirm' => true,
-            'doubleConfirmKeyWord' => $usernameArray['username'],
-            'resultType' => 'text',
             'submitButton' => [
-                'text' => 'Delete User',
-                'size' => 'medium',
-                //'style' => '&#10060;'
+                'text' => 'Change Password'
             ],
         ];
 
-        echo Forms::render($deleteUserFormOptions);
+        $changePassordHtml = Html::h2('Change Password');
+        $changePassordHtml .= Forms::render($changePasswordForm);
+        $changePassordHtml .= Html::small('Successfully changing the password will log you out of the app. You will need to login again with your new password.');
+        echo Html::divBox($changePassordHtml);
+    }
+    // Delete/Forget user
+    $deleteUserFormOptions = [
+        'inputs' => [
+            'hidden' => [
+                [
+                    'name' => 'username',
+                    'value' => $usernameArray['username']
+                ]
+            ],
+        ],
+        'theme' => 'red',
+        'method' => 'DELETE',
+        'action' => '/api/user/' . $usernameArray['id'] . '?csrf_token=' . $_SESSION['csrf_token'],
+        'redirectOnSubmit' => '/logout',
+        'confirm' => true,
+        'confirmText' => 'Are you sure you want to delete your user?
+    This will delete your username from our database. This will also remove you from organization where you are a member. This will NOT remove any logs that have your name in it. Your user will be re-created if you login again to the app.',
+        'doubleConfirm' => true,
+        'doubleConfirmKeyWord' => $usernameArray['username'],
+        'resultType' => 'text',
+        'submitButton' => [
+            'text' => 'Delete User'
+        ],
+    ];
 
-    echo '</div>';
+    $deleteUserHtml = Html::h2('Forget About me');
+    $deleteUserHtml .= Html::p('This will delete your account in our database along with any data we have about your account.');
+    $deleteUserHtml .= Forms::render($deleteUserFormOptions);
+
+    echo Html::divBox($deleteUserHtml);
 
 echo '</div>';

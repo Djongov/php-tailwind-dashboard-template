@@ -3,7 +3,7 @@
 use Components\Forms;
 use Components\Html;
 use App\Security\Firewall;
-use Controllers\Api\Output;
+use App\Api\Response;
 use Components\DataGrid;
 
 // First firewall check
@@ -11,7 +11,7 @@ Firewall::activate();
 
 // Admin check
 if (!$isAdmin) {
-    Output::error('You are not an admin', 403);
+    Response::output('You are not an admin', 403);
 }
 
 echo Html::p('Here you can control the firewall. You can add IPs to the firewall, remove them, or view the current list of IPs in the firewall. To put controllers under the firewall, you need to call Firewall::activate(), preferrably at the start of the controller');

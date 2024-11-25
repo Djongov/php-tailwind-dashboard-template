@@ -6,9 +6,8 @@ use Models\Api\User;
 use App\Authentication\Azure\AzureAD;
 use App\Authentication\JWT;
 use App\Authentication\Google;
-use Controllers\Api\Output;
+use App\Api\Response;
 use App\Utilities\General;
-use App\Utilities\IP;
 use App\Authentication\AuthToken;
 
 class RequireLogin
@@ -58,7 +57,7 @@ class RequireLogin
                     $loggedIn = true;
                 } else {
                     if ($apiRoute) {
-                        Output::error('Authentication failure', 401);
+                        Response::output('Authentication failure', 401);
                     }
                     // If checks for JWT token fail - unset cookie and redirect to /login
                     JWT::handleValidationFailure();
@@ -75,7 +74,7 @@ class RequireLogin
                     $loggedIn = true;
                 } else {
                     if ($apiRoute) {
-                        Output::error('Authentication failure', 401);
+                        Response::output('Authentication failure', 401);
                     }
                     // If checks for JWT token fail - unset cookie and redirect to /login
                     JWT::handleValidationFailure();
@@ -90,7 +89,7 @@ class RequireLogin
                     $loggedIn = true;
                 } else {
                     if ($apiRoute) {
-                        Output::error('Authentication failure', 401);
+                        Response::output('Authentication failure', 401);
                     }
                     // If checks for JWT token fail - unset cookie and redirect to /login
                     JWT::handleValidationFailure();
@@ -106,7 +105,7 @@ class RequireLogin
                     $loggedIn = true;
                 } else {
                     if ($apiRoute) {
-                        Output::error('Authentication failure', 401);
+                        Response::output('Authentication failure', 401);
                     }
                     // If checks for JWT token fail - unset cookie and redirect to /login
                     JWT::handleValidationFailure();
@@ -122,7 +121,7 @@ class RequireLogin
             */
             if (!General::matchRequestURI($loginExempt) && !str_contains($_SERVER['REQUEST_URI'], '/login') && !str_contains($_SERVER['REQUEST_URI'], '/auth/azure-ad') && !str_contains($_SERVER['REQUEST_URI'], '/auth/google') && !str_contains($_SERVER['REQUEST_URI'], '/auth/local')) {
                 if ($apiRoute) {
-                    Output::error('missing token', 401);
+                    Response::output('missing token', 401);
                 } else {
                     header('Location: /login?destination=' . $_SERVER['REQUEST_URI']);
                     exit();
@@ -191,7 +190,7 @@ class RequireLogin
                 'email' => 'email',
                 'name' => 'name'
             ];
-            $idTokenInfoArray["last_ip"] = IP::currentIP();
+            $idTokenInfoArray["last_ip"] = currentIP();
             foreach ($expectedClaims as $dbClaimName => $JWTClaimName) {
                 $idTokenInfoArray[$dbClaimName] = isset($authCookieArray[$JWTClaimName]) ? $authCookieArray[$JWTClaimName] : null;
             }

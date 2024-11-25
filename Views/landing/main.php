@@ -28,27 +28,6 @@ try {
 
 echo Alerts::success('Successfully connected to the database');
 
-// $data = [
-//     ['name' => 'John Doe', 'email' => 'john.doe@example.com', 'phone' => '123-456-7890'],
-//     ['name' => 'Catherine Jones', 'email' => 'catherine.jones@example.com', 'phone' => '234-567-8901'],
-//     ['name' => 'Michael Johnson', 'email' => 'michael.johnson@example.com', 'phone' => '345-678-9012']
-// ];
-
-// $autoloadArray = [
-//   [
-//     'type' => 'table',
-//     'parentDiv' => 'auto-load',
-//     'tableOptions' => null,
-//     'data' => $data,
-//   ]
-// ];
-
-// echo '<div id="auto-load" class="max-w-full"></div>';
-
-// foreach ($autoloadArray as $array) {
-//   echo '<input type="hidden" name="autoload" value="' . htmlspecialchars(json_encode($array)) . '" />';
-// }
-
 echo Html::h1('Current Issues', true);
 
 $currentIssues = [
@@ -74,7 +53,7 @@ foreach ($currentIssues as $category => $array) {
 ?>
 
 
-
+<!--
 <div class="max-w-sm mx-auto md:mx-4 w-full my-6 bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
   <div id="line-chart"></div>
 </div>
@@ -184,3 +163,4 @@ if (document.getElementById("line-chart") && typeof ApexCharts !== 'undefined') 
 
 </script>
 
+-->

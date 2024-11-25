@@ -5,7 +5,7 @@ namespace App\Request;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
-use Controllers\Api\Output;
+use App\Api\Response;
 
 class HttpClient
 {
@@ -98,13 +98,13 @@ class HttpClient
             }
         } catch (ConnectException $e) {
             // Handle the connection exception
-            Output::error('HttpClient ConnectException: ' . $e->getHandlerContext()['error'], 500);
+            Response::output('HttpClient ConnectException: ' . $e->getHandlerContext()['error'], 500);
         } catch (\UnexpectedValueException $e) {
             // Handle UnexpectedValueException here
-            Output::error('HttpClient UnexpectedValueException: ' . $e->getMessage(), 400);
+            Response::output('HttpClient UnexpectedValueException: ' . $e->getMessage(), 400);
         } catch (\Exception $e) {
             // Handle other exceptions
-            Output::error('HttpClient Exceptiion: ' . $e->getMessage(), 400);
+            Response::output('HttpClient Exceptiion: ' . $e->getMessage(), 400);
         }
     }
     // This method will fetch only the headers of the constructor url
@@ -115,13 +115,13 @@ class HttpClient
             return $response->getHeaders();
         } catch (RequestException $e) {
             // Handle the RequestException
-            Output::error('HttpClient RequestException: ' . $e->getMessage(), 400);
+            Response::output('HttpClient RequestException: ' . $e->getMessage(), 400);
         } catch (ConnectException $e) {
             // Handle other exceptions
-            Output::error('ConnectException Exceptiion: ' . $e->getMessage(), 400);
+            Response::output('ConnectException Exceptiion: ' . $e->getMessage(), 400);
         } catch (\Exception $e) {
             // Handle other exceptions
-            Output::error('Exceptiion: ' . $e->getMessage(), 400);
+            Response::output('Exceptiion: ' . $e->getMessage(), 400);
         }
     }
 }

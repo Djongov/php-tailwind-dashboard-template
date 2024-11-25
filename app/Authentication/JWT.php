@@ -3,7 +3,7 @@
 namespace App\Authentication;
 
 use App\Utilities\General;
-use Controllers\Api\Output;
+use App\Api\Response;
 use App\Core\Session;
 use App\Authentication\AuthToken;
 
@@ -136,7 +136,7 @@ class JWT
             return ($verified === 1) ? true : false;
         } catch (\Exception $e) {
             // Handle the exception
-            Output::error($e->getMessage());
+            Response::output($e->getMessage(), 401);
         }
     }
     // A method to parse the payload of a token

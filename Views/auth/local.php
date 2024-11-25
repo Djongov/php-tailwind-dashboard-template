@@ -2,13 +2,12 @@
 
 
 use Controllers\Api\User;
-use Controllers\Api\Output;
+use App\Api\Response;
 use App\Exceptions\UserExceptions;
-use Controllers\Api\Checks;
+use App\Api\Checks;
 use App\Logs\SystemLog;
 use App\Authentication\JWT;
 use App\Authentication\AuthToken;
-use App\Utilities\IP;
 
 // If the request is coming from local login, we should have a $_POST['username'] and a $_POST['password'] parameter
 if (isset($_POST['username'], $_POST['password'], $_POST['csrf_token'])) {
@@ -25,22 +24,22 @@ if (isset($_POST['username'], $_POST['password'], $_POST['csrf_token'])) {
     try {
         $userArray = $user->get($_POST['username']);
     } catch (UserExceptions $e) {
-        Output::error($e->getMessage());
+        Response::output($e->getMessage());
     } catch (\Exception $e) {
         SystemLog::write('Generic error when trying to get local user ' . $_POST['username'] . ' with error: ' . $e->getMessage(), 'User API');
-        Output::error('error', 400);
+        Response::output('error', 400);
     }
     
     if (empty($userArray)) {
-        Output::error('Invalid username or password', 404); // Do not say if the user exists or not to reduce the risk of enumeration attacks
+        Response::output('Invalid username or password', 404); // Do not say if the user exists or not to reduce the risk of enumeration attacks
     }
 
     if ($userArray['enabled'] === '0') {
-        Output::error('User is disabled', 401);
+        Response::output('User is disabled', 401);
     }
 
     if (!password_verify($_POST['password'], $userArray['password'])) {
-        Output::error('Invalid username or password', 404);
+        Response::output('Invalid username or password', 404);
     }
 
     // By now we assume the user is valid, so let's generate a JWT token
@@ -54,7 +53,7 @@ if (isset($_POST['username'], $_POST['password'], $_POST['csrf_token'])) {
         'roles' => [
             $userArray['role'],
         ],
-        'last_ip' => IP::currentIP()
+        'last_ip' => currentIP()
     ], $tokenExpiration);
 
     //$expiry_addition = ($_POST['remember'] === "1") ? 86400 * 24 * 12 : 86400;

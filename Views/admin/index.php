@@ -4,14 +4,14 @@ use Components\Html;
 use Components\Table;
 use App\Database\DB;
 use App\Security\Firewall;
-use Controllers\Api\Output;
+use App\Api\Response;
 
 // First firewall check
 Firewall::activate();
 
 // Admin check
 if (!$isAdmin) {
-    Output::error('You are not an admin', 403);
+    Response::output('You are not an admin', 403);
 }
 
 $dbTables = [];

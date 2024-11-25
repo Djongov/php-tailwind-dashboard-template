@@ -10,7 +10,7 @@ namespace Controllers\Api;
 
 use Models\Api\Firewall as FirewallModel;
 use App\Exceptions\FirewallException;
-use Controllers\Api\Output;
+use App\Api\Response;
 
 class Firewall
 {
@@ -27,11 +27,11 @@ class Firewall
         $firewall = new FirewallModel();
         try {
             $result = $firewall->get($ip);
-            return Output::success($result);
+            Response::output($result);
         } catch (FirewallException $e) {
-            Output::error($e->getMessage());
+            Response::output($e->getMessage());
         } catch (\Exception $e) {
-            Output::error($e->getMessage());
+            Response::output($e->getMessage());
         }
     }
     /**
@@ -49,11 +49,11 @@ class Firewall
         $firewall = new FirewallModel();
         try {
             $firewall->save($ip, $createdBy, $comment);
-            return Output::success('ip ' . $ip . ' added to the firewall');
+            Response::output('ip ' . $ip . ' added to the firewall');
         } catch (FirewallException $e) {
-            Output::error($e->getMessage());
+            Response::output($e->getMessage());
         } catch (\Exception $e) {
-            Output::error($e->getMessage());
+            Response::output($e->getMessage());
         }
     }
     /**
@@ -71,11 +71,11 @@ class Firewall
         $firewall = new FirewallModel();
         try {
             $firewall->update($data, $id, $updatedBy);
-            return Output::success('ip with id ' . $id . ' updated');
+            Response::output('ip with id ' . $id . ' updated');
         } catch (FirewallException $e) {
-            Output::error($e->getMessage());
+            Response::output($e->getMessage());
         } catch (\Exception $e) {
-            Output::error($e->getMessage());
+            Response::output($e->getMessage());
         }
     }
     /**
@@ -92,11 +92,11 @@ class Firewall
         $firewall = new FirewallModel();
         try {
             $firewall->delete($id, $deletedBy);
-            return Output::success('ip with id ' . $id . ' deleted');
+            Response::output('ip with id ' . $id . ' deleted');
         } catch (FirewallException $e) {
-            Output::error($e->getMessage());
+            Response::output($e->getMessage());
         } catch (\Exception $e) {
-            Output::error($e->getMessage());
+            Response::output($e->getMessage());
         }
     }
 }

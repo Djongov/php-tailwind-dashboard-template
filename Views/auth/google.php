@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 use App\Authentication\Google;
-use Controllers\Api\Output;
+use App\Api\Response;
 use Google\Client;
 use Controllers\Api\User;
 use Models\Api\User as UserModel;
@@ -11,11 +11,11 @@ use App\Authentication\AuthToken;
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     if (isset($_GET['error'], $_GET['state'])) {
-        Output::error('Google Error: ' . $_GET['error'], 200);
+        Response::output('Google Error: ' . $_GET['error'], 200);
     }
 
     if (!isset($_GET['code'])) {
-        Output::error('Invalid request', 400);
+        Response::output('Invalid request', 400);
     }
     
     $state = $_GET['state'];
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
     
     if (isset($token['error']) && !isset($token['access_token'])) {
-        Output::error('Google Error: ' . $token['error_description'], 200);
+        Response::output('Google Error: ' . $token['error_description'], 200);
     }
 
     $accessToken = $client->getAccessToken();
@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     // verify the id token
     if (!Google::verifyIdToken($idToken)) {
-        Output::error('Invalid token', 400);
+        Response::output('Invalid token', 400);
     }
 
     $idTokenArray = JWT::parseTokenPayLoad($idToken);
@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if ($userModel->exists($idTokenArray['email'])) {
         $userDetailsArray = $userModel->get($idTokenArray['email']);
         if ($userDetailsArray['provider'] !== 'google') {
-            Output::error('User exists but is not a google account', 400);
+            Response::output('User exists but is not a google account', 400);
         }
         // User exists, let's update the last login
         $user->updateLastLogin($idTokenArray['email']);

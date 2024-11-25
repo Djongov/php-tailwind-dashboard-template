@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Controllers\Api;
+namespace App\Api;
 
-use Controllers\Api\Output;
+use App\Api\Response;
 use App\Authentication\JWT;
 use App\Authentication\Azure\AzureAD;
 use App\Authentication\AuthToken;
@@ -66,13 +66,13 @@ class Checks
     public function adminCheck(): void
     {
         if (!isset($this->userVars['isAdmin'])) {
-            Output::error('Administator status not set');
+            Response::output('Administator status not set');
         }
         if (!$this->isAdmin()) {
-            Output::error('This action requires admin privileges');
+            Response::output('This action requires admin privileges');
         }
         if (!$this->isAdminJWT()) {
-            Output::error('This action requires admin privileges coming from JWT token');
+            Response::output('This action requires admin privileges coming from JWT token');
         }
     }
     /**
@@ -83,16 +83,16 @@ class Checks
     public function checkJWT(): void
     {
         if (AuthToken::get() === null) {
-            Output::error('Missing token', 401);
+            Response::output('Missing token', 401);
         }
         if (!isset($this->userVars['usernameArray']['provider'])) {
-            Output::error('Missing provider in user');
+            Response::output('Missing provider in user');
         }
         if ($this->userVars['usernameArray']['provider'] === 'local' && !JWT::checkToken(AuthToken::get())) {
-            Output::error('Invalid local token', 401);
+            Response::output('Invalid local token', 401);
         }
         if ($this->userVars['usernameArray']['provider'] === 'azure' && !AzureAD::check(AuthToken::get())) {
-            Output::error('Invalid Azure token', 401);
+            Response::output('Invalid Azure token', 401);
         }
     }
     /**
@@ -104,14 +104,14 @@ class Checks
     public function checkUsernameIntegrity(): void
     {
         if (AuthToken::get() === null) {
-            Output::error('Missing auth token');
+            Response::output('Missing auth token');
         }
         if (!isset($this->userVars['usernameArray']['username'])) {
-            Output::error('Missing username');
+            Response::output('Missing username');
         }
         if ($this->userVars['usernameArray']['username'] !== JWT::extractUserName(AuthToken::get())) {
             JWT::handleValidationFailure();
-            Output::error('Username anomaly');
+            Response::output('Username anomaly');
         }
     }
     /**
@@ -122,14 +122,14 @@ class Checks
     public function checkCSRF(): void
     {
         if (!isset($_SESSION['csrf_token'])) {
-            Output::error('Missing Session CSRF Token');
+            Response::output('Missing Session CSRF Token');
         }
         if (!isset($this->data['csrf_token'])) {
-            Output::error('Missing POST CSRF Token');
+            Response::output('Missing POST CSRF Token');
         }
         // Compare the postToken to the $_SESSION['csrf_token']
         if ($this->data['csrf_token'] !== $_SESSION['csrf_token']) {
-            Output::error('Invalid CSRF Token');
+            Response::output('Invalid CSRF Token');
         }
     }
     /**
@@ -143,23 +143,23 @@ class Checks
         $headers = getallheaders();
         $lowercaseHeaders = array_change_key_case($headers, CASE_LOWER);
         if (!isset($lowercaseHeaders['x-csrf-token'])) {
-            Output::error('Missing CSRF Token header');
+            Response::output('Missing CSRF Token header');
         }
         if (!isset($this->data['csrf_token'])) {
-            Output::error('Missing POST CSRF Token');
+            Response::output('Missing POST CSRF Token');
         }
         if ($this->data['csrf_token'] !== $lowercaseHeaders['x-csrf-token']) {
-            Output::error('Invalid CSRF Token');
+            Response::output('Invalid CSRF Token');
         }
     }
     public function checkCSRFDelete(string $csrf): void
     {
         // $csrf should come from the URL
         if (!isset($_SESSION['csrf_token'])) {
-            Output::error('Missing Session CSRF Token');
+            Response::output('Missing Session CSRF Token');
         }
         if ($csrf !== $_SESSION['csrf_token']) {
-            Output::error('Invalid CSRF Token');
+            Response::output('Invalid CSRF Token');
         }
     }
     /**
@@ -171,23 +171,23 @@ class Checks
     {
         // Check if $vars['loggedIn'] is set
         if (!isset($this->userVars['loggedIn'])) {
-            Output::error('You are not logged in (loggedIn not set)');
+            Response::output('You are not logged in (loggedIn not set)');
         }
         // Check if $vars['loggedIn'] is true
         if (!$this->userVars['loggedIn']) {
-            Output::error('You are not logged in (loggedIn false)');
+            Response::output('You are not logged in (loggedIn false)');
         }
         // Now check if the usernameArray is set
         if (!isset($this->userVars['usernameArray'])) {
-            Output::error('You are not logged in (usernameArray not set)');
+            Response::output('You are not logged in (usernameArray not set)');
         }
         // Now check if the usernameArray is an array
         if (!is_array($this->userVars['usernameArray'])) {
-            Output::error('You are not logged in (usernameArray not an array)');
+            Response::output('You are not logged in (usernameArray not an array)');
         }
         // Now check if the usernameArray is not empty
         if (empty($this->userVars['usernameArray'])) {
-            Output::error('You are not logged in (usernameArray empty)');
+            Response::output('You are not logged in (usernameArray empty)');
         }
     }
     public function checkSecretHeader(): void
@@ -197,31 +197,31 @@ class Checks
         $lowercaseHeaders = array_change_key_case($headers, CASE_LOWER);
         // Check if the secret header is set
         if (!isset($lowercaseHeaders[SECRET_HEADER])) {
-            Output::error('Missing required header');
+            Response::output('Missing required header');
         }
         // Check if the secret header is correct
         if ($lowercaseHeaders[SECRET_HEADER] !== SECRET_HEADER_VALUE) {
-            Output::error('Invalid required header value');
+            Response::output('Invalid required header value');
         }
     }
     public function checkImage(array $image): void
     {
         // Check if the image is set
         if (!isset($image['name'])) {
-            Output::error('Missing image');
+            Response::output('Missing image');
         }
         // Check if the image is an image
         if (!getimagesize($image['tmp_name'])) {
-            Output::error('Invalid image');
+            Response::output('Invalid image');
         }
         // Check if the image is not too big
         if ($image['size'] > 1000000) {
-            Output::error('Image too big');
+            Response::output('Image too big');
         }
         // Check if the image is the proper format
         $imageFileType = strtolower(pathinfo($image['name'], PATHINFO_EXTENSION));
         if (!in_array($imageFileType, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'affif'])) {
-            Output::error('Invalid image type');
+            Response::output('Invalid image type');
         }
     }
     /**
@@ -302,11 +302,11 @@ class Checks
     {
         foreach ($allowedParams as $name) {
             if (!array_key_exists($name, $providedParams)) {
-                Output::error('missing parameter ' . $name, 400);
+                Response::output('missing parameter ' . $name, 400);
             }
             // need to check if the parameter is empty but not use empty() as it returns incorrect for value 0
             if ($providedParams[$name] === null || $providedParams[$name] === '') {
-                Output::error('parameter ' . $name . ' cannot be empty', 400);
+                Response::output('parameter ' . $name . ' cannot be empty', 400);
             }
         }
     }
@@ -317,7 +317,7 @@ class Checks
         // Now we need to get the put data and make into array
         $putData = json_decode($putData, true);
         if (!is_array($putData)) {
-            Output::error('Invalid json data', 400);
+            Response::output('Invalid json data', 400);
         }
         return $putData;
     }

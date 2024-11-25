@@ -4,7 +4,7 @@ namespace App\Authentication;
 
 use App\Request\HttpClient;
 use App\Authentication\JWT;
-use Controllers\Api\Output;
+use App\Api\Response;
 use Google\Client;
 use App\Authentication\IdTokenCache;
 use App\Logs\SystemLog;
@@ -187,7 +187,7 @@ class Google
         if (!$check) {
             SystemLog::write('Token verification failed for ' . JWT::parseTokenPayLoad($idToken)['email'], 'Google Auth');
             JWT::handleValidationFailure();
-            Output::error('Invalid token', 400);
+            Response::output('Invalid token', 400);
             return false;
         }
         return true;

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-use Controllers\Api\Output;
+use App\Api\Response;
 use App\Authentication\JWT;
 use App\Authentication\AccessToken;
 
@@ -42,10 +42,10 @@ if (isset($_POST['error'], $_POST['error_description'])) {
 
         // header('Location: ' . ENTRA_ID_OAUTH_URL . http_build_query($data));
         // exit();
-        Output::error("App Registration Error: " . $_POST['error'] . " with Description: " . $_POST['error_description']);
+        Response::output("App Registration Error: " . $_POST['error'] . " with Description: " . $_POST['error_description']);
     }
 
-    Output::error("Azure Error: " . $_POST['error'] . " with Description: " . $_POST['error_description']);
+    Response::output("Azure Error: " . $_POST['error'] . " with Description: " . $_POST['error_description']);
 }
 
 if (isset($_POST['code'], $_POST['state'], $_POST['session_state'])) {
@@ -73,7 +73,7 @@ if (isset($_POST['code'], $_POST['state'], $_POST['session_state'])) {
         try {
             AccessToken::save($request['access_token'], $username);
         } catch (Exception $e) {
-            Output::error($e->getMessage(), 400);
+            Response::output($e->getMessage(), 400);
         }
         
         // Remove the username query string from state
@@ -87,7 +87,7 @@ if (isset($_POST['code'], $_POST['state'], $_POST['session_state'])) {
         header('Location: ' . $state);
         exit();
     } else {
-        Output::error('Error: ' . $request['error'], 400);
+        Response::output('Error: ' . $request['error'], 400);
     }
 
     if (isset($response['error_description'])) {
@@ -109,7 +109,7 @@ if (isset($_POST['code'], $_POST['state'], $_POST['session_state'])) {
             header('Location: ' . ENTRA_ID_OAUTH_URL . http_build_query($data));
             exit();
         } else {
-            Output::error($response['error_description'], 400);
+            Response::output($response['error_description'], 400);
         }
     }
 }
@@ -121,7 +121,7 @@ if (isset($_POST['access_token'], $_POST['token_type'], $_POST['expires_in'], $_
     try {
         AccessToken::save($_POST['access_token'], $username);
     } catch (Exception $e) {
-        Output::error($e->getMessage(), 400);
+        Response::output($e->getMessage(), 400);
     }
     // Remove the username query string from state
     $split = explode("&", $_POST['state']);
@@ -157,7 +157,7 @@ if (isset($_POST['code'], $_POST['state'])) {
         try {
             AccessToken::save($request['access_token'], $username);
         } catch (Exception $e) {
-            Output::error($e->getMessage(), 400);
+            Response::output($e->getMessage(), 400);
         }
         
         // Remove the username query string from state
@@ -167,6 +167,6 @@ if (isset($_POST['code'], $_POST['state'])) {
         header('Location: ' . $state);
         exit();
     } else {
-        Output::error('Error: ' . json_encode($request), 400);
+        Response::output('Error: ' . json_encode($request), 400);
     }
 }

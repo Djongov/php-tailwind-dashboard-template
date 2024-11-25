@@ -171,6 +171,8 @@ define("CURL_CERT", dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '
 define('SECRET_HEADER', 'secretheader');
 // Same as above
 define('SECRET_HEADER_VALUE', 'badass');
+// api key name
+define('API_KEY_NAME', 'x-api-key');
 
 /*
 

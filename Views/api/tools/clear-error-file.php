@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
-use Controllers\Api\Output;
-use Controllers\Api\Checks;
+use App\Api\Response;
+use App\Api\Checks;
 use App\Security\Firewall;
 
 Firewall::activate();
@@ -17,7 +17,7 @@ $allowedParams = ['api-action', 'csrf_token'];
 $checks->checkParams($allowedParams, $_POST);
 
 if ($_POST['api-action'] !== 'clear-error-file') {
-    Output::error('Invalid action');
+    Response::output('Invalid action');
 }
 
 $file = ini_get('error_log');

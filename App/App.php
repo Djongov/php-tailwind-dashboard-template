@@ -5,7 +5,7 @@ namespace App;
 use App\RequireLogin;
 use App\Page;
 use App\Core\Session;
-use Controllers\Api\Output;
+use App\Api\Response;
 
 class App
 {
@@ -21,6 +21,9 @@ class App
 
         // Now that we've loaded the env, let's get the site settings
         require_once dirname($_SERVER['DOCUMENT_ROOT']) . '/config/site-settings.php';
+
+        // Require the functions file
+        require_once dirname($_SERVER['DOCUMENT_ROOT']) . '/config/functions.php';
         
         /*
             Now Routing
@@ -64,14 +67,14 @@ class App
                     );
                 } else {
                     // For non-GET requests, provide an API response
-                    Output::error('api endpoint (' . $uri . ') not found', 404);
+                    Response::output('api endpoint (' . $uri . ') not found', 404);
                 }
                 break;
 
             case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
                 $allowedMethods = $routeInfo[1];
                 // Handle 405 Method Not Allowed
-                Output::error('Method not allowed. Allowed methods are: ' . implode(',', $allowedMethods), 405);
+                Response::output('Method not allowed. Allowed methods are: ' . implode(',', $allowedMethods), 405);
                 break;
 
             case \FastRoute\Dispatcher::FOUND:

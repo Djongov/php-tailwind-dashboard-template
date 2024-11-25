@@ -587,6 +587,17 @@ if (changeForms.length > 0) {
                         // If response is not JSON at all, return the response text as alert
                         loadingDiv.classList.add('text-green-500', 'font-semibold', 'text-xl');
                         loadingDiv.innerHTML = '&#x2713;';
+                        // If data-reload is on the form, instruct to reload the page
+                        if (form.getAttribute("data-reload") === "true") {
+                            location.reload();
+                            // Otherwise display the returned data
+                        } else if (form.getAttribute("data-redirect")) {
+                            location.href = form.getAttribute("data-redirect");
+                            // If data-delete-current-row, delete the current <tr> element
+                        } else if (form.getAttribute("data-delete-current-row")) {
+                            // Now find the closest tr and delete it
+                            currentEvent.target.closest("tr").remove();
+                        }
                     } else {
                         loadingDiv.remove();
                         // Restore currentSelection option to what it was

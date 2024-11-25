@@ -4,7 +4,7 @@ use Components\Forms;
 use Components\Html;
 use App\Logs\SystemLog;
 use App\Security\Firewall;
-use Controllers\Api\Output;
+use App\Api\Response;
 use Components\DataGrid;
 use Components\Alerts;
 
@@ -13,12 +13,12 @@ Firewall::activate();
 
 // Admin check
 if (!$isAdmin) {
-    Output::error('You are not an admin', 403);
+    Response::output('You are not an admin', 403);
 }
 
 if (!$isAdmin) {
     SystemLog::write('Got unauthorized for admin page', 'Access');
-    Output::error('You are not authorized to view this page', 401);
+    Response::output('You are not authorized to view this page', 401);
 }
 
 // First check if error_log is there
@@ -66,7 +66,7 @@ if (empty($errorLog)) {
             'size' => 'medium',
         ],
     ];
-    echo '<div class="flex">';
+    echo '<div class="flex space-x-2">';
         echo Forms::render($loadErrorFileArray);
         echo Forms::render($clearErrorFileformArray);
     echo '</div>';

@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Database;
 
-use Controllers\Api\Output;
+use App\Api\Response;
 use Exception;
 
 class MYSQL
@@ -21,9 +21,9 @@ class MYSQL
                 $conn->real_connect('p:' . DB_HOST, DB_USER, DB_PASS, DB_NAME, 3306, DB_SSL);
             } catch (\mysqli_sql_exception $e) {
                 if (str_contains($e->getMessage(), "Unknown database") !== false) {
-                    Output::error('Database "' . DB_NAME . '" does not exist, you need to go through the /install endpoint' . $_SERVER['REQUEST_URI'], 400);
+                    Response::output('Database "' . DB_NAME . '" does not exist, you need to go through the /install endpoint' . $_SERVER['REQUEST_URI'], 400);
                 } else {
-                    Output::error($e->getMessage(), 400);
+                    Response::output($e->getMessage(), 400);
                 }
             }
         } else {
@@ -31,9 +31,9 @@ class MYSQL
                 $conn->real_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
             } catch (\mysqli_sql_exception $e) {
                 if (str_contains($e->getMessage(), "Unknown database") !== false) {
-                    Output::error('Database "' . DB_NAME . '" does not exist, you need to go through the /install endpoint', 400);
+                    Response::output('Database "' . DB_NAME . '" does not exist, you need to go through the /install endpoint', 400);
                 } else {
-                    Output::error($e->getMessage(), 400);
+                    Response::output($e->getMessage(), 400);
                 }
             }
         }
@@ -47,7 +47,7 @@ class MYSQL
         try {
             $stmt = $link->prepare($query);
         } catch (\mysqli_sql_exception $e) {
-            Output::error($e->getMessage(), 400);
+            Response::output($e->getMessage(), 400);
         }
         $result = false;
         try {
@@ -58,7 +58,7 @@ class MYSQL
                 $result = $stmt;
             }
         } catch (\mysqli_sql_exception $e) {
-            Output::error($e->getMessage(), 400);
+            Response::output($e->getMessage(), 400);
         }
 
         $link->close();
@@ -72,7 +72,7 @@ class MYSQL
         try {
             $stmt = $link->prepare($query);
         } catch (Exception $e) {
-            Output::error($e->getMessage(), 400);
+            Response::output($e->getMessage(), 400);
         }
         if (is_array($statement)) {
             $statementParams = '';
@@ -102,11 +102,11 @@ class MYSQL
         // Debugging statement 3: Print the error message
         echo "Debug MySQL Error: $error\n";
         $link->close();
-        Output::error($error, 400);
+        Response::output($error, 400);
     }
         } catch (Exception $e) {
             $link->close();
-            Output::error($e->getMessage(), 400);
+            Response::output($e->getMessage(), 400);
         }
     }
     // Sometimes you may need to make a bundle of queries one after the other, returns a result
@@ -117,7 +117,7 @@ class MYSQL
             try {
                 $result = mysqli_query($link, $sql);
             } catch (Exception $e) {
-                Output::error($e->getMessage(), 400);
+                Response::output($e->getMessage(), 400);
             }
         }
         $link->close();
@@ -153,7 +153,7 @@ class MYSQL
         // Check if all keys in $reports_array match the columns
         foreach ($array as $key => $value) {
             if (!array_key_exists($key, $columns)) {
-                Output::error("Column '$key' does not exist in table '$table'", 400);
+                Response::output("Column '$key' does not exist in table '$table'", 400);
             }
         }
     }
@@ -206,14 +206,14 @@ class MYSQL
             }
             if (!array_key_exists($key, $dbColumns)) {
                 // Column does not exist in the database
-                Output::error("Column '$key' does not exist in table '$table");
+                Response::output("Column '$key' does not exist in table '$table");
             } else {
                 // Column exists, check data type
                 $expectedType = self::normalizeDataType($dbColumns[$key]);
                 $actualType = self::normalizeDataType(gettype($value));
 
                 if (self::checkDataType($expectedType, $actualType)) {
-                    Output::error("Column '$key' in table '$table' has incorrect data type. Expected '$expectedType', got '$actualType'");
+                    Response::output("Column '$key' in table '$table' has incorrect data type. Expected '$expectedType', got '$actualType'");
                 }
             }
         }
