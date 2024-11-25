@@ -67,7 +67,7 @@ class User
             $createUser = new UserModel();
             $createUser->create($insertData);
             if ($returnResult) {
-                Response::output('User created');
+                return;
             }
         } catch (UserExceptions $e) {
             $this->handleUserErrorsApiResponse($e, 'user controller: UserExceptions creating azure provider user', 'unable to create user');
@@ -106,7 +106,7 @@ class User
             $createUser = new UserModel();
             $createUser->create($insertData);
             if ($returnResult) {
-                Response::output('User created');
+                return;
             }
         } catch (UserExceptions $e) {
             $this->handleUserErrorsApiResponse($e, 'user controller: UserExceptions creating mslive provider user', 'unable to create user');
@@ -146,7 +146,7 @@ class User
             $createUser = new UserModel();
             $createUser->create($insertData);
             if ($returnResult) {
-                Response::output('User created');
+                return;
             }
         } catch (UserExceptions $e) {
             $this->handleUserErrorsApiResponse($e, 'user controller: UserExceptions creating google provider user', 'unable to create user');

@@ -40,7 +40,9 @@ class Firewall
         }
         $stmt = $db->getConnection()->prepare($query);
         $stmt->execute([$param]);
-        return ($stmt->rowCount() > 0) ? true : false;
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $rowCount = count($rows);
+        return ($rowCount > 0) ? true : false;
     }
     /**
      * Gets an IP from the firewall table, accepts an ID or an IP in CIDR notation. If no parameter is provided, returns all IPs

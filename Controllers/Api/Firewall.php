@@ -51,9 +51,9 @@ class Firewall
             $firewall->save($ip, $createdBy, $comment);
             Response::output('ip ' . $ip . ' added to the firewall');
         } catch (FirewallException $e) {
-            Response::output($e->getMessage());
+            Response::output($e->getMessage(), $e->getCode());
         } catch (\Exception $e) {
-            Response::output($e->getMessage());
+            Response::output($e->getMessage(), $e->getCode());
         }
     }
     /**
@@ -73,9 +73,9 @@ class Firewall
             $firewall->update($data, $id, $updatedBy);
             Response::output('ip with id ' . $id . ' updated');
         } catch (FirewallException $e) {
-            Response::output($e->getMessage());
+            Response::output($e->getMessage(), $e->getCode());
         } catch (\Exception $e) {
-            Response::output($e->getMessage());
+            Response::output($e->getMessage(), $e->getCode());
         }
     }
     /**

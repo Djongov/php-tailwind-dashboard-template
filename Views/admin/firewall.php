@@ -22,10 +22,10 @@ $firewallAddForm = [
             [
                 'type' => 'text',
                 'name' => 'cidr',
-                'label' => 'CIDR IP',
+                'label' => 'IP (can be in CIDR notation)',
                 'required' => true,
                 'placeholder' => '1.1.1.1/32',
-                'description' => 'The CIDR IP to add to the firewall. If you don\'t provide a mask, it will default to /32.'
+                'description' => 'The IP to add to the firewall. If you don\'t provide a mask, it will default to /32.'
             ],
             [
                 'type' => 'text',
