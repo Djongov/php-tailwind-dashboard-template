@@ -1,34 +1,35 @@
 <?php declare(strict_types=1);
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') :
+if ($_SERVER['REQUEST_METHOD'] === 'GET'):
 
     if (file_exists(dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . '.env')) {
         die('No work to be done here');
     }
 ?>
-<h2>This is a form to help you create a .env file not by hand</h2>
-<p>Have in mind that most of the settings that control this app are in /config folder.</p>
+
+<h2>This is a form to help you create a .env file automatically</h2>
 <form id="env">
-    <label for="DB_SSL">DB_SSL:</label>
-    <select id="DB_SSL" name="DB_SSL">
-        <option value="false">false</option>
-        <option value="true">true</option>
-    </select><br><br>
-    <label for="DB_HOST">DB_HOST:</label>
-    <input type="text" id="DB_HOST" name="DB_HOST" required placeholder="localhost" value="localhost"><br><br>
+<div id="db-fields">
+        <label for="DB_SSL">DB_SSL:</label>
+        <select id="DB_SSL" name="DB_SSL">
+            <option value="false">false</option>
+            <option value="true">true</option>
+        </select><br><br>
 
-    <label for="DB_USER">DB_USER:</label>
-    <input type="text" id="DB_USER" name="DB_USER" placeholder="root" value="root" required><br><br>
+        <label for="DB_HOST">DB_HOST:</label>
+        <input type="text" id="DB_HOST" name="DB_HOST" required placeholder="localhost" value="localhost"><br><br>
 
-    <label for="DB_PASS">DB_PASS:</label>
-    <input type="password" id="DB_PASS" name="DB_PASS" required><br><br>
+        <label for="DB_USER">DB_USER:</label>
+        <input type="text" id="DB_USER" name="DB_USER" placeholder="root" value="root" required><br><br>
 
-    <label for="DB_NAME">DB_NAME:</label>
-    <input type="text" id="DB_NAME" name="DB_NAME" placeholder="dashboard" value="dashboard" required><br><br>
+        <label for="DB_PASS">DB_PASS:</label>
+        <input type="password" id="DB_PASS" name="DB_PASS" required><br><br>
 
-    <label for="DB_PORT">DB_PORT:</label>
-    <input type="number" id="DB_PORT" name="DB_PORT" value="3306" required><br><br>
-
+        <label for="DB_PORT">DB_PORT:</label>
+        <input type="number" id="DB_PORT" name="DB_PORT" value="3306" required><br><br>
+    </div>
+        <label for="DB_PORT">DB_NAME:</label>
+        <input type="text" id="DB_NAME" name="DB_NAME" value="dashboard" required><br><br>
     <label for="DB_DRIVER">DB_DRIVER:</label>
     <select id="DB_DRIVER" name="DB_DRIVER">
         <option value="mysql">MySQL</option>
@@ -37,27 +38,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') :
         <option value="sqlite">SQLite</option>
     </select><br><br>
 
+    
+    <label for="ENTRA_ID_LOGIN_ENABLED">Entra ID Login (formerly Azure AD)</label>
+        <input type="checkbox" id="ENTRA_ID_LOGIN_ENABLED" name="ENTRA_ID_LOGIN_ENABLED">
+    <br><br>
+
+    <label for="MSLIVE_LOGIN_ENABLED">Microsoft LIVE Login</label>
+        <input type="checkbox" id="MSLIVE_LOGIN_ENABLED" name="MSLIVE_LOGIN_ENABLED">
+    <br><br>
+
+    <label for="GOOGLE_LOGIN_ENABLED">Google Login
+        <input type="checkbox" id="GOOGLE_LOGIN_ENABLED" name="GOOGLE_LOGIN_ENABLED">
+    </label>
+    <br><br>
+
+    <input type="checkbox" id="LOCAL_LOGIN_ENABLED" name="LOCAL_LOGIN_ENABLED" checked></label>
+    <label for="LOCAL_LOGIN_ENABLED">Local Login<br><br>
+
     <label for="SENDGRID">SENDGRID
         <input type="checkbox" id="SENDGRID" name="SENDGRID">
     </label>
     <br><br>
-
-    
-    <label for="Entra_ID_login">Entra ID Login (formerly Azure AD)</label>
-        <input type="checkbox" id="Entra_ID_login" name="Entra_ID_login">
-    <br><br>
-
-    <label for="Microsoft_LIVE_login">Microsoft LIVE Login</label>
-        <input type="checkbox" id="Microsoft_LIVE_login" name="Microsoft_LIVE_login">
-    <br><br>
-
-    <label for="Google_login">Google Login
-        <input type="checkbox" id="Google_login" name="Google_login">
-    </label>
-    <br><br>
-
-    <input type="checkbox" id="local_login" name="local_login" checked></label>
-    <label for="local_login">Local Login<br><br>
     
 
     <button type="submit">Submit</button>
@@ -77,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Create the .env file
     $envContentArray = $_POST;
     
-    if (isset($_POST['local_login']) && $_POST["local_login"] === 'on') {
+    if (isset($_POST['LOCAL_LOGIN_ENABLED']) && $_POST["LOCAL_LOGIN_ENABLED"] === 'on') {
         if (!extension_loaded('openssl')) {
             die('Enable openssl extension');
         }
@@ -110,27 +111,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $envContentArray['JWT_PUBLIC_KEY'] = $base64PublicKey;
         $envContentArray['JWT_PRIVATE_KEY'] = $base64PrivateKey;
 
-        $envContentArray['LocalLoginEnabled'] = 'true';
+        $envContentArray['LOCAL_LOGIN_ENABLED'] = 'true';
     } else {
-        $envContentArray['LocalLoginEnabled'] = 'false';
+        $envContentArray['LOCAL_LOGIN_ENABLED'] = 'false';
     }
 
-    if (isset($_POST['Google_login']) && $_POST["Google_login"] === 'on') {
-        $envContentArray['GoogleLoginEnabled'] = 'true';
+    if (isset($_POST['GOOGLE_LOGIN_ENABLED']) && $_POST["GOOGLE_LOGIN_ENABLED"] === 'on') {
+        $envContentArray['GOOGLE_LOGIN_ENABLED'] = 'true';
     } else {
-        $envContentArray['GoogleLoginEnabled'] = 'false';
+        $envContentArray['GOOGLE_LOGIN_ENABLED'] = 'false';
     }
 
-    if (isset($_POST['Microsoft_LIVE_login']) && $_POST["Microsoft_LIVE_login"] === 'on') {
-        $envContentArray['MicrosoftLiveLoginEnabled'] = 'true';
+    if (isset($_POST['MSLIVE_LOGIN_ENABLED']) && $_POST["MSLIVE_LOGIN_ENABLED"] === 'on') {
+        $envContentArray['MSLIVE_LOGIN_ENABLED'] = 'true';
     } else {
-        $envContentArray['MicrosoftLiveLoginEnabled'] = 'false';
+        $envContentArray['MSLIVE_LOGIN_ENABLED'] = 'false';
     }
 
-    if (isset($_POST['Entra_ID_login']) && $_POST["Entra_ID_login"] === 'on') {
-        $envContentArray['EntraIDLoginEnabled'] = 'true';
+    if (isset($_POST['ENTRA_ID_LOGIN_ENABLED']) && $_POST["ENTRA_ID_LOGIN_ENABLED"] === 'on') {
+        $envContentArray['ENTRA_ID_LOGIN_ENABLED'] = 'true';
     } else {
-        $envContentArray['EntraIDLoginEnabled'] = 'false';
+        $envContentArray['ENTRA_ID_LOGIN_ENABLED'] = 'false';
     }
 
     if (isset($_POST['SENDGRID']) && $_POST["SENDGRID"] === 'on') {
@@ -140,10 +141,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     // Let's unset the ones that we don't want to be in the .env file
-    unset($envContentArray['local_login']);
-    unset($envContentArray['Google_login']);
-    unset($envContentArray['Microsoft_LIVE_login']);
-    unset($envContentArray['Entra_ID_login']);
     unset($envContentArray['SENDGRID']);
 
     $envContent = '';

@@ -22,7 +22,7 @@ if (AuthToken::get() !== null) {
         }
     }
     // Check if valid
-    if ($idToken['iss'] === 'https://login.microsoftonline.com/' . AZURE_AD_TENANT_ID . '/v2.0' && AzureAD::check(AuthToken::get())) {
+    if ($idToken['iss'] === 'https://login.microsoftonline.com/' . ENTRA_ID_TENANT_ID . '/v2.0' && AzureAD::check(AuthToken::get())) {
         header('Location: ' . $destinationUrl);
     }
 }
@@ -30,13 +30,13 @@ if (AuthToken::get() !== null) {
 echo '<div class="flex items-center justify-center mx-4">';
     echo '<div class="flex flex-col w-full max-w-md my-16 px-4 py-6 rounded-lg ' . LIGHT_COLOR_SCHEME_CLASS . ' ' . DARK_COLOR_SCHEME_CLASS . ' sm:px-6 md:px-8 lg:px-10 border border-gray-300 shadow-md">';
         // Now the different external provider login options
-        if (AZURE_AD_LOGIN || MICROSOFT_LIVE_LOGIN || GOOGLE_LOGIN) {
+        if (ENTRA_ID_LOGIN || MICROSOFT_LIVE_LOGIN || GOOGLE_LOGIN) {
             echo Html::h3('Login with a provider account', true, ['my-6']);
         }
         // Azure
-        if (AZURE_AD_LOGIN) {
+        if (ENTRA_ID_LOGIN) {
             echo '<div class="flex gap-4 item-center">';
-                echo '<a class="mb-4 w-full ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' font-medium text-center border border-gray-200 rounded-md shadow-sm hover:bg-gray-200 hover:dark:text-black" href="' . AZURE_AD_LOGIN_BUTTON_URL . '">';
+                echo '<a class="mb-4 w-full ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' font-medium text-center border border-gray-200 rounded-md shadow-sm hover:bg-gray-200 hover:dark:text-black" href="' . ENTRA_ID_LOGIN_BUTTON_URL . '">';
                     echo '<div class="flex items-center justify-center py-3 px-3 leading-5">';
                         echo MS_LOGO;
                             echo '<span class="ml-3">Sign in with Microsoft Work or school</span>';
@@ -67,9 +67,9 @@ echo '<div class="flex items-center justify-center mx-4">';
         }
         // Local login
         if (LOCAL_USER_LOGIN) {
-            if (AZURE_AD_LOGIN || GOOGLE_LOGIN || MICROSOFT_LIVE_LOGIN) {
+            if (ENTRA_ID_LOGIN || GOOGLE_LOGIN || MICROSOFT_LIVE_LOGIN) {
                 echo Html::p('or login with your local account', ['text-center', 'mb-4']);
-            } elseif (!AZURE_AD_LOGIN && !GOOGLE_LOGIN && !MICROSOFT_LIVE_LOGIN) {
+            } elseif (!ENTRA_ID_LOGIN && !GOOGLE_LOGIN && !MICROSOFT_LIVE_LOGIN) {
                 echo Html::h3('Login with your local account', true, ['my-6']);
             }
             $localLoginForm = [
@@ -131,7 +131,7 @@ echo '<div class="flex items-center justify-center mx-4">';
             }
         }
         // If no login methods are enabled, show an alert
-        if (!LOCAL_USER_LOGIN && !AZURE_AD_LOGIN && !GOOGLE_LOGIN && !MICROSOFT_LIVE_LOGIN) {
+        if (!LOCAL_USER_LOGIN && !ENTRA_ID_LOGIN && !GOOGLE_LOGIN && !MICROSOFT_LIVE_LOGIN) {
             echo Alerts::danger('No login methods are enabled. Check config');
         }
     // Close the login container

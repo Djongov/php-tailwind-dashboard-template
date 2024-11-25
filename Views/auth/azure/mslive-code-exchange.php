@@ -35,7 +35,7 @@ if (isset($_POST['error'], $_POST['error_description'])) {
     if (str_contains($_POST['error'], 'login_required')) {
         // Send an Authorization request if the error is AADSTS50058 (login_required)
         // $data = [
-        //     'client_id' => AZURE_AD_CLIENT_ID,
+        //     'client_id' => ENTRA_ID_CLIENT_ID,
         //     'response_type' => 'code',
         //     'redirect_uri' => $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] , // redirect back to the same page
         //     'scope' => 'https://graph.microsoft.com/user.read',
@@ -46,7 +46,7 @@ if (isset($_POST['error'], $_POST['error_description'])) {
         //     'login_hint' => $username
         // ];
 
-        // header('Location: ' . AZURE_AD_OAUTH_URL . http_build_query($data));
+        // header('Location: ' . ENTRA_ID_OAUTH_URL . http_build_query($data));
         // exit();
         Output::error("App Registration Error: " . $_POST['error'] . " with Description: " . $_POST['error_description']);
     }

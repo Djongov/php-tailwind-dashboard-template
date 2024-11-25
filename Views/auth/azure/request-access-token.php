@@ -14,15 +14,15 @@ $username = JWT::extractUserName(AuthToken::get()) ?? die('No username found');
 // if ($_GET['provider'] === 'mslive') {
 //     $url = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?';
 // } elseif ($_GET['provider'] === 'azure') {
-//     $url = AZURE_AD_OAUTH_URL;
+//     $url = ENTRA_ID_OAUTH_URL;
 // } else {
 //     Output::error('Invalid provider');
 // }
 
 $data = [
-    'client_id' => AZURE_AD_CLIENT_ID,
+    'client_id' => ENTRA_ID_CLIENT_ID,
     'response_type' => 'code',
-    'redirect_uri' => AZURE_AD_CODE_REDIRECT_URI,
+    'redirect_uri' => ENTRA_ID_CODE_REDIRECT_URI,
     'scope' => 'https://graph.microsoft.com/user.read',
     'response_mode' => 'form_post',
     'state' => $state . '&username=' . $username,
@@ -33,9 +33,9 @@ $data = [
 
 if ($usernameArray['provider'] === 'azure') {
     $data = [
-        'client_id' => AZURE_AD_CLIENT_ID,
+        'client_id' => ENTRA_ID_CLIENT_ID,
         'response_type' => 'code',
-        'redirect_uri' => AZURE_AD_CODE_REDIRECT_URI,
+        'redirect_uri' => ENTRA_ID_CODE_REDIRECT_URI,
         'scope' => 'https://graph.microsoft.com/user.read',
         'response_mode' => 'form_post',
         'state' => $state . '&username=' . $username,
@@ -43,7 +43,7 @@ if ($usernameArray['provider'] === 'azure') {
         'prompt' => 'none',
         'login_hint' => $username
     ];
-    $url = AZURE_AD_OAUTH_URL;
+    $url = ENTRA_ID_OAUTH_URL;
 } elseif ($usernameArray['provider'] === 'mslive') {
     $data = [
         'client_id' => MS_LIVE_CLIENT_ID,

@@ -69,11 +69,9 @@ function toggleAdditionalField(checkboxId, fieldName, placeholder) {
 
         // Insert the container below the checkbox
         checkbox.parentNode.insertBefore(fieldContainer, checkbox.nextSibling);
-    } else {
+    } else if (additionalFieldContainer) {
         // If checkbox is unchecked, remove the input field container
-        if (additionalFieldContainer) {
-            additionalFieldContainer.remove();
-        }
+        additionalFieldContainer.remove();
     }
 }
 
@@ -83,13 +81,13 @@ document.getElementById('SENDGRID').addEventListener('change', () => {
 });
 
 // Add event listener to Entra ID Login
-document.getElementById('Entra_ID_login').addEventListener('change', () => {
-    toggleAdditionalField('Entra_ID_login', 'AZURE_AD_CLIENT_SECRET', 'Client Secret');
-    toggleAdditionalField('Entra_ID_login', 'AZURE_AD_CLIENT_ID', 'App ID');
-    toggleAdditionalField('Entra_ID_login', 'AZURE_AD_TENANT_ID', 'Tenant ID');
+document.getElementById('ENTRA_ID_LOGIN_ENABLED').addEventListener('change', () => {
+    toggleAdditionalField('ENTRA_ID_LOGIN_ENABLED', 'ENTRA_ID_CLIENT_SECRET', 'Client Secret');
+    toggleAdditionalField('ENTRA_ID_LOGIN_ENABLED', 'ENTRA_ID_CLIENT_ID', 'App ID');
+    toggleAdditionalField('ENTRA_ID_LOGIN_ENABLED', 'ENTRA_ID_TENANT_ID', 'Tenant ID');
     // Add a small paragraph with the instructions
-    if (document.getElementById('Entra_ID_login').checked) {
-        addInstructions('Entra_ID_login', 'Entra_ID_instructions', 'Create a new App registration in Azure AD. Create a secret and copy the values to the fields below. Make sure to add the redirect URI to the App registration. More info in the README.md file.');
+    if (document.getElementById('ENTRA_ID_LOGIN_ENABLED').checked) {
+        addInstructions('ENTRA_ID_LOGIN_ENABLED', 'Entra_ID_instructions', 'Create a new App registration in Azure AD. Create a secret and copy the values to the fields below. Make sure to add the redirect URI to the App registration. More info in the README.md file.');
     } else {
         removeInstructions('Entra_ID_instructions');
     }
@@ -97,26 +95,26 @@ document.getElementById('Entra_ID_login').addEventListener('change', () => {
 });
 
 // MS Live
-document.getElementById('Microsoft_LIVE_login').addEventListener('change', () => {
-    toggleAdditionalField('Microsoft_LIVE_login', 'MS_LIVE_CLIENT_SECRET', 'Client Secret');
-    toggleAdditionalField('Microsoft_LIVE_login', 'MS_LIVE_CLIENT_ID', 'App ID');
-    toggleAdditionalField('Microsoft_LIVE_login', 'MS_LIVE_TENANT_ID', 'Tenant ID');
-    if (document.getElementById('Microsoft_LIVE_login').checked) {
-        addInstructions('Microsoft_LIVE_login', 'Microsoft_LIVE_instructions', 'Create a new App registration in Entra ID. Make sure that LIVE accounts are supported. Create a secret and copy the values to the fields below. Make sure to add the redirect URI to the App registration. More info in the README.md file.');
+document.getElementById('MSLIVE_LOGIN_ENABLED').addEventListener('change', () => {
+    toggleAdditionalField('MSLIVE_LOGIN_ENABLED', 'MS_LIVE_CLIENT_SECRET', 'Client Secret');
+    toggleAdditionalField('MSLIVE_LOGIN_ENABLED', 'MS_LIVE_CLIENT_ID', 'App ID');
+    toggleAdditionalField('MSLIVE_LOGIN_ENABLED', 'MS_LIVE_TENANT_ID', 'Tenant ID');
+    if (document.getElementById('MSLIVE_LOGIN_ENABLED').checked) {
+        addInstructions('MSLIVE_LOGIN_ENABLED', 'Microsoft_LIVE_instructions', 'Create a new App registration in Entra ID. Make sure that LIVE accounts are supported. Create a secret and copy the values to the fields below. Make sure to add the redirect URI to the App registration. More info in the README.md file.');
     } else {
         removeInstructions('Microsoft_LIVE_instructions');
     }
 });
 
 // Google login
-document.getElementById('Google_login').addEventListener('change', () => {
-    toggleAdditionalField('Google_login', 'GOOGLE_CLIENT_SECRET', 'GOOGLE_CLIENT_SECRET');
-    toggleAdditionalField('Google_login', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_ID');
+document.getElementById('GOOGLE_LOGIN_ENABLED').addEventListener('change', () => {
+    toggleAdditionalField('GOOGLE_LOGIN_ENABLED', 'GOOGLE_CLIENT_SECRET', 'GOOGLE_CLIENT_SECRET');
+    toggleAdditionalField('GOOGLE_LOGIN_ENABLED', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_ID');
 
-    if (document.getElementById('Google_login').checked) {
-        addInstructions('Google_login', 'Google_login_instructions', 'Register new Credentials in GPC. Go to API and Services -> Credentials -> Create Credentials -> OAuth Client ID. Select Web Application and fill the form. Copy the Client ID and Client Secret to the fields below. Make sure to add the redirect URI to the Credentials. More info in the README.md file.');
+    if (document.getElementById('GOOGLE_LOGIN_ENABLED').checked) {
+        addInstructions('GOOGLE_LOGIN_ENABLED', 'GOOGLE_LOGIN_ENABLED_instructions', 'Register new Credentials in GPC. Go to API and Services -> Credentials -> Create Credentials -> OAuth Client ID. Select Web Application and fill the form. Copy the Client ID and Client Secret to the fields below. Make sure to add the redirect URI to the Credentials. More info in the README.md file.');
     } else {
-        removeInstructions('Google_login_instructions');
+        removeInstructions('GOOGLE_LOGIN_ENABLED_instructions');
     }
 });
 
@@ -143,3 +141,37 @@ const removeInstructions = (instructionsId) => {
     }
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+    const dbDriver = document.getElementById("DB_DRIVER");
+    const dbFieldsContainer = document.getElementById("db-fields");
+    const form = document.getElementById("env"); // The form element
+
+    let originalFieldsContainer = null; // To store the original container temporarily
+
+    function toggleFields() {
+        const isSQLite = dbDriver.value === "sqlite";
+
+        if (isSQLite) {
+            // Save the original container if it's still in the form
+            if (dbFieldsContainer.parentNode === form) {
+                originalFieldsContainer = dbFieldsContainer.cloneNode(true); // Clone for restoration
+                dbFieldsContainer.remove(); // Remove from the form
+            }
+        } else {
+            // Restore the container if it was previously removed
+            if (!document.getElementById("db-fields") && originalFieldsContainer) {
+                // Create the div
+                dbFieldsContainer.id = "db-fields";
+                // add at the start of the form
+                form.insertBefore(dbFieldsContainer, form.firstChild);
+                dbFieldsContainer.innerHTML = originalFieldsContainer.innerHTML;
+            }
+        }
+    }
+
+    // Trigger on page load in case 'sqlite' is preselected
+    toggleFields();
+
+    // Add change listener to DB_DRIVER
+    dbDriver.addEventListener("change", toggleFields);
+});

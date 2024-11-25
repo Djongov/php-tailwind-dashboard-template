@@ -117,10 +117,10 @@ $_ENV is taking values from the .env file in the root of the project. If you are
 $requiredEnvConstants = [
     'DB_NAME',
     'DB_DRIVER',
-    'LocalLoginEnabled',
-    'GoogleLoginEnabled',
-    'MicrosoftLiveLoginEnabled',
-    'EntraIDLoginEnabled',
+    'LOCAL_LOGIN_ENABLED',
+    'GOOGLE_LOGIN_ENABLED',
+    'MSLIVE_LOGIN_ENABLED',
+    'ENTRA_ID_LOGIN_ENABLED',
     'SENDGRID_ENABLED'
 ];
 
@@ -238,7 +238,7 @@ $destination = (isset($_GET['destination'])) ? $_GET['destination'] : $_SERVER['
 $protocol = (str_contains($_SERVER['HTTP_HOST'], 'localhost')) ? 'http' : 'https';
 
 // Whether to allow users to login with local accounts
-define('LOCAL_USER_LOGIN', filter_var($_ENV['LocalLoginEnabled'], FILTER_VALIDATE_BOOLEAN));
+define('LOCAL_USER_LOGIN', filter_var($_ENV['LOCAL_LOGIN_ENABLED'], FILTER_VALIDATE_BOOLEAN));
 if (LOCAL_USER_LOGIN) {
     if (!isset($_ENV['JWT_PUBLIC_KEY']) || !isset($_ENV['JWT_PRIVATE_KEY'])) {
         die('JWT_PUBLIC_KEY and JWT_PRIVATE_KEY must be set in the .env file');
@@ -251,16 +251,16 @@ if (LOCAL_USER_LOGIN) {
     define('MANUAL_REGISTRATION', true);
 }
 // Whether to allow users to login with Azure AD accounts
-define('AZURE_AD_LOGIN', filter_var($_ENV['EntraIDLoginEnabled'], FILTER_VALIDATE_BOOLEAN));
-if (AZURE_AD_LOGIN) {
+define('ENTRA_ID_LOGIN', filter_var($_ENV['ENTRA_ID_LOGIN_ENABLED'], FILTER_VALIDATE_BOOLEAN));
+if (ENTRA_ID_LOGIN) {
     include_once dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'azure-ad-auth-config.php';
 }
-define('MICROSOFT_LIVE_LOGIN', filter_var($_ENV['MicrosoftLiveLoginEnabled'], FILTER_VALIDATE_BOOLEAN));
+define('MICROSOFT_LIVE_LOGIN', filter_var($_ENV['MSLIVE_LOGIN_ENABLED'], FILTER_VALIDATE_BOOLEAN));
 if (MICROSOFT_LIVE_LOGIN) {
     include_once dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'microsoft-live-auth-config.php';
 }
 // Google login
-define('GOOGLE_LOGIN', filter_var($_ENV['GoogleLoginEnabled'], FILTER_VALIDATE_BOOLEAN));
+define('GOOGLE_LOGIN', filter_var($_ENV['GOOGLE_LOGIN_ENABLED'], FILTER_VALIDATE_BOOLEAN));
 if (GOOGLE_LOGIN) {
     include_once dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'google-auth-config.php';
 }

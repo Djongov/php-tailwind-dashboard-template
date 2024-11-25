@@ -20,7 +20,7 @@ if ($usernameArray['provider'] === 'google') {
 }
 // Send to AzureAD logout URL if provider is AzureAD
 if ($usernameArray['provider'] === 'azure') {
-    header('Location: ' . AZURE_AD_LOGOUT_BUTTON_URL);
+    header('Location: ' . ENTRA_ID_LOGOUT_BUTTON_URL);
     exit;
 }
 // MS live now

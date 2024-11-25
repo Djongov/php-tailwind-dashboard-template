@@ -36,7 +36,7 @@ Next you need to base64 encode them and then place them in the .env file as the 
 
 - JWT_PUBLIC_KEY - This needs to be a base64 encoded public key
 - JWT_PRIVATE_KEY - This needs to be a base64 encoded private key
-- LocalLoginEnabled=true or false
+- LOCAL_LOGIN_ENABLED=true or false
 
 > Note that you can generate the key pair automatically, if you generate your .env file via the `/create-env` endpoint which only works if you don't have an existing .env file in the root
 
@@ -59,14 +59,14 @@ This works by either creating an app registration in your Azure tenant (works wi
 
 Now, in the .env file place the following:
 
-- EntraIDLoginEnabled=true or false
-- AZURE_AD_TENANT_ID="XXXX"
-- AZURE_AD_CLIENT_ID="XXXX"
-- AZURE_AD_CLIENT_SECRET="XXXX"
+- ENTRA_ID_LOGIN_ENABLED=true or false
+- ENTRA_ID_TENANT_ID="XXXX"
+- ENTRA_ID_CLIENT_ID="XXXX"
+- ENTRA_ID_CLIENT_SECRET="XXXX"
 
 > Note that you can do this in the `/create-env` endpoint as well, if you are generating the .env file from there
 
-If your app registration is multitenant, you have to go to `/config/azure-ad-auth-config.php` and change constant `AZURE_AD_MULTITENANT` to true
+If your app registration is multitenant, you have to go to `/config/azure-ad-auth-config.php` and change constant `ENTRA_ID_MULTITENANT` to true
 
 ## Microsoft Live (personal)
 
@@ -104,6 +104,6 @@ Follow these steps if you want a Google authentication.
 
 Record the client ID and secret into the .env file as:
 
-- GoogleLoginEnabled=true or false
+- GOOGLE_LOGIN_ENABLED=true or false
 - GOOGLE_CLIENT_ID="XXXXXX.apps.googleusercontent.com"
 - GOOGLE_CLIENT_SECRET="XXXXX"

@@ -45,6 +45,10 @@ window.addEventListener('storage', (event) => {
 // Initially set button state when the page loads
 setButtonStateFromLocalStorage();
 
+const getCurrentTheme = () => {
+    return localStorage.getItem('color-theme') || 'light';
+};
+
 // I want to set a constant called 'theme' that will be used across the script, its value needs to be taken from 'input[type="hidden"][name="theme"]' if there such an elememt, if not it needs to be 'sky'
 
 // Initiate theme across the script

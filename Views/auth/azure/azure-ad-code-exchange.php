@@ -12,7 +12,7 @@ if (isset($_POST['error'], $_POST['error_description'])) {
     if (str_contains($_POST['error'], 'consent_required')) {
         // Send an Authorization request if the error is AADSTS65001 (consent_required)
         $data = [
-            'client_id' => AZURE_AD_CLIENT_ID,
+            'client_id' => ENTRA_ID_CLIENT_ID,
             'response_type' => 'code',
             'redirect_uri' => $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] , // redirect back to the same page
             'scope' => 'https://graph.microsoft.com/user.read',
@@ -23,13 +23,13 @@ if (isset($_POST['error'], $_POST['error_description'])) {
             'login_hint' => $username
         ];
 
-        header('Location: ' . AZURE_AD_OAUTH_URL . http_build_query($data));
+        header('Location: ' . ENTRA_ID_OAUTH_URL . http_build_query($data));
         exit();
     }
     if (str_contains($_POST['error'], 'login_required')) {
         // Send an Authorization request if the error is AADSTS50058 (login_required)
         // $data = [
-        //     'client_id' => AZURE_AD_CLIENT_ID,
+        //     'client_id' => ENTRA_ID_CLIENT_ID,
         //     'response_type' => 'code',
         //     'redirect_uri' => $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] , // redirect back to the same page
         //     'scope' => 'https://graph.microsoft.com/user.read',
@@ -40,7 +40,7 @@ if (isset($_POST['error'], $_POST['error_description'])) {
         //     'login_hint' => $username
         // ];
 
-        // header('Location: ' . AZURE_AD_OAUTH_URL . http_build_query($data));
+        // header('Location: ' . ENTRA_ID_OAUTH_URL . http_build_query($data));
         // exit();
         Output::error("App Registration Error: " . $_POST['error'] . " with Description: " . $_POST['error_description']);
     }
@@ -51,13 +51,13 @@ if (isset($_POST['error'], $_POST['error_description'])) {
 if (isset($_POST['code'], $_POST['state'], $_POST['session_state'])) {
     $code = $_POST['code'];
 
-    $tokenUrl = AZURE_AD_TOKEN_URL;
+    $tokenUrl = ENTRA_ID_TOKEN_URL;
     $postData = [
         'grant_type' => 'authorization_code',
-        'client_id' => AZURE_AD_CLIENT_ID,
-        'client_secret' => AZURE_AD_CLIENT_SECRET,
+        'client_id' => ENTRA_ID_CLIENT_ID,
+        'client_secret' => ENTRA_ID_CLIENT_SECRET,
         'code' => $code,
-        'redirect_uri' => AZURE_AD_CODE_REDIRECT_URI
+        'redirect_uri' => ENTRA_ID_CODE_REDIRECT_URI
     ];
 
     $client = new App\Request\HttpClient($tokenUrl);
@@ -95,7 +95,7 @@ if (isset($_POST['code'], $_POST['state'], $_POST['session_state'])) {
         if (str_contains($response['error_description'], 'AADSTS70008') || str_contains($response['error_description'], 'AADSTS54005')) {
 
             $data = [
-                'client_id' => AZURE_AD_CLIENT_ID,
+                'client_id' => ENTRA_ID_CLIENT_ID,
                 'response_type' => 'code',
                 'redirect_uri' => $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] , // redirect back to the same page
                 'scope' => 'https://graph.microsoft.com/user.read',
@@ -106,7 +106,7 @@ if (isset($_POST['code'], $_POST['state'], $_POST['session_state'])) {
                 'login_hint' => $username
             ];
 
-            header('Location: ' . AZURE_AD_OAUTH_URL . http_build_query($data));
+            header('Location: ' . ENTRA_ID_OAUTH_URL . http_build_query($data));
             exit();
         } else {
             Output::error($response['error_description'], 400);
