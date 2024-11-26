@@ -82,3 +82,28 @@ CREATE TABLE IF NOT EXISTS system_log (
     uri TEXT NOT NULL,
     method VARCHAR(20) NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS api_keys (
+    id SERIAL PRIMARY KEY,
+    api_key TEXT NOT NULL,
+    access VARCHAR(256) NOT NULL,
+    note TEXT NOT NULL,
+    created_by VARCHAR(255) NOT NULL,
+    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_updated_by VARCHAR(255) DEFAULT NULL
+);
+
+CREATE TABLE IF NOT EXISTS api_access_log (
+    id SERIAL PRIMARY KEY,
+    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    request_id VARCHAR(255) NOT NULL,
+    api_key TEXT NOT NULL,
+    client_ip VARCHAR(256) NOT NULL,
+    uri TEXT NOT NULL,
+    method VARCHAR(20) NOT NULL,
+    status_code INT DEFAULT 0,
+    user_agent TEXT NOT NULL,
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_updated_by VARCHAR(255) DEFAULT NULL
+);

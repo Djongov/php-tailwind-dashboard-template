@@ -50,6 +50,8 @@ $stmt = $pdo->prepare('INSERT INTO csp_approved_domains (domain, created_by) VAL
 
 $stmt->execute([$domain, $vars['usernameArray']['username']]);
 
+$rowCount = $stmt->rowCount();
+
 if ($rowCount === 1) {
     Response::output('Domain added');
 } else {

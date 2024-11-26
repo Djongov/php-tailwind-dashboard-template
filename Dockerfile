@@ -25,9 +25,10 @@ RUN apt-get update \
     && chown www-data:www-data /var/log/php_errors.log \
     && chmod 644 /var/log/php_errors.log \
     && chown www-data:www-data /var/tmp \
-    && chown www-data:www-data /var/www/html/.tools \
+    && chown -R www-data:www-data /var/www/html/.tools \
     && chown www-data:www-data /var/www/html/public/assets/images/profile \
     && chmod 755 /var/www/html \
+    && chmod -R 775 /var/www/html/.tools \
     && chmod 1733 /var/tmp \
     && chmod +x /usr/local/bin/entrypoint.sh \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
@@ -45,8 +46,8 @@ RUN apt-get update \
     && service apache2 restart
 
 # Set the entrypoint
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+#ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 # Expose ports (for documentation purposes)
-EXPOSE 22
+#EXPOSE 22
 EXPOSE 80

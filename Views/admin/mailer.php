@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 use Components\Forms;
-use Components\HTML;
+use Components\Html;
 
 $formOptions = [
     "inputs" => [

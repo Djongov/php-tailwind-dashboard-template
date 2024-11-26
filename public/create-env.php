@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET'):
     <select id="DB_DRIVER" name="DB_DRIVER">
         <option value="mysql">MySQL</option>
         <option value="pgsql">PostgreSQL</option>
-        <option value="sqlsrv">SQL Server</option>
+        <!--<option value="sqlsrv">SQL Server</option>-->
         <option value="sqlite">SQLite</option>
     </select><br><br>
 

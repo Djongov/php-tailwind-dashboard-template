@@ -112,7 +112,7 @@ echo '<div class="flex flex-row flex-wrap items-start mb-4 justify-center">';
         echo '<table class="w-auto">';
         foreach ($usernameArray as $name => $setting) {
             echo '<tr>';
-            if ($name === 'id' || $name === 'password' || $name === 'picture') {
+            if ($name === 'id' || $name === 'password' || $name === 'picture' || $name === 'enabled') {
                 continue;
             }
             // Check if date and format it
