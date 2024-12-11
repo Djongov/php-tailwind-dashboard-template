@@ -149,12 +149,15 @@ echo '<div class="flex flex-row flex-wrap items-start mb-4 justify-center">';
         }
         echo '</table>';
         echo '</div>';
-        echo '<div class="p-4 m-4 max-w-lg ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700">';
-            echo Html::h2('Session Info');
-            echo '<p><strong>Token expiry: </strong>' . $fmt->format(strtotime(date("Y-m-d H:i:s", (int)substr((string) JWT::parseTokenPayLoad(AuthToken::get())['exp'], 0, 10)))) . '</p>';
-            echo '<p><strong>Token: </strong></p><p class="break-all c0py">' . AuthToken::get() . '</p>';
-            $token = JWT::parseTokenPayLoad(AuthToken::get());
-    echo '</div>';
+        // Only show session info to admins
+        if ($isAdmin) {
+            echo '<div class="p-4 m-4 max-w-lg ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700">';
+                echo Html::h2('Session Info');
+                echo '<p><strong>Token expiry: </strong>' . $fmt->format(strtotime(date("Y-m-d H:i:s", (int)substr((string) JWT::parseTokenPayLoad(AuthToken::get())['exp'], 0, 10)))) . '</p>';
+                echo '<p><strong>Token: </strong></p><p class="break-all c0py">' . AuthToken::get() . '</p>';
+                $token = JWT::parseTokenPayLoad(AuthToken::get());
+            echo '</div>';
+        }
     // If the user is missing an email, ask for it
     if (empty($usernameArray['email']) || filter_var($usernameArray['email'], FILTER_VALIDATE_EMAIL) === false) {
         $updateEmailHtml = '<div class="flex flex-row flex-wrap items-center mb-4">';
