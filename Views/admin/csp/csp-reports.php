@@ -43,6 +43,9 @@ $domains = array_column($cspArray, 'domain');
 // Now we need to find out how many entries we have with this domain
 $domainsCount = array_count_values(filterValidValues($domains));
 
+// sort the array by value
+arsort($domainsCount);
+
 // Now the domain data for the chart
 $domainData = [
     'type' => 'piechart',
@@ -59,6 +62,9 @@ $domainData = [
 $violatedDirectives = array_column($cspArray, 'violated_directive');
 $violatedDirectivesCount = array_count_values(filterValidValues($violatedDirectives));
 
+// sort the array by value
+arsort($violatedDirectivesCount);
+
 $violatedDirectivesData = [
     'type' => 'piechart',
     'data' => [
@@ -73,6 +79,9 @@ $violatedDirectivesData = [
 
 $statusCodes = array_column($cspArray, 'status_code');
 $statusCodesCount = array_count_values(filterValidValues($statusCodes));
+
+// sort the array by value
+arsort($statusCodesCount);
 
 $statusCodesData = [
     'type' => 'piechart',

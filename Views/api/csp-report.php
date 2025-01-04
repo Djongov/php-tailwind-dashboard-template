@@ -33,21 +33,25 @@ foreach ($expectedDirectives as $directive) {
 }
 
 // There are cases where the document-uri is "about". We want to ignore these cases. We get about when something like TinyMCE is used to add content from somewhere else, very dynamic and not a security issue but it can flood the database and there is not way to understand where it is coming from.
-if ($jsonArray['csp-report']['document-uri'] === 'about') {
-    Response::output('Document URI is about', 400);
-}
+// if ($jsonArray['csp-report']['document-uri'] === 'about') {
+//     Response::output('Document URI is about', 400);
+// }
 
 // Now let's check if the domain is allowed
 $domain = parse_url($jsonArray['csp-report']['document-uri'], PHP_URL_HOST);
 
-if ($domain === false || $domain === null || $domain === '') {
+if (!$domain && $jsonArray['csp-report']['document-uri'] === 'about') {
+    $domain = 'about';
+}
+
+if ($domain === false || $domain === null || $domain === '' && $domain !== 'about') {
     SystemLog::write('Invalid domain, got \'\', null or false', 'CSP Domain Not Allowed');
     Response::output('Invalid domain', 400);
 }
 
 $cspApprovedDomains = new CSPApprovedDomains();
 
-if (!$cspApprovedDomains->domainExist($domain)) {
+if (!$cspApprovedDomains->domainExist($domain) && $domain !== 'about') {
     SystemLog::write($domain . ' attempted to send report', 'CSP Domain Not Allowed');
     Response::output('Domain not allowed', 401);
 }

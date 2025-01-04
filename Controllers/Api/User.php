@@ -7,6 +7,7 @@ use App\Api\Response;
 use App\Api\Checks;
 use Models\Api\User as UserModel;
 use App\Exceptions\UserExceptions;
+use App\Logs\SystemLog;
 
 class User
 {
@@ -273,8 +274,6 @@ class User
 
         if (file_exists($profilePicturePath)) {
             unlink($profilePicturePath);
-        } else {
-            Response::output('Could not delete the picture: ' . $profilePicturePath, 400);
         }
 
         try {
