@@ -184,7 +184,7 @@ class DataGrid
 
         return self::createTable($dbTable, $title, $data, $theme, $edit, $delete, $tableOptions);
     }
-    private static function createTable(string $dbTable, ?string $title, array $data, string $theme, bool $edit = true, bool $delete = true, $tableOptions = null): string
+    private static function createTable(string $dbTable, ?string $title, array $data, string $theme, bool $edit = true, bool $delete = true, ?array $tableOptions = null): string
     {
         $tableOptions = $tableOptions ?? self::$tableOptions;
 

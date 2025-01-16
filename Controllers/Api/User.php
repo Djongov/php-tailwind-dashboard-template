@@ -11,7 +11,7 @@ use App\Logs\SystemLog;
 
 class User
 {
-    public function get(string|int $username = null) : array
+    public function get(string|int|null $username = null) : array
     {
         $user = new UserModel();
         try {

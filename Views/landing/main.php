@@ -3,6 +3,8 @@
 use Components\Alerts;
 use Components\Html;
 
+define('INSTALL_PATH', '/install');
+
 try {
     $db = new App\Database\DB(); // Initialize the DB object
     $pdo = $db->getConnection(); // Retrieve the PDO connection object
@@ -14,12 +16,12 @@ try {
     if (str_contains($errorMessage, 'Unknown database')) {
         // Pick up the database name from the error
         $databaseName = explode('Unknown database ', $errorMessage)[1];
-        $errorMessage = 'Database ' . $databaseName . ' not found. Please install the application by going to ' . Components\Html::a('/install', '/install', $theme);
+        $errorMessage = 'Database ' . $databaseName . ' not found. Please install the application by going to ' . Components\Html::a(INSTALL_PATH, INSTALL_PATH, $theme);
     }
     // Postgres 08006 is for connection failure database does not exist
     if (str_contains($errorMessage, 'does not exist')) {
         $databaseName = explode('database ', $errorMessage)[1];
-        $errorMessage = 'Database ' . $databaseName . '. Please install the application by going to ' . Components\Html::a('/install', '/install', $theme);
+        $errorMessage = 'Database ' . $databaseName . '. Please install the application by going to ' . Components\Html::a(INSTALL_PATH, INSTALL_PATH, $theme);
     }
     echo Alerts::danger($errorMessage); // Handle the exception
     return;

@@ -19,7 +19,7 @@ class DBButton
             </button>';
         }
     }
-    public static function deleteButton($dbTable, int|string $id, string $text = 'Delete', string $confirmTextint = null) : string
+    public static function deleteButton($dbTable, int|string $id, string $text = 'Delete', ?string $confirmTextint = null) : string
     {
         if ($confirmTextint === null) {
             $confirmTextint = 'Are you sure you want to delete this record?';

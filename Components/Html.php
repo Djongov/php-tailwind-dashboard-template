@@ -102,7 +102,7 @@ class Html
         }
     }
     /* Form elements */
-    public static function input(string $size, string $type, ?string $id, string $name, string $title, mixed $value, string $placeholder, string $description, string $label_name, string $theme, bool $disabled, bool $required, bool $readOnly, bool $encased = true, ?int $min = null, ?int $max = null, float|int $step = null, $pattern = '', $extraClasses = [], $dataAttributes = []) : string
+    public static function input(string $size, string $type, ?string $id, string $name, string $title, mixed $value, string $placeholder, string $description, string $label_name, string $theme, bool $disabled, bool $required, bool $readOnly, bool $encased = true, ?int $min = null, ?int $max = null, float|int|null $step = null, $pattern = '', $extraClasses = [], $dataAttributes = []) : string
     {
         if ($disabled || $readOnly) {
             $theme = 'red';
@@ -230,98 +230,178 @@ class Html
         return $html;
         
     }
-    public static function textArea(?string $id, string $name, string $value, string $placeholder, string $title, string $description, string $label_name, string $theme, bool $disabled, bool $required, bool $readonly, int $rows, int $cols, $extraClasses = [], $dataAttributes = []) : string
-    {
-        // Classes based on size
-        $inputClasses = 'w-full p-2 text-sm ' . BODY_COLOR_SCHEME_CLASS . ' appearance-none border-2 border-gray-100 rounded-lg text-gray-700 leading-tight focus:outline-none focus:' . BODY_COLOR_SCHEME_CLASS. ' focus:border-' . $theme . '-500 ' . BODY_DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-' . $theme . '-500 dark:focus:border-' . $theme . '-500';
-        $requiredOriginal = $required;
-        // First get some of the meta data
-        $disabled = $disabled ? 'disabled' : '';
-        $required = $required ? 'required' : '';
-        $readonly = $readonly ? 'readonly' : '';
-        $value = ($value == '') ? '' : $value;
-        if ($id == null) {
-            $id = uniqid();
-        }
-        // Title
-        if ($title === '') {
-            $title = ($label_name !== '') ? 'title="' . $label_name . '"' : 'title="' . $name . '"';
-        } else {
-            $title = 'title="' . $title . '"';
-        }
-        $placeholder = ($placeholder === '') ? '' : 'placeholder="' . $placeholder . '"';
-        $extraClasses = implode(' ', $extraClasses);
-
-        // Data attributes
-        $dataAttributesString = '';
-        if (!empty($dataAttributes)) {
-            foreach ($dataAttributes as $key => $v) {
-                $dataAttributesString .= 'data-' . $key . '="' . $v . '" ';
-            }
-        }
-
-        $inputHtml = '<textarea id="' . $id . '" name="' . $name . '" class="' . $inputClasses . ' ' . $extraClasses . '" rows="' . $rows . '" cols="' . $cols . '"  ' . $placeholder . $required . ' ' . $disabled . ' ' . $readonly . ' ' . $title . ' ' . $dataAttributesString . '>' . $value . '</textarea>';
-
-        $html = '';
-        $html .= '<div class="my-4">';
-            $html .= ($label_name !== '') ? self::label($id, $label_name, $requiredOriginal) : '';
-            $html .= $inputHtml;
-            $html .= ($description !== '') ? '<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">' . $description . '</p>' : '';
-        $html .= '</div>';
-
-        return $html;
+    public static function textArea(
+        ?string $id,
+        string $name,
+        string $value,
+        string $placeholder,
+        string $title,
+        string $description,
+        string $label_name,
+        string $theme,
+        bool $disabled,
+        bool $required,
+        bool $readonly,
+        int $rows,
+        int $cols,
+        array $extraClasses = [],
+        array $dataAttributes = []
+    ): string {
+        // Generate unique ID if not provided
+        $id ??= uniqid();
+    
+        // Prepare attributes
+        $attributes = self::buildAttributes([
+            'id' => $id,
+            'name' => $name,
+            'placeholder' => $placeholder ?: null,
+            'title' => $title ?: ($label_name ?: $name),
+            'class' => self::buildInputClasses($theme, $extraClasses),
+            'rows' => $rows,
+            'cols' => $cols,
+            'disabled' => $disabled ? 'disabled' : null,
+            'required' => $required ? 'required' : null,
+            'readonly' => $readonly ? 'readonly' : null,
+        ], $dataAttributes);
+    
+        // Build textarea HTML
+        $textareaHtml = sprintf(
+            '<textarea %s>%s</textarea>',
+            $attributes,
+            htmlspecialchars($value)
+        );
+    
+        // Build outer container with label and description
+        return sprintf(
+            '<div class="my-4">%s%s%s</div>',
+            $label_name ? self::label($id, $label_name, $required) : '',
+            $textareaHtml,
+            $description ? sprintf('<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">%s</p>', $description) : ''
+        );
     }
-    public static function checkbox(?string $id, string $name, string $value, string $label, ?string $description, bool $required, bool $checked, bool $disabled, bool $readOnly, string $theme, array $extraClasses = []) : string
-    {
-        if ($id === null || $id === '') {
-            $id = uniqid() . $name;
-        }
-        if ($description === null || $description === '') {
-            $description = '';
-        } else {
-            $description = '<i data-popover-target="' . $id . '-info" class="cursor-pointer ml-1 rounded-full border border-gray-300">i<div data-popover id="' . $id . '-info" role="tooltip" class="absolute z-10 invisible inline-block w-64 text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 dark:text-gray-400 dark:border-gray-600 ' . BODY_DARK_COLOR_SCHEME_CLASS . '">
-                    <div class="px-3 py-2">
-                        <p>' . $description . '</p>
-                    </div>
-                </div>
-            </i>
-            ';
-        }
-        if (!empty($extraClasses)) {
-            $extraClasses = implode(' ', $extraClasses);
-        } else {
-            $extraClasses = '';
-        }
-        $disabled = $disabled ? 'disabled' : '';
-        $readOnly = $readOnly ? 'readonly' : '';
-        $checked = $checked ? 'checked' : '';
-        $required = $required ? 'required' : '';
-        $html = '<div class="mt-2">';
-            $html .= '<div class="flex items-center mb-4">';
-                $html .= '<input id="' . $id . '" name="' . $name . '" title="' . $name . ' placeholder="" type="checkbox" value="' . $value . '" class="w-4 h-4 text-' . $theme . '-600 bg-gray-100 rounded border-gray-300 focus:ring-' . $theme . '-500 dark:focus:ring-' . $theme . '-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 ' . $extraClasses . '" ' . $checked . ' ' . $disabled . ' ' . $readOnly . $required
-                 . '/>';
-                $html .= '<label for="' . $id . '" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">' . $label . '';
-                    $html .= $description;
-                $html .= '</label>';
-            $html .= '</div>';
-        $html .= '</div>';
-        return $html;
+    
+    private static function buildAttributes(array $attributes, array $dataAttributes = []): string {
+        // Merge regular attributes and data attributes
+        $mergedAttributes = array_merge(
+            array_filter($attributes, fn($value) => $value !== null),
+            array_map(fn($key, $value) => "data-$key=\"$value\"", array_keys($dataAttributes), $dataAttributes)
+        );
+    
+        // Build a string of attributes
+        return implode(' ', array_map(
+            fn($key, $value) => is_numeric($key) ? $value : "$key=\"$value\"",
+            array_keys($mergedAttributes),
+            $mergedAttributes
+        ));
     }
-    public static function label(string $id, string $label_name, bool $required) : string
-    {
-        if ($required) {
-            return '<label title="required ' . $label_name . ' field" for="' . $id . '" class="block my-2 text-sm font-medium ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . '">' . $label_name . '<span class="text-red-500"> *</span></label>';
-        } else {
-            return '<label for="' . $id . '" class="block my-2 text-sm font-medium ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . '">' . $label_name . '</label>';
-        }
+    
+    private static function buildInputClasses(string $theme, array $extraClasses): string {
+        // Core input classes
+        $baseClasses = [
+            'w-full', 'p-2', 'text-sm', BODY_COLOR_SCHEME_CLASS, 'appearance-none', 'border-2',
+            'border-gray-100', 'rounded-lg', 'text-gray-700', 'leading-tight', 'focus:outline-none',
+            "focus:" . BODY_COLOR_SCHEME_CLASS, "focus:border-$theme-500",
+            'dark:bg-gray-900', 'dark:border-gray-600', 'dark:placeholder-gray-400', 'dark:text-white',
+            "dark:focus:ring-$theme-500", "dark:focus:border-$theme-500"
+        ];
+    
+        // Combine with extra classes
+        return implode(' ', array_merge($baseClasses, $extraClasses));
     }
-    public static function code($text, $codeTitle = '', $classes = []) : string
-    {
-        if (!$classes) {
-            return '<pre class="p-4 m-4 max-w-fit overflow-auto ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700 break-words"><p class="font-bold">' . $codeTitle . '</p><code class="c0py">' . $text . '</code></pre>';
-        } else {
-            return '<pre class="p-4 m-4 max-w-fit overflow-auto ' . LIGHT_COLOR_SCHEME_CLASS . ' rounded-lg border border-gray-200 shadow-md ' . DARK_COLOR_SCHEME_CLASS . ' dark:border-gray-700 break-words"><p class="font-bold ' . implode(' ', $classes) . '"><code class="c0py">' . $text . '</code></pre>';
+    public static function checkbox(
+        ?string $id,
+        string $name,
+        string $value,
+        string $label,
+        ?string $description,
+        bool $required,
+        bool $checked,
+        bool $disabled,
+        bool $readOnly,
+        string $theme,
+        array $extraClasses = []
+    ): string {
+        // Generate a unique ID if not provided
+        $id = $id ?: uniqid($name);
+    
+        // Prepare description with popover if provided
+        $descriptionHtml = '';
+        if (!empty($description)) {
+            $descriptionHtml = <<<HTML
+    <i data-popover-target="{$id}-info" class="cursor-pointer ml-1 rounded-full border border-gray-300">
+        i
+        <div data-popover id="{$id}-info" role="tooltip" class="absolute z-10 invisible inline-block w-64 text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 dark:text-gray-400 dark:border-gray-600 {BODY_DARK_COLOR_SCHEME_CLASS}">
+            <div class="px-3 py-2">
+                <p>{$description}</p>
+            </div>
+        </div>
+    </i>
+    HTML;
         }
+    
+        // Convert boolean attributes to HTML attributes
+        $attributes = [
+            'disabled' => $disabled ? 'disabled' : '',
+            'readonly' => $readOnly ? 'readonly' : '',
+            'checked' => $checked ? 'checked' : '',
+            'required' => $required ? 'required' : '',
+        ];
+    
+        $attributeString = implode(' ', array_filter($attributes));
+    
+        // Extra classes
+        $extraClassesString = !empty($extraClasses) ? implode(' ', $extraClasses) : '';
+    
+        // Checkbox input and label HTML
+        return <<<HTML
+    <div class="mt-2">
+        <div class="flex items-center mb-4">
+            <input 
+                id="{$id}" 
+                name="{$name}" 
+                title="{$name}" 
+                type="checkbox" 
+                value="{$value}" 
+                class="w-4 h-4 text-{$theme}-600 bg-gray-100 rounded border-gray-300 focus:ring-{$theme}-500 dark:focus:ring-{$theme}-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 {$extraClassesString}" 
+                {$attributeString} 
+            />
+            <label for="{$id}" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                {$label}
+                {$descriptionHtml}
+            </label>
+        </div>
+    </div>
+    HTML;
+    }
+    public static function label(string $id, string $label_name, bool $required): string
+    {
+        $requiredIndicator = $required 
+            ? '<span class="text-red-500"> *</span>' 
+            : '';
+        
+        $title = $required 
+            ? 'title="required ' . htmlspecialchars($label_name) . ' field"' 
+            : '';
+
+        return <<<HTML
+    <label {$title} for="{$id}" class="block my-2 text-sm font-medium {TEXT_COLOR_SCHEME} {TEXT_DARK_COLOR_SCHEME}">
+        {$label_name}{$requiredIndicator}
+    </label>
+    HTML;
+    }
+    public static function code(string $text, string $codeTitle = '', array $classes = []): string
+    {
+        $classString = implode(' ', $classes);
+        $titleHtml = $codeTitle !== '' 
+            ? '<p class="font-bold ' . $classString . '">' . htmlspecialchars($codeTitle) . '</p>' 
+            : '';
+
+        return <<<HTML
+    <pre class="p-4 m-4 max-w-fit overflow-auto {LIGHT_COLOR_SCHEME_CLASS} rounded-lg border border-gray-200 shadow-md {DARK_COLOR_SCHEME_CLASS} dark:border-gray-700 break-words">
+        {$titleHtml}
+        <code class="c0py">{$text}</code>
+    </pre>
+    HTML;
     }
     public static function horizontalLine() : string
     {

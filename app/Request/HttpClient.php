@@ -23,7 +23,7 @@ class HttpClient
         ]);
     }
 
-    public function call($method, $path, $data = [], $bearer_token = null, $sendJson = false, $headers = [], $expectJson = true) : mixed
+    public function call($method, $path, $data = [], ?string $bearer_token = null, $sendJson = false, $headers = [], $expectJson = true) : mixed
     {
         $method = strtoupper($method);
 
