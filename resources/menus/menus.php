@@ -35,6 +35,10 @@ define("ADMIN_MENU", [
     'Queries' => [
         'link' => '/adminx/queries',
     ],
+    'Access Logs' =>
+    [
+        'link' => '/adminx/access-logs'
+    ],
     'Mailer' => (SENDGRID) ? [
         'icon' => [
             'type' => 'svg',
