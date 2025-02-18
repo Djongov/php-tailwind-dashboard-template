@@ -1,11 +1,14 @@
 #!/bin/sh
-set -e
+echo "Starting entrypoint script..."
 
-# Navigate to the correct working directory
-cd /var/www/html
+# Debugging: Show all files in /usr/local/bin
+ls -l /usr/local/bin/
 
 # Start the SSH service
 service ssh start
 
-# Start Apache in the foreground
-exec apache2-foreground
+# Debugging: Show if Apache is installed
+apache2 -v
+
+# Start Apache in the foreground (instead of using exec to allow debugging)
+apache2-foreground

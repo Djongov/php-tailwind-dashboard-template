@@ -1,8 +1,12 @@
 <?php declare(strict_types=1);
 
-// set the display errors to 1
-ini_set('display_errors', 1);
-define('ERROR_VERBOSE', (ini_get('display_errors') == 1) ? true : false);
+if (ini_get('display_errors') == 1) {
+    error_reporting(E_ALL);
+    define('ERROR_VERBOSE', true);
+} else {
+    error_reporting(0);
+    define('ERROR_VERBOSE', false);
+}
 
 define('SYSTEM_USER_AGENT', 'dashboardTemplate/1.0');
 /*
