@@ -1,6 +1,9 @@
 #!/bin/sh
 echo "Starting entrypoint script..."
 
+# Generate host keys if not present
+ssh-keygen -A
+
 # Debugging: Show all files in /usr/local/bin
 ls -l /usr/local/bin/
 
