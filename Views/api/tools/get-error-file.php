@@ -6,7 +6,6 @@ use App\Api\Checks;
 use App\Utilities\General;
 use App\Security\Firewall;
 use Components\DataGrid;
-use Google\Service\Adsense\Alert;
 
 Firewall::activate();
 
@@ -28,8 +27,8 @@ if ($_POST['api-action'] !== 'get-error-file') {
 echo '<div class="ml-4 dark:text-gray-400">';
 
 $file = ini_get('error_log');
-if (is_file($file)) {
-    if (is_readable($file)) {
+if (is_readable($file)) {
+    if (is_file($file)) {
         if (empty(file($file))) {
             echo Alerts::danger('File (' . $file . ') is empty');
             return;
@@ -48,9 +47,9 @@ if (is_file($file)) {
         $errorFileArray = General::assocToIndexed($errorFileArray);
         echo DataGrid::fromData($file, $errorFileArray, $theme);
     } else {
-         echo Alerts::danger('File (' . $file . ') not readable');
+        echo Alerts::danger('File (' . $file . ') does not exist');
     }
 } else {
-    echo Alerts::danger('File (' . $file . ') does not exist');
+    echo Alerts::danger('File (' . $file . ') not readable');
 }
 echo '</div>';
