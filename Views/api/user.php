@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 use App\Api\Response;
 use App\Api\Checks;
 use Controllers\Api\User;
@@ -114,9 +115,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
     // Get the user data based on the ID
     $user = new User();
 
-    // Make sure that the user submitting this is the same as the user being updated. The only secure way of doing this is by checking the JWT token. This will prevent user from updating another user's data by changing the username paramter's value in the request
+    $dbUserData = $user->get($userId);
+
+    if (!$dbUserData) {
+        Response::output('User not found', 404);
+        exit();
+    }
+    
+    // Some checks
+    if ($dbUserData['id'] !== $userId) {
+        Response::output('You cannot edit another user\'s data', 401);
+        exit();
+    }
+
     if (isset($data['username']) && JWT::extractUserName(AuthToken::get()) !== $data['username']) {
-        Response::output('You are not allowed to update this user', 409);
+        Response::output('Username token missmatch', 409);
         exit();
     }
 
@@ -133,6 +146,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
 
     unset($data['confirm_password']);
     unset($data['csrf_token']);
+    // So we don't change usernames we unset the username from the data array if it's set
+    if (isset($data['username'])) {
+        unset($data['username']);
+    }
 
     // If we are deleting the picutre, we need to remove it from the filesystem
     if (isset($data['picture'])) {

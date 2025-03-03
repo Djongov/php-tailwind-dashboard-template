@@ -27,11 +27,13 @@ $dir = $_ENV['ACCESS_LOGS'];
 // Check if the dir exists
 if (!is_dir($dir)) {
     echo Alerts::danger('The access logs directory does not exist');
+    return;
 }
 
 // Check if readable
 if (!is_readable($dir)) {
     echo Alerts::danger('The access logs directory is not readable');
+    return;
 }
 // Get all the files from the dir
 $files = scandir($dir);
@@ -63,6 +65,7 @@ if (!$files || count($files) === 0) {
 foreach ($files as $file) {
     if (!is_readable($dir . '/' . $file)) {
         echo Alerts::danger('The access log file ' . $file . ' is not readable');
+        return;
     }
 }
 
