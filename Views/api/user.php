@@ -117,39 +117,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
 
     $dbUserData = $user->get($userId);
 
-    if (!$dbUserData) {
-        Response::output('User not found', 404);
-        exit();
-    }
-    
-    // Some checks
-    if ($dbUserData['id'] !== $userId) {
-        Response::output('You cannot edit another user\'s data', 401);
-        exit();
-    }
+    // Now let's parse the token
+    $tokenData = JWT::parseTokenPayLoad(AuthToken::get());
 
-    if (isset($data['username']) && JWT::extractUserName(AuthToken::get()) !== $data['username']) {
-        Response::output('Username token missmatch', 409);
-        exit();
+    $dbUserDataFromToken = $user->get($tokenData['username']);
+    
+    // Check if user id in path matches the one in the token, unless the user is an admin
+    if ($dbUserData['id'] !== $dbUserDataFromToken['id'] && !$isAdmin) {
+        Response::output('You cannot edit another user data', 401);
     }
 
     if (isset($data['passwword'], $data['confirm_password'])) {
         if ($data['password'] !== $data['confirm_password']) {
             Response::output('Passwords do not match', 400);
-            exit();
         }
-    }
-
-    if (isset($data['password'])) {
         $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
     }
 
     unset($data['confirm_password']);
     unset($data['csrf_token']);
-    // So we don't change usernames we unset the username from the data array if it's set
-    if (isset($data['username'])) {
-        unset($data['username']);
-    }
+    unset($data['username']);
 
     // If we are deleting the picutre, we need to remove it from the filesystem
     if (isset($data['picture'])) {
