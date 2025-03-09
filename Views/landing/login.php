@@ -39,7 +39,7 @@ echo '<div class="flex items-center justify-center mx-4">';
                 echo '<a class="mb-4 w-full ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' font-medium text-center border border-gray-200 rounded-md shadow-sm hover:bg-gray-200 hover:dark:text-black" href="' . ENTRA_ID_LOGIN_BUTTON_URL . '">';
                     echo '<div class="flex items-center justify-center py-3 px-3 leading-5">';
                         echo MS_LOGO;
-                            echo '<span class="ml-3">Sign in with Microsoft Work or school</span>';
+                            echo '<span class="ml-3">' . translate('login_with_msentraid') . '</span>';
                     echo '</div>';
                 echo '</a>';
             echo '</div>';
@@ -49,7 +49,7 @@ echo '<div class="flex items-center justify-center mx-4">';
                 echo '<a class="mb-4 w-full ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' font-medium text-center border border-gray-200 rounded-md shadow-sm hover:bg-gray-200 hover:dark:text-black" href="' . MS_LIVE_LOGIN_BUTTON_URL . '">';
                     echo '<div class="flex items-center justify-center py-3 px-3 leading-5">';
                         echo MS_LOGO;
-                        echo '<span class="ml-3">Sign in with Microsoft live account</span>';
+                        echo '<span class="ml-3">' . translate('login_with_mslive') . '</span>';
                     echo '</div>';
                 echo '</a>';
             echo '</div>';
@@ -60,7 +60,7 @@ echo '<div class="flex items-center justify-center mx-4">';
                 echo '<a class="mb-4 w-full ' . TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME . ' font-medium text-center border border-gray-200 rounded-md shadow-sm hover:bg-gray-200 hover:dark:text-black" href="' . GOOGLE_LOGIN_BUTTON_URL . '">';
                     echo '<div class="flex items-center justify-center py-3 px-3 leading-5">';
                         echo GOOGLE_LOGO;
-                        echo '<span class="ml-3">Sign in with Google</span>';
+                        echo '<span class="ml-3">' . translate('login_with_google') . '</span>';
                     echo '</div>';
                 echo '</a>';
             echo '</div>';
@@ -68,16 +68,16 @@ echo '<div class="flex items-center justify-center mx-4">';
         // Local login
         if (LOCAL_USER_LOGIN) {
             if (ENTRA_ID_LOGIN || GOOGLE_LOGIN || MICROSOFT_LIVE_LOGIN) {
-                echo Html::p('or login with your local account', ['text-center', 'mb-4']);
+                echo Html::p(translate('login_with_local_text'), ['text-center', 'mb-4']);
             } elseif (!ENTRA_ID_LOGIN && !GOOGLE_LOGIN && !MICROSOFT_LIVE_LOGIN) {
-                echo Html::h3('Login with your local account', true, ['my-6']);
+                echo Html::h3(translate('login_with_local_text'), true, ['my-6']);
             }
             $localLoginForm = [
                 'inputs' => [
                     'input' => [
                         // Email
                         [
-                            'label' => 'Username',
+                            'label' => translate('username'),
                             'type' => 'text',
                             'placeholder' => 'John.Doe@example.com',
                             'name' => 'username',
@@ -86,7 +86,7 @@ echo '<div class="flex items-center justify-center mx-4">';
                         ],
                         // Password
                         [
-                            'label' => 'Password',
+                            'label' => translate('password'),
                             'type' => 'password',
                             'name' => 'password',
                             'required' => true,
@@ -95,7 +95,7 @@ echo '<div class="flex items-center justify-center mx-4">';
                     ],
                     'checkbox' => [
                         [
-                            'label' => 'Remember me',
+                            'label' => translate('remember_me'),
                             'name' => 'remember',
                         ]
                     ],
@@ -112,7 +112,7 @@ echo '<div class="flex items-center justify-center mx-4">';
                 'id' => 'local-login-form',
                 'resultType' => 'text',
                 'submitButton' => [
-                    'text' => 'Login',
+                    'text' => translate('login'),
                     'size' => 'medium',
                 ],
             ];
@@ -125,14 +125,14 @@ echo '<div class="flex items-center justify-center mx-4">';
         if (LOCAL_USER_LOGIN) {
             // But if only show the link if manual registration is enabled
             if (MANUAL_REGISTRATION) {
-                echo Html::small('If you do not have an account, please <a class="underline" href="/register">sign up</a>');
+                echo Html::small(translate('if_you_dont_have_account') . ', ' . translate('please') . ' <a class="underline" href="/register">' . translate('sign_up') . '</a>');
             } else {
-                echo Html::small('If you do not have an account, please contact your administrator');
+                echo Html::small(translate('if_you_dont_have_account') . ', ' . translate('please') . translate('contact_admin'));
             }
         }
         // If no login methods are enabled, show an alert
         if (!LOCAL_USER_LOGIN && !ENTRA_ID_LOGIN && !GOOGLE_LOGIN && !MICROSOFT_LIVE_LOGIN) {
-            echo Alerts::danger('No login methods are enabled. Check config');
+            echo Alerts::danger(translate('no_logins_available'));
         }
     // Close the login container
     echo '</div>';
