@@ -43,3 +43,30 @@ function getApiKeyFromHeaders() {
         return null; // or handle missing API key appropriately
     }
 }
+
+function translate(string $key, array $replace = []): string
+{
+    static $translations = [];
+
+    $lang = $_SESSION['lang'] ?? 'bg'; // Default to English
+
+    // Get project root (parent of public/)
+    $projectRoot = ROOT;
+    $file = "{$projectRoot}/config/lang/{$lang}.php";
+
+    if (!isset($translations[$lang])) {
+        if (file_exists($file)) {
+            $translations[$lang] = include $file;
+        } else {
+            $translations[$lang] = []; // Prevent errors
+        }
+    }
+
+    $text = $translations[$lang][$key] ?? $key;
+
+    foreach ($replace as $search => $value) {
+        $text = str_replace(":{$search}", $value, $text);
+    }
+
+    return $text;
+}

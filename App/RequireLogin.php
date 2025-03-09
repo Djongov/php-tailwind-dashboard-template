@@ -19,6 +19,7 @@ class RequireLogin
             '/docs',
             '/docs/*',
             '/api/csp-report',
+            '/api/set-lang',
             '/register',
             '/auth/azure-ad',
             '/auth/google',

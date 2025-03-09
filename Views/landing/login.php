@@ -31,7 +31,7 @@ echo '<div class="flex items-center justify-center mx-4">';
     echo '<div class="flex flex-col w-full max-w-md my-16 px-4 py-6 rounded-lg ' . LIGHT_COLOR_SCHEME_CLASS . ' ' . DARK_COLOR_SCHEME_CLASS . ' sm:px-6 md:px-8 lg:px-10 border border-gray-300 shadow-md">';
         // Now the different external provider login options
         if (ENTRA_ID_LOGIN || MICROSOFT_LIVE_LOGIN || GOOGLE_LOGIN) {
-            echo Html::h3('Login with a provider account', true, ['my-6']);
+            echo Html::h3(translate('login_with_provider'), true, ['my-6']);
         }
         // Azure
         if (ENTRA_ID_LOGIN) {

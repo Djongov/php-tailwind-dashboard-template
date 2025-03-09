@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 use App\Authentication\JWT;
 use App\Authentication\AuthToken;
 use App\Api\Response;

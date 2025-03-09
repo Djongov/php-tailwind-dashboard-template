@@ -95,6 +95,7 @@ return function (RouteCollector $router) {
     $router->addRoute(['GET','PUT','DELETE','POST'], '/api/user[/{id:[^/]+}]', [$viewsFolder . '/api/user.php']);
     $router->addRoute(['GET','PUT','DELETE','POST'], '/api/firewall[/{id:\d+}]', [$viewsFolder . '/api/firewall.php']);
     $router->addRoute('POST', '/api/mail/send', [$viewsFolder . '/api/mail/send.php']);
+    $router->addRoute('POST', '/api/set-lang', [$viewsFolder . '/api/set-lang.php']);
 
     /* DataGrid Api */
     $router->addRoute('POST', '/api/datagrid/get-records', [$viewsFolder . '/api/datagrid/get-records.php']);

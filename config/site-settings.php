@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+define('ROOT', dirname($_SERVER['DOCUMENT_ROOT']));
+
 if (ini_get('display_errors') == 1) {
     error_reporting(E_ALL);
     define('ERROR_VERBOSE', true);
@@ -9,6 +11,10 @@ if (ini_get('display_errors') == 1) {
 }
 
 define('SYSTEM_USER_AGENT', 'dashboardTemplate/1.0');
+
+
+define('MULTILINGUAL', true);
+
 /*
 
 Branding & SEO Settings

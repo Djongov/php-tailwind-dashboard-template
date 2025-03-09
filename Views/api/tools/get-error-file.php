@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 use Components\Html;
 use Components\Alerts;
 use App\Api\Response;

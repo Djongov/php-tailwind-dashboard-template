@@ -3,6 +3,7 @@
 namespace Components\Page;
 
 use Components\ThemeSwitcher;
+use Components\LanguageSwitcher;
 class Menu
 {
     public static function render(array $array, array $usernameArray, bool $isAdmin, string $theme) : string
@@ -86,6 +87,9 @@ class Menu
         $html .= '<div class="flex flex-wrap items-center ml-4">';
         // Theme switcher
         $html .= ThemeSwitcher::render();
+        if (MULTILINGUAL) {
+            $html .= LanguageSwitcher::render($theme);
+        }
         // Drop down menu for user if logged in
         if (isset($usernameArray['username']) && $usernameArray['username'] !== null) {
             $html .= self::dropDownUserMenu($usernameArray['name'], $theme, $isAdmin, $usernameArray['picture'] ?? null);

@@ -508,26 +508,117 @@ if (changeForms.length > 0) {
     changeForms.forEach(form => {
         const currentSelectionIndex = form.firstChild.selectedIndex;
         form.addEventListener('change', (event) => {
+            console.log(`Fires on change`);
             const currentSelectedOption = form.firstChild.options[form.firstChild.selectedIndex].value;
             event.preventDefault();
-            let modalText = (form.hasAttribute('data-modal-text') ? form.getAttribute('data-modal-text') : 'Are you sure?');
-            const randomId = generateUniqueId(4);
-            // Generate the modal
-            const modal = generateModal(modalText, randomId);
-            // Insert the modal after the form
-            form.parentNode.insertBefore(modal, form.nextSibling);
-            // Let's get the buttons of the modal so we can attach event listeners
-            const confirmButton = document.getElementById(`${randomId}-submit`);
-            const cancelButton = document.getElementById(`${randomId}-cancel`);
-            const xCancelButton = document.getElementById(`${randomId}-x-cancel`);
-            // There are two close buttons so put them in an array
-            const cancelButtonsArray = [cancelButton, xCancelButton];
-            // Hide the modal
-            modal.classList.remove('hidden');
-            
-            // So on Yes click on the modal, remove the modal and start the fetch function
-            confirmButton.addEventListener('click', () => {
-                modal.remove();
+            const modalText = form.hasAttribute('data-modal-text') ? form.getAttribute('data-modal-text') : null;
+
+            // Only proceed with modal logic if data-modal-text exists
+            if (modalText) {
+                const randomId = generateUniqueId(4);
+                // Generate the modal
+                const modal = generateModal(modalText, randomId);
+                // Insert the modal after the form
+                form.parentNode.insertBefore(modal, form.nextSibling);
+
+                // Let's get the buttons of the modal so we can attach event listeners
+                const confirmButton = document.getElementById(`${randomId}-submit`);
+                const cancelButton = document.getElementById(`${randomId}-cancel`);
+                const xCancelButton = document.getElementById(`${randomId}-x-cancel`);
+                // There are two close buttons so put them in an array
+                const cancelButtonsArray = [cancelButton, xCancelButton];
+                // Hide the modal
+                modal.classList.remove('hidden');
+
+                // On Yes click on the modal, remove the modal and start the fetch function
+                confirmButton.addEventListener('click', () => {
+                    modal.remove();
+                    let loadingDiv = document.createElement('div');
+                    loadingDiv.classList.add('ml-2');
+                    loadingDiv.innerHTML = `
+                        <div role="status">
+                        <svg aria-hidden="false" class="inline mr-2 w-6 h-6 text-gray-200 dark:text-white animate-spin fill-blue-600 dark:fill-amber-500" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+                            <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+                        </svg>
+                        </div>
+                    `;
+                    form.parentNode.insertBefore(loadingDiv, form.nextSibling);
+                    modal.remove();
+
+                    let responseStatus = 0;
+                    let contentType = '';
+
+                    const formData = new FormData(form);
+
+                    // Convert FormData to JSON object
+                    const jsonObject = {};
+                    formData.forEach((value, key) => {
+                        jsonObject[key] = value;
+                    });
+
+                    fetch(form.action, {
+                        method: form.method,
+                        headers: {
+                            'Content-Type': 'application/json', // Set content type to JSON
+                            'x-csrf-token': form.querySelector('input[name="csrf_token"]').value,
+                            'secretheader': 'badass'
+                        },
+                        body: JSON.stringify(jsonObject), // Convert JSON object to string
+                        redirect: 'manual'
+                    }).then(response => {
+                        contentType = response.headers.get("content-type");
+                        responseStatus = response.status;
+                        // If response is redirect (0) or 403 return by the server, usually token expired, reload the page
+                        if (responseStatus === 0 || responseStatus === 403) {
+                            if (response.type === 'opaqueredirect') {
+                                // redirect to the desired page response.url
+                                location.reload(response.url);
+                            } else {
+                                // Handle fetch interruption
+                                location.reload();
+                            }
+                        } else if (responseStatus === 405) {
+                            return response.text();
+                        } else {
+                            if (contentType && contentType.indexOf("application/json") === -1) {
+                                return response.text();
+                            }
+                            return response.json();
+                        }
+                    }).then(json => {
+                        if (responseStatus === 200 && contentType.indexOf("application/json") > -1) {
+                            // If response is not JSON at all, return the response text as alert
+                            loadingDiv.classList.add('text-green-500', 'font-semibold', 'text-xl');
+                            loadingDiv.innerHTML = '&#x2713;';
+                            // If data-reload is on the form, instruct to reload the page
+                            if (form.getAttribute("data-reload") === "true") {
+                                location.reload();
+                                // Otherwise display the returned data
+                            } else if (form.getAttribute("data-redirect")) {
+                                location.href = form.getAttribute("data-redirect");
+                                // If data-delete-current-row, delete the current <tr> element
+                            } else if (form.getAttribute("data-delete-current-row")) {
+                                // Now find the closest tr and delete it
+                                currentEvent.target.closest("tr").remove();
+                            }
+                        } else {
+                            loadingDiv.remove();
+                            // Restore currentSelection option to what it was
+                            form.firstChild.selectedIndex = currentSelectionIndex;
+                            alert(JSON.stringify(json));
+                        }
+                    })
+                });
+                // If user cancels the modal, again remove the modal and return to the initial button text
+                cancelButtonsArray.forEach(button => {
+                    button.addEventListener('click', () => {
+                        modal.remove();
+                        form.firstChild.selectedIndex = currentSelectionIndex;
+                    })
+                });
+            } else {
+                // If no modal text, directly proceed with the form submission logic
                 let loadingDiv = document.createElement('div');
                 loadingDiv.classList.add('ml-2');
                 loadingDiv.innerHTML = `
@@ -537,9 +628,8 @@ if (changeForms.length > 0) {
                         <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
                     </svg>
                     </div>
-                    `;
+                `;
                 form.parentNode.insertBefore(loadingDiv, form.nextSibling);
-                modal.remove();
 
                 let responseStatus = 0;
                 let contentType = '';
@@ -553,7 +643,7 @@ if (changeForms.length > 0) {
                 });
 
                 fetch(form.action, {
-                    method: 'PUT',
+                    method: form.method,
                     headers: {
                         'Content-Type': 'application/json', // Set content type to JSON
                         'x-csrf-token': form.querySelector('input[name="csrf_token"]').value,
@@ -581,7 +671,6 @@ if (changeForms.length > 0) {
                         }
                         return response.json();
                     }
-                    // Hanle after the response comes
                 }).then(json => {
                     if (responseStatus === 200 && contentType.indexOf("application/json") > -1) {
                         // If response is not JSON at all, return the response text as alert
@@ -590,12 +679,9 @@ if (changeForms.length > 0) {
                         // If data-reload is on the form, instruct to reload the page
                         if (form.getAttribute("data-reload") === "true") {
                             location.reload();
-                            // Otherwise display the returned data
                         } else if (form.getAttribute("data-redirect")) {
                             location.href = form.getAttribute("data-redirect");
-                            // If data-delete-current-row, delete the current <tr> element
                         } else if (form.getAttribute("data-delete-current-row")) {
-                            // Now find the closest tr and delete it
                             currentEvent.target.closest("tr").remove();
                         }
                     } else {
@@ -604,16 +690,8 @@ if (changeForms.length > 0) {
                         form.firstChild.selectedIndex = currentSelectionIndex;
                         alert(JSON.stringify(json));
                     }
-                })
-            });
-            // If user cancels the modal, again remove the modal and return to the initial button text
-            cancelButtonsArray.forEach(button => {
-                button.addEventListener('click', () => {
-                    modal.remove();
-                    form.firstChild.selectedIndex = currentSelectionIndex;
-                })
-            })
-        })
-    })
+                });
+            }
+        });
+    });
 }
-

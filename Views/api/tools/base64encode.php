@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 use App\Api\Response;
 use App\Api\Checks;
 use Components\Html;
