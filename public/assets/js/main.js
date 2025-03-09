@@ -111,6 +111,19 @@ const escapeHtml = (input) => {
     });
 }
 
+function serialize(data) {
+    return Object.keys(data).map(key => 
+        encodeURIComponent(key) + '=' + encodeURIComponent(data[key])
+    ).join('&');
+}
+
+function serializeForBackend(data) {
+    // Convert your data object/array to a serialized format compatible with PHP
+    // This could be a custom serialization function if you want to keep it simple
+    return Object.entries(data).map(([key, value]) => {
+        return `${key}:${typeof value === 'object' ? serializeForBackend(value) : value}`;
+    }).join(';');
+}
 /* Scroll to top button */
 
 // Actual snooth scroll to top function. /8 shows how smooth or quick it should do it
@@ -204,26 +217,56 @@ if (ip) {
 }
 
 // Universal fetch function
-const fetchData = async (url, method, jsonData) => {
-    console.log(jsonData);
-    try {
-        const response = await fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(jsonData),
-            redirect: 'manual'
+async function fetchData(form, resultDiv = null) {
+
+    const formMethod = form.getAttribute('method') // Use this instead of form.method as PUT and DELETE methods are not supported by form.method
+
+    const csrfToken = form.querySelector('input[name="csrf_token"]').value
+    
+    const fetchOptions = {
+        method: formMethod,
+        headers: {
+            'secretheader': 'badass',
+            'X-CSRF-TOKEN': csrfToken
+        },
+        redirect: 'manual'
+    };
+
+    const formData = new FormData(form);
+
+    if (formMethod === 'POST') {
+        // For POST, handle with FormData to allow file uploads
+        fetchOptions.body = formData;
+    } else if (formMethod === 'PUT') {
+        // For PUT, handle with JSON, but no file uploads (as per your original logic)
+        fetchOptions.headers['Content-Type'] = 'application/json';
+
+        // Convert form data to a JavaScript object
+        const formDataObject = {};
+        formData.forEach((value, key) => {
+            formDataObject[key] = value;
         });
 
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-            return await response.json(); // If the response is JSON, parse and return it
+        fetchOptions.body = JSON.stringify(formDataObject);
+    } else if (formMethod === 'DELETE' || formMethod === 'GET') {
+        // For DELETE and GET, handle URL-encoded data (no files)
+        const data = new URLSearchParams(formData);
+        fetchOptions.body = data;
+    } else {
+        // For other methods (like PATCH), use FormData (including file uploads)
+        fetchOptions.body = formData;
+    }
+
+    try {
+        const response = await fetch(form.action, fetchOptions);
+        // Process the response based on the Content-Type header
+        if (response.headers.get('Content-Type').includes('application/json')) {
+            return await response.json(); // If the response is JSON, parse it as JSON
         } else {
-            return await response.text(); // If not JSON, return the response as text
+            return await response.text(); // Otherwise, treat the response as plain text
         }
     } catch (error) {
-        throw new Error(`Fetch error: ${error.message}`);
+        throw new Error(`Failed to fetch: ${error.message}`);
     }
 }
 
@@ -291,6 +334,8 @@ const createLoader = (parentDiv, id, text = null, hidden = false) => {
 
     // Append the loader to the parent div
     parentDiv.appendChild(loaderDiv);
+
+    return loaderDiv;
 };
 
 const loaderString = (text = null) => {
@@ -431,19 +476,7 @@ const toggleBlur = (excludeElement) => {
     }
 }
 
-function serialize(data) {
-    return Object.keys(data).map(key => 
-        encodeURIComponent(key) + '=' + encodeURIComponent(data[key])
-    ).join('&');
-}
 
-function serializeForBackend(data) {
-    // Convert your data object/array to a serialized format compatible with PHP
-    // This could be a custom serialization function if you want to keep it simple
-    return Object.entries(data).map(([key, value]) => {
-        return `${key}:${typeof value === 'object' ? serializeForBackend(value) : value}`;
-    }).join(';');
-}
 
 // Edit button
 
