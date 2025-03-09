@@ -514,8 +514,8 @@ if (selectSubmitterForms.length > 0) {
             form.insertAdjacentElement("afterend", loader);
             try {
                 const response = await fetchData(form);
-                if (response.data === 'success') {
-                    if (form.getAttribute('data-reload')) {
+                if (response.result === 'success') {
+                    if (form.hasAttribute('data-reload')) {
                         location.reload();
                     } else if (form.hasAttribute('data-redirect')) {
                         location.href = form.getAttribute('data-redirect');

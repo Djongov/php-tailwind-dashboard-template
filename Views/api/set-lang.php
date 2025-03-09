@@ -22,7 +22,7 @@ if (MULTILINGUAL) {
         }
         $_SESSION['lang'] = $_POST['lang'];
     }
-    Response::output('success');
+    Response::output([]);
 }
 
 Response::output('Multilingual is disabled', 400);
