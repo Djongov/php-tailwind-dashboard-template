@@ -2,10 +2,10 @@ FROM php:8.4-apache
 ARG SSH_PASSWORD
 # Copy application and configuration files before executing RUN commands
 COPY . /var/www/html/
-COPY config/default.conf /etc/apache2/sites-available/000-default.conf
-COPY config/php.ini /usr/local/etc/php/php.ini
-COPY sshd_config /etc/ssh/sshd_config
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY .tools/deployment/default.conf /etc/apache2/sites-available/000-default.conf
+COPY .tools/deployment/php.ini /usr/local/etc/php/php.ini
+COPY .tools/deployment/sshd_config /etc/ssh/sshd_config
+COPY .tools/deployment/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # Install required packages, configure PHP and services
 RUN apt-get update \

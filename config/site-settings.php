@@ -23,13 +23,13 @@ Branding & SEO Settings
 // Whether to show the loading screen on page load
 define("SHOW_LOADING_SCREEN", true);
 // Site title, Goes on footer and main menu header
-define("SITE_TITLE", "Dashboard Template");
+define("SITE_TITLE", translate('site_title'));
 // Key words for SEO
 define("GENERIC_KEYWORDS", [
     SITE_TITLE,
 ]);
 // Site description for SEO
-define("GENERIC_DESCRIPTION", "Dashboard Template");
+define("GENERIC_DESCRIPTION", translate('site_title'));
 
 // Logo that sits on the menu and the footer
 define("LOGO_SVG", '<svg class="w-10 h-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>');

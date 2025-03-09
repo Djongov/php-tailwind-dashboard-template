@@ -5,8 +5,8 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./config/nginx.conf:/etc/nginx/nginx.conf
-      - ./config/php.ini:/usr/local/etc/php/php.ini
+      - ./.tools/deployment/:/etc/nginx/nginx.conf
+      - ./.tools/deployment/php.ini:/usr/local/etc/php/php.ini
       # Add other configuration files as needed
       - ./public:/var/www/html/public
     # other configurations for nginx service
@@ -14,7 +14,7 @@ services:
   php:
     build: .
     volumes:
-      - ./config/php.ini:/usr/local/etc/php/php.ini
+      - ./.tools/deployment/php.ini:/usr/local/etc/php/php.ini
       # Add other configuration files as needed
       - ./public:/var/www/html/public
     # other configurations for php-fpm service

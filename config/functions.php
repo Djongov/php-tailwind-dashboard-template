@@ -48,7 +48,7 @@ function translate(string $key, array $replace = []): string
 {
     static $translations = [];
 
-    $lang = $_SESSION['lang'] ?? 'bg'; // Default to English
+    $lang = $_SESSION['lang'] ?? 'en'; // Default to English
 
     // Get project root (parent of public/)
     $projectRoot = ROOT;

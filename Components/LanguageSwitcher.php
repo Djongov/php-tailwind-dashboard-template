@@ -28,7 +28,6 @@ class LanguageSwitcher
             
                 return $flags[$code] ?? '';  // Returns the flag for the language code, or an empty string if not found
             }
-
             // Loop through languages and set the selected one
             foreach ($languages as $code => $language) {
                 $selected = ($_SESSION['lang'] ?? 'en') === $code ? 'selected' : '';

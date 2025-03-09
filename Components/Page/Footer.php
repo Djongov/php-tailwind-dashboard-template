@@ -7,7 +7,7 @@ class Footer
     {
         $html = '';
         $siteTitle = SITE_TITLE;
-        $currentYear = date('Y');
+        $currentYear = '2023-' . date('Y');
         $footerClass = 'mt-auto ' . LIGHT_COLOR_SCHEME_CLASS . ' ' . DARK_COLOR_SCHEME_CLASS;
         $textClass = TEXT_COLOR_SCHEME . ' ' . TEXT_DARK_COLOR_SCHEME;
         $html .= <<<HTML
