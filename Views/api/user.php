@@ -134,12 +134,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
         Response::output('You cannot edit another user data', 401);
     }
 
-    if (isset($data['passwword'], $data['confirm_password'])) {
-        if ($data['password'] !== $data['confirm_password']) {
-            Response::output('Passwords do not match', 400);
-        }
+    if (isset($data['password']) && isset($data['confirm_password']) && $data['password'] !== $data['confirm_password']) {
+        Response::output('Passwords do not match', 400);
+    }
+
+    if (isset($data['password'])) {
         $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
     }
+
+    // There is a token claim for roles which is an array of roles, let's look for an administrator role
+    if (isset($data['role'])) {
+        if (!in_array('administrator', $tokenData['roles'])) {
+            Response::output('only administrators can change roles', 401);
+        }
+    }
+    
 
     unset($data['confirm_password']);
     unset($data['csrf_token']);
@@ -180,6 +189,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 
     $checks = new Checks($vars, []);
     $checks->apiChecksDelete($_GET['csrf_token']);
+
+    $tokenData = JWT::parseTokenPayLoad(AuthToken::get());
+
+    $dbUserData = $user->get($userId);
+    
+    // Let's comapre
+    if (isset($tokenData['preferred_username'])) {
+        $dbUserDataFromToken = $tokenData['preferred_username'];
+    } elseif (isset($tokenData['username'])) {
+        $dbUserDataFromToken = $tokenData['username'];
+    } else {
+        // fallback to email
+        $dbUserDataFromToken = $tokenData['email'];
+    }
+
+    if ($dbUserData['username'] !== $dbUserDataFromToken) {
+        Response::output('You cannot delete another user', 401);
+    }
 
     $user = new User();
 
