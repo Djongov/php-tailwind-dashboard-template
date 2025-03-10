@@ -3,35 +3,63 @@ const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
 const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
 const themeToggleBtn = document.getElementById('theme-toggle');
 
+const getCurrentTheme = () => localStorage.getItem('color-theme') || 'light';
+
+const updateChartThemes = () => {
+    const isDark = document.documentElement.classList.contains('dark');
+
+    Chart.helpers.each(Chart.instances, function (chart) {
+        if (chart) {
+            const options = chart.options;
+
+            // Update legend text color
+            if (options.plugins?.legend?.labels) {
+                options.plugins.legend.labels.color = isDark ? "#E5E7EB" : "#111827";
+            }
+
+            // Update title text color
+            if (options.plugins?.title) {
+                options.plugins.title.color = isDark ? "#E5E7EB" : "#111827";
+            }
+
+            // Update axes colors (only if scales exist)
+            if (options.scales) {
+                if (options.scales.x) {
+                    options.scales.x.ticks.color = isDark ? "#E5E7EB" : "#111827";
+                }
+                if (options.scales.y) {
+                    options.scales.y.ticks.color = isDark ? "#E5E7EB" : "#111827";
+                }
+            }
+
+            chart.update();
+        }
+    });
+};
 // Function to set button state based on localStorage
 const setButtonStateFromLocalStorage = () => {
-    if (localStorage.getItem('color-theme') === 'dark') {
+    if (getCurrentTheme() === 'dark') {
         themeToggleDarkIcon.classList.add('hidden');
         themeToggleLightIcon.classList.remove('hidden');
+        document.documentElement.classList.add('dark');
     } else {
         themeToggleDarkIcon.classList.remove('hidden');
         themeToggleLightIcon.classList.add('hidden');
+        document.documentElement.classList.remove('dark');
     }
 };
 
 // Event listener for theme toggle button
 if (themeToggleBtn) {
     themeToggleBtn.addEventListener('click', () => {
-        // Toggle icons inside button
-        themeToggleDarkIcon.classList.toggle('hidden');
-        themeToggleLightIcon.classList.toggle('hidden');
+        // Toggle theme class
+        document.documentElement.classList.toggle('dark');
+        const newTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+        localStorage.setItem('color-theme', newTheme);
 
-        // Toggle theme in current tab
-        if (document.documentElement.classList.contains('dark')) {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('color-theme', 'light');
-        } else {
-            document.documentElement.classList.add('dark');
-            localStorage.setItem('color-theme', 'dark');
-        }
-
-        // Set button state in current tab
+        // Update button state and charts
         setButtonStateFromLocalStorage();
+        updateChartThemes();
     });
 }
 
@@ -39,15 +67,13 @@ if (themeToggleBtn) {
 window.addEventListener('storage', (event) => {
     if (event.key === 'color-theme') {
         setButtonStateFromLocalStorage();
+        updateChartThemes();
     }
 });
 
-// Initially set button state when the page loads
+// Initially set button state and update chart themes when the page loads
 setButtonStateFromLocalStorage();
-
-const getCurrentTheme = () => {
-    return localStorage.getItem('color-theme') || 'light';
-};
+updateChartThemes();
 
 // I want to set a constant called 'theme' that will be used across the script, its value needs to be taken from 'input[type="hidden"][name="theme"]' if there such an elememt, if not it needs to be 'sky'
 
@@ -61,7 +87,7 @@ const backButtons = document.querySelectorAll('.back-button');
 if (backButtons.length > 0) {
     backButtons.forEach(button => {
         button.addEventListener('click', () => {
-            if (history.length > 1) {
+            if (history.length > 1 || document.referrer) {
                 history.back();
             } else {
                 location.href = '/'
