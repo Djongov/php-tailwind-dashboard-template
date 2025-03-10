@@ -522,6 +522,9 @@ if (selectSubmitterForms.length > 0) {
                     } else {
                         console.log(response.data);
                     }
+                } else {
+                    // Let's pop the screen with the error message
+                    window.alert(response.data);
                 }
             } catch (error) {
                 console.error('Error:', error);

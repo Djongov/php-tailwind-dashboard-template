@@ -120,10 +120,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
     // Now let's parse the token
     $tokenData = JWT::parseTokenPayLoad(AuthToken::get());
 
-    $dbUserDataFromToken = $user->get($tokenData['username']);
+    if (isset($tokenData['preferred_username'])) {
+        $dbUserDataFromToken = $tokenData['preferred_username'];
+    } elseif (isset($tokenData['username'])) {
+        $dbUserDataFromToken = $tokenData['username'];
+    } else {
+        // fallback to email
+        $dbUserDataFromToken = $tokenData['email'];
+    }
     
     // Check if user id in path matches the one in the token, unless the user is an admin
-    if ($dbUserData['id'] !== $dbUserDataFromToken['id'] && !$isAdmin) {
+    if ($dbUserData['username'] !== $dbUserDataFromToken) {
         Response::output('You cannot edit another user data', 401);
     }
 
