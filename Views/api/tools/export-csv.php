@@ -43,10 +43,11 @@ $output = fopen('php://output', 'w');
 // Assuming that the first element of $data contains the keys (column names)
 
 $columnNames = array_keys(reset($data));
-fputcsv($output, $columnNames, ";");
+fputcsv($output, $columnNames, ";", '"', "\\");
+
 
 foreach ($data as $row) {
-    fputcsv($output, $row, ";");
+    fputcsv($output, $row, ";", '"', "\\");
 }
 
 
