@@ -1,18 +1,19 @@
 <?php declare(strict_types=1);
 
-// Path: Models/Api/Firewall.php
+// Path: Models/Firewall.php
 
-// Called in /Controllers/Api/Firewall.php
+// Called in /Controllers/Firewall.php
 
 // Responsible for handling the firewall table in the database CRUD operations
 
-namespace Models\Api;
+namespace Models;
 
 use App\Database\DB;
 use App\Exceptions\FirewallException;
 use App\Logs\SystemLog;
+use Models\BasicModel;
 
-class Firewall
+class Firewall extends BasicModel
 {
     private $table = 'firewall';
     private $mainColumn = 'ip_cidr';
@@ -52,16 +53,18 @@ class Firewall
      * @return     array returns the IP data as an associative array and if no parameter is provided, returns fetch_all
      * @throws     FirewallException, IPDoesNotExist, InvalidIP from formatIp
      */
-    public function get(string|int $param) : array
+    public function get(string|int|null $param = null, ?string $sort = null, ?int $limit = null, ?string $orderBy = null): array
     {
         $db = new DB();
         $pdo = $db->getConnection();
-        // if the parameter is empty, we assume we want all the IPs
-        if (empty($param)) {
-            $stmt = $pdo->query("SELECT * FROM $this->table");
+
+        if (!$param) {
+            $query = "SELECT * FROM $this->table";
+            $query = self::applySortingAndLimiting($query, $orderBy, $sort, $limit);
+            $stmt = $pdo->query($query);
             return $stmt->fetchAll(\PDO::FETCH_ASSOC);
         }
-        // If the parameter is an integer, we assume it's an ID
+
         if (is_int($param)) {
             if (!$this->exists($param)) {
                 throw (new FirewallException())->ipDoesNotExist();
@@ -70,9 +73,7 @@ class Firewall
             $stmt->execute([$param]);
             return $stmt->fetch(\PDO::FETCH_ASSOC);
         } else {
-            // Format the IP
             $param = $this->formatIp($param);
-            // Check if IP exists
             if (!$this->exists($param)) {
                 throw (new FirewallException())->ipDoesNotExist();
             }

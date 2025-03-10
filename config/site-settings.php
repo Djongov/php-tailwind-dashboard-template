@@ -10,8 +10,7 @@ if (ini_get('display_errors') == 1) {
     define('ERROR_VERBOSE', false);
 }
 
-define('SYSTEM_USER_AGENT', 'dashboardTemplate/1.0');
-
+$version = trim(file_get_contents(dirname($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'version.txt'));
 
 define('MULTILINGUAL', true);
 
@@ -24,6 +23,9 @@ Branding & SEO Settings
 define("SHOW_LOADING_SCREEN", true);
 // Site title, Goes on footer and main menu header
 define("SITE_TITLE", translate('site_title'));
+
+define('SYSTEM_USER_AGENT', SITE_TITLE . '/' . $version . ' (+https://' . $_SERVER['HTTP_HOST'] . ')');
+
 // Key words for SEO
 define("GENERIC_KEYWORDS", [
     SITE_TITLE,

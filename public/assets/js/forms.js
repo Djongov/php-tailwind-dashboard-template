@@ -75,12 +75,13 @@ const generateModal = (text, id) => {
 
 // This function handles the form submission, takes care of the result div where data return is displayed
 const handleFormFetch = (form, currentEvent, resultType) => {
-    const resultDiv = form.nextSibling;
-    if (resultDiv && resultDiv.classList.contains('generic-form-submit-div')) {
+    const resultDiv = document.getElementById(`${form.id}-result`);
+    
+    if (resultDiv?.classList.contains('generic-form-submit-div')) {
         resultDiv.remove();
     }
-    let newResultDiv = document.createElement('div');
-    newResultDiv.classList.add('ml-4', 'my-4', 'text-gray-900', 'dark:text-gray-300', 'generic-form-submit-div', 'break-all');
+    
+    let newResultDiv = createFormResultDiv(form);
     form.parentNode.insertBefore(newResultDiv, form.nextSibling);
     //const initialClasses = currentEvent.submitter.className;
     const initialSubmitName = currentEvent.submitter.innerText;
@@ -449,8 +450,6 @@ const initiateGenericForms = () => {
     if (genericForms.length === 0) {
         return;
     }
-
-    console.log(`Initializing ${genericForms.length} generic forms`);
     // Loop through each
     genericForms.forEach(form => {
         // Let's search for checkbox groups in the form. They all start with checkbox-group- followed by a random string. Let's try to catch each group
@@ -478,12 +477,6 @@ const initiateGenericForms = () => {
             const formId = generateUniqueId(4);
             form.id = formId;
         }
-
-        // Let's create the resultDiv where we will show the result of the form submission
-        let resultDiv = createFormResultDiv(form);
-
-        // Insert the resultDiv after the form
-        form.parentNode.insertBefore(resultDiv, form.nextSibling);
 
         // Check if the event listener is already attached
         if (!form.hasAttribute('data-submit-listener')) {
@@ -531,7 +524,7 @@ const handleFetchDataResponse = (response, form) => {
         const resultDiv = document.getElementById(`${form.id}-result`);
         // If the result div is already there, empty it
         if (resultDiv) {
-            resultDiv.innerHTML = '';
+            resultDiv.remove();
         }
         // Create a new result div
         let newResultDiv = createFormResultDiv(form);

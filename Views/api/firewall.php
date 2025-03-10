@@ -2,7 +2,7 @@
 
 use App\Api\Response;
 use App\Api\Checks;
-use Controllers\Api\Firewall;
+use Controllers\Firewall;
 
 // This is the API view for the firewall. It allows to add, update, delete and get IPs from the firewall
 

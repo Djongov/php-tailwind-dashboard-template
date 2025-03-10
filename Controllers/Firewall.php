@@ -6,9 +6,9 @@
 
 // Responsible for handling the CRUD api calls for the firewall table in the database and returning the appropriate api json response
 
-namespace Controllers\Api;
+namespace Controllers;
 
-use Models\Api\Firewall as FirewallModel;
+use Models\Firewall as FirewallModel;
 use App\Exceptions\FirewallException;
 use App\Api\Response;
 

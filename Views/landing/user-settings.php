@@ -4,7 +4,7 @@ use App\Utilities\General;
 use Components\Forms;
 use Components\Html;
 use App\Authentication\JWT;
-use Models\Api\User;
+use Models\User;
 use App\Exceptions\UserExceptions;
 use App\Request\HttpClient;
 use App\Authentication\AuthToken;

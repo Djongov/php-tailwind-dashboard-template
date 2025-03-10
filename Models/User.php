@@ -1,12 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Models\Api;
+namespace Models;
 
 use App\Database\DB;
 use App\Logs\SystemLog;
 use App\Exceptions\UserExceptions;
+use Models\BasicModel;
 
-class User
+class User extends BasicModel
 {
     // Existence checks
     public function exists(string|int $param) : bool
@@ -31,6 +32,7 @@ class User
             // Let's pull all
             try {
                 $result = $pdo->query("SELECT * FROM users");
+
                 $array = $result->fetchAll(\PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
                 throw (new UserExceptions())->generic($e->getMessage(), 500);

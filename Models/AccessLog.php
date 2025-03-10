@@ -54,25 +54,14 @@ class AccessLog extends BasicModel
      * @return     array returns the IP data as an associative array and if no parameter is provided, returns fetch_all
      * @throws     AccessLogException
      */
-    public function get(string|int $param = null, ?string $sort = null, ?int $limit = null, ?string $orderBy = null) : array
+    public function get(string|int|null $param = null, ?string $sort = null, ?int $limit = null, ?string $orderBy = null) : array
     {
         $db = new DB();
         $pdo = $db->getConnection();
         // if the parameter is empty, we assume we want all the IPs
         if (!$param) {
             $query = "SELECT * FROM $this->table";
-            // If limit is set, we will limit the results
-            if ($orderBy === null) {
-                $query .= " ORDER BY $orderBy";
-            } else {
-                $query .= " ORDER BY $orderBy $sort";
-            }
-            if ($sort === null) {
-                $query .= " ASC";
-            }
-            if ($limit) {
-                $query .= " LIMIT $limit";
-            }
+            $query = self::applySortingAndLimiting($query, $orderBy, $sort, $limit);
             $stmt = $pdo->query($query);
             return $stmt->fetchAll(\PDO::FETCH_ASSOC);
         }

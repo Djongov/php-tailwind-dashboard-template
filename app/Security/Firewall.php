@@ -4,7 +4,6 @@ namespace App\Security;
 use App\Database\DB;
 use App\Api\Response;
 use App\Logs\SystemLog;
-use App\Utilities\IP;
 
 class Firewall
 {

@@ -2,7 +2,7 @@
 
 use App\Api\Response;
 use App\Api\Checks;
-use Controllers\Api\User;
+use Controllers\User;
 use App\Authentication\JWT;
 use App\Authentication\AuthToken;
 use App\Logs\SystemLog;

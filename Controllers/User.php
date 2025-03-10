@@ -1,13 +1,12 @@
 <?php declare(strict_types=1);
 
 // This is the model of the User Api
-namespace Controllers\Api;
+namespace Controllers;
 
 use App\Api\Response;
 use App\Api\Checks;
-use Models\Api\User as UserModel;
+use Models\User as UserModel;
 use App\Exceptions\UserExceptions;
-use App\Logs\SystemLog;
 
 class User
 {

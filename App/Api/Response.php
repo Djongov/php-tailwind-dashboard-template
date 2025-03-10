@@ -2,7 +2,7 @@
 
 namespace App\Api;
 
-use Controllers\Api\AccessLog;
+use Controllers\AccessLog;
 
 class Response
 {

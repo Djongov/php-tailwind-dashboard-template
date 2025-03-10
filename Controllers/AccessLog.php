@@ -6,7 +6,7 @@
 
 // Responsible for handling the CRUD api calls for the firewall table in the database and returning the appropriate api json response
 
-namespace Controllers\Api;
+namespace Controllers;
 
 use Models\AccessLog as AccessLogModel;
 use App\Exceptions\AccessLogException;

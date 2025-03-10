@@ -2,7 +2,7 @@
 
 namespace App;
 
-use Models\Api\User;
+use Models\User;
 use App\Authentication\Azure\AzureAD;
 use App\Authentication\JWT;
 use App\Authentication\Google;

@@ -3,6 +3,7 @@
 use App\Api\Response;
 use App\Api\Checks;
 use App\Security\Firewall;
+use Components\Alerts;
 
 Firewall::activate();
 
@@ -25,5 +26,5 @@ $file = ini_get('error_log');
 if (is_writable($file)) {
     file_put_contents($file, '');
 } else {
-    echo '<p class="text-red-500 text-bold">File (' . $file . ') not editable</p>';
+    echo Alerts::danger('File (' . $file . ') not editable');
 }

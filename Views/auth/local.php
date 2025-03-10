@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 
-use Controllers\Api\User;
+use Controllers\User;
 use App\Api\Response;
 use App\Exceptions\UserExceptions;
 use App\Api\Checks;

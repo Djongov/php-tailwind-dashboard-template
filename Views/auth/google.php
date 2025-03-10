@@ -3,7 +3,7 @@
 use App\Authentication\Google;
 use App\Api\Response;
 use Google\Client;
-use Controllers\Api\User;
+use Controllers\User;
 use Models\Api\User as UserModel;
 use App\Authentication\JWT;
 use App\Authentication\AuthToken;

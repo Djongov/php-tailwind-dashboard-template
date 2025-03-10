@@ -3,7 +3,7 @@
 use App\Api\Response;
 use App\Authentication\JWT;
 use App\Authentication\Azure\AzureAD;
-use Controllers\Api\User;
+use Controllers\User;
 use Models\Api\User as UserModel;
 use App\Authentication\AuthToken;
 
