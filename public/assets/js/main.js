@@ -243,11 +243,10 @@ if (ip) {
 }
 
 // Universal fetch function
-async function fetchData(form, resultDiv = null) {
+async function fetchData(form, resultDivId = null, resultType = null) {
+    const formMethod = form.getAttribute('method'); // Use getAttribute to get PUT/DELETE
 
-    const formMethod = form.getAttribute('method') // Use this instead of form.method as PUT and DELETE methods are not supported by form.method
-
-    const csrfToken = form.querySelector('input[name="csrf_token"]').value
+    const csrfToken = form.querySelector('input[name="csrf_token"]').value;
     
     const fetchOptions = {
         method: formMethod,
@@ -261,38 +260,89 @@ async function fetchData(form, resultDiv = null) {
     const formData = new FormData(form);
 
     if (formMethod === 'POST') {
-        // For POST, handle with FormData to allow file uploads
         fetchOptions.body = formData;
     } else if (formMethod === 'PUT') {
-        // For PUT, handle with JSON, but no file uploads (as per your original logic)
         fetchOptions.headers['Content-Type'] = 'application/json';
-
-        // Convert form data to a JavaScript object
         const formDataObject = {};
         formData.forEach((value, key) => {
             formDataObject[key] = value;
         });
-
         fetchOptions.body = JSON.stringify(formDataObject);
     } else if (formMethod === 'DELETE' || formMethod === 'GET') {
-        // For DELETE and GET, handle URL-encoded data (no files)
-        const data = new URLSearchParams(formData);
-        fetchOptions.body = data;
+        fetchOptions.body = new URLSearchParams(formData);
     } else {
-        // For other methods (like PATCH), use FormData (including file uploads)
         fetchOptions.body = formData;
     }
 
-    try {
-        const response = await fetch(form.action, fetchOptions);
-        // Process the response based on the Content-Type header
-        if (response.headers.get('Content-Type').includes('application/json')) {
-            return await response.json(); // If the response is JSON, parse it as JSON
+    const response = await fetch(form.action, fetchOptions);
+    const responseStatus = response.status;
+    let responseData = null;
+
+    if (response.status === 0 || response.status === 403) {
+        if (response.type === 'opaqueredirect') {
+            // redirect to the desired page response.url
+            location.reload(response.url);
         } else {
-            return await response.text(); // Otherwise, treat the response as plain text
+            location.reload();
         }
-    } catch (error) {
-        throw new Error(`Failed to fetch: ${error.message}`);
+    }
+
+    if (form.getAttribute("data-reload") === "true") {
+        location.reload();
+        // Otherwise display the returned data
+    } else if (form.getAttribute("data-redirect")) {
+        location.href = form.getAttribute("data-redirect");
+        // If data-delete-current-row, delete the current <tr> element
+    } else if (form.getAttribute("data-delete-current-row")) {
+        // Now find the closest tr and delete it
+        currentEvent.target.closest("tr").remove();
+    }
+
+    const resultDiv = (resultDivId) ? document.getElementById(resultDivId) : document.getElementById(`${form.id}-result`);
+
+    const contentType = response.headers.get('Content-Type') || '';
+
+    if (contentType.includes('application/json')) {
+        responseData = await response.json();
+        responseType = 'json'; // Mark it as JSON
+    } else {
+        responseData = await response.text();
+    }
+
+
+
+    let returnData = '';
+    if (resultType === null) {
+        if (responseStatus >= 400) {
+            window.alert(`Error: ${responseData.data}`);
+        }
+
+        return;
+    }
+    if (responseType === 'json') {
+        console.log("Handling JSON response");
+        
+        if (responseType === 'json' && responseData.result) {
+            returnData = responseData.data || responseData;
+        } else {
+            returnData = responseData;
+        }
+        let text = 'green';
+        if (responseStatus >= 400) {
+            text = 'red';
+        }
+    } else {
+        console.log("Handling text response");
+        returnData = responseData;
+        resultDiv.innerHTML = returnData;
+    }
+
+    if (resultType === 'text') {
+        resultDiv.innerText = returnData;
+    } else if (resultType === 'json') {
+        resultDiv.innerHTML = `<p class="w-fit text-white bg-${text}-500 font-semibold p-1 border border-gray-900 rounded-md">${returnData}</p>`;
+    } else {
+        resultDiv.innerHTML = returnData;
     }
 }
 

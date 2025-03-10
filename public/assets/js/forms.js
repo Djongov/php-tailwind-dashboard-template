@@ -446,58 +446,128 @@ const initiateGenericForms = () => {
     const genericForms = document.querySelectorAll('form.generic-form');
 
     // If there are any forms
-    if (genericForms.length > 0) {
-        console.log(`Initializing ${genericForms.length} generic forms`);
-        // Loop through each
-        genericForms.forEach(form => {
-            // Let's search for checkbox groups in the form. They all start with checkbox-group- followed by a random string. Let's try to catch each group
-            const checkboxesInGroups = form.querySelectorAll('[class*="checkbox-group-"]');
+    if (genericForms.length === 0) {
+        return;
+    }
 
-            checkboxesInGroups.forEach(checkbox => {
-                const groupName = checkbox.classList[checkbox.classList.length - 1];
+    console.log(`Initializing ${genericForms.length} generic forms`);
+    // Loop through each
+    genericForms.forEach(form => {
+        // Let's search for checkbox groups in the form. They all start with checkbox-group- followed by a random string. Let's try to catch each group
+        const checkboxesInGroups = form.querySelectorAll('[class*="checkbox-group-"]');
 
-                const checkboxesPerGroup = form.querySelectorAll(`.${groupName}`);
+        checkboxesInGroups.forEach(checkbox => {
+            const groupName = checkbox.classList[checkbox.classList.length - 1];
 
-                checkboxesPerGroup.forEach(groupCheckbox => {
-                    groupCheckbox.addEventListener('change', () => {
-                        // Uncheck other checkboxes in the same group
-                        checkboxesPerGroup.forEach(otherCheckbox => {
-                            if (otherCheckbox !== groupCheckbox && otherCheckbox.type === 'checkbox') {
-                                otherCheckbox.checked = false;
-                            }
-                        });
+            const checkboxesPerGroup = form.querySelectorAll(`.${groupName}`);
+
+            checkboxesPerGroup.forEach(groupCheckbox => {
+                groupCheckbox.addEventListener('change', () => {
+                    // Uncheck other checkboxes in the same group
+                    checkboxesPerGroup.forEach(otherCheckbox => {
+                        if (otherCheckbox !== groupCheckbox && otherCheckbox.type === 'checkbox') {
+                            otherCheckbox.checked = false;
+                        }
                     });
                 });
             });
-                
-
-            // Check if the event listener is already attached
-            if (!form.hasAttribute('data-submit-listener')) {
-                // Attach submit event
-                form.addEventListener('submit', (event) => {
-                    // Prevent normal submitting only if target is not _blank
-                    if (form.getAttribute('target') !== '_blank') {
-                        event.preventDefault();
-                    }
-                    // Check the result type (text or html) if declared in the form
-                    let resultType = form.getAttribute('data-result');
-                    // Remember the initial button text
-                    const initialButtonText = event.submitter.innerText;
-                    // If there is a confirm required (via confirm class)
-                    if (form.classList.contains('confirm')) {
-                        // use the handle with confirm function
-                        handleFormSubmitWithConfirm(event, form, initialButtonText, resultType);
-                    } else {
-                        // Otherwise just proceed with the fetch
-                        handleFormFetch(form, event, resultType);
-                    }
-                });
-
-                // Mark the form to indicate that the listener is attached
-                form.setAttribute('data-submit-listener', 'true');
-            }
         });
-    }
+
+        // let's check if the form has an id, if not generate one
+        if (!form.id) {
+            const formId = generateUniqueId(4);
+            form.id = formId;
+        }
+
+        // Let's create the resultDiv where we will show the result of the form submission
+        let resultDiv = createFormResultDiv(form);
+
+        // Insert the resultDiv after the form
+        form.parentNode.insertBefore(resultDiv, form.nextSibling);
+
+        // Check if the event listener is already attached
+        if (!form.hasAttribute('data-submit-listener')) {
+            // Attach submit event
+            form.addEventListener('submit', (event) => {
+                // Prevent normal submitting only if target is not _blank
+                if (form.getAttribute('target') !== '_blank') {
+                    event.preventDefault();
+                }
+                // Disable the submitter as someone can click multiple times sending multiple requests
+                event.submitter.disabled = true;
+                // Check the result type (text or html) if declared in the form
+                let resultType = form.getAttribute('data-result');
+                // Remember the initial button text
+                const initialButtonText = event.submitter.innerText;
+                // Now turn the button text to a spinner
+                // If there is a confirm required (via confirm class)
+                if (form.classList.contains('confirm')) {
+                    // use the handle with confirm function
+                    handleFormSubmitWithConfirm(event, form, initialButtonText, resultType);
+                } else {
+                    // Otherwise just proceed with the fetch
+                    handleFormFetch(form, event, resultType);
+                }
+            });
+            // Mark the form to indicate that the listener is attached
+            form.setAttribute('data-submit-listener', 'true');
+        }
+    });
+}
+
+const createFormResultDiv = (form) => {
+    // Let's create the resultDiv where we will show the result of the form submission
+    let resultDiv = document.createElement('div');
+    const resultDivId = `${form.id}-result`;
+    resultDiv.id = resultDivId;
+    resultDiv.classList.add('text-gray-900', 'dark:text-gray-300', 'generic-form-submit-div', 'break-all');
+    return resultDiv;
+}
+
+const handleFetchDataResponse = (response, form) => {
+    // So the response is a Promise, so let's resolve it
+    response.then(response => {
+        // Let's get the result div
+        const resultDiv = document.getElementById(`${form.id}-result`);
+        // If the result div is already there, empty it
+        if (resultDiv) {
+            resultDiv.innerHTML = '';
+        }
+        // Create a new result div
+        let newResultDiv = createFormResultDiv(form);
+        form.parentNode.insertBefore(newResultDiv, form.nextSibling);
+        // If the response is a string
+        if (typeof response === 'string') {
+            // If the result type is html, display the response as html
+            if (form.getAttribute('data-result') === 'html') {
+                newResultDiv.innerHTML = response;
+            } else {
+                newResultDiv.innerText = response;
+            }
+            // If there is a reload attribute on the form, reload the page
+            if (form.getAttribute('data-reload') === 'true') {
+                location.reload();
+            } else if (form.getAttribute('data-redirect')) {
+                location.href = form.getAttribute('data-redirect');
+            }
+            // If there are any tables in the result, there is a good chance that they are datagrids and will need initialization
+            const tablesArray = newResultDiv.querySelectorAll('table');
+            if (tablesArray.length > 0) {
+                tablesArray.forEach(table => {
+                    const tableId = table.getAttribute('id');
+                    const dataTable = drawDataGrid(tableId);
+                    buildDataGridFilters(dataTable, tableId, []);
+                    dataTable.on('draw', () => {
+                        buildDataGridFilters(dataTable, tableId, []);
+                    });
+                })
+            }
+            // If there were copy buttons in the response, let's initiate them
+            copyToClipboard();
+            // If we have html coming in, it could hold other forms, so let's initiate them. So let's find if there is a form.generic selector in the response
+            initiateGenericForms();
+        }
+    })
 }
 
 initiateGenericForms();
@@ -506,31 +576,11 @@ const selectSubmitterForms = document.querySelectorAll('form.select-submitter');
 
 if (selectSubmitterForms.length > 0) {
     selectSubmitterForms.forEach(form => {
-        const currentSelectionIndex = form.firstChild.selectedIndex;
         form.addEventListener('change', async (event) => {
-            //const currentSelectedOption = form.firstChild.options[form.firstChild.selectedIndex].value;
             event.preventDefault();
             const loader = createLoader(form, generateUniqueId(4));
             form.insertAdjacentElement("afterend", loader);
-            try {
-                const response = await fetchData(form);
-                if (response.result === 'success') {
-                    if (form.hasAttribute('data-reload')) {
-                        location.reload();
-                    } else if (form.hasAttribute('data-redirect')) {
-                        location.href = form.getAttribute('data-redirect');
-                    } else {
-                        console.log(response.data);
-                    }
-                } else {
-                    // Let's pop the screen with the error message
-                    window.alert(response.data);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                // Return the select to the original selection
-                form.firstChild.selectedIndex = currentSelectionIndex;
-            }
+            await fetchData(form);
             loader.remove();
         });
     });

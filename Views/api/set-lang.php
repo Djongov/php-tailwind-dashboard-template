@@ -2,7 +2,6 @@
 
 use App\Api\Response;
 
-
 if (MULTILINGUAL) {
 
     if (isset($_POST['lang'])) {

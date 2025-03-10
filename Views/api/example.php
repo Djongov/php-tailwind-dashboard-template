@@ -4,6 +4,9 @@ use App\Api\Response;
 
 sleep(1);
 
+//Response::output('This is a test response', 400);
+//Response::output('This is a test response');
+
 // Run htmlspecialchars on $_POST with array_map intead of array_filter to avoid removing empty values
 $_POST = array_map(function ($value) {
     return htmlspecialchars($value);

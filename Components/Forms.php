@@ -30,8 +30,8 @@ class Forms
         $html .= '<div class="w-max-full">';
             // Prepare an id for the form, if passed
             $id = (isset($options['id'])) ? 'id="' . $options['id'] . '"' : 'id="' . uniqid() . '"';
-            
-            $html .= '<form ' . $id . ' class="' . self::formClasses($options) . '" action="' . $options['action'] . '"' . $formAttributes . ' ' . $target . '>';
+            $method = (isset($options['method'])) ? $options['method'] : 'POST';
+            $html .= '<form ' . $id . ' class="' . self::formClasses($options) . '" action="' . $options['action'] . '"' . $formAttributes . ' ' . $target . ' method="' . $method . '">';
 
             if (!isset($options['inputs'])) {
                 throw new \Exception('inputs is a required form option');
