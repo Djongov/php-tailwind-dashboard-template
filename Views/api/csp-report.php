@@ -24,19 +24,17 @@ if (!isset($jsonArray['csp-report'])) {
 }
 
 // Now let's check if the directives are present
-$expectedDirectives = ['document-uri', 'referrer', 'violated-directive', 'effective-directive', 'original-policy', 'disposition', 'blocked-uri', 'status-code', 'script-sample'];
+$expectedDirectives = ['document-uri', 'referrer', 'violated-directive', 'effective-directive', 'original-policy', 'disposition', 'blocked-uri', 'status-code'];
 
 foreach ($expectedDirectives as $directive) {
     if (!isset($jsonArray['csp-report'][$directive])) {
         Response::output($directive . ' missing', 400);
     }
 }
-
 // There are cases where the document-uri is "about". We want to ignore these cases. We get about when something like TinyMCE is used to add content from somewhere else, very dynamic and not a security issue but it can flood the database and there is not way to understand where it is coming from.
 // if ($jsonArray['csp-report']['document-uri'] === 'about') {
 //     Response::output('Document URI is about', 400);
 // }
-
 // Now let's check if the domain is allowed
 $domain = parse_url($jsonArray['csp-report']['document-uri'], PHP_URL_HOST);
 
